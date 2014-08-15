@@ -17,60 +17,129 @@
  */
 package org.isisaddons.module.security.dom.feature;
 
-import javax.jdo.annotations.Column;
-import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.IdentityType;
-import javax.jdo.annotations.InheritanceStrategy;
-import javax.jdo.annotations.Queries;
-import javax.jdo.annotations.Query;
-
-import com.google.common.collect.ComparisonChain;
-
-import org.apache.isis.applib.annotation.Hidden;
+import java.nio.charset.Charset;
+import java.util.Iterator;
+import java.util.List;
+import java.util.SortedSet;
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.common.io.BaseEncoding;
+import org.apache.isis.applib.ViewModel;
 import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.Title;
+import org.apache.isis.applib.util.ObjectContracts;
 
-@javax.jdo.annotations.PersistenceCapable(identityType = IdentityType.DATASTORE)
-@javax.jdo.annotations.Inheritance(strategy = InheritanceStrategy.NEW_TABLE)
-@javax.jdo.annotations.DatastoreIdentity(strategy = IdGeneratorStrategy.NATIVE, column = "id")
-@Queries({
-        @Query(name = "allByName", language = "JDOQL",
-                value = "SELECT FROM org.isisaddons.security.dom.ApplicationFeature "
-                        + "ORDER BY name"),
-        @Query(name = "findByName", language = "JDOQL",
-                value = "SELECT FROM org.isisaddons.security.dom.ApplicationFeature "
-                        + "WHERE name == :name"),
-        @Query(name = "findByPackageName", language = "JDOQL",
-                value = "SELECT FROM org.isisaddons.security.dom.ApplicationFeature "
-                        + "WHERE packageName == :packageName"),
-        @Query(name = "allPackageNames", language = "JDOQL",
-                value = "SELECT DISTINCT packageName "
-                        + "FROM org.isisaddons.security.dom.ApplicationFeature "
-                        + "ORDER BY packageName"),
-        @Query(name = "findPackageName", language = "JDOQL",
-                value = "SELECT DISTINCT packageName "
-                        + "FROM org.isisaddons.security.dom.ApplicationFeature "
-                        + "WHERE packageName.matches(:matcher) "
-                        + "ORDER BY packageName"),
-})
-public class ApplicationFeature implements Comparable<ApplicationFeature> {
+/**
+ * Value type (compares only package, class and member names).
+ */
+public class ApplicationFeature implements ViewModel, Comparable<ApplicationFeature> {
 
-    private String name;
 
-    @Column(allowsNull = "false")
-    @MemberOrder(sequence = "11")
-    @Hidden
-    public String getName() {
-        return name;
+    //region > factory methods
+
+    public static ApplicationFeature newPackage(final String packageName) {
+        final ApplicationFeature feature = new ApplicationFeature(ApplicationFeatureType.PACKAGE);
+        feature.setPackageName(packageName);
+        return feature;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public static ApplicationFeature newClass(final String fullyQualifiedClassName) {
+        final ApplicationFeature feature = new ApplicationFeature(ApplicationFeatureType.CLASS);
+        feature.type.init(feature, fullyQualifiedClassName);
+        return feature;
     }
+
+    public static ApplicationFeature newMember(final String fullyQualifiedClassName, final String memberName) {
+        final ApplicationFeature feature = new ApplicationFeature(ApplicationFeatureType.MEMBER);
+        ApplicationFeatureType.CLASS.init(feature, fullyQualifiedClassName);
+        feature.type = ApplicationFeatureType.MEMBER;
+        feature.setMemberName(memberName);
+        return feature;
+    }
+
+    //endregion
+
+
+    //region > constructor
+
+    ApplicationFeatureType type;
+
+    public ApplicationFeature(String asString) {
+        viewModelInit(asString);
+    }
+
+    ApplicationFeature(ApplicationFeatureType type) {
+        this.type = type;
+    }
+
+    ApplicationFeature() {
+    }
+
+    //endregion
+
+    //region > ViewModel impl
+
+    @Override
+    public String viewModelMemento() {
+        final String join = Joiner.on(":").join(type, getFullyQualifiedName());
+        return base64UrlEncode(join);
+    }
+
+    @Override
+    public void viewModelInit(String encodedMemento) {
+        final String s = base64UrlDecode(encodedMemento);
+        final Iterator<String> iterator = Splitter.on(":").split(s).iterator();
+        final ApplicationFeatureType type = ApplicationFeatureType.valueOf(iterator.next());
+        type.init(this, iterator.next());
+    }
+
+    private static String base64UrlDecode(String str) {
+        final byte[] bytes = BaseEncoding.base64Url().decode(str);
+        return new String(bytes, Charset.forName("UTF-8"));
+    }
+
+    private static String base64UrlEncode(final String str) {
+        byte[] bytes = str.getBytes(Charset.forName("UTF-8"));
+        return BaseEncoding.base64Url().encode(bytes);
+    }
+
+
+    //endregion
+
+    //region > FullyQualifiedName
+
+    @Title
+    @MemberOrder(sequence = "1.2")
+    public String getFullyQualifiedName() {
+        final StringBuilder buf = new StringBuilder();
+        buf.append(getPackageName());
+        if(getClassName() != null) {
+            buf.append(".").append(getClassName());
+        }
+        if(getMemberName() != null) {
+            buf.append("#").append(getMemberName());
+        }
+        return buf.toString();
+    }
+
+    //endregion
+
+    //region > Type
+    public ApplicationFeatureType getType() {
+        return type;
+    }
+    //endregion
+
+
+    //region > PackageName
 
     private String packageName;
 
-    @Column(allowsNull = "false")
-    @MemberOrder(sequence = "1")
+    @MemberOrder(sequence = "1.2")
     public String getPackageName() {
         return packageName;
     }
@@ -79,22 +148,13 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
         this.packageName = packageName;
     }
 
-    private String classType;
+    //endregion
 
-    @Column(allowsNull = "false")
-    @MemberOrder(sequence = "2")
-    public String getClassType() {
-        return classType;
-    }
-
-    public void setClassType(String classType) {
-        this.classType = classType;
-    }
+    //region > ClassName (optional)
 
     private String className;
 
-    @Column(allowsNull = "false")
-    @MemberOrder(sequence = "3")
+    @MemberOrder(sequence = "1")
     public String getClassName() {
         return className;
     }
@@ -103,22 +163,16 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
         this.className = className;
     }
 
-    private String memberType;
-
-    @Column(allowsNull = "false")
-    @MemberOrder(sequence = "4")
-    public String getMemberType() {
-        return memberType;
+    public boolean hideClassName() {
+        return type.hideClassName();
     }
+    //endregion
 
-    public void setMemberType(String memberType) {
-        this.memberType = memberType;
-    }
+    //region > MemberName (optional)
 
     private String memberName;
 
-    @Column(allowsNull = "false")
-    @MemberOrder(sequence = "5")
+    @MemberOrder(sequence = "3")
     public String getMemberName() {
         return memberName;
     }
@@ -127,14 +181,111 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
         this.memberName = memberName;
     }
 
-    @Override
-    public int compareTo(ApplicationFeature other) {
-        return ComparisonChain.start()
-                .compare(getPackageName(), other.getPackageName())
-                .compare(getClassName(), other.getClassName())
-                .compare(getMemberType(), other.getMemberType())
-                .compare(getMemberName(), other.getMemberName())
-                .result();
+    public boolean hideMemberName() {
+        return type.hideMemberName();
+    }
+    //endregion
+
+
+
+    //region > Packages: Contents
+    private SortedSet<ApplicationFeature> contents = Sets.newTreeSet();
+
+    public SortedSet<ApplicationFeature> getContents() {
+        type.ensurePackage(this);
+        return contents;
     }
 
+    void addToContents(ApplicationFeature content) {
+        type.ensurePackage(this);
+        type.ensurePackageOrClass(content);
+        this.contents.add(content);
+    }
+    //endregion
+
+    //region > Package or Class: getParentPackage
+
+    @Programmatic
+    public ApplicationFeature getParentPackage() {
+        type.ensurePackageOrClass(this);
+
+        if(type == ApplicationFeatureType.CLASS) {
+            return ApplicationFeature.newPackage(getPackageName());
+        } else {
+            final String packageName = getPackageName(); // eg aaa.bbb.ccc
+
+            if(Strings.isNullOrEmpty(packageName)) {
+                return null; // this is root
+            }
+
+            if(!packageName.contains(".")) {
+                return newPackage(""); // parent is root
+            }
+
+            final Iterable<String> split = Splitter.on(".").split(packageName);
+            final List<String> parts = Lists.newArrayList(split); // eg [aaa,bbb,ccc]
+            parts.remove(parts.size()-1); // remove last, eg [aaa,bbb]
+
+            final String parentPackageName = Joiner.on(".").join(parts); // eg aaa.bbb
+
+            return newPackage(parentPackageName);
+        }
+    }
+
+    //endregion
+
+
+
+    //region > Classes: Members
+    private SortedSet<ApplicationFeature> members = Sets.newTreeSet();
+
+    public SortedSet<ApplicationFeature> getMembers() {
+        type.ensureClass(this);
+        return members;
+    }
+
+    void addToMembers(ApplicationFeature member) {
+        type.ensureClass(this);
+        type.ensureMember(member);
+        this.members.add(member);
+    }
+    //endregion
+
+
+
+
+    //region > equals, hashCode, compareTo, toString
+
+    private final static String propertyNames = "type, packageName, className, memberName";
+
+    @Override
+    public int compareTo(ApplicationFeature o) {
+        return ObjectContracts.compare(this, o, propertyNames);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ObjectContracts.equals(this, obj, propertyNames);
+    }
+
+    @Override
+    public int hashCode() {
+        return ObjectContracts.hashCode(this, propertyNames);
+    }
+
+    @Override
+    public String toString() {
+        return ObjectContracts.toString(this, propertyNames);
+    }
+
+    //endregion
+
+
+    //region > injected services
+
+    @javax.inject.Inject
+    ApplicationFeatures applicationFeatures;
+
+
+    //endregion
 }

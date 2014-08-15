@@ -17,22 +17,52 @@
  */
 package org.isisaddons.module.security.dom.permission;
 
-import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
-
+import org.isisaddons.module.security.dom.actor.ApplicationRole;
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.apache.isis.applib.annotation.Disabled;
 
+/**
+ * Specifies how a particular {@link #getRole() application role} may interact with a specific
+ * {@link #getFeature() application feature}.
+ *
+ * <p>
+ *     Each permission has a {@link #getType() type} and a {@link #getMode() mode}.  The
+ *     {@link ApplicationPermissionType type} determines whether the permission {@link ApplicationPermissionType#ALLOW grants}
+ *     access to the feature or {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionType#VETO veto}es access
+ *     to it.  The {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode mode} indicates whether
+ *     the role can {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode#VISIBLE view} the feature
+ *     or can {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode#USABLE change} the state of the
+ *     system using the feature.
+ * </p>
+ *
+ * <p>
+ *     For a given permission, there is an interaction between the {@link ApplicationPermissionType type} and the
+ *     {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode mode}:
+ * <ul>
+ *     <li>for an {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionType#ALLOW allow}, a
+ *     {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode#USABLE usability} allow
+ *     implies {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode#VISIBLE visibility} allow.
+ *     </li>
+ *     <li>conversely, for a {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionType#VETO veto},
+ *     a {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode#VISIBLE visibility} veto
+ *     implies a {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode#USABLE usability} veto.</li>
+ * </ul>
+ * </p>
+ */
 @javax.jdo.annotations.PersistenceCapable(identityType = IdentityType.DATASTORE)
 @javax.jdo.annotations.Inheritance(strategy = InheritanceStrategy.NEW_TABLE)
 @javax.jdo.annotations.DatastoreIdentity(strategy = IdGeneratorStrategy.NATIVE, column = "id")
 public class ApplicationPermission {
 
+    //region > Role
+
     private ApplicationRole role;
 
-    @Column(allowsNull="false")
+    @javax.jdo.annotations.Column(allowsNull="false")
+    @Disabled
     public ApplicationRole getRole() {
         return role;
     }
@@ -41,42 +71,64 @@ public class ApplicationPermission {
         this.role = role;
     }
 
+    //endregion
+
     // //////////////////////////////////////
 
-    private ApplicationFeature feature;
+    //region > Feature
 
-    @Column(allowsNull="false")
+    @javax.jdo.annotations.NotPersistent
+    @Disabled
     public ApplicationFeature getFeature() {
-        return feature;
+        return null;
     }
 
-    public void setFeature(ApplicationFeature feature) {
-        this.feature = feature;
+    private String featureStr;
+
+    /**
+     * String representation of the feature.
+     */
+    @javax.jdo.annotations.Column(allowsNull="false", name = "feature")
+    @Disabled
+    public String getFeatureStr() {
+        return featureStr;
     }
-    
+
+    public void setFeatureStr(String featureStr) {
+        this.featureStr = featureStr;
+    }
+    //endregion
+
     // //////////////////////////////////////
-    
-    private ApplicationPermissionLevel level;
-    
-    @Column(allowsNull="false")
-    public ApplicationPermissionLevel getLevel() {
-        return level;
+
+    //region > Mode
+
+    private ApplicationPermissionMode mode;
+
+    @javax.jdo.annotations.Column(allowsNull="false")
+    public ApplicationPermissionMode getMode() {
+        return mode;
     }
-    
-    public void setLevel(ApplicationPermissionLevel level) {
-        this.level = level;
+
+    public void setMode(ApplicationPermissionMode mode) {
+        this.mode = mode;
     }
-    
+    //endregion
+
     // //////////////////////////////////////
-    
-    private boolean isInherited;
-    
-    public boolean isInherited() {
-        return isInherited;
+
+    //region > Type
+
+    private ApplicationPermissionType type;
+
+    @javax.jdo.annotations.Column(allowsNull="false")
+    public ApplicationPermissionType getType() {
+        return type;
     }
-    
-    public void setInherited(boolean isInherited) {
-        this.isInherited = isInherited;
+
+    public void setType(ApplicationPermissionType type) {
+        this.type = type;
     }
+    //endregion
 
 }

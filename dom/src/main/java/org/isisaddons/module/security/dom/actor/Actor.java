@@ -15,11 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.dom.permission;
+package org.isisaddons.module.security.dom.actor;
 
-public enum ApplicationPermissionLevel {
+public interface Actor {
 
-    READ,
-    WRITE,
-    EXECUTE
+//    public ApplicationRole getRoles();
+
 }

@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.dom.role;
+package org.isisaddons.module.security.dom.actor;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ import org.apache.isis.applib.annotation.ActionSemantics.Of;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.Named;
 
-@Named("Security")
+@Named("Application Roles")
 @DomainService
 public class ApplicationRoles extends AbstractFactoryAndRepository {
 

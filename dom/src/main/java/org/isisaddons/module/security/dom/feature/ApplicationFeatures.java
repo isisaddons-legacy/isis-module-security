@@ -17,64 +17,121 @@
  */
 package org.isisaddons.module.security.dom.feature;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.List;
-
-import org.isisaddons.module.security.service.ApplicationSecurityService;
-
-import org.apache.isis.applib.AbstractFactoryAndRepository;
+import java.util.SortedSet;
+import com.google.common.collect.Sets;
+import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.Programmatic;
-import org.apache.isis.applib.query.QueryDefault;
+import org.apache.isis.applib.services.memento.MementoService;
 import org.apache.isis.core.metamodel.services.devutils.MetaModelRow;
+import org.apache.isis.core.metamodel.spec.ObjectSpecification;
+import org.apache.isis.core.metamodel.spec.SpecificationLoaderSpi;
+import org.apache.isis.core.metamodel.spec.SpecificationLoaderSpiAware;
+import org.apache.isis.core.metamodel.spec.feature.*;
 
 @DomainService
-public class ApplicationFeatures extends AbstractFactoryAndRepository {
+public class ApplicationFeatures implements SpecificationLoaderSpiAware  {
 
-    @Programmatic
-    public List<ApplicationFeature> allFeatures() {
-        return allMatches(new QueryDefault<ApplicationFeature>(ApplicationFeature.class, "allByName"));
-    }
+    private SortedSet<ApplicationFeature> packageFeatures = Sets.newTreeSet();
+    private SortedSet<ApplicationFeature> classFeatures = Sets.newTreeSet();
+    private SortedSet<ApplicationFeature> memberFeatures = Sets.newTreeSet();
 
-    @Programmatic
-    public List<ApplicationFeature> findByPackageName(String packageName) {
-        return allMatches(new QueryDefault<ApplicationFeature>(ApplicationFeature.class, "findByPackageName", "packageName", packageName));
-    }
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    public void loadMetaModel() {
 
-    @Programmatic
-    public ApplicationFeature findFeatureByName(String name) {
-        return firstMatch(new QueryDefault<ApplicationFeature>(ApplicationFeature.class, "findByName", "name", name));
-    }
+        final Collection<ObjectSpecification> specifications = specificationLoader.allSpecifications();
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Programmatic
-    public List<String> findPackageName(String searchString) {
-        String escapedString = searchString == null ? null : java.util.regex.Pattern.quote(searchString.replace("*", ".*"));
-        return allMatches(new QueryDefault(ApplicationFeature.class, "findPackageName", "matcher", escapedString));
-    }
+        for (ObjectSpecification spec : specifications) {
+            if (exclude(spec)) {
+                continue;
+            }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Programmatic
-    public List<String> allPackageNames() {
-        return allMatches(new QueryDefault(ApplicationFeature.class, "allPackageNames"));
-    }
+            final String fullIdentifier = spec.getFullIdentifier();
+            final ApplicationFeature classFeature = ApplicationFeature.newClass(fullIdentifier);
 
-    @Programmatic
-    public ApplicationFeature addFeature(ApplicationSecurityService applicationSecurityService, MetaModelRow row) {
-        final String name = row.getPackageName().concat(".").concat(row.getClassName()).concat(".").concat(row.getMemberName());
+            ApplicationFeature classParentPackage = addClassParent(classFeature);
 
-        final ApplicationFeature feature = findFeatureByName(name);
-        if (feature != null) {
-            return feature;
+            addParents(classParentPackage);
+
+            final List<ObjectAssociation> properties = spec.getAssociations(Contributed.INCLUDED, ObjectAssociation.Filters.PROPERTIES);
+            for (ObjectAssociation property : properties) {
+                final OneToOneAssociation otoa = (OneToOneAssociation) property;
+                final ApplicationFeature memberFeature = ApplicationFeature.newMember(fullIdentifier, otoa.getName());
+                memberFeatures.add(memberFeature);
+            }
+            final List<ObjectAssociation> associations = spec.getAssociations(Contributed.EXCLUDED, ObjectAssociation.Filters.COLLECTIONS);
+            for (ObjectAssociation collection : associations) {
+                final OneToManyAssociation otma = (OneToManyAssociation) collection;
+                final ApplicationFeature memberFeature = ApplicationFeature.newMember(fullIdentifier, otma.getName());
+                memberFeatures.add(memberFeature);
+            }
+            final List<ObjectAction> actions = spec.getObjectActions(Contributed.INCLUDED);
+            for (ObjectAction act : actions) {
+                final ApplicationFeature memberFeature = ApplicationFeature.newMember(fullIdentifier, act.getName());
+                memberFeatures.add(memberFeature);
+            }
         }
-        ApplicationFeature newFeature = newTransientInstance(ApplicationFeature.class);
-        newFeature.setName(name);
-        newFeature.setClassName(row.getClassName());
-        newFeature.setPackageName(row.getPackageName());
-        newFeature.setClassType(row.getClassType());
-        newFeature.setMemberName(row.getMemberName());
-        newFeature.setMemberType(row.getType());
-        persist(newFeature);
-        return newFeature;
     }
+
+    public ApplicationFeature addClassParent(ApplicationFeature classFeature) {
+        ApplicationFeature parentPackage = classFeature.getParentPackage();
+        if(packageFeatures.contains(parentPackage)) {
+            // encountered this package already
+            parentPackage = packageFeatures.tailSet(parentPackage).first();
+        } else {
+            // new package, so add it...
+            packageFeatures.add(parentPackage);
+        }
+        parentPackage.addToContents(classFeature);
+        return parentPackage;
+    }
+
+    private void addParents(final ApplicationFeature pkg) {
+        ApplicationFeature parentPackage = pkg.getParentPackage();
+        if(parentPackage == null) {
+            return;
+        }
+
+        if(packageFeatures.contains(parentPackage)) {
+            // encountered this package already
+            parentPackage = packageFeatures.tailSet(pkg).first();
+        } else {
+            // new package, so add it
+            packageFeatures.add(pkg);
+        }
+
+        // add this pkg as part of the contents of its parent
+        parentPackage.addToContents(pkg);
+
+        // and recurse up
+        addParents(parentPackage);
+    }
+
+    protected boolean exclude(ObjectSpecification spec) {
+        return isBuiltIn(spec) || spec.isAbstract();
+    }
+
+    protected boolean isBuiltIn(ObjectSpecification spec) {
+        final String className = spec.getFullIdentifier();
+        return className.startsWith("java") || className.startsWith("org.joda");
+    }
+
+
+    // //////////////////////////////////////
+
+    private SpecificationLoaderSpi specificationLoader;
+
+    @Programmatic
+    @Override
+    public void setSpecificationLoaderSpi(SpecificationLoaderSpi specificationLoader) {
+        this.specificationLoader = specificationLoader;
+    }
+
+    @javax.inject.Inject
+    MementoService mementoService;
 
 }
