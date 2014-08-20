@@ -22,7 +22,7 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
 import org.isisaddons.module.security.dom.actor.ApplicationRole;
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureViewModel;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.Disabled;
 import org.apache.isis.applib.util.TitleBuffer;
@@ -125,9 +125,9 @@ public class ApplicationPermission {
 
     @javax.jdo.annotations.NotPersistent
     @Disabled
-    public ApplicationFeature getFeature() {
+    public ApplicationFeatureViewModel getFeature() {
         return getFeatureStr() != null?
-            container.newViewModelInstance(ApplicationFeature.class, getFeatureStr()): null;
+            container.newViewModelInstance(ApplicationFeatureViewModel.class, getFeatureStr()): null;
     }
 
     private String featureStr;

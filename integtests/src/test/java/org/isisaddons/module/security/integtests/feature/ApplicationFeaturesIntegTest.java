@@ -20,12 +20,15 @@ package org.isisaddons.module.security.integtests.feature;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.SortedSet;
 import javax.inject.Inject;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDownFixture;
 import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
@@ -34,7 +37,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -52,7 +56,101 @@ public class ApplicationFeaturesIntegTest extends SecurityModuleAppIntegTest {
     @Inject
     ApplicationFeatures applicationFeatures;
 
+    public static class AllPackages extends ApplicationFeaturesIntegTest {
+
+        @Test
+        public void happyCase() throws Exception {
+
+            // when
+            final Collection<ApplicationFeature> packages = applicationFeatures.allPackages();
+
+            // then
+            assertThat(packages.size(), greaterThan(0));
+
+            assertThat(packages, transformedBy(ApplicationFeature.Functions.GET_ID, containsAtLeast(
+                    ApplicationFeatureId.newPackage("org"),
+                    ApplicationFeatureId.newPackage("org.apache"),
+                    ApplicationFeatureId.newPackage("org.apache.isis"),
+                    ApplicationFeatureId.newPackage("org.apache.isis.applib"),
+                    ApplicationFeatureId.newPackage("org.isisaddons"),
+                    ApplicationFeatureId.newPackage("org.isisaddons.module"),
+                    ApplicationFeatureId.newPackage("org.isisaddons.module.security"),
+                    ApplicationFeatureId.newPackage("org.isisaddons.module.security.app"),
+                    ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom"),
+                    ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.actor"),
+                    ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.feature"),
+                    ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.tenancy"),
+                    ApplicationFeatureId.newPackage("org.isisaddons.module.security.fixture.dom")
+            )));
+
+//            for (ApplicationFeature pkg : packages) {
+//                System.out.println(pkg.toString());
+//            }
+//            System.out.flush();
+        }
+
+    }
+
+    public static class FindPackage extends ApplicationFeaturesIntegTest {
+
+        @Test
+        public void whenExistsAndContainsOnlyPackages() throws Exception {
+
+            // when
+            final ApplicationFeature pkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("org"));
+
+            // then
+            assertThat(pkg, is(notNullValue()));
+            assertThat(pkg.getContents(), containsAtLeast(
+                    ApplicationFeatureId.newPackage("org.apache"),
+                    ApplicationFeatureId.newPackage("org.isisaddons")
+            ));
+
+        }
+
+        @Test
+        public void whenExistsAndContainsClasses() throws Exception {
+
+            // when
+            final ApplicationFeature pkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.actor"));
+
+            // then
+            assertThat(pkg, is(notNullValue()));
+            assertThat(pkg.getContents(), containsAtLeast(
+                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.actor.ApplicationRole"),
+                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.actor.ApplicationRoles"),
+                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.actor.ApplicationUser"),
+                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.actor.ApplicationUsers")
+            ));
+        }
+
+        @Test
+        public void whenDoesNotExist() throws Exception {
+
+            // when
+            final ApplicationFeature pkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("org.nonExistent"));
+
+            // then
+            assertThat(pkg, is(nullValue()));
+        }
+    }
+
     //region > matcher helpers
+
+    static <T,V> Matcher<? super Collection<T>> transformedBy(final Function<T, V> function, final Matcher<Collection<V>> underlying) {
+        return new TypeSafeMatcher<Collection<T>>() {
+            @Override
+            protected boolean matchesSafely(final Collection<T> item) {
+                return underlying.matches(
+                        Lists.newArrayList(Iterables.transform(item, function)));
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("transformed by ").appendDescriptionOf(underlying);
+            }
+        };
+    }
 
     static <T> Matcher<Collection<T>> containsAtLeast(final T... elements) {
         return new TypeSafeMatcher<Collection<T>>() {
@@ -73,109 +171,6 @@ public class ApplicationFeaturesIntegTest extends SecurityModuleAppIntegTest {
         };
     }
     //endregion
-
-    public static class AllPackages extends ApplicationFeaturesIntegTest {
-
-        @Test
-        public void happyCase() throws Exception {
-
-            // when
-            final SortedSet<ApplicationFeature> packages = applicationFeatures.allPackages();
-
-            // then
-            assertThat(packages.size(), greaterThan(0));
-
-            assertThat(packages, containsAtLeast(
-                    ApplicationFeature.newPackage("org"),
-                    ApplicationFeature.newPackage("org.apache"),
-                    ApplicationFeature.newPackage("org.apache.isis"),
-                    ApplicationFeature.newPackage("org.apache.isis.applib"),
-                    ApplicationFeature.newPackage("org.isisaddons"),
-                    ApplicationFeature.newPackage("org.isisaddons.module"),
-                    ApplicationFeature.newPackage("org.isisaddons.module.security"),
-                    ApplicationFeature.newPackage("org.isisaddons.module.security.app"),
-                    ApplicationFeature.newPackage("org.isisaddons.module.security.dom"),
-                    ApplicationFeature.newPackage("org.isisaddons.module.security.dom.actor"),
-                    ApplicationFeature.newPackage("org.isisaddons.module.security.dom.feature"),
-                    ApplicationFeature.newPackage("org.isisaddons.module.security.dom.tenancy"),
-                    ApplicationFeature.newPackage("org.isisaddons.module.security.fixture.dom")
-            ));
-
-//            for (ApplicationFeature pkg : packages) {
-//                System.out.println(pkg.toString());
-//            }
-//            System.out.flush();
-        }
-    }
-
-    public static class FindPackage extends ApplicationFeaturesIntegTest {
-
-        @Test
-        public void whenExistsAndContainsOnlyPackages() throws Exception {
-
-            // when
-            final ApplicationFeature pkg = applicationFeatures.findPackage(ApplicationFeature.newPackage("org"));
-
-            // then
-            assertThat(pkg, is(notNullValue()));
-            assertThat(pkg.getContents(), containsAtLeast(
-                    ApplicationFeature.newPackage("org.apache"),
-                    ApplicationFeature.newPackage("org.isisaddons")
-            ));
-
-        }
-
-        @Test
-        public void whenExistsAndContainsClasses() throws Exception {
-
-            // when
-            final ApplicationFeature pkg = applicationFeatures.findPackage(ApplicationFeature.newPackage("org.isisaddons.module.security.dom.actor"));
-
-            // then
-            assertThat(pkg, is(notNullValue()));
-            assertThat(pkg.getContents(), containsAtLeast(
-                    ApplicationFeature.newClass("org.isisaddons.module.security.dom.actor.ApplicationRole"),
-                    ApplicationFeature.newClass("org.isisaddons.module.security.dom.actor.ApplicationRoles"),
-                    ApplicationFeature.newClass("org.isisaddons.module.security.dom.actor.ApplicationUser"),
-                    ApplicationFeature.newClass("org.isisaddons.module.security.dom.actor.ApplicationUsers")
-            ));
-        }
-
-        @Test
-        public void returnsValueEquivalentToTheCanonicalInstance() throws Exception {
-
-            // given
-            final ApplicationFeature canonicalParent = applicationFeatures.findPackage(ApplicationFeature.newPackage("org.isisaddons.module.security.dom"));
-            final ApplicationFeature pkg = applicationFeatures.findPackage(ApplicationFeature.newPackage("org.isisaddons.module.security.dom.actor"));
-
-            // when
-            final ApplicationFeature parent = pkg.getParentPackage();
-
-            // then
-            assertThat(canonicalParent, is(notNullValue()));
-            assertThat(pkg, is(notNullValue()));
-
-            // is a value equaivalent to canonical...
-            assertThat(parent, is(equalTo(canonicalParent)));
-            // ... but is not the same instance
-            assertThat(parent, is(not(sameInstance(canonicalParent))));
-
-            // ... and only the canonical is wired up with contents
-            assertThat(parent.getContents().size(), is(0));
-            assertThat(canonicalParent.getContents().size(), greaterThan(0));
-        }
-
-        @Test
-        public void whenDoesNotExist() throws Exception {
-
-            // when
-            final ApplicationFeature pkg = applicationFeatures.findPackage(ApplicationFeature.newPackage("org.nonExistent"));
-
-            // then
-            assertThat(pkg, is(nullValue()));
-        }
-
-    }
 
 
 

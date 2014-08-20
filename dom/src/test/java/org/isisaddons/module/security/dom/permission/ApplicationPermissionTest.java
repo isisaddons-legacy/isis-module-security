@@ -1,6 +1,6 @@
 package org.isisaddons.module.security.dom.permission;
 
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureViewModel;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.junit.Assert;
@@ -10,9 +10,7 @@ import org.junit.Test;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 
 public class ApplicationPermissionTest {
 
@@ -38,17 +36,17 @@ public class ApplicationPermissionTest {
             applicationPermission.setFeatureStr(featureStr);
 
             // then
-            final ApplicationFeature applicationFeature = ApplicationFeature.newPackage("some.package");
+            final ApplicationFeatureViewModel applicationFeatureViewModel = new ApplicationFeatureViewModel();
             context.checking(new Expectations() {{
-                oneOf(mockContainer).newViewModelInstance(ApplicationFeature.class, featureStr);
-                will(returnValue(applicationFeature));
+                oneOf(mockContainer).newViewModelInstance(ApplicationFeatureViewModel.class, featureStr);
+                will(returnValue(applicationFeatureViewModel));
             }});
 
             // when
-            final ApplicationFeature feature = applicationPermission.getFeature();
+            final ApplicationFeatureViewModel feature = applicationPermission.getFeature();
 
             // then
-            Assert.assertThat(feature, is(equalTo(applicationFeature)));
+            Assert.assertThat(feature, is(equalTo(applicationFeatureViewModel)));
         }
         @Test
         public void whenNull() throws Exception {
@@ -61,7 +59,7 @@ public class ApplicationPermissionTest {
             }});
 
             // when
-            final ApplicationFeature feature = applicationPermission.getFeature();
+            final ApplicationFeatureViewModel feature = applicationPermission.getFeature();
 
             // then
             Assert.assertThat(feature, is(nullValue()));

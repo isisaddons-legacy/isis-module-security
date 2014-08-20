@@ -4,11 +4,13 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import org.hamcrest.Matchers;
 import org.jmock.Expectations;
+import org.jmock.Sequence;
 import org.jmock.auto.Mock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.core.metamodel.spec.ObjectSpecification;
 import org.apache.isis.core.metamodel.spec.feature.*;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
@@ -32,11 +34,15 @@ public class ApplicationFeaturesTest {
     @Mock
     ObjectAction act;
 
+    @Mock
+    DomainObjectContainer mockContainer;
+
     ApplicationFeatures applicationFeatures;
 
     @Before
     public void setUp() throws Exception {
         applicationFeatures = new ApplicationFeatures();
+        applicationFeatures.container = mockContainer;
     }
 
     public static class Load extends ApplicationFeaturesTest {
@@ -74,26 +80,58 @@ public class ApplicationFeaturesTest {
                 will(returnValue("someAction"));
             }});
 
+            // then
+            final Sequence sequence = context.sequence("loadSequence");
+            context.checking(new Expectations() {{
+                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
+                inSequence(sequence);
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newClass("com.mycompany.Bar"))));
+
+                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
+                inSequence(sequence);
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage("com.mycompany"))));
+
+                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
+                inSequence(sequence);
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage("com"))));
+
+                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
+                inSequence(sequence);
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage(""))));
+
+                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
+                inSequence(sequence);
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newMember("com.mycompany.Bar", "someProperty"))));
+
+                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
+                inSequence(sequence);
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newMember("com.mycompany.Bar", "someCollection"))));
+
+                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
+                inSequence(sequence);
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newMember("com.mycompany.Bar", "someAction"))));
+            }});
+
             // when
             applicationFeatures.load(spec);
 
             // then
-            final ApplicationFeature comPkg = applicationFeatures.findPackage(ApplicationFeature.newPackage("com"));
+            final ApplicationFeature comPkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("com"));
             assertThat(comPkg, is(notNullValue()));
-            final ApplicationFeature comMycompanyPkg = applicationFeatures.findPackage(ApplicationFeature.newPackage("com.mycompany"));
+            final ApplicationFeature comMycompanyPkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("com.mycompany"));
             assertThat(comPkg, is(notNullValue()));
-            assertThat(comPkg.getContents(), contains(comMycompanyPkg));
-            assertThat(comMycompanyPkg.getContents(), contains(ApplicationFeature.newClass("com.mycompany.Bar")));
+            assertThat(comPkg.getContents(), contains(comMycompanyPkg.getFeatureId()));
+            assertThat(comMycompanyPkg.getContents(), contains(ApplicationFeatureId.newClass("com.mycompany.Bar")));
 
             // then
-            final ApplicationFeature barClass = applicationFeatures.findClass(ApplicationFeature.newClass("com.mycompany.Bar"));
+            final ApplicationFeature barClass = applicationFeatures.findClass(ApplicationFeatureId.newClass("com.mycompany.Bar"));
             assertThat(barClass, is(Matchers.notNullValue()));
 
             Assert.assertThat(barClass.getMembers(),
                     containsInAnyOrder(
-                            ApplicationFeature.newMember("com.mycompany.Bar", "someProperty"),
-                            ApplicationFeature.newMember("com.mycompany.Bar", "someCollection"),
-                            ApplicationFeature.newMember("com.mycompany.Bar", "someAction")
+                            ApplicationFeatureId.newMember("com.mycompany.Bar", "someProperty"),
+                            ApplicationFeatureId.newMember("com.mycompany.Bar", "someCollection"),
+                            ApplicationFeatureId.newMember("com.mycompany.Bar", "someAction")
                     ));
         }
 
@@ -105,32 +143,40 @@ public class ApplicationFeaturesTest {
         public void parentNotYetEncountered() throws Exception {
 
             // given
-            final ApplicationFeature classFeature = ApplicationFeature.newClass("com.mycompany.Bar");
-
-            // when
-            final ApplicationFeature classParent = applicationFeatures.addClassParent(classFeature);
+            final ApplicationFeatureId classFeatureId = ApplicationFeatureId.newClass("com.mycompany.Bar");
 
             // then
-            Assert.assertThat(classParent, is(equalTo(classFeature.getParentPackage())));
-            final ApplicationFeature classPackage = applicationFeatures.findPackage(classParent);
-            assertThat(classPackage, is(Matchers.notNullValue()));
+            final ApplicationFeature newlyCreatedParent = new ApplicationFeature();
+            context.checking(new Expectations() {{
+                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
+                will(returnValue(newlyCreatedParent));
+            }});
 
+            // when
+            final ApplicationFeatureId classParentId = applicationFeatures.addClassParent(classFeatureId);
+
+            // then
+            Assert.assertThat(classParentId, is(equalTo(classFeatureId.getParentPackageId())));
+            final ApplicationFeature classPackage = applicationFeatures.findPackage(classParentId);
+            assertThat(classPackage, is(newlyCreatedParent));
         }
 
         @Test
         public void parentAlreadyEncountered() throws Exception {
 
             // given
-            final ApplicationFeature pkg = ApplicationFeature.newPackage("com.mycompany");
-            applicationFeatures.packageFeatures.add(pkg);
+            final ApplicationFeatureId packageId = ApplicationFeatureId.newPackage("com.mycompany");
+            final ApplicationFeature pkg = new ApplicationFeature();
+            pkg.setFeatureId(packageId);
+            applicationFeatures.packageFeatures.put(packageId, pkg);
 
-            final ApplicationFeature classFeature = ApplicationFeature.newClass("com.mycompany.Bar");
+            final ApplicationFeatureId classFeatureId = ApplicationFeatureId.newClass("com.mycompany.Bar");
 
             // when
-            final ApplicationFeature applicationFeature = applicationFeatures.addClassParent(classFeature);
+            final ApplicationFeatureId applicationFeatureId = applicationFeatures.addClassParent(classFeatureId);
 
             // then
-            Assert.assertThat(applicationFeature, is(equalTo(pkg)));
+            Assert.assertThat(applicationFeatureId, is(equalTo(packageId)));
         }
 
     }

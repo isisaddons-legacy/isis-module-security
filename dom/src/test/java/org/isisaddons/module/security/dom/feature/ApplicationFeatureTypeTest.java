@@ -34,37 +34,37 @@ public class ApplicationFeatureTypeTest {
         @Test
         public void givenPackage() throws Exception {
 
-            final ApplicationFeature applicationFeature = new ApplicationFeature(ApplicationFeatureType.PACKAGE);
+            final ApplicationFeatureId applicationFeatureId = new ApplicationFeatureId(ApplicationFeatureType.PACKAGE);
 
-            ApplicationFeatureType.PACKAGE.init(applicationFeature, "com.mycompany");
+            ApplicationFeatureType.PACKAGE.init(applicationFeatureId, "com.mycompany");
 
-            Assert.assertThat(applicationFeature.getPackageName(), is("com.mycompany"));
-            Assert.assertThat(applicationFeature.getClassName(), is(nullValue()));
-            Assert.assertThat(applicationFeature.getMemberName(), is(nullValue()));
+            Assert.assertThat(applicationFeatureId.getPackageName(), is("com.mycompany"));
+            Assert.assertThat(applicationFeatureId.getClassName(), is(nullValue()));
+            Assert.assertThat(applicationFeatureId.getMemberName(), is(nullValue()));
 
         }
         @Test
         public void givenClass() throws Exception {
 
-            final ApplicationFeature applicationFeature = new ApplicationFeature(ApplicationFeatureType.CLASS);
+            final ApplicationFeatureId applicationFeatureId = new ApplicationFeatureId(ApplicationFeatureType.CLASS);
 
-            ApplicationFeatureType.CLASS.init(applicationFeature, "com.mycompany.Bar");
+            ApplicationFeatureType.CLASS.init(applicationFeatureId, "com.mycompany.Bar");
 
-            Assert.assertThat(applicationFeature.getPackageName(), is("com.mycompany"));
-            Assert.assertThat(applicationFeature.getClassName(), is("Bar"));
-            Assert.assertThat(applicationFeature.getMemberName(), is(nullValue()));
+            Assert.assertThat(applicationFeatureId.getPackageName(), is("com.mycompany"));
+            Assert.assertThat(applicationFeatureId.getClassName(), is("Bar"));
+            Assert.assertThat(applicationFeatureId.getMemberName(), is(nullValue()));
 
         }
         @Test
         public void givenMember() throws Exception {
 
-            final ApplicationFeature applicationFeature = new ApplicationFeature(ApplicationFeatureType.MEMBER);
+            final ApplicationFeatureId applicationFeatureId = new ApplicationFeatureId(ApplicationFeatureType.MEMBER);
 
-            ApplicationFeatureType.MEMBER.init(applicationFeature, "com.mycompany.Bar#foo");
+            ApplicationFeatureType.MEMBER.init(applicationFeatureId, "com.mycompany.Bar#foo");
 
-            Assert.assertThat(applicationFeature.getPackageName(), is("com.mycompany"));
-            Assert.assertThat(applicationFeature.getClassName(), is("Bar"));
-            Assert.assertThat(applicationFeature.getMemberName(), is("foo"));
+            Assert.assertThat(applicationFeatureId.getPackageName(), is("com.mycompany"));
+            Assert.assertThat(applicationFeatureId.getClassName(), is("Bar"));
+            Assert.assertThat(applicationFeatureId.getMemberName(), is("foo"));
         }
     }
 
@@ -75,17 +75,17 @@ public class ApplicationFeatureTypeTest {
 
         @Test
         public void whenPackage() throws Exception {
-            ApplicationFeatureType.ensurePackage(new ApplicationFeature(ApplicationFeatureType.PACKAGE));
+            ApplicationFeatureType.ensurePackage(new ApplicationFeatureId(ApplicationFeatureType.PACKAGE));
         }
         @Test
         public void whenClass() throws Exception {
             expectedException.expect(IllegalStateException.class);
-            ApplicationFeatureType.ensurePackage(new ApplicationFeature(ApplicationFeatureType.CLASS));
+            ApplicationFeatureType.ensurePackage(new ApplicationFeatureId(ApplicationFeatureType.CLASS));
         }
         @Test
         public void whenMember() throws Exception {
             expectedException.expect(IllegalStateException.class);
-            ApplicationFeatureType.ensurePackage(new ApplicationFeature(ApplicationFeatureType.MEMBER));
+            ApplicationFeatureType.ensurePackage(new ApplicationFeatureId(ApplicationFeatureType.MEMBER));
         }
     }
 
@@ -96,16 +96,16 @@ public class ApplicationFeatureTypeTest {
 
         @Test
         public void whenPackage() throws Exception {
-            ApplicationFeatureType.ensurePackageOrClass(new ApplicationFeature(ApplicationFeatureType.PACKAGE));
+            ApplicationFeatureType.ensurePackageOrClass(new ApplicationFeatureId(ApplicationFeatureType.PACKAGE));
         }
         @Test
         public void whenClass() throws Exception {
-            ApplicationFeatureType.ensurePackageOrClass(new ApplicationFeature(ApplicationFeatureType.CLASS));
+            ApplicationFeatureType.ensurePackageOrClass(new ApplicationFeatureId(ApplicationFeatureType.CLASS));
         }
         @Test
         public void whenMember() throws Exception {
             expectedException.expect(IllegalStateException.class);
-            ApplicationFeatureType.ensurePackageOrClass(new ApplicationFeature(ApplicationFeatureType.MEMBER));
+            ApplicationFeatureType.ensurePackageOrClass(new ApplicationFeatureId(ApplicationFeatureType.MEMBER));
         }
 
     }
@@ -118,16 +118,16 @@ public class ApplicationFeatureTypeTest {
         @Test
         public void whenPackage() throws Exception {
             expectedException.expect(IllegalStateException.class);
-            ApplicationFeatureType.ensureClass(new ApplicationFeature(ApplicationFeatureType.PACKAGE));
+            ApplicationFeatureType.ensureClass(new ApplicationFeatureId(ApplicationFeatureType.PACKAGE));
         }
         @Test
         public void whenClass() throws Exception {
-            ApplicationFeatureType.ensureClass(new ApplicationFeature(ApplicationFeatureType.CLASS));
+            ApplicationFeatureType.ensureClass(new ApplicationFeatureId(ApplicationFeatureType.CLASS));
         }
         @Test
         public void whenMember() throws Exception {
             expectedException.expect(IllegalStateException.class);
-            ApplicationFeatureType.ensureClass(new ApplicationFeature(ApplicationFeatureType.MEMBER));
+            ApplicationFeatureType.ensureClass(new ApplicationFeatureId(ApplicationFeatureType.MEMBER));
         }
 
     }
@@ -141,16 +141,16 @@ public class ApplicationFeatureTypeTest {
         @Test
         public void whenPackage() throws Exception {
             expectedException.expect(IllegalStateException.class);
-            ApplicationFeatureType.ensureMember(new ApplicationFeature(ApplicationFeatureType.PACKAGE));
+            ApplicationFeatureType.ensureMember(new ApplicationFeatureId(ApplicationFeatureType.PACKAGE));
         }
         @Test
         public void whenClass() throws Exception {
             expectedException.expect(IllegalStateException.class);
-            ApplicationFeatureType.ensureMember(new ApplicationFeature(ApplicationFeatureType.CLASS));
+            ApplicationFeatureType.ensureMember(new ApplicationFeatureId(ApplicationFeatureType.CLASS));
         }
         @Test
         public void whenMember() throws Exception {
-            ApplicationFeatureType.ensureMember(new ApplicationFeature(ApplicationFeatureType.MEMBER));
+            ApplicationFeatureType.ensureMember(new ApplicationFeatureId(ApplicationFeatureType.MEMBER));
         }
     }
 
