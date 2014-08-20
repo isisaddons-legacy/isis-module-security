@@ -22,9 +22,12 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
 import org.isisaddons.module.security.dom.actor.ApplicationRole;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureViewModel;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.Disabled;
+import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.util.TitleBuffer;
 
 /**
@@ -32,26 +35,26 @@ import org.apache.isis.applib.util.TitleBuffer;
  * {@link #getFeature() application feature}.
  *
  * <p>
- *     Each permission has a {@link #getType() type} and a {@link #getMode() mode}.  The
- *     {@link ApplicationPermissionType type} determines whether the permission {@link ApplicationPermissionType#ALLOW grants}
- *     access to the feature or {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionType#VETO veto}es access
- *     to it.  The {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode mode} indicates whether
- *     the role can {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode#VISIBLE view} the feature
- *     or can {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode#USABLE change} the state of the
+ *     Each permission has a {@link #getRule() rule} and a {@link #getMode() mode}.  The
+ *     {@link ApplicationPermissionRule rule} determines whether the permission {@link ApplicationPermissionRule#ALLOW grants}
+ *     access to the feature or {@link ApplicationPermissionRule#VETO veto}es access
+ *     to it.  The {@link ApplicationPermissionMode mode} indicates whether
+ *     the role can {@link ApplicationPermissionMode#VISIBLE view} the feature
+ *     or can {@link ApplicationPermissionMode#USABLE change} the state of the
  *     system using the feature.
  * </p>
  *
  * <p>
- *     For a given permission, there is an interaction between the {@link ApplicationPermissionType type} and the
- *     {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode mode}:
+ *     For a given permission, there is an interaction between the {@link ApplicationPermissionRule rule} and the
+ *     {@link ApplicationPermissionMode mode}:
  * <ul>
- *     <li>for an {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionType#ALLOW allow}, a
- *     {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode#USABLE usability} allow
- *     implies {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode#VISIBLE visibility} allow.
+ *     <li>for an {@link ApplicationPermissionRule#ALLOW allow}, a
+ *     {@link ApplicationPermissionMode#USABLE usability} allow
+ *     implies {@link ApplicationPermissionMode#VISIBLE visibility} allow.
  *     </li>
- *     <li>conversely, for a {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionType#VETO veto},
- *     a {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode#VISIBLE visibility} veto
- *     implies a {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode#USABLE usability} veto.</li>
+ *     <li>conversely, for a {@link ApplicationPermissionRule#VETO veto},
+ *     a {@link ApplicationPermissionMode#VISIBLE visibility} veto
+ *     implies a {@link ApplicationPermissionMode#USABLE usability} veto.</li>
  * </ul>
  * </p>
  */
@@ -74,13 +77,8 @@ import org.apache.isis.applib.util.TitleBuffer;
                 name = "findByFeature", language = "JDOQL",
                 value = "SELECT "
                         + "FROM org.isisaddons.module.security.dom.permission.ApplicationPermission "
-                        + "WHERE featureStr == :feature"),
-        @javax.jdo.annotations.Query(
-                name = "findByRole", language = "JDOQL",
-                value = "SELECT "
-                        + "FROM org.isisaddons.module.security.dom.permission.ApplicationPermission "
-                        + "WHERE role == :role")
-
+                        + "WHERE featureType == :featureType "
+                        + "  AND featureFqn == :featureFqn")
 })
 @javax.jdo.annotations.Uniques({
         @javax.jdo.annotations.Unique(
@@ -96,8 +94,9 @@ public class ApplicationPermission {
     public String title() {
         final TitleBuffer buf = new TitleBuffer();
         buf.append(getRole().getName())           // admin
-           .append(": ").append(getType())        // ALLOW|VETO
-           .append(" ").append(getFeatureStr())   // com.mycompany.Bar#*
+           .append(": ").append(getRule())        // ALLOW|VETO
+           .append(" ").append(getFeatureType())  // PACKAGE|CLASS|MEMBER
+           .append(" ").append(getFeatureFqn())   // com.mycompany.Bar#bar
            .append(" ").append(getMode());        // VISIBLE|USABLE
         return buf.toString();
     }
@@ -126,23 +125,56 @@ public class ApplicationPermission {
     @javax.jdo.annotations.NotPersistent
     @Disabled
     public ApplicationFeatureViewModel getFeature() {
-        return getFeatureStr() != null?
-            container.newViewModelInstance(ApplicationFeatureViewModel.class, getFeatureStr()): null;
+        if(getFeatureType() == null) {
+            return null;
+        }
+        final ApplicationFeatureId featureId = ApplicationFeatureId.newFeature(getFeatureType(), getFeatureFqn());
+        return container.newViewModelInstance(ApplicationFeatureViewModel.class, featureId.asEncodedString());
     }
 
-    private String featureStr;
+    private ApplicationFeatureType featureType;
 
     /**
-     * String representation of the feature.
+     * The {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId#getType() feature type} of the
+     * feature.
+     *
+     * <p>
+     *     The combination of the feature type and the {@link #getFeatureFqn() fully qualified name} is used to build
+     *     the corresponding {@link #getFeature() feature} (view model).
+     * </p>
+     *
+     * @see #getFeatureFqn()
      */
-    @javax.jdo.annotations.Column(allowsNull="false", name = "feature")
-    @Disabled
-    public String getFeatureStr() {
-        return featureStr;
+    @Programmatic
+    public ApplicationFeatureType getFeatureType() {
+        return featureType;
     }
 
-    public void setFeatureStr(String featureStr) {
-        this.featureStr = featureStr;
+    public void setFeatureType(ApplicationFeatureType featureType) {
+        this.featureType = featureType;
+    }
+
+    private String featureFqn;
+
+    /**
+     * The {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId#getFullyQualifiedName() fully qualified name}
+     * of the feature.
+     * 
+     * <p>
+     *     The combination of the {@link #getFeatureType() feature type} and the fully qualified name is used to build
+     *     the corresponding {@link #getFeature() feature} (view model).
+     * </p>
+     *
+     * @see #getFeatureType()
+     */
+    @javax.jdo.annotations.Column(allowsNull="false")
+    @Programmatic
+    public String getFeatureFqn() {
+        return featureFqn;
+    }
+
+    public void setFeatureFqn(String featureFqn) {
+        this.featureFqn = featureFqn;
     }
     //endregion
 
@@ -166,15 +198,15 @@ public class ApplicationPermission {
 
     //region > Type
 
-    private ApplicationPermissionType type;
+    private ApplicationPermissionRule rule;
 
     @javax.jdo.annotations.Column(allowsNull="false")
-    public ApplicationPermissionType getType() {
-        return type;
+    public ApplicationPermissionRule getRule() {
+        return rule;
     }
 
-    public void setType(final ApplicationPermissionType type) {
-        this.type = type;
+    public void setRule(final ApplicationPermissionRule rule) {
+        this.rule = rule;
     }
     //endregion
 

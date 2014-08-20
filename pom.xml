@@ -84,11 +84,11 @@ language governing permissions and limitations under the License.
                     <configuration>
                         <includes>
                             <include>**/*Test.java</include>
-                            <include>**/*Test_*.java</include>
+                            <include>**/*Test$*.java</include>
+                            <include>**/*Test*_*.java</include>
                             <include>**/*Spec*.java</include>
                         </includes>
                         <excludes>
-                            <exclude>**/Test*.java</exclude>
                             <exclude>**/*ForTesting.java</exclude>
                             <exclude>**/*Abstract*.java</exclude>
                         </excludes>
@@ -105,11 +105,11 @@ language governing permissions and limitations under the License.
                     <configuration>
                         <includes>
                             <include>**/*Test.java</include>
-                            <include>**/*Test_*.java</include>
+                            <include>**/*Test$*.java</include>
+                            <include>**/*Test*_*.java</include>
                             <include>**/*Spec*.java</include>
                         </includes>
                         <excludes>
-                            <exclude>**/Test*.java</exclude>
                             <exclude>**/*ForTesting.java</exclude>
                             <exclude>**/*Abstract*.java</exclude>
                         </excludes>

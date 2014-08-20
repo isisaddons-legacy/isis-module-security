@@ -17,12 +17,16 @@
  */
 package org.isisaddons.module.security.dom.permission;
 
-public enum ApplicationPermissionType {
+/**
+ * Whether the permission {@link #ALLOW grants} or {@link #VETO denies} access to an
+ * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
+ */
+public enum ApplicationPermissionRule {
     /**
      * The permission grants the ability to view/use the {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
      *
      * <p>
-     * The {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode} determines whether the
+     * The {@link ApplicationPermissionMode mode} determines whether the
      * permission is to only view or also to use the {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
      * </p>
      */
@@ -31,7 +35,7 @@ public enum ApplicationPermissionType {
      * The permission prevents the ability to view/use the {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
      *
      * <p>
-     * The {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode} determines whether the
+     * The {@link ApplicationPermissionMode mode} determines whether the
      * permission is to only view or also to use the {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
      * </p>
      */

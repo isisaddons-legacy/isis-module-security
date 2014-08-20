@@ -17,14 +17,18 @@
  */
 package org.isisaddons.module.security.dom.permission;
 
+/**
+ * Named after UNIX modes (<code>chmod</code> etc), determines that nature of access (of denial of access if vetoed)
+ * to an {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
+ */
 public enum ApplicationPermissionMode {
     /**
      * Whether the user/role can view (or is prevented from viewing) the application feature (class member).
      *
      * <p>
-     * The {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionType}
-     * of the {@link org.isisaddons.module.security.dom.permission.ApplicationPermission} indicates whether the
-     * permission is an allow or a veto.
+     * The {@link ApplicationPermissionRule rule} of the
+     * {@link org.isisaddons.module.security.dom.permission.ApplicationPermission} indicates whether access is being
+     * granted or denied.
      * </p>
      */
     VISIBLE,
@@ -34,6 +38,12 @@ public enum ApplicationPermissionMode {
      * <p>
      * In other words, whether they can execute (if an action, modify/clear (if a property), addTo/removeFrom
      * (if a collection).
+     * </p>
+     *
+     * <p>
+     * The {@link ApplicationPermissionRule rule} of the
+     * {@link org.isisaddons.module.security.dom.permission.ApplicationPermission} indicates whether access is being
+     * granted or denied.
      * </p>
      *
      * <p>

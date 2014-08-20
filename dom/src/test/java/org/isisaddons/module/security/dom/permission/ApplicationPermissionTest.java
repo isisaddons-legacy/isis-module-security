@@ -1,5 +1,6 @@
 package org.isisaddons.module.security.dom.permission;
 
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureViewModel;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
@@ -32,13 +33,15 @@ public class ApplicationPermissionTest {
         @Test
         public void happyCase() throws Exception {
             // given
-            final String featureStr = "applicationFeatureMementoStr";
-            applicationPermission.setFeatureStr(featureStr);
+            final ApplicationFeatureId applicationFeatureId = ApplicationFeatureId.newPackage("org.company");
+            final String applicationFeatureEncodedString = applicationFeatureId.asEncodedString();
+            applicationPermission.setFeatureType(applicationFeatureId.getType());
+            applicationPermission.setFeatureFqn(applicationFeatureId.getFullyQualifiedName());
 
             // then
             final ApplicationFeatureViewModel applicationFeatureViewModel = new ApplicationFeatureViewModel();
             context.checking(new Expectations() {{
-                oneOf(mockContainer).newViewModelInstance(ApplicationFeatureViewModel.class, featureStr);
+                oneOf(mockContainer).newViewModelInstance(ApplicationFeatureViewModel.class, applicationFeatureEncodedString);
                 will(returnValue(applicationFeatureViewModel));
             }});
 
@@ -51,7 +54,8 @@ public class ApplicationPermissionTest {
         @Test
         public void whenNull() throws Exception {
             // given
-            applicationPermission.setFeatureStr(null);
+            applicationPermission.setFeatureType(null);
+            applicationPermission.setFeatureFqn(null);
 
             // then
             context.checking(new Expectations() {{

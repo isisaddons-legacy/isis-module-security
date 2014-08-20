@@ -1,6 +1,6 @@
 package org.isisaddons.module.security.dom.feature;
 
-enum ApplicationFeatureType {
+public enum ApplicationFeatureType {
     PACKAGE {
         @Override
         void init(ApplicationFeatureId feature, String fullyQualifiedName) {

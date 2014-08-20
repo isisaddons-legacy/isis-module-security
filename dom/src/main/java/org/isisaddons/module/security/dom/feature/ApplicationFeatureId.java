@@ -38,24 +38,42 @@ import org.apache.isis.applib.util.TitleBuffer;
 public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
 
     //region > factory methods
+    public static ApplicationFeatureId newFeature(ApplicationFeatureType featureType, String fullyQualifiedName) {
+        switch (featureType) {
+            case PACKAGE:
+                return newPackage(fullyQualifiedName);
+            case CLASS:
+                return newClass(fullyQualifiedName);
+            case MEMBER:
+                return newMember(fullyQualifiedName);
+        }
+        throw new IllegalArgumentException("Unknown feature type " + featureType);
+    }
+
     public static ApplicationFeatureId newPackage(final String packageName) {
-        final ApplicationFeatureId feature = new ApplicationFeatureId(ApplicationFeatureType.PACKAGE);
-        feature.setPackageName(packageName);
-        return feature;
+        final ApplicationFeatureId featureId = new ApplicationFeatureId(ApplicationFeatureType.PACKAGE);
+        featureId.setPackageName(packageName);
+        return featureId;
     }
 
     public static ApplicationFeatureId newClass(final String fullyQualifiedClassName) {
-        final ApplicationFeatureId feature = new ApplicationFeatureId(ApplicationFeatureType.CLASS);
-        feature.type.init(feature, fullyQualifiedClassName);
-        return feature;
+        final ApplicationFeatureId featureId = new ApplicationFeatureId(ApplicationFeatureType.CLASS);
+        featureId.type.init(featureId, fullyQualifiedClassName);
+        return featureId;
     }
 
     public static ApplicationFeatureId newMember(final String fullyQualifiedClassName, final String memberName) {
-        final ApplicationFeatureId feature = new ApplicationFeatureId(ApplicationFeatureType.MEMBER);
-        ApplicationFeatureType.CLASS.init(feature, fullyQualifiedClassName);
-        feature.type = ApplicationFeatureType.MEMBER;
-        feature.setMemberName(memberName);
-        return feature;
+        final ApplicationFeatureId featureId = new ApplicationFeatureId(ApplicationFeatureType.MEMBER);
+        ApplicationFeatureType.CLASS.init(featureId, fullyQualifiedClassName);
+        featureId.type = ApplicationFeatureType.MEMBER;
+        featureId.setMemberName(memberName);
+        return featureId;
+    }
+
+    public static ApplicationFeatureId newMember(final String fullyQualifiedName) {
+        final ApplicationFeatureId featureId = new ApplicationFeatureId(ApplicationFeatureType.MEMBER);
+        featureId.type.init(featureId, fullyQualifiedName);
+        return featureId;
     }
 
     /**
@@ -77,8 +95,8 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
 
     private ApplicationFeatureId(String asString) {
         final Iterator<String> iterator = Splitter.on(":").split(asString).iterator();
-        final ApplicationFeatureType type1 = ApplicationFeatureType.valueOf(iterator.next());
-        type1.init(this, iterator.next());
+        final ApplicationFeatureType type = ApplicationFeatureType.valueOf(iterator.next());
+        type.init(this, iterator.next());
     }
 
     ApplicationFeatureId(ApplicationFeatureType type) {
@@ -259,6 +277,7 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
         }
         throw new IllegalStateException("Unknown feature type " + type);
     }
+
     //endregion
 
 }
