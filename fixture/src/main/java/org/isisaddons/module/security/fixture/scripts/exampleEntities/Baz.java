@@ -17,7 +17,7 @@
  *  under the License.
  */
 
-package org.isisaddons.module.security.fixture.scripts.entities;
+package org.isisaddons.module.security.fixture.scripts.exampleEntities;
 
 public class Baz extends AbstractEntityFixture {
 

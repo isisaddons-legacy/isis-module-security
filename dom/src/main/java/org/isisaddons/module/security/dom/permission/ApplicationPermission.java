@@ -20,9 +20,12 @@ package org.isisaddons.module.security.dom.permission;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
+import javax.jdo.annotations.VersionStrategy;
 import org.isisaddons.module.security.dom.actor.ApplicationRole;
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.Disabled;
+import org.apache.isis.applib.util.TitleBuffer;
 
 /**
  * Specifies how a particular {@link #getRole() application role} may interact with a specific
@@ -52,10 +55,53 @@ import org.apache.isis.applib.annotation.Disabled;
  * </ul>
  * </p>
  */
-@javax.jdo.annotations.PersistenceCapable(identityType = IdentityType.DATASTORE)
-@javax.jdo.annotations.Inheritance(strategy = InheritanceStrategy.NEW_TABLE)
-@javax.jdo.annotations.DatastoreIdentity(strategy = IdGeneratorStrategy.NATIVE, column = "id")
+@javax.jdo.annotations.PersistenceCapable(
+        identityType = IdentityType.DATASTORE, table = "IsisSecurityApplicationPermission")
+@javax.jdo.annotations.Inheritance(
+        strategy = InheritanceStrategy.NEW_TABLE)
+@javax.jdo.annotations.DatastoreIdentity(
+        strategy = IdGeneratorStrategy.NATIVE, column = "id")
+@javax.jdo.annotations.Version(
+        strategy = VersionStrategy.VERSION_NUMBER,
+        column = "version")
+@javax.jdo.annotations.Queries( {
+        @javax.jdo.annotations.Query(
+                name = "findByRole", language = "JDOQL",
+                value = "SELECT "
+                        + "FROM org.isisaddons.module.security.dom.permission.ApplicationPermission "
+                        + "WHERE role == :role"),
+        @javax.jdo.annotations.Query(
+                name = "findByFeature", language = "JDOQL",
+                value = "SELECT "
+                        + "FROM org.isisaddons.module.security.dom.permission.ApplicationPermission "
+                        + "WHERE featureStr == :feature"),
+        @javax.jdo.annotations.Query(
+                name = "findByRole", language = "JDOQL",
+                value = "SELECT "
+                        + "FROM org.isisaddons.module.security.dom.permission.ApplicationPermission "
+                        + "WHERE role == :role")
+
+})
+@javax.jdo.annotations.Uniques({
+        @javax.jdo.annotations.Unique(
+                name = "IsisSecurityApplicationPermission_role_featureStr_mode_UNQ", members = { "name", "featureStr", "mode" })
+})
 public class ApplicationPermission {
+
+    //region > identification
+    /**
+     * having a title() method (rather than using @Title annotation) is necessary as a workaround to be able to use
+     * wrapperFactory#unwrap(...) method, which is otherwise broken in Isis 1.6.0
+     */
+    public String title() {
+        final TitleBuffer buf = new TitleBuffer();
+        buf.append(getRole().getName())           // admin
+           .append(": ").append(getType())        // ALLOW|VETO
+           .append(" ").append(getFeatureStr())   // com.mycompany.Bar#*
+           .append(" ").append(getMode());        // VISIBLE|USABLE
+        return buf.toString();
+    }
+    //endregion
 
     //region > Role
 
@@ -67,7 +113,7 @@ public class ApplicationPermission {
         return role;
     }
 
-    public void setRole(ApplicationRole role) {
+    public void setRole(final ApplicationRole role) {
         this.role = role;
     }
 
@@ -80,7 +126,8 @@ public class ApplicationPermission {
     @javax.jdo.annotations.NotPersistent
     @Disabled
     public ApplicationFeature getFeature() {
-        return null;
+        return getFeatureStr() != null?
+            container.newViewModelInstance(ApplicationFeature.class, getFeatureStr()): null;
     }
 
     private String featureStr;
@@ -126,9 +173,15 @@ public class ApplicationPermission {
         return type;
     }
 
-    public void setType(ApplicationPermissionType type) {
+    public void setType(final ApplicationPermissionType type) {
         this.type = type;
     }
     //endregion
 
+    // //////////////////////////////////////
+
+    //region  >  (injected)
+    @javax.inject.Inject
+    DomainObjectContainer container;
+    //endregion
 }

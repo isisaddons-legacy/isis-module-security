@@ -20,26 +20,47 @@ package org.isisaddons.module.security.dom.actor;
 import java.util.List;
 
 import org.apache.isis.applib.AbstractFactoryAndRepository;
-import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
-import org.apache.isis.applib.annotation.DomainService;
-import org.apache.isis.applib.annotation.Named;
+import org.apache.isis.applib.query.QueryDefault;
 
 @Named("Application Users")
 @DomainService
 public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     @ActionSemantics(Of.SAFE)
-    public List<ApplicationUser> allUsers() {
-        return allInstances(ApplicationUser.class);
+    public ApplicationUser me() {
+        final String myName = getContainer().getUser().getName();
+        return findByName(myName);
     }
 
+    @ActionSemantics(Of.SAFE)
+    public ApplicationUser findByName(final String name) {
+        return uniqueMatch(new QueryDefault<ApplicationUser>(ApplicationUser.class, "findByName", "name", name));
+    }
+
+
     @ActionSemantics(Of.NON_IDEMPOTENT)
-    public ApplicationUser addUser(@Named("Name") String name) {
+    public ApplicationUser newUser(@Named("Name") String name) {
         ApplicationUser user = newTransientInstance(ApplicationUser.class);
         user.setName(name);
         persist(user);
         return user;
     }
+
+    @Prototype
+    @ActionSemantics(Of.SAFE)
+    public List<ApplicationUser> allUsers() {
+        return allInstances(ApplicationUser.class);
+    }
+
+    @Programmatic // not part of metamodel
+    public List<ApplicationUser> autoComplete(final String name) {
+        return allMatches(
+                new QueryDefault<ApplicationUser>(ApplicationUser.class,
+                        "findByNameContaining",
+                        "name", name));
+    }
+
 
 }

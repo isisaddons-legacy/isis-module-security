@@ -20,18 +20,18 @@
 package org.isisaddons.module.security.fixture.scripts;
 
 import org.isisaddons.module.security.fixture.dom.ExampleSecuredEntities;
-import org.isisaddons.module.security.fixture.scripts.entities.Bar;
-import org.isisaddons.module.security.fixture.scripts.entities.Baz;
-import org.isisaddons.module.security.fixture.scripts.entities.Bip;
-import org.isisaddons.module.security.fixture.scripts.entities.Bop;
+import org.isisaddons.module.security.fixture.scripts.exampleEntities.Bar;
+import org.isisaddons.module.security.fixture.scripts.exampleEntities.Baz;
+import org.isisaddons.module.security.fixture.scripts.exampleEntities.Bip;
+import org.isisaddons.module.security.fixture.scripts.exampleEntities.Bop;
 import org.apache.isis.applib.fixturescripts.DiscoverableFixtureScript;
 
-public class ExampleSecuredEntitiesSetUpFixture extends DiscoverableFixtureScript {
+public class SecurityModuleAppSetUpFixture extends DiscoverableFixtureScript {
 
     @Override
     protected void execute(ExecutionContext executionContext) {
 
-        execute(new ExampleSecuredEntitiesTearDownFixture(), executionContext);
+        execute(new SecurityModuleAppTearDownFixture(), executionContext);
 
         execute(new Bip(), executionContext);
         execute(new Bar(), executionContext);

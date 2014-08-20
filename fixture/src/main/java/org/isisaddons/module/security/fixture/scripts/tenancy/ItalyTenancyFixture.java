@@ -17,13 +17,15 @@
  *  under the License.
  */
 
-package org.isisaddons.module.security.fixture.scripts.entities;
+package org.isisaddons.module.security.fixture.scripts.tenancy;
 
-public class Bop extends AbstractEntityFixture {
+public class ItalyTenancyFixture extends AbstractTenancyFixture {
+
+    public static final String TENANCY_NAME = "italy";
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        create("Bop", executionContext);
+        create(TENANCY_NAME, executionContext);
     }
 
 }

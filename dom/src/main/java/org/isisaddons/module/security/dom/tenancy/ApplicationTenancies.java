@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.dom.actor;
+package org.isisaddons.module.security.dom.tenancy;
 
 import java.util.List;
 import org.apache.isis.applib.AbstractFactoryAndRepository;
@@ -25,35 +25,26 @@ import org.apache.isis.applib.query.QueryDefault;
 
 @Named("Application Roles")
 @DomainService
-public class ApplicationRoles extends AbstractFactoryAndRepository {
+public class ApplicationTenancies extends AbstractFactoryAndRepository {
 
     @ActionSemantics(Of.SAFE)
-    public ApplicationRole findByName(final String name) {
-        return uniqueMatch(new QueryDefault<ApplicationRole>(ApplicationRole.class, "findByName", "name", name));
+    public ApplicationTenancy findByName(final String name) {
+        return uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByName", "name", name));
     }
 
     @ActionSemantics(Of.NON_IDEMPOTENT)
-    public ApplicationRole newRole(
+    public ApplicationTenancy newTenancy(
             final @Named("Name") String name) {
-        ApplicationRole role = newTransientInstance(ApplicationRole.class);
-        role.setName(name);
-        persist(role);
-        return role;
+        ApplicationTenancy tenancy = newTransientInstance(ApplicationTenancy.class);
+        tenancy.setName(name);
+        persist(tenancy);
+        return tenancy;
     }
 
     @Prototype
     @ActionSemantics(Of.SAFE)
-    public List<ApplicationRole> allRoles() {
-        return allInstances(ApplicationRole.class);
-    }
-
-
-    @Programmatic // not part of metamodel
-    public List<ApplicationRole> autoComplete(final String name) {
-        return allMatches(
-                new QueryDefault<ApplicationRole>(ApplicationRole.class,
-                        "findByNameContaining",
-                        "name", name));
+    public List<ApplicationTenancy> allTenancies() {
+        return allInstances(ApplicationTenancy.class);
     }
 
 }

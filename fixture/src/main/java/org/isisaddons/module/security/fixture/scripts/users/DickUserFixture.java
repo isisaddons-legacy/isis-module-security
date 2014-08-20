@@ -17,20 +17,15 @@
  *  under the License.
  */
 
-package org.isisaddons.module.security.fixture.scripts;
+package org.isisaddons.module.security.fixture.scripts.users;
 
-import org.apache.isis.applib.fixturescripts.FixtureScript;
-import org.apache.isis.objectstore.jdo.applib.service.support.IsisJdoSupport;
+public class DickUserFixture extends AbstractUserFixture {
 
-public class ExampleSecuredEntitiesTearDownFixture extends FixtureScript {
+    public static final String USER_NAME = "dick";
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        isisJdoSupport.executeUpdate("delete from \"ExampleSecuredEntity\"");
+        create(USER_NAME, executionContext);
     }
-
-
-    @javax.inject.Inject
-    private IsisJdoSupport isisJdoSupport;
 
 }

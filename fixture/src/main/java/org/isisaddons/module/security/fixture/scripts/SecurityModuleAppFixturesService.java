@@ -33,13 +33,13 @@ import org.apache.isis.applib.fixturescripts.SimpleFixtureScript;
  */
 @DomainService(menuOrder = "20")
 @Named("Prototyping")
-public class ExampleSecuredEntitiesFixturesService extends FixtureScripts {
+public class SecurityModuleAppFixturesService extends FixtureScripts {
 
-    public ExampleSecuredEntitiesFixturesService() {
+    public SecurityModuleAppFixturesService() {
         super("org.isisaddons.module.security.fixture.scripts");
     }
 
-    //@Override // compatibility with core 1.5.0
+    @Override
     public FixtureScript default0RunFixtureScript() {
         return findFixtureScriptFor(SimpleFixtureScript.class);
     }
@@ -60,7 +60,7 @@ public class ExampleSecuredEntitiesFixturesService extends FixtureScripts {
     @Prototype
     @MemberOrder(sequence="20")
     public Object installFixturesAndReturnFirst() {
-        final List<FixtureResult> run = findFixtureScriptFor(ExampleSecuredEntitiesSetUpFixture.class).run(null);
+        final List<FixtureResult> run = findFixtureScriptFor(SecurityModuleAppSetUpFixture.class).run(null);
         return run.get(0).getObject();
     }
 

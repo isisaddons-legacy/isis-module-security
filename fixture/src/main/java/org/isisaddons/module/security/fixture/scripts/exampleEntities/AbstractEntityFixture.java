@@ -1,4 +1,4 @@
-package org.isisaddons.module.security.fixture.scripts.entities;
+package org.isisaddons.module.security.fixture.scripts.exampleEntities;
 
 import org.isisaddons.module.security.fixture.dom.ExampleSecuredEntities;
 import org.isisaddons.module.security.fixture.dom.ExampleSecuredEntity;

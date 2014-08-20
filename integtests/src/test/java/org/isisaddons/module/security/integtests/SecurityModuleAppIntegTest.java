@@ -16,14 +16,22 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+package org.isisaddons.module.security.integtests;
 
-package org.isisaddons.module.security.fixture.scripts.entities;
+import org.junit.BeforeClass;
 
-public class Bar extends AbstractEntityFixture {
+import org.apache.isis.core.integtestsupport.IntegrationTestAbstract;
+import org.apache.isis.core.integtestsupport.scenarios.ScenarioExecutionForIntegration;
 
-    @Override
-    protected void execute(ExecutionContext executionContext) {
-        create("Bar", executionContext);
+public abstract class SecurityModuleAppIntegTest extends IntegrationTestAbstract {
+
+    @BeforeClass
+    public static void initClass() {
+        org.apache.log4j.PropertyConfigurator.configure("logging.properties");
+        SecurityModuleAppSystemInitializer.initIsft();
+        
+        // instantiating will install onto ThreadLocal
+        new ScenarioExecutionForIntegration();
     }
 
 }

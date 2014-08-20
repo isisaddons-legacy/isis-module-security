@@ -17,13 +17,15 @@
  *  under the License.
  */
 
-package org.isisaddons.module.security.fixture.scripts.entities;
+package org.isisaddons.module.security.fixture.scripts.users;
 
-public class Bip extends AbstractEntityFixture {
+public class SvenUserFixture extends AbstractUserFixture {
+
+    public static final String USER_NAME = "sven";
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        create("Bip", executionContext);
+        create(USER_NAME, executionContext);
     }
 
 }

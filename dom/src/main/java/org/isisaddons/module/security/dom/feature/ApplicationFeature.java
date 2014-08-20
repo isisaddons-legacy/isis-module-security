@@ -30,17 +30,15 @@ import com.google.common.io.BaseEncoding;
 import org.apache.isis.applib.ViewModel;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Programmatic;
-import org.apache.isis.applib.annotation.Title;
 import org.apache.isis.applib.util.ObjectContracts;
+import org.apache.isis.applib.util.TitleBuffer;
 
 /**
  * Value type (compares only package, class and member names).
  */
 public class ApplicationFeature implements ViewModel, Comparable<ApplicationFeature> {
 
-
     //region > factory methods
-
     public static ApplicationFeature newPackage(final String packageName) {
         final ApplicationFeature feature = new ApplicationFeature(ApplicationFeatureType.PACKAGE);
         feature.setPackageName(packageName);
@@ -110,9 +108,20 @@ public class ApplicationFeature implements ViewModel, Comparable<ApplicationFeat
 
     //endregion
 
+    //region > identification
+    /**
+     * having a title() method (rather than using @Title annotation) is necessary as a workaround to be able to use
+     * wrapperFactory#unwrap(...) method, which is otherwise broken in Isis 1.6.0
+     */
+    public String title() {
+        final TitleBuffer buf = new TitleBuffer();
+        buf.append(getFullyQualifiedName());
+        return buf.toString();
+    }
+    //endregion
+
     //region > FullyQualifiedName
 
-    @Title
     @MemberOrder(sequence = "1.2")
     public String getFullyQualifiedName() {
         final StringBuilder buf = new StringBuilder();
@@ -205,6 +214,16 @@ public class ApplicationFeature implements ViewModel, Comparable<ApplicationFeat
 
     //region > Package or Class: getParentPackage
 
+    /**
+     * The parent package feature of this class or package.
+     *
+     * <p>
+     *  Note that the feature will <i>not</i> be the same instance as the package found using
+     *  {@link ApplicationFeatures#findPackage(org.isisaddons.module.security.dom.feature.ApplicationFeature)}; the
+     *  latter (<i>canonical</i> instance) will have its {@link ApplicationFeature#getContents() contents} populated.
+     * </p>
+     * @return
+     */
     @Programmatic
     public ApplicationFeature getParentPackage() {
         type.ensurePackageOrClass(this);
@@ -275,17 +294,21 @@ public class ApplicationFeature implements ViewModel, Comparable<ApplicationFeat
 
     @Override
     public String toString() {
-        return ObjectContracts.toString(this, propertyNames);
+        switch (type) {
+            case PACKAGE:
+                return ObjectContracts.toString(this, "type, packageName");
+            case CLASS:
+                return ObjectContracts.toString(this, "type, packageName, className");
+            default:
+                return ObjectContracts.toString(this, propertyNames);
+        }
     }
 
     //endregion
 
 
     //region > injected services
-
-    @javax.inject.Inject
-    ApplicationFeatures applicationFeatures;
-
-
     //endregion
+
+
 }
