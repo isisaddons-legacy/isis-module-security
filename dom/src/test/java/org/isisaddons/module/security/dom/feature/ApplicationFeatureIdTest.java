@@ -116,10 +116,7 @@ public class ApplicationFeatureIdTest {
             // when
             final ApplicationFeatureId parentPackageId = applicationFeatureId.getParentPackageId();
             // then
-            assertThat(parentPackageId.getType(), is(ApplicationFeatureType.PACKAGE));
-            assertThat(parentPackageId.getPackageName(), is(""));
-            assertThat(parentPackageId.getClassName(), is(nullValue()));
-            assertThat(parentPackageId.getMemberName(), is(nullValue()));
+            assertThat(parentPackageId, is(nullValue()));
         }
 
         @Test

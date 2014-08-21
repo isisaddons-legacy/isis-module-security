@@ -97,10 +97,6 @@ public class ApplicationFeaturesTest {
 
                 oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
                 inSequence(sequence);
-                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage(""))));
-
-                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
-                inSequence(sequence);
                 will(returnValue(new ApplicationFeature(ApplicationFeatureId.newMember("com.mycompany.Bar", "someProperty"))));
 
                 oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);

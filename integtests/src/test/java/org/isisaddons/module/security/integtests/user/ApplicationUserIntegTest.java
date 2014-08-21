@@ -110,8 +110,8 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
                 // then
                 expectedExceptions.expect(InvalidException.class);
                 expectedExceptions.expectMessage(allOf(
-                            containsString("Invalid action argument. Position: 0. Proposed value: null. Reason: Source: org.isisaddons.module.security.dom.actor.ApplicationUser"),
-                            containsString("Reason: Mandatory. Identifier: org.isisaddons.module.security.dom.actor.ApplicationUser#updateName(java.lang.String)")
+                            containsString("Invalid action argument."),
+                            containsString("Reason: 'Name' is mandatory.")
                         ));
 
                 // when

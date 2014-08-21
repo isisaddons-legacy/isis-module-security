@@ -91,6 +91,9 @@ public class ApplicationFeatureViewModel implements ViewModel {
         parentId = getType() == ApplicationFeatureType.MEMBER
                 ? getFeatureId().getParentClassId()
                 : getFeatureId().getParentPackageId();
+        if(parentId == null) {
+            return null;
+        }
         final ApplicationFeature feature = applicationFeatures.findFeature(parentId);
         return feature != null
                 ? container.newViewModelInstance(ApplicationFeatureViewModel.class, parentId.asEncodedString())

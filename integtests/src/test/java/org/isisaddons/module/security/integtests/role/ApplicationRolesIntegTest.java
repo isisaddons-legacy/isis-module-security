@@ -21,6 +21,10 @@ package org.isisaddons.module.security.integtests.role;
 import java.util.List;
 import javax.inject.Inject;
 import javax.jdo.JDODataStoreException;
+import com.google.common.base.Throwables;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.isisaddons.module.security.dom.actor.ApplicationRole;
 import org.isisaddons.module.security.dom.actor.ApplicationRoles;
 import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
@@ -71,13 +75,33 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
         public void alreadyExists() throws Exception {
 
             // then
-            expectedExceptions.expect(JDODataStoreException.class);
+            expectedExceptions.expect(causalChainContains(JDODataStoreException.class));
 
             // given
             applicationRoles.newRole("guest");
 
             // when
             applicationRoles.newRole("guest");
+        }
+
+        private static <T extends Throwable> Matcher<T> causalChainContains(final Class<?> cls) {
+            return new TypeSafeMatcher<T>(){
+                @Override
+                protected boolean matchesSafely(T item) {
+                    final List<Throwable> causalChain = Throwables.getCausalChain(item);
+                    for (Throwable t : causalChain) {
+                        if(cls.isAssignableFrom(t.getClass())) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                @Override
+                public void describeTo(Description description) {
+                    description.appendText("causal chain contains " + cls.getName());
+                }
+            };
         }
     }
 

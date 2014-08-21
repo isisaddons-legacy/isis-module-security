@@ -18,6 +18,7 @@
 package org.isisaddons.module.security.dom.permission;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
@@ -26,6 +27,7 @@ import javax.jdo.annotations.VersionStrategy;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 import org.isisaddons.module.security.dom.actor.ApplicationRole;
 import org.isisaddons.module.security.dom.feature.*;
 import org.apache.isis.applib.DomainObjectContainer;
@@ -396,6 +398,12 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
         return ObjectContracts.toString(this, propertyNames);
     }
 
+    public static class DefaultComparator implements Comparator<ApplicationPermission> {
+        @Override
+        public int compare(ApplicationPermission o1, ApplicationPermission o2) {
+            return Ordering.natural().compare(o1, o2);
+        }
+    }
     //endregion
 
     //region > Functions
@@ -423,6 +431,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     @javax.inject.Inject
     ApplicationPermissions applicationPermissions;
+
     //endregion
 
 }
