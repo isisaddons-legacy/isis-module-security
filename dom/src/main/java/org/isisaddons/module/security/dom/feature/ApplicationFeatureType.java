@@ -1,5 +1,7 @@
 package org.isisaddons.module.security.dom.feature;
 
+import org.apache.isis.core.commons.lang.StringExtensions;
+
 public enum ApplicationFeatureType {
     PACKAGE {
         @Override
@@ -71,6 +73,12 @@ public enum ApplicationFeatureType {
         if(feature.type != ApplicationFeatureType.MEMBER) {
             throw new IllegalStateException("Can only be called for a member; " + feature.toString());
         }
+    }
+
+
+    @Override
+    public String toString() {
+        return StringExtensions.capitalize(name());
     }
 
 }

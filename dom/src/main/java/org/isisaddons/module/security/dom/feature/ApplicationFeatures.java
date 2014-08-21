@@ -18,13 +18,14 @@
 package org.isisaddons.module.security.dom.feature;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.SortedMap;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjector;
@@ -50,28 +51,36 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     @Programmatic
     @PostConstruct
     public void init() {
-        primeMetaModel();
-        createApplicationFeatures();
+        final Collection<ObjectSpecification> specifications =primeMetaModel();
+        createApplicationFeaturesFor(specifications);
     }
 
-    private void primeMetaModel() {
+    private Collection<ObjectSpecification> primeMetaModel() {
         final List<Object> services = servicesInjector.getRegisteredServices();
         for (Object service : services) {
             specificationLoader.loadSpecification(service.getClass());
         }
+        return specificationLoader.allSpecifications();
     }
 
-    void createApplicationFeatures() {
-
-        final Collection<ObjectSpecification> specifications = specificationLoader.allSpecifications();
-
-        for (ObjectSpecification spec : specifications) {
-            load(spec);
+    private void createApplicationFeaturesFor(Collection<ObjectSpecification> specifications) {
+        // take copy to avoid ConcurrentModificationException
+        final List<ObjectSpecification> objectSpecifications = Lists.newArrayList(specifications);
+        for (ObjectSpecification spec : objectSpecifications) {
+            createApplicationFeaturesFor(spec);
         }
     }
 
-    void load(ObjectSpecification spec) {
+    void createApplicationFeaturesFor(ObjectSpecification spec) {
         if (exclude(spec)) {
+            return;
+        }
+
+        final List<ObjectAssociation> properties = spec.getAssociations(Contributed.INCLUDED, ObjectAssociation.Filters.PROPERTIES);
+        final List<ObjectAssociation> collections = spec.getAssociations(Contributed.INCLUDED, ObjectAssociation.Filters.COLLECTIONS);
+        final List<ObjectAction> actions = spec.getObjectActions(Contributed.INCLUDED);
+
+        if(properties.isEmpty() && collections.isEmpty() && actions.isEmpty()) {
             return;
         }
 
@@ -85,15 +94,12 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
 
         addParents(classParentPackageId);
 
-        final List<ObjectAssociation> properties = spec.getAssociations(Contributed.INCLUDED, ObjectAssociation.Filters.PROPERTIES);
         for (ObjectAssociation property : properties) {
             newMember(classFeatureId, property);
         }
-        final List<ObjectAssociation> associations = spec.getAssociations(Contributed.INCLUDED, ObjectAssociation.Filters.COLLECTIONS);
-        for (ObjectAssociation collection : associations) {
+        for (ObjectAssociation collection : collections) {
             newMember(classFeatureId, collection);
         }
-        final List<ObjectAction> actions = spec.getObjectActions(Contributed.INCLUDED);
         for (ObjectAction act : actions) {
             newMember(classFeatureId, act);
         }
@@ -126,7 +132,6 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     private ApplicationFeature findPackageElseCreate(ApplicationFeatureId parentPackageId) {
         ApplicationFeature parentPackage = findPackage(parentPackageId);
         if (parentPackage == null) {
-            // new package, so add it
             parentPackage = newPackage(parentPackageId);
         }
         return parentPackage;
@@ -200,22 +205,34 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
 
     //endregion
 
-    //region > allPackages
-    @ActionSemantics(ActionSemantics.Of.SAFE)
+    //region > allFeatures, allPackages, allClasses, allMembers
+    @Programmatic
+    public Collection<ApplicationFeature> allFeatures(ApplicationFeatureType featureType) {
+        if(featureType == null) {
+            return Collections.emptyList();
+        }
+        switch (featureType) {
+            case PACKAGE:
+                return allPackages();
+            case CLASS:
+                return allClasses();
+            case MEMBER:
+                return allMembers();
+        }
+        throw new IllegalArgumentException("Unknown feature type " + featureType);
+    }
+
+    @Programmatic
     public Collection<ApplicationFeature> allPackages() {
         return packageFeatures.values();
     }
-    //endregion
 
-    //region > allClasses
-    @ActionSemantics(ActionSemantics.Of.SAFE)
+    @Programmatic
     public Collection<ApplicationFeature> allClasses() {
         return classFeatures.values();
     }
-    //endregion
 
-    //region > allMembers
-    @ActionSemantics(ActionSemantics.Of.SAFE)
+    @Programmatic
     public Collection<ApplicationFeature> allMembers() {
         return memberFeatures.values();
     }
@@ -241,6 +258,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     public void setServicesInjector(ServicesInjector servicesInjector) {
         this.servicesInjector = servicesInjector;
     }
+
     //endregion
 
 }

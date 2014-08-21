@@ -26,7 +26,6 @@ import org.apache.isis.applib.annotation.Prototype;
 import org.apache.isis.applib.fixturescripts.FixtureResult;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 import org.apache.isis.applib.fixturescripts.FixtureScripts;
-import org.apache.isis.applib.fixturescripts.SimpleFixtureScript;
 
 /**
  * Enables fixtures to be installed from the application.
@@ -41,7 +40,7 @@ public class SecurityModuleAppFixturesService extends FixtureScripts {
 
     @Override
     public FixtureScript default0RunFixtureScript() {
-        return findFixtureScriptFor(SimpleFixtureScript.class);
+        return findFixtureScriptFor(SecurityModuleAppSetUp.class);
     }
 
     /**
@@ -60,7 +59,7 @@ public class SecurityModuleAppFixturesService extends FixtureScripts {
     @Prototype
     @MemberOrder(sequence="20")
     public Object installFixturesAndReturnFirst() {
-        final List<FixtureResult> run = findFixtureScriptFor(SecurityModuleAppSetUpFixture.class).run(null);
+        final List<FixtureResult> run = findFixtureScriptFor(SecurityModuleAppSetUp.class).run(null);
         return run.get(0).getObject();
     }
 

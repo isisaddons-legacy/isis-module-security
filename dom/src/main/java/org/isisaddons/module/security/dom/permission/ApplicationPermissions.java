@@ -21,47 +21,133 @@ import java.util.List;
 import javax.inject.Inject;
 import org.isisaddons.module.security.dom.actor.ApplicationRole;
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
+import org.apache.isis.applib.query.QueryDefault;
 
 @DomainService
 public class ApplicationPermissions {
 
-    //region > newPermission (action)
-    @MemberOrder(sequence = "1")
+    //region > findByRole (programmatic)
+    @Programmatic
+    public List<ApplicationPermission> findByRole(final ApplicationRole role) {
+        return container.allMatches(
+                new QueryDefault<>(
+                        ApplicationPermission.class, "findByRole",
+                        "role", role));
+    }
+    //endregion
+
+    //region > findByRoleAndRuleAndFeatureType (programmatic)
+    @Programmatic
+    public List<ApplicationPermission> findByRoleAndRuleAndFeatureType(
+            final ApplicationPermissionRule rule,
+            final ApplicationFeatureType type,
+            final ApplicationRole role) {
+        return container.allMatches(
+                new QueryDefault<>(
+                        ApplicationPermission.class, "findByRoleAndRuleAndFeatureType",
+                        "role", role,
+                        "rule", rule,
+                        "featureType", type));
+    }
+    //endregion
+
+    //region > findByRoleAndRuleAndFeature (programmatic)
+    @Programmatic
+    public ApplicationPermission findByRoleAndRuleAndFeature(ApplicationPermissionRule rule, ApplicationFeatureType type, String featureFqn) {
+        return container.firstMatch(
+                new QueryDefault<>(
+                        ApplicationPermission.class, "findByRoleAndRuleAndFeature",
+                        "role", this,
+                        "rule", rule,
+                        "featureType", type,
+                        "featureFqn", featureFqn ));
+    }
+    //endregion
+
+    //region > findByFeature (programmatic)
+    @Programmatic
+    public List<ApplicationPermission> findByFeature(ApplicationFeatureId featureId) {
+        return container.allMatches(
+                new QueryDefault<>(
+                        ApplicationPermission.class, "findByFeature",
+                        "featureType", featureId.getType(),
+                        "featureFqn", featureId.getFullyQualifiedName()));
+    }
+    //endregion
+
+    //region > newPermission (programmatic)
+
+    @Programmatic
+    public void newPermission(
+            final ApplicationRole role,
+            final ApplicationPermissionRule rule,
+            final ApplicationPermissionMode mode,
+            final ApplicationFeatureType featureType,
+            final String featureFqn) {
+        final ApplicationFeatureId featureId = ApplicationFeatureId.newFeature(featureType, featureFqn);
+        final ApplicationFeature feature = applicationFeatures.findFeature(featureId);
+        if(feature == null) {
+            container.warnUser("No such " + featureType.name().toLowerCase() + ": " + featureFqn);
+            return;
+        }
+        final ApplicationPermission permission = container.newTransientInstance(ApplicationPermission.class);
+        permission.setRole(role);
+        permission.setRule(rule);
+        permission.setMode(mode);
+        permission.setFeatureType(featureType);
+        permission.setFeatureFqn(featureFqn);
+        container.persistIfNotAlready(permission);
+    }
+
+    @Programmatic
     public ApplicationPermission newPermission(
             final ApplicationRole role,
-            final ApplicationFeature feature,
-            final @Named("Type") ApplicationPermissionRule type,
-            final @Named("Mode") ApplicationPermissionMode mode) {
+            final ApplicationPermissionRule rule,
+            final ApplicationPermissionMode mode,
+            final String featurePackage,
+            final @Optional String featureClassName,
+            final @Optional String featureMemberName) {
+        ApplicationFeatureId featureId = ApplicationFeatureId.newFeature(featurePackage, featureClassName, featureMemberName);
+        final ApplicationFeatureType featureType = featureId.getType();
+        final String featureFqn = featureId.getFullyQualifiedName();
+
+        final ApplicationFeature feature = applicationFeatures.findFeature(featureId);
+        if(feature == null) {
+            container.warnUser("No such " + featureType.name().toLowerCase() + ": " + featureFqn);
+            return null;
+        }
+
         final ApplicationPermission permission = container.newTransientInstance(ApplicationPermission.class);
-        permission.setFeatureType(feature.getFeatureId().getType());
-        permission.setFeatureFqn(feature.getFeatureId().getFullyQualifiedName());
-        return null; // TODO: business logic here
+        permission.setRole(role);
+        permission.setRule(rule);
+        permission.setMode(mode);
+        permission.setFeatureType(featureType);
+        permission.setFeatureFqn(featureFqn);
+        container.persistIfNotAlready(permission);
+
+        return permission;
     }
     //endregion
 
-    //region > newPermission (action)
+    //region > allPermission (action)
     @Prototype
     @ActionSemantics(ActionSemantics.Of.SAFE)
-    @MemberOrder(sequence = "99")
-    public List<ApplicationPermission> findByRole(final ApplicationRole role) {
-        return container.allInstances(ApplicationPermission.class);
-    }
-    //endregion
-
-    //region > newPermission (action)
-    @Prototype
-    @ActionSemantics(ActionSemantics.Of.SAFE)
-    @MemberOrder(sequence = "99")
+    @MemberOrder(name = "Security", sequence = "60.9")
     public List<ApplicationPermission> allPermissions() {
         return container.allInstances(ApplicationPermission.class);
     }
     //endregion
 
-
     //region  >  (injected)
     @Inject
     DomainObjectContainer container;
+    @Inject
+    ApplicationFeatures applicationFeatures;
+
     //endregion
 }

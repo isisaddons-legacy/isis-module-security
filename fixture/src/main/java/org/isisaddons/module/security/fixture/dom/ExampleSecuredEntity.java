@@ -25,7 +25,8 @@ import org.apache.isis.applib.annotation.Title;
 )
 public class ExampleSecuredEntity {
 
-    // //////////////////////////////////////
+
+    //region > name
 
     private String name;
 
@@ -39,6 +40,22 @@ public class ExampleSecuredEntity {
     public void setName(final String name) {
         this.name = name;
     }
+    //endregion
+
+    //region > description
+
+    private String description;
+
+    @javax.jdo.annotations.Column(allowsNull="true")
+    @MemberOrder(sequence="2")
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(final String description) {
+        this.description = description;
+    }
+    //endregion
 
 
 }

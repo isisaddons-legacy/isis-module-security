@@ -27,11 +27,13 @@ import org.apache.isis.applib.query.QueryDefault;
 @DomainService
 public class ApplicationRoles extends AbstractFactoryAndRepository {
 
+    @MemberOrder(name = "Security", sequence = "20.1")
     @ActionSemantics(Of.SAFE)
-    public ApplicationRole findByName(final String name) {
+    public ApplicationRole findRoleByName(final String name) {
         return uniqueMatch(new QueryDefault<ApplicationRole>(ApplicationRole.class, "findByName", "name", name));
     }
 
+    @MemberOrder(name = "Security", sequence = "20.2")
     @ActionSemantics(Of.NON_IDEMPOTENT)
     public ApplicationRole newRole(
             final @Named("Name") String name) {
@@ -41,6 +43,7 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
         return role;
     }
 
+    @MemberOrder(name = "Security", sequence = "20.2")
     @Prototype
     @ActionSemantics(Of.SAFE)
     public List<ApplicationRole> allRoles() {

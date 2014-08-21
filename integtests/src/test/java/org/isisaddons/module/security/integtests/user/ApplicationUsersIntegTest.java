@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import javax.jdo.JDODataStoreException;
 import org.isisaddons.module.security.dom.actor.ApplicationUser;
 import org.isisaddons.module.security.dom.actor.ApplicationUsers;
-import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDownFixture;
+import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
 import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,7 +42,7 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
 
     @Before
     public void setUpData() throws Exception {
-        scenarioExecution().install(new SecurityModuleAppTearDownFixture());
+        scenarioExecution().install(new SecurityModuleAppTearDown());
     }
 
     @Inject
@@ -90,7 +90,7 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
             applicationUsers.newUser("mary");
 
             // when
-            final ApplicationUser fred = applicationUsers.findByName("fred");
+            final ApplicationUser fred = applicationUsers.findUserByName("fred");
 
             // then
             Assert.assertThat(fred, is(not(nullValue())));
@@ -105,7 +105,7 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
             applicationUsers.newUser("mary");
 
             // when
-            final ApplicationUser nonExistent = applicationUsers.findByName("bill");
+            final ApplicationUser nonExistent = applicationUsers.findUserByName("bill");
 
             // then
             Assert.assertThat(nonExistent, is(nullValue()));

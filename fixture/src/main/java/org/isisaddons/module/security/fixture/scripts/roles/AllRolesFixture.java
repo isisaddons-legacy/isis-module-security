@@ -19,13 +19,13 @@
 
 package org.isisaddons.module.security.fixture.scripts.roles;
 
-import org.apache.isis.applib.fixturescripts.DiscoverableFixtureScript;
+import org.apache.isis.applib.fixturescripts.FixtureScript;
 
-public class AllRolesFixture extends DiscoverableFixtureScript {
+public class AllRolesFixture extends FixtureScript {
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        execute(new UserRoleFixture(), executionContext);
+        execute(new RegularUserRoleFixture(), executionContext);
         execute(new AdminRoleFixture(), executionContext);
         execute(new ReadOnlyRoleFixture(), executionContext);
         execute(new WriteOnlyRoleFixture(), executionContext);

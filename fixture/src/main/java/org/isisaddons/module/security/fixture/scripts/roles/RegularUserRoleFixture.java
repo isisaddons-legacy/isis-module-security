@@ -17,25 +17,15 @@
  *  under the License.
  */
 
-package org.isisaddons.module.security.fixture.scripts;
+package org.isisaddons.module.security.fixture.scripts.roles;
 
-import org.apache.isis.applib.fixturescripts.FixtureScript;
-import org.apache.isis.objectstore.jdo.applib.service.support.IsisJdoSupport;
+public class RegularUserRoleFixture extends AbstractRoleFixture {
 
-public class SecurityModuleAppTearDownFixture extends FixtureScript {
+    public static final String ROLE_NAME = "regularUser";
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        isisJdoSupport.executeUpdate("delete from \"IsisSecurityApplicationUserRoles\"");
-        isisJdoSupport.executeUpdate("delete from \"IsisSecurityApplicationRole\"");
-        isisJdoSupport.executeUpdate("delete from \"IsisSecurityApplicationUser\"");
-        isisJdoSupport.executeUpdate("delete from \"IsisSecurityApplicationTenancy\"");
-
-        isisJdoSupport.executeUpdate("delete from \"ExampleSecuredEntity\"");
+        create(ROLE_NAME, executionContext);
     }
-
-
-    @javax.inject.Inject
-    private IsisJdoSupport isisJdoSupport;
 
 }

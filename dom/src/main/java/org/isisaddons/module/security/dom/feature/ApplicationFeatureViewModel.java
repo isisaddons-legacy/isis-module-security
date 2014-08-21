@@ -17,22 +17,24 @@
  */
 package org.isisaddons.module.security.dom.feature;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.isisaddons.module.security.dom.permission.ApplicationPermission;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.ViewModel;
-import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.util.ObjectContracts;
-import org.apache.isis.applib.util.TitleBuffer;
 
 /**
  * View model identified by {@link ApplicationFeatureId} and backed by an {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
  */
+@MemberGroupLayout(
+        columnSpans = {6,0,0,6}
+)
 public class ApplicationFeatureViewModel implements ViewModel {
 
     //region > constructors
@@ -50,9 +52,7 @@ public class ApplicationFeatureViewModel implements ViewModel {
      * wrapperFactory#unwrap(...) method, which is otherwise broken in Isis 1.6.0
      */
     public String title() {
-        final TitleBuffer buf = new TitleBuffer();
-        buf.append(getFullyQualifiedName());
-        return buf.toString();
+        return getFullyQualifiedName();
     }
     //endregion
 
@@ -70,7 +70,7 @@ public class ApplicationFeatureViewModel implements ViewModel {
 
     //endregion
 
-    //region > FeatureId
+    //region > featureId (property, programmatic)
     private ApplicationFeatureId featureId;
 
     @Programmatic
@@ -83,26 +83,42 @@ public class ApplicationFeatureViewModel implements ViewModel {
     }
     //endregion
 
-    //region > Feature
+    //region > parent (property)
+
+    @MemberOrder(sequence = "2.1")
+    public ApplicationFeatureViewModel getParent() {
+        final ApplicationFeatureId parentId;
+        parentId = getType() == ApplicationFeatureType.MEMBER
+                ? getFeatureId().getParentClassId()
+                : getFeatureId().getParentPackageId();
+        final ApplicationFeature feature = applicationFeatures.findFeature(parentId);
+        return feature != null
+                ? container.newViewModelInstance(ApplicationFeatureViewModel.class, parentId.asEncodedString())
+                : null;
+    }
+    //endregion
+
+    //region > feature (property, programmatic)
     @Programmatic
     ApplicationFeature getFeature() {
         return applicationFeatures.findFeature(getFeatureId());
     }
     //endregion
     
-    //region > FullyQualifiedName
-    @MemberOrder(sequence = "1")
+    //region > fullyQualifiedName (property, programmatic)
+    @Programmatic // in the title
     public String getFullyQualifiedName() {
         return getFeatureId().getFullyQualifiedName();
     }
     //endregion
 
-    //region > Type, PackageName, ClassName, MemberName
-    @MemberOrder(sequence = "2.1")
+    //region > type, packageName, className, memberName (properties)
+    @MemberOrder(sequence = "2.2")
     public ApplicationFeatureType getType() {
         return getFeatureId().getType();
     }
 
+    @TypicalLength(60)
     @MemberOrder(sequence = "2.2")
     public String getPackageName() {
         return getFeatureId().getPackageName();
@@ -116,7 +132,7 @@ public class ApplicationFeatureViewModel implements ViewModel {
         return getFeatureId().getType().hideClassName();
     }
 
-    @MemberOrder(sequence = "2.3")
+    @MemberOrder(sequence = "2.4")
     public String getMemberName() {
         return getFeatureId().getMemberName();
     }
@@ -125,14 +141,19 @@ public class ApplicationFeatureViewModel implements ViewModel {
     }
     //endregion
 
-    //region > Packages: Contents
+    //region > contents (collection, for packages only)
+    @MemberOrder(sequence = "3")
+    @Render(Render.Type.EAGERLY)
     public List<ApplicationFeatureViewModel> getContents() {
         final SortedSet<ApplicationFeatureId> contents = getFeature().getContents();
         return asViewModels(contents);
     }
+    public boolean hideContents() {
+        return getType() != ApplicationFeatureType.PACKAGE;
+    }
     //endregion
 
-    //region > Package or Class: getParentPackage
+    //region > parentPackage (property, programmatic, for packages & classes only)
 
     /**
      * The parent package feature of this class or package.
@@ -143,11 +164,26 @@ public class ApplicationFeatureViewModel implements ViewModel {
     }
     //endregion
 
-    //region > Classes: Members
+    //region > members (collection, for classes only)
+    @MemberOrder(sequence = "4")
+    @Render(Render.Type.EAGERLY)
     public List<ApplicationFeatureViewModel> getMembers() {
         final SortedSet<ApplicationFeatureId> members = getFeature().getMembers();
         return asViewModels(members);
     }
+    public boolean hideMembers() {
+        return getType() != ApplicationFeatureType.CLASS;
+    }
+    //endregion
+
+    //region > permissions (collection)
+    @MemberOrder(sequence = "5")
+    @Render(Render.Type.EAGERLY)
+    public List<ApplicationPermission> getPermissions() {
+        final ApplicationFeatureId featureId = this.getFeatureId();
+        return applicationPermissions.findByFeature(featureId);
+    }
+
     //endregion
 
     //region > equals, hashCode, toString
@@ -171,7 +207,7 @@ public class ApplicationFeatureViewModel implements ViewModel {
     //endregion
 
     //region > helpers
-    private ArrayList<ApplicationFeatureViewModel> asViewModels(SortedSet<ApplicationFeatureId> members) {
+    private List<ApplicationFeatureViewModel> asViewModels(SortedSet<ApplicationFeatureId> members) {
         return Lists.newArrayList(
                 Iterables.transform(members, Functions.asViewModel(container)));
     }
@@ -198,6 +234,9 @@ public class ApplicationFeatureViewModel implements ViewModel {
 
     @javax.inject.Inject
     ApplicationFeatures applicationFeatures;
+
+    @javax.inject.Inject
+    ApplicationPermissions applicationPermissions;
     //endregion
 
 }

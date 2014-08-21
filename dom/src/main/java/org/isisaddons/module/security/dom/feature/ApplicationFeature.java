@@ -19,6 +19,8 @@ package org.isisaddons.module.security.dom.feature;
 
 import java.util.SortedSet;
 import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.util.ObjectContracts;
@@ -29,6 +31,14 @@ import org.apache.isis.applib.util.ObjectContracts;
  */
 public class ApplicationFeature implements Comparable<ApplicationFeature> {
 
+    //region > constants
+
+    // using same value for all to neaten up rendering
+    public static final int TYPICAL_LENGTH_PKG_FQN = 50;
+    public static final int TYPICAL_LENGTH_CLS_NAME = 50;
+    public static final int TYPICAL_LENGTH_MEMBER_NAME = 50;
+    //endregion
+
     //region > constructors
     public ApplicationFeature() {
         this(null);
@@ -38,7 +48,7 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
     }
     //endregion
 
-    //region > FeatureId
+    //region > featureId
     private ApplicationFeatureId featureId;
 
     @Programmatic
@@ -51,43 +61,47 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
     }
     //endregion
 
-
-    //region > Packages: Contents
+    //region > packages: Contents
     private SortedSet<ApplicationFeatureId> contents = Sets.newTreeSet();
 
     public SortedSet<ApplicationFeatureId> getContents() {
-        getFeatureId().getType().ensurePackage(this.getFeatureId());
+        ApplicationFeatureType.ensurePackage(this.getFeatureId());
         return contents;
     }
 
     void addToContents(ApplicationFeatureId contentId) {
-        getFeatureId().getType().ensurePackage(this.getFeatureId());
-        getFeatureId().getType().ensurePackageOrClass(contentId);
+        ApplicationFeatureType.ensurePackage(this.getFeatureId());
+        ApplicationFeatureType.ensurePackageOrClass(contentId);
         this.contents.add(contentId);
     }
     //endregion
 
-
-    //region > Classes: Members
+    //region > classes: Members
     private SortedSet<ApplicationFeatureId> members = Sets.newTreeSet();
 
     public SortedSet<ApplicationFeatureId> getMembers() {
-        getFeatureId().getType().ensureClass(this.getFeatureId());
+        ApplicationFeatureType.ensureClass(this.getFeatureId());
         return members;
     }
 
     void addToMembers(ApplicationFeatureId memberId) {
-        getFeatureId().getType().ensureClass(this.getFeatureId());
-        getFeatureId().getType().ensureMember(memberId);
+        ApplicationFeatureType.ensureClass(this.getFeatureId());
+        ApplicationFeatureType.ensureMember(memberId);
         this.members.add(memberId);
     }
     //endregion
-
 
     //region > Functions
 
     public static class Functions {
         private Functions(){}
+
+        public static final Function<? super ApplicationFeature, ? extends String> GET_FQN = new Function<ApplicationFeature, String>() {
+            @Override
+            public String apply(ApplicationFeature input) {
+                return input.getFeatureId().getFullyQualifiedName();
+            }
+        };
 
         public static final Function<ApplicationFeature, ApplicationFeatureId> GET_ID =
                 new Function<ApplicationFeature, ApplicationFeatureId>() {
@@ -97,8 +111,22 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
             }
         };
     }
-    //endregion
 
+    public static class Predicates {
+        private Predicates(){}
+
+        public static final Predicate<ApplicationFeature> PACKAGE_CONTAINING_CLASSES = new Predicate<ApplicationFeature>() {
+            @Override
+            public boolean apply(ApplicationFeature input) {
+                final Iterable<ApplicationFeatureId> classes =
+                        Iterables.filter(input.getContents(), ApplicationFeatureId.Predicates.IS_CLASS);
+                return classes.iterator().hasNext();
+            }
+        };
+
+    }
+
+    //endregion
 
     //region > equals, hashCode, compareTo, toString
 

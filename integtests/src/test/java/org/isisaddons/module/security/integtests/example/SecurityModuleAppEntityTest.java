@@ -4,7 +4,7 @@ import java.util.List;
 import javax.inject.Inject;
 import org.isisaddons.module.security.fixture.dom.ExampleSecuredEntities;
 import org.isisaddons.module.security.fixture.dom.ExampleSecuredEntity;
-import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDownFixture;
+import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
 import org.isisaddons.module.security.fixture.scripts.exampleEntities.Bar;
 import org.isisaddons.module.security.fixture.scripts.exampleEntities.Baz;
 import org.isisaddons.module.security.fixture.scripts.exampleEntities.Bip;
@@ -24,7 +24,7 @@ public class SecurityModuleAppEntityTest extends SecurityModuleAppIntegTest {
     @Before
     public void setUpData() throws Exception {
         scenarioExecution().install(
-                new SecurityModuleAppTearDownFixture(),
+                new SecurityModuleAppTearDown(),
                 new Bip(),
                 new Bar(),
                 new Baz(),

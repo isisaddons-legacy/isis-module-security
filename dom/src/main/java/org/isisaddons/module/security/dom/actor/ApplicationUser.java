@@ -59,8 +59,7 @@ import org.apache.isis.applib.util.TitleBuffer;
 @AutoComplete(repository=ApplicationUsers.class, action="autoComplete")
 @ObjectType("IsisSecurityApplicationUser")
 @Bookmarkable
-public class ApplicationUser implements Comparable<ApplicationRole>, Actor {
-
+public class ApplicationUser implements Comparable<ApplicationUser>, Actor {
 
     //region > identification
     /**
@@ -90,7 +89,8 @@ public class ApplicationUser implements Comparable<ApplicationRole>, Actor {
 
     @MemberOrder(name="name", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
-    public ApplicationUser updateName(final String name) {
+    public ApplicationUser updateName(
+            final @Named("Name") String name) {
         setName(name);
         return this;
     }
@@ -135,6 +135,7 @@ public class ApplicationUser implements Comparable<ApplicationRole>, Actor {
     private SortedSet<ApplicationRole> roles = new TreeSet<>();
 
     @MemberOrder(sequence = "2")
+    @Render(Render.Type.EAGERLY)
     @Disabled
     public SortedSet<ApplicationRole> getRoles() {
         return roles;
@@ -198,12 +199,29 @@ public class ApplicationUser implements Comparable<ApplicationRole>, Actor {
     //endregion
     
     
-    //region > compareTo
+    //region > equals, hashCode, compareTo, toString
+    private final static String propertyNames = "name";
 
     @Override
-    public int compareTo(ApplicationRole o) {
-        return ObjectContracts.compare(this, o, "name");
+    public int compareTo(final ApplicationUser o) {
+        return ObjectContracts.compare(this, o, propertyNames);
     }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return ObjectContracts.equals(this, obj, propertyNames);
+    }
+
+    @Override
+    public int hashCode() {
+        return ObjectContracts.hashCode(this, propertyNames);
+    }
+
+    @Override
+    public String toString() {
+        return ObjectContracts.toString(this, propertyNames);
+    }
+
     //endregion
 
     //region  >  (injected)

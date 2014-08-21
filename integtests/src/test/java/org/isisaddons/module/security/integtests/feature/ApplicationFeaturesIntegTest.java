@@ -30,7 +30,7 @@ import org.hamcrest.TypeSafeMatcher;
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
-import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDownFixture;
+import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
 import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
 import org.junit.Before;
 import org.junit.Rule;
@@ -50,7 +50,7 @@ public class ApplicationFeaturesIntegTest extends SecurityModuleAppIntegTest {
 
     @Before
     public void setUpData() throws Exception {
-        scenarioExecution().install(new SecurityModuleAppTearDownFixture());
+        scenarioExecution().install(new SecurityModuleAppTearDown());
     }
 
     @Inject

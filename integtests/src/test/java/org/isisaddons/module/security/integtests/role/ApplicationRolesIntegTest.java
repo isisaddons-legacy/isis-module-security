@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import javax.jdo.JDODataStoreException;
 import org.isisaddons.module.security.dom.actor.ApplicationRole;
 import org.isisaddons.module.security.dom.actor.ApplicationRoles;
-import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDownFixture;
+import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
 import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,7 +42,7 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
 
     @Before
     public void setUpData() throws Exception {
-        scenarioExecution().install(new SecurityModuleAppTearDownFixture());
+        scenarioExecution().install(new SecurityModuleAppTearDown());
     }
 
     @Inject
@@ -85,7 +85,7 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
 
         @Before
         public void setUpData() throws Exception {
-            scenarioExecution().install(new SecurityModuleAppTearDownFixture());
+            scenarioExecution().install(new SecurityModuleAppTearDown());
         }
 
         @Test
@@ -96,7 +96,7 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
             applicationRoles.newRole("root");
 
             // when
-            final ApplicationRole guest = applicationRoles.findByName("guest");
+            final ApplicationRole guest = applicationRoles.findRoleByName("guest");
 
             // then
             Assert.assertThat(guest, is(not(nullValue())));
@@ -111,7 +111,7 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
             applicationRoles.newRole("root");
 
             // when
-            final ApplicationRole nonExistent = applicationRoles.findByName("admin");
+            final ApplicationRole nonExistent = applicationRoles.findRoleByName("admin");
 
             // then
             Assert.assertThat(nonExistent, is(nullValue()));

@@ -17,6 +17,8 @@
  */
 package org.isisaddons.module.security.dom.permission;
 
+import org.apache.isis.core.commons.lang.StringExtensions;
+
 /**
  * Named after UNIX modes (<code>chmod</code> etc), determines that nature of access (of denial of access if vetoed)
  * to an {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
@@ -51,5 +53,11 @@ public enum ApplicationPermissionMode {
      * mutable collections.  The RO viewer does, however.
      * </p>
      */
-    USABLE
+    USABLE;
+
+    @Override
+    public String toString() {
+        return StringExtensions.capitalize(name());
+    }
+
 }

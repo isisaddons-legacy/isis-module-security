@@ -23,7 +23,7 @@ import javax.inject.Inject;
 import javax.jdo.JDODataStoreException;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancies;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
-import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDownFixture;
+import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
 import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
 import org.junit.Assert;
 import org.junit.Before;
@@ -43,7 +43,7 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
 
     @Before
     public void setUpData() throws Exception {
-        scenarioExecution().install(new SecurityModuleAppTearDownFixture());
+        scenarioExecution().install(new SecurityModuleAppTearDown());
     }
 
     @Inject
@@ -93,7 +93,7 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
             applicationTenancies.newTenancy("zambia");
 
             // when
-            final ApplicationTenancy uk = applicationTenancies.findByName("uk");
+            final ApplicationTenancy uk = applicationTenancies.findTenanciesByName("uk");
 
             // then
             Assert.assertThat(uk, is(not(nullValue())));
@@ -108,7 +108,7 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
             applicationTenancies.newTenancy("uk");
 
             // when
-            final ApplicationTenancy nonExistent = applicationTenancies.findByName("france");
+            final ApplicationTenancy nonExistent = applicationTenancies.findTenanciesByName("france");
 
             // then
             Assert.assertThat(nonExistent, is(nullValue()));

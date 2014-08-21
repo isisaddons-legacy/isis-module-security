@@ -113,7 +113,7 @@ public class ApplicationFeaturesTest {
             }});
 
             // when
-            applicationFeatures.load(spec);
+            applicationFeatures.createApplicationFeaturesFor(spec);
 
             // then
             final ApplicationFeature comPkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("com"));

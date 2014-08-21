@@ -17,6 +17,8 @@
  */
 package org.isisaddons.module.security.dom.permission;
 
+import org.apache.isis.core.commons.lang.StringExtensions;
+
 /**
  * Whether the permission {@link #ALLOW grants} or {@link #VETO denies} access to an
  * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
@@ -39,5 +41,10 @@ public enum ApplicationPermissionRule {
      * permission is to only view or also to use the {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
      * </p>
      */
-    VETO
+    VETO;
+
+    @Override
+    public String toString() {
+        return StringExtensions.capitalize(name());
+    }
 }

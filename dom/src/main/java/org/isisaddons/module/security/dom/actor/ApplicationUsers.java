@@ -28,18 +28,21 @@ import org.apache.isis.applib.query.QueryDefault;
 @DomainService
 public class ApplicationUsers extends AbstractFactoryAndRepository {
 
+    @MemberOrder(name = "Security", sequence = "10.1")
+    @DescribedAs("Looks up ApplicationUser entity corresponding to your user account")
     @ActionSemantics(Of.SAFE)
     public ApplicationUser me() {
         final String myName = getContainer().getUser().getName();
-        return findByName(myName);
+        return findUserByName(myName);
     }
 
+    @MemberOrder(name = "Security", sequence = "10.2")
     @ActionSemantics(Of.SAFE)
-    public ApplicationUser findByName(final String name) {
+    public ApplicationUser findUserByName(final String name) {
         return uniqueMatch(new QueryDefault<ApplicationUser>(ApplicationUser.class, "findByName", "name", name));
     }
 
-
+    @MemberOrder(name = "Security", sequence = "10.2")
     @ActionSemantics(Of.NON_IDEMPOTENT)
     public ApplicationUser newUser(@Named("Name") String name) {
         ApplicationUser user = newTransientInstance(ApplicationUser.class);
@@ -48,6 +51,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
         return user;
     }
 
+    @MemberOrder(name = "Security", sequence = "10.9")
     @Prototype
     @ActionSemantics(Of.SAFE)
     public List<ApplicationUser> allUsers() {

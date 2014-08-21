@@ -20,12 +20,11 @@ package org.isisaddons.module.security.dom.feature;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
-import java.util.SortedSet;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.io.BaseEncoding;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Programmatic;
@@ -50,21 +49,33 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
         throw new IllegalArgumentException("Unknown feature type " + featureType);
     }
 
-    public static ApplicationFeatureId newPackage(final String packageName) {
+    public static ApplicationFeatureId newFeature(
+            final String packageFqn, final String className, final String memberName) {
+        if(className == null) {
+            return newPackage(packageFqn);
+        }
+        final String classFqn = packageFqn + "." + className;
+        if(memberName == null) {
+            return newClass(classFqn);
+        }
+        return newMember(classFqn, memberName);
+    }
+
+    public static ApplicationFeatureId newPackage(final String packageFqn) {
         final ApplicationFeatureId featureId = new ApplicationFeatureId(ApplicationFeatureType.PACKAGE);
-        featureId.setPackageName(packageName);
+        featureId.setPackageName(packageFqn);
         return featureId;
     }
 
-    public static ApplicationFeatureId newClass(final String fullyQualifiedClassName) {
+    public static ApplicationFeatureId newClass(final String classFqn) {
         final ApplicationFeatureId featureId = new ApplicationFeatureId(ApplicationFeatureType.CLASS);
-        featureId.type.init(featureId, fullyQualifiedClassName);
+        featureId.type.init(featureId, classFqn);
         return featureId;
     }
 
-    public static ApplicationFeatureId newMember(final String fullyQualifiedClassName, final String memberName) {
+    public static ApplicationFeatureId newMember(final String classFqn, final String memberName) {
         final ApplicationFeatureId featureId = new ApplicationFeatureId(ApplicationFeatureType.MEMBER);
-        ApplicationFeatureType.CLASS.init(featureId, fullyQualifiedClassName);
+        ApplicationFeatureType.CLASS.init(featureId, classFqn);
         featureId.type = ApplicationFeatureType.MEMBER;
         featureId.setMemberName(memberName);
         return featureId;
@@ -116,7 +127,7 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
     }
     //endregion
 
-    //region > FullyQualifiedName
+    //region > fullyQualifiedName (property)
 
     @MemberOrder(sequence = "1.2")
     public String getFullyQualifiedName() {
@@ -133,7 +144,7 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
 
     //endregion
 
-    //region > Type
+    //region > type (property)
     ApplicationFeatureType type;
 
     public ApplicationFeatureType getType() {
@@ -141,7 +152,7 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
     }
     //endregion
 
-    //region > PackageName
+    //region > packageName (property)
 
     private String packageName;
 
@@ -155,7 +166,7 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
     }
     //endregion
 
-    //region > ClassName (optional)
+    //region > className (property, optional)
 
     private String className;
 
@@ -169,7 +180,7 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
     }
     //endregion
 
-    //region > MemberName (optional)
+    //region > memberName (property, optional)
     private String memberName;
 
     @Programmatic
@@ -185,30 +196,20 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
     //region > Package or Class: getParentPackageId
 
     /**
-     * The parent package feature of this class or package.
-     *
-     * <p>
-     *  Note that the feature will <i>not</i> be the same instance as the package found using
-     *  {@link org.isisaddons.module.security.dom.feature.ApplicationFeatures#findPackage(org.isisaddons.module.security.dom.feature.ApplicationFeatureId)}; the
-     *  latter (<i>canonical</i> instance) will have its {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId#getContents() contents} populated.
-     * </p>
-     * @return
+     * The {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId id} of the parent package of this
+     * class or package.
      */
     @Programmatic
     public ApplicationFeatureId getParentPackageId() {
-        type.ensurePackageOrClass(this);
+        ApplicationFeatureType.ensurePackageOrClass(this);
 
         if(type == ApplicationFeatureType.CLASS) {
             return ApplicationFeatureId.newPackage(getPackageName());
         } else {
             final String packageName = getPackageName(); // eg aaa.bbb.ccc
 
-            if(Strings.isNullOrEmpty(packageName)) {
-                return null; // this is root
-            }
-
             if(!packageName.contains(".")) {
-                return newPackage(""); // parent is root
+                return null; // parent is root
             }
 
             final Iterable<String> split = Splitter.on(".").split(packageName);
@@ -221,6 +222,18 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
         }
     }
 
+    //endregion
+
+    //region > Member: getParentClassId
+
+    /**
+     * The {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId id} of the member's class.
+     */
+    public ApplicationFeatureId getParentClassId() {
+        ApplicationFeatureType.ensureMember(this);
+        final String classFqn = this.getPackageName() + "." + getClassName();
+        return newClass(classFqn);
+    }
     //endregion
 
     //region > asString, asEncodedString
@@ -244,6 +257,46 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
         byte[] bytes = str.getBytes(Charset.forName("UTF-8"));
         return BaseEncoding.base64Url().encode(bytes);
     }
+
+
+    //endregion
+
+    //region > Functions
+
+    public static class Functions {
+
+        private Functions(){}
+
+        public static final Function<ApplicationFeatureId, String> GET_CLASS_NAME = new Function<ApplicationFeatureId, String>() {
+            @Override
+            public String apply(ApplicationFeatureId input) {
+                return input.getClassName();
+            }
+        };
+
+        public static final Function<ApplicationFeatureId, String> GET_MEMBER = new Function<ApplicationFeatureId, String>() {
+            @Override
+            public String apply(ApplicationFeatureId input) {
+                return input.getMemberName();
+            }
+        };
+
+    }
+    //endregion
+
+    //region > Predicates
+
+    public static class Predicates {
+        private Predicates(){}
+
+        public static final Predicate<ApplicationFeatureId> IS_CLASS = new Predicate<ApplicationFeatureId>() {
+            @Override
+            public boolean apply(ApplicationFeatureId input) {
+                return input.getType() == ApplicationFeatureType.CLASS;
+            }
+        };
+
+    }
     //endregion
 
     //region > equals, hashCode, compareTo, toString
@@ -256,7 +309,7 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         return ObjectContracts.equals(this, obj, propertyNames);
     }
 
