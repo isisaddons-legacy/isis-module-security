@@ -1,0 +1,26 @@
+
+
+
+ignore classes with no members
+ignore packages with no classes
+
+split service classes vs entity classes
+
+what if for a given service.
+
+clone permission
+
+
+
+
+- use @Value to render AFI (rather than string?)
+
+
+
+
+
+
+TO TEST
+- root package not listed (so no issue with not being able to delete root package permission if admin role)
+  - AFVM ... title is messed up
+- AFVM should be able to traverse to parent feature
