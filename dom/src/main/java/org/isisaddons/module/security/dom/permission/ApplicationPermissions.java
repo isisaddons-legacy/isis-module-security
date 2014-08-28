@@ -63,11 +63,11 @@ public class ApplicationPermissions {
 
     //region > findByRoleAndRuleAndFeature (programmatic)
     @Programmatic
-    public ApplicationPermission findByRoleAndRuleAndFeature(ApplicationPermissionRule rule, ApplicationFeatureType type, String featureFqn) {
+    public ApplicationPermission findByRoleAndRuleAndFeature(ApplicationRole role, ApplicationPermissionRule rule, ApplicationFeatureType type, String featureFqn) {
         return container.firstMatch(
                 new QueryDefault<>(
                         ApplicationPermission.class, "findByRoleAndRuleAndFeature",
-                        "role", this,
+                        "role", role,
                         "rule", rule,
                         "featureType", type,
                         "featureFqn", featureFqn ));

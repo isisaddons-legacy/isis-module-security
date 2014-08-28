@@ -19,6 +19,7 @@
 package org.isisaddons.module.security.fixture.scripts;
 
 import java.util.List;
+import org.isisaddons.module.security.dom.actor.ApplicationRole;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Named;
@@ -58,9 +59,16 @@ public class SecurityModuleAppFixturesService extends FixtureScripts {
 
     @Prototype
     @MemberOrder(sequence="20")
-    public Object installFixturesAndReturnFirst() {
-        final List<FixtureResult> run = findFixtureScriptFor(SecurityModuleAppSetUp.class).run(null);
-        return run.get(0).getObject();
+    public Object installFixturesAndReturnFirstRole() {
+        final List<FixtureResult> fixtureResultList = findFixtureScriptFor(SecurityModuleAppSetUp.class).run(null);
+        for (FixtureResult fixtureResult : fixtureResultList) {
+            final Object object = fixtureResult.getObject();
+            if(object instanceof ApplicationRole) {
+                return object;
+            }
+        }
+        getContainer().warnUser("No rules found in fixture; returning all results");
+        return fixtureResultList;
     }
 
 }

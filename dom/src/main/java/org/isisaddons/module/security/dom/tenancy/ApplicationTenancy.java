@@ -17,6 +17,7 @@
  */
 package org.isisaddons.module.security.dom.tenancy;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -112,7 +113,9 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     }
     //endregion
 
-    //region > addUser (action)
+    //region > addUser (action), removeUser (action)
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @Named("Add")
     @MemberOrder(name="Users", sequence = "1")
     public ApplicationTenancy addUser(final ApplicationUser applicationUser) {
         applicationUser.setTenancy(this);
@@ -127,15 +130,22 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
         return list;
     }
 
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @Named("Remove")
     @MemberOrder(name="Users", sequence = "2")
     public ApplicationTenancy removeUser(final ApplicationUser applicationUser) {
         applicationUser.setTenancy(null);
         // no need to add to users set, since will be done by JDO/DN.
         return this;
     }
+    public Collection<ApplicationUser> choices0RemoveUser() {
+        return getUsers();
+    }
+    public String disableRemoveUser(final ApplicationUser applicationUser) {
+        return choices0RemoveUser().isEmpty()? "No users to remove": null;
+    }
 
     //endregion
-
 
     //region > compareTo
 

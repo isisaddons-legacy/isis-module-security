@@ -17,16 +17,12 @@
  */
 package org.isisaddons.module.security.dom.permission;
 
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
 import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import org.isisaddons.module.security.dom.actor.ApplicationRole;
 import org.isisaddons.module.security.dom.feature.*;
@@ -44,8 +40,8 @@ import org.apache.isis.applib.util.TitleBuffer;
  *     {@link ApplicationPermissionRule rule} determines whether the permission {@link ApplicationPermissionRule#ALLOW grants}
  *     access to the feature or {@link ApplicationPermissionRule#VETO veto}es access
  *     to it.  The {@link ApplicationPermissionMode mode} indicates whether
- *     the role can {@link ApplicationPermissionMode#VISIBLE view} the feature
- *     or can {@link ApplicationPermissionMode#USABLE change} the state of the
+ *     the role can {@link ApplicationPermissionMode#VIEWING view} the feature
+ *     or can {@link ApplicationPermissionMode#CHANGING change} the state of the
  *     system using the feature.
  * </p>
  *
@@ -54,12 +50,12 @@ import org.apache.isis.applib.util.TitleBuffer;
  *     {@link ApplicationPermissionMode mode}:
  * <ul>
  *     <li>for an {@link ApplicationPermissionRule#ALLOW allow}, a
- *     {@link ApplicationPermissionMode#USABLE usability} allow
- *     implies {@link ApplicationPermissionMode#VISIBLE visibility} allow.
+ *     {@link ApplicationPermissionMode#CHANGING usability} allow
+ *     implies {@link ApplicationPermissionMode#VIEWING visibility} allow.
  *     </li>
  *     <li>conversely, for a {@link ApplicationPermissionRule#VETO veto},
- *     a {@link ApplicationPermissionMode#VISIBLE visibility} veto
- *     implies a {@link ApplicationPermissionMode#USABLE usability} veto.</li>
+ *     a {@link ApplicationPermissionMode#VIEWING visibility} veto
+ *     implies a {@link ApplicationPermissionMode#CHANGING usability} veto.</li>
  * </ul>
  * </p>
  */
@@ -105,7 +101,7 @@ import org.apache.isis.applib.util.TitleBuffer;
                 name = "IsisSecurityApplicationPermission_role_feature_rule_UNQ", members = { "role", "featureType", "featureFqn", "rule" })
 })
 @MemberGroupLayout(
-        columnSpans = {4,4,4,12},
+        columnSpans = {3,3,6,12},
         left="Role",
         middle = "Permissions",
         right="Feature"
@@ -122,8 +118,8 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
         final TitleBuffer buf = new TitleBuffer();
         buf.append(getRole().getName()).append(":")  // admin:
            .append(" ").append(getRule().toString()) // Allow|Veto
-           .append(" ").append(getMode().toString()) // Visible|Usable
-           .append(" ");
+           .append(" ").append(getMode().toString()) // Viewing|Changing
+           .append(" of ");
 
         final ApplicationFeatureId featureId = getFeatureId();
         switch (getFeatureType()) {
@@ -131,6 +127,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
                 buf.append(getFeatureFqn());              // com.mycompany
                 break;
             case CLASS:
+                // abbreviate if required because otherwise title overflows on action prompt.
                 if(getFeatureFqn().length() < 30) {
                     buf.append(getFeatureFqn());          // com.mycompany.Bar
                 } else {
@@ -140,7 +137,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
             case MEMBER:
                 buf.append(featureId.getClassName())
                    .append("#")
-                   .append(featureId.getMemberName()); // Bar#foo
+                   .append(featureId.getMemberName());   // com.mycompany.Bar#foo
                 break;
         }
         return buf.toString();
@@ -152,7 +149,9 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     private ApplicationRole role;
 
     @javax.jdo.annotations.Column(name = "roleId", allowsNull="false")
-    @Hidden
+    @Disabled
+    @Hidden(where = Where.REFERENCES_PARENT)
+    @MemberOrder(name="Role", sequence = "1")
     public ApplicationRole getRole() {
         return role;
     }
@@ -161,20 +160,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
         this.role = role;
     }
 
-    /**
-     * This is a work-around to an Isis debug whereby when editing the link is replaced with a disabled drop-down,
-     * even if disabled.  This unpleasant behaviour doesn't seem to happen for derived properties.
-     */
-    @javax.jdo.annotations.NotPersistent
-    @Disabled
-    @Hidden(where = Where.REFERENCES_PARENT)
-    @Named("Role")
     @MemberOrder(name="Role", sequence = "1")
-    public ApplicationRole getRoleWorkaround() {
-        return getRole();
-    }
-
-    @MemberOrder(name="RoleWorkaround", sequence = "1")
     public ApplicationPermission updateRole(final ApplicationRole applicationRole) {
         setRole(applicationRole);
         return this;
@@ -191,7 +177,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     private ApplicationPermissionRule rule;
 
     @javax.jdo.annotations.Column(allowsNull="false")
-    @Disabled
+    //@Disabled
     @MemberOrder(name="Permissions", sequence = "2")
     public ApplicationPermissionRule getRule() {
         return rule;
@@ -240,22 +226,22 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name = "Mode", sequence = "1")
-    public ApplicationPermission visible() {
-        setMode(ApplicationPermissionMode.VISIBLE);
+    public ApplicationPermission viewing() {
+        setMode(ApplicationPermissionMode.VIEWING);
         return this;
     }
-    public String disableVisible() {
-        return getMode() == ApplicationPermissionMode.VISIBLE? "Mode is already set to VISIBLE": null;
+    public String disableViewing() {
+        return getMode() == ApplicationPermissionMode.VIEWING ? "Mode is already set to VIEWING": null;
     }
 
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name = "Mode", sequence = "2")
-    public ApplicationPermission usable() {
-        setMode(ApplicationPermissionMode.USABLE);
+    public ApplicationPermission changing() {
+        setMode(ApplicationPermissionMode.CHANGING);
         return this;
     }
-    public String disableUsable() {
-        return getMode() == ApplicationPermissionMode.USABLE? "Mode is already set to USABLE": null;
+    public String disableChanging() {
+        return getMode() == ApplicationPermissionMode.CHANGING ? "Mode is already set to CHANGING": null;
     }
     //endregion
 
@@ -322,30 +308,6 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     public void setFeatureFqn(String featureFqn) {
         this.featureFqn = featureFqn;
-    }
-
-
-    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
-    @MemberOrder(name = "feature", sequence = "1")
-    public ApplicationPermission updateFeature(
-            final @Named("Feature type") ApplicationFeatureType type,
-            final @Named("Fully qualified name") String featureFqn) {
-        setFeatureType(type);
-        setFeatureFqn(featureFqn);
-        return this;
-    }
-
-    public ApplicationFeatureType default0UpdateFeature() {
-        return getFeatureType();
-    }
-    public String default1UpdateFeature() {
-        return getFeatureFqn();
-    }
-
-    public List<? extends String> choices1UpdateFeature(final ApplicationFeatureType featureType) {
-        final Collection<ApplicationFeature> features = applicationFeatures.allFeatures(featureType);
-        return Lists.newArrayList(
-                Iterables.transform(features, ApplicationFeature.Functions.GET_FQN));
     }
 
     //endregion

@@ -16,9 +16,9 @@ public class AdminRoleAllowUsableToSelectedFeatures extends FixtureScript {
 
         final ApplicationRole adminRole = applicationRoles.findRoleByName(AdminRoleFixture.ROLE_NAME);
 
-        executionContext.add(this, adminRole.addPackage(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.USABLE, "org"));
-        executionContext.add(this, adminRole.addClassOrMember(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.USABLE, ExampleSecuredEntity.class.getPackage().getName(), ExampleSecuredEntity.class.getSimpleName(), null));
-        executionContext.add(this, adminRole.addClassOrMember(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.USABLE, ExampleSecuredEntity.class.getPackage().getName(), ExampleSecuredEntity.class.getSimpleName(), "name"));
+        executionContext.add(this, adminRole.addPackage(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "org"));
+        executionContext.add(this, adminRole.addClassOrMember(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, ExampleSecuredEntity.class.getPackage().getName(), ExampleSecuredEntity.class.getSimpleName(), null));
+        executionContext.add(this, adminRole.addClassOrMember(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, ExampleSecuredEntity.class.getPackage().getName(), ExampleSecuredEntity.class.getSimpleName(), "name"));
 
     }
     @Inject

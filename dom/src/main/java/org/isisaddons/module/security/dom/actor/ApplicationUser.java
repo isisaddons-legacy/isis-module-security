@@ -366,6 +366,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, Actor {
     //region > addRole (actions)
     @MemberOrder(name="roles", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @Named("Add")
     public ApplicationUser addRole(final ApplicationRole role) {
         addToRoles(role);
         return this;
@@ -386,6 +387,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, Actor {
     //region > removeRole (actions)
     @MemberOrder(name="roles", sequence = "2")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @Named("Remove")
     public ApplicationUser removeRole(final ApplicationRole role) {
         removeFromRoles(role);
         return this;

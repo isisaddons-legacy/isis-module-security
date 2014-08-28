@@ -48,7 +48,6 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     }
 
     @MemberOrder(name = "Security", sequence = "90.3")
-    @Prototype
     @ActionSemantics(Of.SAFE)
     public List<ApplicationTenancy> allTenancies() {
         return allInstances(ApplicationTenancy.class);

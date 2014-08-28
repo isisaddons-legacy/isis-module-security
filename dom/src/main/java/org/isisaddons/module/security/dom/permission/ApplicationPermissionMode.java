@@ -33,7 +33,7 @@ public enum ApplicationPermissionMode {
      * granted or denied.
      * </p>
      */
-    VISIBLE,
+    VIEWING,
     /**
      * Whether can user/role can change (or is prevented from changing) the state of the system using the application feature (class member).
      *
@@ -53,7 +53,7 @@ public enum ApplicationPermissionMode {
      * mutable collections.  The RO viewer does, however.
      * </p>
      */
-    USABLE;
+    CHANGING;
 
     @Override
     public String toString() {

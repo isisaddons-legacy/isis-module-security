@@ -18,7 +18,6 @@
 package org.isisaddons.module.security.dom.actor;
 
 import java.util.*;
-import javax.inject.Inject;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
@@ -157,8 +156,8 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#PACKAGE package}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
-    @MemberOrder(name = "Permissions", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @MemberOrder(name = "Permissions", sequence = "1")
     public ApplicationRole addPackage(
             final @Named("Rule") ApplicationPermissionRule rule,
             final @Named("Mode") ApplicationPermissionMode mode,
@@ -172,7 +171,7 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
     }
 
     public ApplicationPermissionMode default1AddPackage() {
-        return ApplicationPermissionMode.USABLE;
+        return ApplicationPermissionMode.CHANGING;
     }
 
     public List<String> choices2AddPackage() {
@@ -186,9 +185,9 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @Named("Add Class/Member")
     @MemberOrder(name = "Permissions", sequence = "2")
-    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationRole addClassOrMember(
             final @Named("Rule") ApplicationPermissionRule rule,
             final @Named("Mode") ApplicationPermissionMode mode,
@@ -204,7 +203,7 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
     }
 
     public ApplicationPermissionMode default1AddClassOrMember() {
-        return ApplicationPermissionMode.USABLE;
+        return ApplicationPermissionMode.CHANGING;
     }
 
     /**
@@ -267,8 +266,8 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
     public ApplicationRole remove(
             final @Named("Rule") ApplicationPermissionRule rule,
             final @Named("Type") ApplicationFeatureType type,
-            final @Named("Feature") String featureFqn) {
-        final ApplicationPermission permission = applicationPermissions.findByRoleAndRuleAndFeature(rule, type, featureFqn);
+            final @Named("Feature") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME) String featureFqn) {
+        final ApplicationPermission permission = applicationPermissions.findByRoleAndRuleAndFeature(this, rule, type, featureFqn);
         if(permission != null) {
             container.removeIfNotAlready(permission);
         }
@@ -295,8 +294,6 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
 
     //endregion
 
-
-
     //region > users (collection)
     @javax.jdo.annotations.Persistent(mappedBy = "roles")
     private SortedSet<ApplicationUser> users = new TreeSet<>();
@@ -322,6 +319,40 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
     }
     //endregion
 
+    //region > addUser (action), removeUser (action)
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @Named("Add")
+    @MemberOrder(name="Users", sequence = "1")
+    public ApplicationRole addUser(final ApplicationUser applicationUser) {
+        applicationUser.addRole(this);
+        // no need to add to users set, since will be done by JDO/DN.
+        return this;
+    }
+
+    public List<ApplicationUser> autoComplete0AddUser(final String search) {
+        final List<ApplicationUser> matchingSearch = applicationUsers.findUsersByName(search);
+        final List<ApplicationUser> list = Lists.newArrayList(matchingSearch);
+        list.removeAll(getUsers());
+        return list;
+    }
+
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @Named("Remove")
+    @MemberOrder(name="Users", sequence = "2")
+    public ApplicationRole removeUser(final ApplicationUser applicationUser) {
+        applicationUser.removeRole(this);
+        // no need to remove from users set, since will be done by JDO/DN.
+        return this;
+    }
+
+    public Collection<ApplicationUser> choices0RemoveUser() {
+        return getUsers();
+    }
+    public String disableRemoveUser(final ApplicationUser applicationUser) {
+        return choices0RemoveUser().isEmpty()? "No users to remove": null;
+    }
+
+    //endregion
 
     //region > equals, hashCode, compareTo, toString
     private final static String propertyNames = "name";
@@ -349,11 +380,13 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
     //endregion
 
     //region  >  (injected)
-    @Inject
+    @javax.inject.Inject
     DomainObjectContainer container;
-    @Inject
+    @javax.inject.Inject
     ApplicationFeatures applicationFeatures;
-    @Inject
+    @javax.inject.Inject
     ApplicationPermissions applicationPermissions;
+    @javax.inject.Inject
+    ApplicationUsers applicationUsers;
     //endregion
 }

@@ -28,6 +28,10 @@ import com.google.common.collect.Maps;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.When;
+import org.apache.isis.applib.annotation.Where;
+import org.apache.isis.applib.fixturescripts.FixtureScript;
+import org.apache.isis.core.metamodel.facets.all.hide.HiddenFacet;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjector;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjectorAware;
 import org.apache.isis.core.metamodel.spec.ObjectSpecification;
@@ -185,7 +189,59 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
 
 
     protected boolean exclude(ObjectSpecification spec) {
-        return isBuiltIn(spec) || spec.isAbstract();
+        return spec.isAbstract() ||
+                isBuiltIn(spec) ||
+                isHidden(spec) ||
+                isFixtureScript(spec) ||
+                isSuperClassOfService(spec);
+    }
+
+    private boolean isFixtureScript(ObjectSpecification spec) {
+        return FixtureScript.class.isAssignableFrom(spec.getCorrespondingClass());
+    }
+
+    /**
+     * Ignore the (strict) superclasses of any services.
+     *
+     * <p>
+     *     For example, we want to ignore <code>ExceptionRecognizerComposite</code> because there is no service
+     *     of that type (only of subtypes of that).
+     * </p>
+     */
+    private boolean isSuperClassOfService(ObjectSpecification spec) {
+        final List<Object> registeredServices = servicesInjector.getRegisteredServices();
+
+        final Class<?> specClass = spec.getCorrespondingClass();
+
+        // is this class a supertype or the actual type of one of the services?
+        boolean serviceCls = false;
+        for (Object registeredService : registeredServices) {
+            final Class<?> serviceClass = registeredService.getClass();
+            if(specClass.isAssignableFrom(serviceClass)) {
+                serviceCls = true;
+            }
+        }
+        if(!serviceCls) {
+            return false;
+        }
+
+        // yes it is.  In which case, is it the actual concrete class of one of those services?
+        for (Object registeredService : registeredServices) {
+            final Class<?> serviceClass = registeredService.getClass();
+            if(serviceClass.isAssignableFrom(specClass)) {
+                return false;
+            }
+        }
+        // couldn't find a service of exactly this type, so ignore the spec.
+        return true;
+    }
+
+    protected boolean isHidden(ObjectSpecification spec) {
+        final HiddenFacet facet = spec.getFacet(HiddenFacet.class);
+        return facet != null &&
+                !facet.isNoop() &&
+                (facet.where() == Where.EVERYWHERE || facet.where() == Where.ANYWHERE) &&
+                facet.when() == When.ALWAYS;
     }
 
     protected boolean isBuiltIn(ObjectSpecification spec) {

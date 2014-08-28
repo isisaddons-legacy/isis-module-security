@@ -25,9 +25,9 @@ public class AllRolesFixture extends FixtureScript {
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        execute(new RegularUserRoleFixture(), executionContext);
         execute(new AdminRoleFixture(), executionContext);
         execute(new ReadOnlyRoleFixture(), executionContext);
+        execute(new RegularUserRoleFixture(), executionContext);
         execute(new WriteOnlyRoleFixture(), executionContext);
     }
 

@@ -31,14 +31,6 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
         return "applicationUser";
     }
 
-    @MemberOrder(name = "Security", sequence = "10.1")
-    @DescribedAs("Looks up ApplicationUser entity corresponding to your user account")
-    @ActionSemantics(Of.SAFE)
-    public ApplicationUser me() {
-        final String myName = getContainer().getUser().getName();
-        return findUserByUsername(myName);
-    }
-
     @MemberOrder(name = "Security", sequence = "10.2")
     @ActionSemantics(Of.SAFE)
     public ApplicationUser findUserByUsername(final String username) {
