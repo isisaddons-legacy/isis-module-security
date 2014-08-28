@@ -11,6 +11,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.apache.isis.applib.DomainObjectContainer;
+import org.apache.isis.core.metamodel.facets.all.hide.HiddenFacet;
+import org.apache.isis.core.metamodel.facets.members.hidden.HiddenFacetNever;
+import org.apache.isis.core.metamodel.runtimecontext.ServicesInjector;
 import org.apache.isis.core.metamodel.spec.ObjectSpecification;
 import org.apache.isis.core.metamodel.spec.feature.*;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
@@ -38,20 +41,26 @@ public class ApplicationFeaturesTest {
     @Mock
     DomainObjectContainer mockContainer;
 
+    @Mock
+    ServicesInjector mockServicesInjector;
+
     ApplicationFeatures applicationFeatures;
 
     @Before
     public void setUp() throws Exception {
         applicationFeatures = new ApplicationFeatures();
         applicationFeatures.container = mockContainer;
+        applicationFeatures.setServicesInjector(mockServicesInjector);
 
         mockActThatIsHidden = context.mock(ObjectAction.class, "mockActThatIsHidden");
     }
 
     public static class Load extends ApplicationFeaturesTest {
 
+        public static class Bar {}
+
         @Test
-        public void singleClassNoMembers() throws Exception {
+        public void happyCase() throws Exception {
 
             final List<ObjectAssociation> properties = Lists.<ObjectAssociation>newArrayList(mockProp);
             final List<ObjectAssociation> collections = Lists.<ObjectAssociation>newArrayList(mockColl);
@@ -62,13 +71,19 @@ public class ApplicationFeaturesTest {
                 will(returnValue(false));
 
                 allowing(mockSpec).getFullIdentifier();
-                will(returnValue("com.mycompany.Bar"));
+                will(returnValue(Bar.class.getName()));
 
                 allowing(mockSpec).getAssociations(with(Contributed.INCLUDED), with(ObjectAssociation.Filters.PROPERTIES));
                 will(returnValue(properties));
 
                 allowing(mockSpec).getAssociations(with(Contributed.INCLUDED), with(ObjectAssociation.Filters.COLLECTIONS));
                 will(returnValue(collections));
+
+                allowing(mockSpec).getFacet(HiddenFacet.class);
+                will(returnValue(new HiddenFacetNever(mockSpec)));
+
+                allowing(mockSpec).getCorrespondingClass();
+                will(returnValue(Bar.class));
 
                 allowing(mockSpec).getObjectActions(with(Contributed.INCLUDED));
                 will(returnValue(actions));
@@ -97,6 +112,8 @@ public class ApplicationFeaturesTest {
                 allowing(mockActThatIsHidden).isAlwaysHidden();
                 will(returnValue(true));
 
+                allowing(mockServicesInjector).getRegisteredServices();
+                will(returnValue(Lists.newArrayList()));
             }});
 
             // then
@@ -104,51 +121,69 @@ public class ApplicationFeaturesTest {
             context.checking(new Expectations() {{
                 oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
                 inSequence(sequence);
-                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newClass("com.mycompany.Bar"))));
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newClass(Bar.class.getName()))));
 
                 oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
                 inSequence(sequence);
-                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newMember("com.mycompany.Bar", "someProperty"))));
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newMember(Bar.class.getName(), "someProperty"))));
 
                 oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
                 inSequence(sequence);
-                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newMember("com.mycompany.Bar", "someCollection"))));
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newMember(Bar.class.getName(), "someCollection"))));
 
                 oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
                 inSequence(sequence);
-                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newMember("com.mycompany.Bar", "someAction"))));
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newMember(Bar.class.getName(), "someAction"))));
 
                 oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
                 inSequence(sequence);
-                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage("com.mycompany"))));
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.feature"))));
 
                 oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
                 inSequence(sequence);
-                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage("com"))));
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom"))));
+
+                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
+                inSequence(sequence);
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage("org.isisaddons.module.security"))));
+
+                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
+                inSequence(sequence);
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage("org.isisaddons.module"))));
+
+                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
+                inSequence(sequence);
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage("org.isisaddons"))));
+
+                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
+                inSequence(sequence);
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage("org"))));
             }});
 
             // when
             applicationFeatures.createApplicationFeaturesFor(mockSpec);
 
             // then
-            final ApplicationFeature comPkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("com"));
-            assertThat(comPkg, is(notNullValue()));
-            final ApplicationFeature comMycompanyPkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("com.mycompany"));
-            assertThat(comPkg, is(notNullValue()));
-            assertThat(comPkg.getContents(), contains(comMycompanyPkg.getFeatureId()));
-            assertThat(comMycompanyPkg.getContents(), contains(ApplicationFeatureId.newClass("com.mycompany.Bar")));
+            final ApplicationFeature orgPkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("org"));
+            assertThat(orgPkg, is(notNullValue()));
+            final ApplicationFeature orgIsisaddonsPkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("org.isisaddons"));
+            assertThat(orgPkg, is(notNullValue()));
+            final ApplicationFeature featurePkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.feature"));
+            assertThat(orgPkg, is(notNullValue()));
+            assertThat(orgPkg.getContents(), contains(orgIsisaddonsPkg.getFeatureId()));
+            assertThat(featurePkg.getContents(), contains(ApplicationFeatureId.newClass(Bar.class.getName())));
 
             // then
-            final ApplicationFeature barClass = applicationFeatures.findClass(ApplicationFeatureId.newClass("com.mycompany.Bar"));
+            final ApplicationFeature barClass = applicationFeatures.findClass(ApplicationFeatureId.newClass(Bar.class.getName()));
             assertThat(barClass, is(Matchers.notNullValue()));
 
             // then the mockActThatIsHidden is not listed.
             assertThat(barClass.getMembers().size(), is(3));
             assertThat(barClass.getMembers(),
                     containsInAnyOrder(
-                            ApplicationFeatureId.newMember("com.mycompany.Bar", "someProperty"),
-                            ApplicationFeatureId.newMember("com.mycompany.Bar", "someCollection"),
-                            ApplicationFeatureId.newMember("com.mycompany.Bar", "someAction")
+                            ApplicationFeatureId.newMember(Bar.class.getName(), "someProperty"),
+                            ApplicationFeatureId.newMember(Bar.class.getName(), "someCollection"),
+                            ApplicationFeatureId.newMember(Bar.class.getName(), "someAction")
                     ));
         }
 

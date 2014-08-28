@@ -74,16 +74,16 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
         assertThat(user.getUsername(), is(SvenUserFixture.USER_NAME));
     }
 
-    public static class Name_and_UpdateName extends ApplicationUserIntegTest {
+    public static class Username_and_UpdateUsername extends ApplicationUserIntegTest {
 
-        public static class Name extends Name_and_UpdateName {
+        public static class Username extends Username_and_UpdateUsername {
 
             @Test
             public void cannotModifyDirectly() throws Exception {
 
                 // then
                 expectedExceptions.expect(DisabledException.class);
-                expectedExceptions.expectMessage("Reason: Always disabled. Identifier: org.isisaddons.module.security.dom.actor.ApplicationUser#name()");
+                expectedExceptions.expectMessage("Reason: Always disabled. Identifier: org.isisaddons.module.security.dom.actor.ApplicationUser#username()");
 
                 // when
                 user.setUsername("fred");
@@ -91,7 +91,7 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
 
         }
 
-        public static class UpdateUsername extends Name_and_UpdateName {
+        public static class UpdateUsername extends Username_and_UpdateUsername {
 
             @Test
             public void toNewValue() throws Exception {

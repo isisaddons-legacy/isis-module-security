@@ -56,13 +56,7 @@ import org.apache.isis.applib.util.ObjectContracts;
                         + "   || familyName.matches(:nameRegex)"
                         + "   || givenName.matches(:nameRegex)"
                         + "   || knownAs.matches(:nameRegex)"
-        ),
-        @javax.jdo.annotations.Query(
-                name = "findByNameContaining", language = "JDOQL",
-                value = "SELECT "
-                        + "FROM org.isisaddons.module.security.dom.actor.ApplicationUser "
-                        + "WHERE name.indexOf(:name) >= 0")
-
+        )
 })
 @AutoComplete(repository=ApplicationUsers.class, action="autoComplete")
 @ObjectType("IsisSecurityApplicationUser")

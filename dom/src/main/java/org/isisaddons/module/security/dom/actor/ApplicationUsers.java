@@ -66,10 +66,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     @Programmatic // not part of metamodel
     public List<ApplicationUser> autoComplete(final String name) {
-        return allMatches(
-                new QueryDefault<ApplicationUser>(ApplicationUser.class,
-                        "findByNameContaining",
-                        "name", name));
+        return findUsersByName(name);
     }
 
 

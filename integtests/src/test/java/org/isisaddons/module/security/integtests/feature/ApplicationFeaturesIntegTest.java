@@ -75,7 +75,6 @@ public class ApplicationFeaturesIntegTest extends SecurityModuleAppIntegTest {
                     ApplicationFeatureId.newPackage("org.isisaddons"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module.security"),
-                    ApplicationFeatureId.newPackage("org.isisaddons.module.security.app"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.actor"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.feature"),
