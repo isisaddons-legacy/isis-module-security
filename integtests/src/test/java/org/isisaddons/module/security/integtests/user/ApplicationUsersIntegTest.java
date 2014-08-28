@@ -59,7 +59,7 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
 
             // when
             final ApplicationUser applicationUser = applicationUsers.newUser("fred");
-            Assert.assertThat(applicationUser.getName(), is("fred"));
+            Assert.assertThat(applicationUser.getUsername(), is("fred"));
 
             // then
             final List<ApplicationUser> after = applicationUsers.allUsers();
@@ -90,11 +90,11 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
             applicationUsers.newUser("mary");
 
             // when
-            final ApplicationUser fred = applicationUsers.findUserByName("fred");
+            final ApplicationUser fred = applicationUsers.findUserByUsername("fred");
 
             // then
             Assert.assertThat(fred, is(not(nullValue())));
-            Assert.assertThat(fred.getName(), is("fred"));
+            Assert.assertThat(fred.getUsername(), is("fred"));
         }
 
         @Test
@@ -105,7 +105,7 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
             applicationUsers.newUser("mary");
 
             // when
-            final ApplicationUser nonExistent = applicationUsers.findUserByName("bill");
+            final ApplicationUser nonExistent = applicationUsers.findUserByUsername("bill");
 
             // then
             Assert.assertThat(nonExistent, is(nullValue()));

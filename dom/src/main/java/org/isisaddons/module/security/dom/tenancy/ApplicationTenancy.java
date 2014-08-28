@@ -17,10 +17,16 @@
  */
 package org.isisaddons.module.security.dom.tenancy;
 
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
+import com.google.common.collect.Lists;
+import org.isisaddons.module.security.dom.actor.ApplicationUser;
+import org.isisaddons.module.security.dom.actor.ApplicationUsers;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.util.ObjectContracts;
 
@@ -81,7 +87,55 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     }
     //endregion
 
-    
+    //region > users (collection)
+    @javax.jdo.annotations.Persistent(mappedBy = "tenancy")
+    private SortedSet<ApplicationUser> users = new TreeSet<>();
+
+    @MemberOrder(sequence = "10")
+    @Render(Render.Type.EAGERLY)
+    @Disabled
+    public SortedSet<ApplicationUser> getUsers() {
+        return users;
+    }
+
+    public void setUsers(final SortedSet<ApplicationUser> users) {
+        this.users = users;
+    }
+
+    // necessary for integration tests
+    public void addToUsers(final ApplicationUser applicationUser) {
+        getUsers().add(applicationUser);
+    }
+    // necessary for integration tests
+    public void removeFromUsers(final ApplicationUser applicationUser) {
+        getUsers().remove(applicationUser);
+    }
+    //endregion
+
+    //region > addUser (action)
+    @MemberOrder(name="Users", sequence = "1")
+    public ApplicationTenancy addUser(final ApplicationUser applicationUser) {
+        applicationUser.setTenancy(this);
+        // no need to add to users set, since will be done by JDO/DN.
+        return this;
+    }
+
+    public List<ApplicationUser> autoComplete0AddUser(final String search) {
+        final List<ApplicationUser> matchingSearch = applicationUsers.findUsersByName(search);
+        final List<ApplicationUser> list = Lists.newArrayList(matchingSearch);
+        list.removeAll(getUsers());
+        return list;
+    }
+
+    @MemberOrder(name="Users", sequence = "2")
+    public ApplicationTenancy removeUser(final ApplicationUser applicationUser) {
+        applicationUser.setTenancy(null);
+        // no need to add to users set, since will be done by JDO/DN.
+        return this;
+    }
+
+    //endregion
+
 
     //region > compareTo
 
@@ -92,5 +146,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     //endregion
 
     //region  >  (injected)
+    @javax.inject.Inject
+    ApplicationUsers applicationUsers;
     //endregion
 }

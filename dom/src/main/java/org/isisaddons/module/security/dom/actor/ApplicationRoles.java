@@ -24,8 +24,12 @@ import org.apache.isis.applib.annotation.ActionSemantics.Of;
 import org.apache.isis.applib.query.QueryDefault;
 
 @Named("Application Roles")
-@DomainService
+@DomainService(repositoryFor = ApplicationRole.class)
 public class ApplicationRoles extends AbstractFactoryAndRepository {
+
+    public String iconName() {
+        return "applicationRole";
+    }
 
     @MemberOrder(name = "Security", sequence = "20.1")
     @ActionSemantics(Of.SAFE)
@@ -36,7 +40,8 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
     @MemberOrder(name = "Security", sequence = "20.2")
     @ActionSemantics(Of.NON_IDEMPOTENT)
     public ApplicationRole newRole(
-            final @Named("Name") String name) {
+            final @Named("Name") String name,
+            final @Named("Description") @Optional String description) {
         ApplicationRole role = newTransientInstance(ApplicationRole.class);
         role.setName(name);
         persist(role);

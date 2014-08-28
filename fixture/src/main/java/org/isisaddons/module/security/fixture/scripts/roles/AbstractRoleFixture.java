@@ -9,7 +9,7 @@ public abstract class AbstractRoleFixture extends FixtureScript {
     protected ApplicationRole create(
             final String name,
             final ExecutionContext executionContext) {
-        final ApplicationRole entity = applicationRoles.newRole(name);
+        final ApplicationRole entity = applicationRoles.newRole(name, null);
         executionContext.add(this, name, entity);
         return entity;
     }

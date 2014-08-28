@@ -105,8 +105,12 @@ import org.apache.isis.applib.util.TitleBuffer;
                 name = "IsisSecurityApplicationPermission_role_feature_rule_UNQ", members = { "role", "featureType", "featureFqn", "rule" })
 })
 @MemberGroupLayout(
-        columnSpans = {6,0,0,6}
+        columnSpans = {4,4,4,12},
+        left="Role",
+        middle = "Permissions",
+        right="Feature"
 )
+@Bookmarkable(BookmarkPolicy.AS_CHILD)
 public class ApplicationPermission implements Comparable<ApplicationPermission> {
 
     //region > identification
@@ -147,10 +151,8 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     private ApplicationRole role;
 
-    @javax.jdo.annotations.Column(allowsNull="false")
-    @Disabled
-    @Hidden(where = Where.REFERENCES_PARENT)
-    @MemberOrder(sequence = "1")
+    @javax.jdo.annotations.Column(name = "roleId", allowsNull="false")
+    @Hidden
     public ApplicationRole getRole() {
         return role;
     }
@@ -159,7 +161,20 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
         this.role = role;
     }
 
+    /**
+     * This is a work-around to an Isis debug whereby when editing the link is replaced with a disabled drop-down,
+     * even if disabled.  This unpleasant behaviour doesn't seem to happen for derived properties.
+     */
+    @javax.jdo.annotations.NotPersistent
+    @Disabled
+    @Hidden(where = Where.REFERENCES_PARENT)
+    @Named("Role")
     @MemberOrder(name="Role", sequence = "1")
+    public ApplicationRole getRoleWorkaround() {
+        return getRole();
+    }
+
+    @MemberOrder(name="RoleWorkaround", sequence = "1")
     public ApplicationPermission updateRole(final ApplicationRole applicationRole) {
         setRole(applicationRole);
         return this;
@@ -177,7 +192,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     @javax.jdo.annotations.Column(allowsNull="false")
     @Disabled
-    @MemberOrder(sequence = "2")
+    @MemberOrder(name="Permissions", sequence = "2")
     public ApplicationPermissionRule getRule() {
         return rule;
     }
@@ -214,7 +229,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     @javax.jdo.annotations.Column(allowsNull="false")
     @Disabled
-    @MemberOrder(sequence = "3")
+    @MemberOrder(name="Permissions", sequence = "3")
     public ApplicationPermissionMode getMode() {
         return mode;
     }
@@ -253,7 +268,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     @javax.jdo.annotations.NotPersistent
     @Disabled
     @Hidden(where=Where.REFERENCES_PARENT)
-    @MemberOrder(sequence = "4")
+    @MemberOrder(name="Feature", sequence = "4")
     public ApplicationFeatureViewModel getFeature() {
         if(getFeatureType() == null) {
             return null;
@@ -275,7 +290,8 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
      *
      * @see #getFeatureFqn()
      */
-    @MemberOrder(sequence = "5")
+    @Disabled
+    @MemberOrder(name="Feature", sequence = "5")
     public ApplicationFeatureType getFeatureType() {
         return featureType;
     }

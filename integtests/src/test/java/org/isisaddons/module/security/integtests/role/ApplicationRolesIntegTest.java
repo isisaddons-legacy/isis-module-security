@@ -63,7 +63,7 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
             Assert.assertThat(before.size(), is(0));
 
             // when
-            final ApplicationRole applicationRole = applicationRoles.newRole("fred");
+            final ApplicationRole applicationRole = applicationRoles.newRole("fred", null);
             Assert.assertThat(applicationRole.getName(), is("fred"));
 
             // then
@@ -78,10 +78,10 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
             expectedExceptions.expect(causalChainContains(JDODataStoreException.class));
 
             // given
-            applicationRoles.newRole("guest");
+            applicationRoles.newRole("guest", null);
 
             // when
-            applicationRoles.newRole("guest");
+            applicationRoles.newRole("guest", null);
         }
 
         private static <T extends Throwable> Matcher<T> causalChainContains(final Class<?> cls) {
@@ -116,8 +116,8 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
         public void happyCase() throws Exception {
 
             // given
-            applicationRoles.newRole("guest");
-            applicationRoles.newRole("root");
+            applicationRoles.newRole("guest", null);
+            applicationRoles.newRole("root", null);
 
             // when
             final ApplicationRole guest = applicationRoles.findRoleByName("guest");
@@ -131,8 +131,8 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
         public void whenDoesntMatch() throws Exception {
 
             // given
-            applicationRoles.newRole("guest");
-            applicationRoles.newRole("root");
+            applicationRoles.newRole("guest", null);
+            applicationRoles.newRole("root", null);
 
             // when
             final ApplicationRole nonExistent = applicationRoles.findRoleByName("admin");
@@ -148,9 +148,9 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
         public void happyCase() throws Exception {
 
             // given
-            applicationRoles.newRole("guest");
-            applicationRoles.newRole("root");
-            applicationRoles.newRole("admin");
+            applicationRoles.newRole("guest", null);
+            applicationRoles.newRole("root", null);
+            applicationRoles.newRole("admin", null);
 
             // when
             final List<ApplicationRole> after = applicationRoles.autoComplete("t");
@@ -167,8 +167,8 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
         public void happyCase() throws Exception {
 
             // given
-            applicationRoles.newRole("guest");
-            applicationRoles.newRole("root");
+            applicationRoles.newRole("guest", null);
+            applicationRoles.newRole("root", null);
 
             // when
             final List<ApplicationRole> after = applicationRoles.allRoles();

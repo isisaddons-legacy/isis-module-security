@@ -28,8 +28,13 @@ import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.query.QueryDefault;
 
-@DomainService
+@DomainService(repositoryFor = ApplicationPermission.class)
 public class ApplicationPermissions {
+
+    public String iconName() {
+        return "applicationPermission";
+    }
+
 
     //region > findByRole (programmatic)
     @Programmatic

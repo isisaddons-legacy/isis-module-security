@@ -69,4 +69,11 @@ li.x-highlight a {
 div.x-key span.scalarName {
 	color: red;
 }
+
+
+/*
+ * customisations
+ */
+.example-app-for-security .collectionContentsAsAjaxTablePanel table.contents tbody td {
+    text-transform: none;
 }

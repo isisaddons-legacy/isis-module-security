@@ -33,9 +33,15 @@ import org.apache.isis.applib.util.ObjectContracts;
  * View model identified by {@link ApplicationFeatureId} and backed by an {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
  */
 @MemberGroupLayout(
-        columnSpans = {6,0,0,6}
+        columnSpans = {6,0,0,6},
+        left = {"Type", "Id", "Parent"}
 )
+@Bookmarkable
 public class ApplicationFeatureViewModel implements ViewModel {
+
+    public String iconName() {
+        return "applicationFeature";
+    }
 
     //region > constructors
     public ApplicationFeatureViewModel() {
@@ -83,24 +89,6 @@ public class ApplicationFeatureViewModel implements ViewModel {
     }
     //endregion
 
-    //region > parent (property)
-
-    @MemberOrder(sequence = "2.1")
-    public ApplicationFeatureViewModel getParent() {
-        final ApplicationFeatureId parentId;
-        parentId = getType() == ApplicationFeatureType.MEMBER
-                ? getFeatureId().getParentClassId()
-                : getFeatureId().getParentPackageId();
-        if(parentId == null) {
-            return null;
-        }
-        final ApplicationFeature feature = applicationFeatures.findFeature(parentId);
-        return feature != null
-                ? container.newViewModelInstance(ApplicationFeatureViewModel.class, parentId.asEncodedString())
-                : null;
-    }
-    //endregion
-
     //region > feature (property, programmatic)
     @Programmatic
     ApplicationFeature getFeature() {
@@ -116,18 +104,20 @@ public class ApplicationFeatureViewModel implements ViewModel {
     //endregion
 
     //region > type, packageName, className, memberName (properties)
-    @MemberOrder(sequence = "2.2")
+    @MemberOrder(name="Type", sequence = "2.1")
+    @Hidden(where=Where.OBJECT_FORMS)
     public ApplicationFeatureType getType() {
         return getFeatureId().getType();
     }
 
     @TypicalLength(60)
-    @MemberOrder(sequence = "2.2")
+    @Hidden(where=Where.PARENTED_TABLES)
+    @MemberOrder(name="Id", sequence = "2.2")
     public String getPackageName() {
         return getFeatureId().getPackageName();
     }
 
-    @MemberOrder(sequence = "2.3")
+    @MemberOrder(name="Id", sequence = "2.3")
     public String getClassName() {
         return getFeatureId().getClassName();
     }
@@ -135,7 +125,7 @@ public class ApplicationFeatureViewModel implements ViewModel {
         return getFeatureId().getType().hideClassName();
     }
 
-    @MemberOrder(sequence = "2.4")
+    @MemberOrder(name="Id", sequence = "2.4")
     public String getMemberName() {
         return getFeatureId().getMemberName();
     }
@@ -144,8 +134,36 @@ public class ApplicationFeatureViewModel implements ViewModel {
     }
     //endregion
 
-    //region > contents (collection, for packages only)
+    //region > parent (property)
+
+    @Hidden(where=Where.REFERENCES_PARENT)
+    @MemberOrder(name = "Parent", sequence = "2.6")
+    public ApplicationFeatureViewModel getParent() {
+        final ApplicationFeatureId parentId;
+        parentId = getType() == ApplicationFeatureType.MEMBER
+                ? getFeatureId().getParentClassId()
+                : getFeatureId().getParentPackageId();
+        if(parentId == null) {
+            return null;
+        }
+        final ApplicationFeature feature = applicationFeatures.findFeature(parentId);
+        return feature != null
+                ? container.newViewModelInstance(ApplicationFeatureViewModel.class, parentId.asEncodedString())
+                : null;
+    }
+    //endregion
+
+    //region > permissions (collection)
     @MemberOrder(sequence = "3")
+    @Render(Render.Type.EAGERLY)
+    public List<ApplicationPermission> getPermissions() {
+        final ApplicationFeatureId featureId = this.getFeatureId();
+        return applicationPermissions.findByFeature(featureId);
+    }
+    //endregion
+
+    //region > contents (collection, for packages only)
+    @MemberOrder(sequence = "4")
     @Render(Render.Type.EAGERLY)
     public List<ApplicationFeatureViewModel> getContents() {
         final SortedSet<ApplicationFeatureId> contents = getFeature().getContents();
@@ -168,7 +186,7 @@ public class ApplicationFeatureViewModel implements ViewModel {
     //endregion
 
     //region > members (collection, for classes only)
-    @MemberOrder(sequence = "4")
+    @MemberOrder(sequence = "5")
     @Render(Render.Type.EAGERLY)
     public List<ApplicationFeatureViewModel> getMembers() {
         final SortedSet<ApplicationFeatureId> members = getFeature().getMembers();
@@ -177,16 +195,6 @@ public class ApplicationFeatureViewModel implements ViewModel {
     public boolean hideMembers() {
         return getType() != ApplicationFeatureType.CLASS;
     }
-    //endregion
-
-    //region > permissions (collection)
-    @MemberOrder(sequence = "5")
-    @Render(Render.Type.EAGERLY)
-    public List<ApplicationPermission> getPermissions() {
-        final ApplicationFeatureId featureId = this.getFeatureId();
-        return applicationPermissions.findByFeature(featureId);
-    }
-
     //endregion
 
     //region > equals, hashCode, toString

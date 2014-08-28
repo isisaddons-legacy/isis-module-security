@@ -67,11 +67,11 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
 
     @Before
     public void setUp() throws Exception {
-        user = wrap(applicationUsers.findUserByName(SvenUserFixture.USER_NAME));
+        user = wrap(applicationUsers.findUserByUsername(SvenUserFixture.USER_NAME));
         assertThat(unwrap(user).getRoles().size(), is(0));
 
         assertThat(user, is(not(nullValue())));
-        assertThat(user.getName(), is(SvenUserFixture.USER_NAME));
+        assertThat(user.getUsername(), is(SvenUserFixture.USER_NAME));
     }
 
     public static class Name_and_UpdateName extends ApplicationUserIntegTest {
@@ -86,22 +86,22 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
                 expectedExceptions.expectMessage("Reason: Always disabled. Identifier: org.isisaddons.module.security.dom.actor.ApplicationUser#name()");
 
                 // when
-                user.setName("fred");
+                user.setUsername("fred");
             }
 
         }
 
-        public static class UpdateName extends Name_and_UpdateName {
+        public static class UpdateUsername extends Name_and_UpdateName {
 
             @Test
             public void toNewValue() throws Exception {
 
                 // when
-                final ApplicationUser updatedUser = user.updateName("fred");
+                final ApplicationUser updatedUser = user.updateUsername("fred");
 
                 // then
                 assertThat(updatedUser, is(unwrap(user)));
-                assertThat(updatedUser.getName(), is("fred"));
+                assertThat(updatedUser.getUsername(), is("fred"));
             }
 
             @Test
@@ -111,11 +111,11 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
                 expectedExceptions.expect(InvalidException.class);
                 expectedExceptions.expectMessage(allOf(
                             containsString("Invalid action argument."),
-                            containsString("Reason: 'Name' is mandatory.")
+                            containsString("Reason: 'Username' is mandatory.")
                         ));
 
                 // when
-                user.updateName(null);
+                user.updateUsername(null);
             }
         }
 
@@ -129,10 +129,10 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
                     new AllTenanciesFixture()
             );
             // necessary to lookup again because above fixtures will be installed in a new xactn
-            user = wrap(applicationUsers.findUserByName(SvenUserFixture.USER_NAME));
+            user = wrap(applicationUsers.findUserByUsername(SvenUserFixture.USER_NAME));
 
-            swedenTenancy = applicationTenancies.findTenanciesByName(SwedenTenancyFixture.TENANCY_NAME);
-            franceTenancy = applicationTenancies.findTenanciesByName(FranceTenancyFixture.TENANCY_NAME);
+            swedenTenancy = applicationTenancies.findTenancyByName(SwedenTenancyFixture.TENANCY_NAME);
+            franceTenancy = applicationTenancies.findTenancyByName(FranceTenancyFixture.TENANCY_NAME);
 
             assertThat(swedenTenancy, is(notNullValue()));
             assertThat(franceTenancy, is(notNullValue()));
@@ -216,7 +216,7 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
             );
 
             // necessary to lookup again because above fixtures will be installed in a new xactn
-            user = wrap(applicationUsers.findUserByName(SvenUserFixture.USER_NAME));
+            user = wrap(applicationUsers.findUserByUsername(SvenUserFixture.USER_NAME));
 
             adminRole = applicationRoles.findRoleByName(AdminRoleFixture.ROLE_NAME);
             userRole = applicationRoles.findRoleByName(RegularUserRoleFixture.ROLE_NAME);

@@ -38,8 +38,12 @@ import org.apache.isis.core.metamodel.spec.feature.ObjectAction;
 import org.apache.isis.core.metamodel.spec.feature.ObjectAssociation;
 import org.apache.isis.core.metamodel.spec.feature.ObjectMember;
 
-@DomainService
+@DomainService(repositoryFor = ApplicationFeature.class)
 public class ApplicationFeatures implements SpecificationLoaderSpiAware, ServicesInjectorAware {
+
+    public String iconName() {
+        return "applicationFeature";
+    }
 
     //region > caches
     SortedMap<ApplicationFeatureId, ApplicationFeature> packageFeatures = Maps.newTreeMap();
@@ -87,22 +91,35 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         final String fullIdentifier = spec.getFullIdentifier();
         final ApplicationFeatureId classFeatureId = ApplicationFeatureId.newClass(fullIdentifier);
 
+        // add class to our map
+        // (later on it may get removed if the class turns out to have no features,
+        // but we require it in the map for the next bit).
         final ApplicationFeature classFeature = newFeature(classFeatureId);
         classFeatures.put(classFeatureId, classFeature);
 
-        ApplicationFeatureId classParentPackageId = addClassParent(classFeatureId);
-
-        addParents(classParentPackageId);
-
+        // add members
+        boolean addedMembers = false;
         for (ObjectAssociation property : properties) {
-            newMember(classFeatureId, property);
+            addedMembers = newMember(classFeatureId, property) || addedMembers;
         }
         for (ObjectAssociation collection : collections) {
-            newMember(classFeatureId, collection);
+            addedMembers = newMember(classFeatureId, collection) || addedMembers;
         }
         for (ObjectAction act : actions) {
-            newMember(classFeatureId, act);
+            addedMembers = newMember(classFeatureId, act) || addedMembers;
         }
+
+        if(!addedMembers) {
+            // remove this class feature, since it turned out to have no members
+            classFeatures.remove(classFeatureId);
+            return;
+        } else {
+            // leave the class as is and (as there were indeed members for this class)
+            // and add all of its parent packages
+            ApplicationFeatureId classParentPackageId = addClassParent(classFeatureId);
+            addParents(classParentPackageId);
+        }
+
     }
 
     ApplicationFeatureId addClassParent(ApplicationFeatureId classFeatureId) {
@@ -143,18 +160,21 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         return parentPackage;
     }
 
-
-    private void newMember(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember) {
-        newMember(classFeatureId, objectMember.getName());
+    private boolean newMember(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember) {
+        if(objectMember.isAlwaysHidden()) {
+            return false;
+        }
+        newMember(classFeatureId, objectMember.getId());
+        return true;
     }
 
-    private void newMember(ApplicationFeatureId classFeatureId, String memberName) {
-        final ApplicationFeatureId memberId = ApplicationFeatureId.newMember(classFeatureId.getFullyQualifiedName(), memberName);
-        final ApplicationFeature memberFeature = newFeature(memberId);
-        memberFeatures.put(memberId, memberFeature);
+    private void newMember(ApplicationFeatureId classFeatureId, String memberId) {
+        final ApplicationFeatureId featureId = ApplicationFeatureId.newMember(classFeatureId.getFullyQualifiedName(), memberId);
+        final ApplicationFeature memberFeature = newFeature(featureId);
+        memberFeatures.put(featureId, memberFeature);
 
         final ApplicationFeature classFeature = findClass(classFeatureId);
-        classFeature.addToMembers(memberId);
+        classFeature.addToMembers(featureId);
     }
 
     private ApplicationFeature newFeature(ApplicationFeatureId featureId) {

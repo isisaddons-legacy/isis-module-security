@@ -6,6 +6,103 @@ This module, intended for use within [Apache Isis](http://isis.apache.org), prov
 and permissions.
 
     
+The module consists of ...
+
+## Screenshots ##
+
+The following screenshots show an example app's usage of the module.
+
+#### Installing the Fixture Data ####
+
+
+#### yada ####
+
+
+#### yada ####
+
+
+## Relationship to Apache Isis Core ##
+
+Isis Core 1.6.0 included the `org.apache.isis.core:isis-module-xxx:1.6.0` Maven artifact.  This module is a
+direct copy of that code, with the following changes:
+
+* package names have been altered from `org.apache.isis` to `org.isisaddons.module.command`
+* the `persistent-unit` (in the JDO manifest) has changed from `isis-module-xxx` to 
+  `org-isisaddons-module-xxx-dom`
+
+Otherwise the functionality is identical; warts and all!
+
+At the time of writing the plan is to remove this module from Isis Core (so it won't be in Isis 1.7.0), and instead 
+continue to develop it solely as one of the [Isis Addons](http://www.isisaddons.org) modules.
+
+
+## How to configure/use ##
+
+You can either use this module "out-of-the-box", or you can fork this repo and extend to your own requirements. 
+
+To use "out-of-the-box":
+
+* update your classpath by adding this dependency in your dom project's `pom.xml`:
+
+<pre>
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.isisaddons.module.xxx&lt;/groupId&gt;
+        &lt;artifactId&gt;isis-module-xxx-dom&lt;/artifactId&gt;
+        &lt;version&gt;1.6.0&lt;/version&gt;
+    &lt;/dependency&gt;
+</pre>
+
+* update your `WEB-INF/isis.properties`:
+
+<pre>
+    isis.services-installer=configuration-and-annotation
+    isis.services.ServicesInstallerFromAnnotation.packagePrefix=
+                    ...,\
+                    org.isisaddons.module.xxx.xxx,\
+                    ...
+
+    isis.services = ...,\
+                    org.isisaddons.module.xxx.XxxContributions,\
+                    ...
+</pre>
+
+Notes:
+* Check for later releases by searching [Maven Central Repo](http://search.maven.org/#search|ga|1|isis-module-security-dom).
+* The `XxxContributions` service is optional but recommended; see below for more information.
+
+If instead you want to extend this module's functionality, then we recommend that you fork this repo.  The repo is 
+structured as follows:
+
+* `pom.xml   ` - parent pom
+* `dom       ` - the module implementation, depends on Isis applib
+* `fixture   ` - fixtures, holding a sample domain objects and fixture scripts; depends on `dom`
+* `integtests` - integration tests for the module; depends on `fixture`
+* `webapp    ` - demo webapp (see above screenshots); depends on `dom` and `fixture`
+
+Only the `dom` project is released to Maven Central Repo.  The versions of the other modules are purposely left at 
+`0.0.1-SNAPSHOT` because they are not intended to be released.
+
+## API ##
+
+### XxxService ###
+
+The `XxxService` defines the following API:
+
+<pre>
+public interface XxxService {
+}
+</pre>
+
+
+## Implementation ##
+
+## Supporting Services ##
+
+## Related Modules/Services ##
+
+... referenced by the [Isis Add-ons](http://www.isisaddons.org) website.
+
+
 
 ## Legal Stuff ##
  
@@ -32,7 +129,7 @@ and permissions.
 There are no third-party dependencies.
 
 
-##  Maven deploy notes
+##  Maven deploy notes ##
 
 Only the `dom` module is deployed, and is done so using Sonatype's OSS support (see 
 [user guide](http://central.sonatype.org/pages/apache-maven.html)).
@@ -60,7 +157,10 @@ The `release.sh` script automates the release process.  It performs the followin
 
 For example:
 
-    sh release.sh 1.6.1 1.6.2-SNAPSHOT dan@haywood-associates.co.uk "this is not really my passphrase"
+    sh release.sh 1.6.1 \
+                  1.6.2-SNAPSHOT \
+                  dan@haywood-associates.co.uk \
+                  "this is not really my passphrase"
     
 where
 * `$1` is the release version

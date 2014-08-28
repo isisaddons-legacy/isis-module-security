@@ -93,7 +93,7 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
             applicationTenancies.newTenancy("zambia");
 
             // when
-            final ApplicationTenancy uk = applicationTenancies.findTenanciesByName("uk");
+            final ApplicationTenancy uk = applicationTenancies.findTenancyByName("uk");
 
             // then
             Assert.assertThat(uk, is(not(nullValue())));
@@ -108,7 +108,7 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
             applicationTenancies.newTenancy("uk");
 
             // when
-            final ApplicationTenancy nonExistent = applicationTenancies.findTenanciesByName("france");
+            final ApplicationTenancy nonExistent = applicationTenancies.findTenancyByName("france");
 
             // then
             Assert.assertThat(nonExistent, is(nullValue()));

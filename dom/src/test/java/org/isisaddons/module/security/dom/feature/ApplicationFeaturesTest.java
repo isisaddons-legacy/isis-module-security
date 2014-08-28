@@ -26,13 +26,14 @@ public class ApplicationFeaturesTest {
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(JUnitRuleMockery2.Mode.INTERFACES_AND_CLASSES);
 
     @Mock
-    ObjectSpecification spec;
+    ObjectSpecification mockSpec;
     @Mock
-    OneToOneAssociation prop;
+    OneToOneAssociation mockProp;
     @Mock
-    OneToManyAssociation coll;
+    OneToManyAssociation mockColl;
     @Mock
-    ObjectAction act;
+    ObjectAction mockAct;
+    ObjectAction mockActThatIsHidden;
 
     @Mock
     DomainObjectContainer mockContainer;
@@ -43,6 +44,8 @@ public class ApplicationFeaturesTest {
     public void setUp() throws Exception {
         applicationFeatures = new ApplicationFeatures();
         applicationFeatures.container = mockContainer;
+
+        mockActThatIsHidden = context.mock(ObjectAction.class, "mockActThatIsHidden");
     }
 
     public static class Load extends ApplicationFeaturesTest {
@@ -50,34 +53,50 @@ public class ApplicationFeaturesTest {
         @Test
         public void singleClassNoMembers() throws Exception {
 
-            final List<ObjectAssociation> properties = Lists.<ObjectAssociation>newArrayList(prop);
-            final List<ObjectAssociation> collections = Lists.<ObjectAssociation>newArrayList(coll);
-            final List<ObjectAction> actions = Lists.newArrayList(act);
+            final List<ObjectAssociation> properties = Lists.<ObjectAssociation>newArrayList(mockProp);
+            final List<ObjectAssociation> collections = Lists.<ObjectAssociation>newArrayList(mockColl);
+            final List<ObjectAction> actions = Lists.newArrayList(mockAct, mockActThatIsHidden);
 
             context.checking(new Expectations() {{
-                allowing(spec).isAbstract();
+                allowing(mockSpec).isAbstract();
                 will(returnValue(false));
 
-                allowing(spec).getFullIdentifier();
+                allowing(mockSpec).getFullIdentifier();
                 will(returnValue("com.mycompany.Bar"));
 
-                allowing(spec).getAssociations(with(Contributed.INCLUDED), with(ObjectAssociation.Filters.PROPERTIES));
+                allowing(mockSpec).getAssociations(with(Contributed.INCLUDED), with(ObjectAssociation.Filters.PROPERTIES));
                 will(returnValue(properties));
 
-                allowing(spec).getAssociations(with(Contributed.INCLUDED), with(ObjectAssociation.Filters.COLLECTIONS));
+                allowing(mockSpec).getAssociations(with(Contributed.INCLUDED), with(ObjectAssociation.Filters.COLLECTIONS));
                 will(returnValue(collections));
 
-                allowing(spec).getObjectActions(with(Contributed.INCLUDED));
+                allowing(mockSpec).getObjectActions(with(Contributed.INCLUDED));
                 will(returnValue(actions));
 
-                allowing(prop).getName();
+                allowing(mockProp).getId();
                 will(returnValue("someProperty"));
 
-                allowing(coll).getName();
+                allowing(mockProp).isAlwaysHidden();
+                will(returnValue(false));
+
+                allowing(mockColl).getId();
                 will(returnValue("someCollection"));
 
-                allowing(act).getName();
+                allowing(mockColl).isAlwaysHidden();
+                will(returnValue(false));
+
+                allowing(mockAct).getId();
                 will(returnValue("someAction"));
+
+                allowing(mockAct).isAlwaysHidden();
+                will(returnValue(false));
+
+                allowing(mockActThatIsHidden).getId();
+                will(returnValue("someActionThatIsHidden"));
+
+                allowing(mockActThatIsHidden).isAlwaysHidden();
+                will(returnValue(true));
+
             }});
 
             // then
@@ -86,14 +105,6 @@ public class ApplicationFeaturesTest {
                 oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
                 inSequence(sequence);
                 will(returnValue(new ApplicationFeature(ApplicationFeatureId.newClass("com.mycompany.Bar"))));
-
-                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
-                inSequence(sequence);
-                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage("com.mycompany"))));
-
-                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
-                inSequence(sequence);
-                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage("com"))));
 
                 oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
                 inSequence(sequence);
@@ -106,10 +117,18 @@ public class ApplicationFeaturesTest {
                 oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
                 inSequence(sequence);
                 will(returnValue(new ApplicationFeature(ApplicationFeatureId.newMember("com.mycompany.Bar", "someAction"))));
+
+                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
+                inSequence(sequence);
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage("com.mycompany"))));
+
+                oneOf(mockContainer).newTransientInstance(ApplicationFeature.class);
+                inSequence(sequence);
+                will(returnValue(new ApplicationFeature(ApplicationFeatureId.newPackage("com"))));
             }});
 
             // when
-            applicationFeatures.createApplicationFeaturesFor(spec);
+            applicationFeatures.createApplicationFeaturesFor(mockSpec);
 
             // then
             final ApplicationFeature comPkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("com"));
@@ -123,7 +142,9 @@ public class ApplicationFeaturesTest {
             final ApplicationFeature barClass = applicationFeatures.findClass(ApplicationFeatureId.newClass("com.mycompany.Bar"));
             assertThat(barClass, is(Matchers.notNullValue()));
 
-            Assert.assertThat(barClass.getMembers(),
+            // then the mockActThatIsHidden is not listed.
+            assertThat(barClass.getMembers().size(), is(3));
+            assertThat(barClass.getMembers(),
                     containsInAnyOrder(
                             ApplicationFeatureId.newMember("com.mycompany.Bar", "someProperty"),
                             ApplicationFeatureId.newMember("com.mycompany.Bar", "someCollection"),

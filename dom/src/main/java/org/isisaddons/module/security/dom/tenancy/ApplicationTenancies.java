@@ -23,12 +23,17 @@ import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
 import org.apache.isis.applib.query.QueryDefault;
 
-@DomainService
+@DomainService(repositoryFor = ApplicationTenancy.class)
 public class ApplicationTenancies extends AbstractFactoryAndRepository {
+
+    public String iconName() {
+        return "applicationTenancy";
+    }
 
     @MemberOrder(name = "Security", sequence = "90.1")
     @ActionSemantics(Of.SAFE)
-    public ApplicationTenancy findTenanciesByName(final String name) {
+    public ApplicationTenancy findTenancyByName(
+            final @Named("Name") String name) {
         return uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByName", "name", name));
     }
 

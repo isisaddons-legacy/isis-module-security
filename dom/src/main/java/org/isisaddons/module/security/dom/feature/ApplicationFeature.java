@@ -31,6 +31,7 @@ import org.apache.isis.applib.util.ObjectContracts;
  */
 public class ApplicationFeature implements Comparable<ApplicationFeature> {
 
+
     //region > constants
 
     // using same value for all to neaten up rendering

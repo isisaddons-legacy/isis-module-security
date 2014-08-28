@@ -104,6 +104,33 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
 
     //endregion
 
+    //region > description (property)
+    private String description;
+
+    @javax.jdo.annotations.Column(allowsNull="true")
+    @Disabled
+    @MemberOrder(sequence = "2")
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(final String description) {
+        this.description = description;
+    }
+    @MemberOrder(name="description", sequence = "1")
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    public ApplicationRole updateDescription(
+            final @Named("Description") @Optional String description) {
+        setDescription(description);
+        return this;
+    }
+
+    public String default0UpdateDescription() {
+        return getDescription();
+    }
+
+    //endregion
+
     //region > roles (collection, not persisted, programmatic)
 
     @Programmatic
@@ -267,6 +294,34 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
     }
 
     //endregion
+
+
+
+    //region > users (collection)
+    @javax.jdo.annotations.Persistent(mappedBy = "roles")
+    private SortedSet<ApplicationUser> users = new TreeSet<>();
+
+    @MemberOrder(sequence = "20")
+    @Render(Render.Type.EAGERLY)
+    @Disabled
+    public SortedSet<ApplicationUser> getUsers() {
+        return users;
+    }
+
+    public void setUsers(final SortedSet<ApplicationUser> users) {
+        this.users = users;
+    }
+
+    // necessary for integration tests
+    public void addToUsers(final ApplicationUser applicationUser) {
+        getUsers().add(applicationUser);
+    }
+    // necessary for integration tests
+    public void removeFromUsers(final ApplicationUser applicationUser) {
+        getUsers().remove(applicationUser);
+    }
+    //endregion
+
 
     //region > equals, hashCode, compareTo, toString
     private final static String propertyNames = "name";

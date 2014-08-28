@@ -109,7 +109,7 @@ public class ApplicationFeatureViewModelTest {
 
     }
 
-    public static class GetMembers extends ApplicationFeatureViewModelTest {
+    public static class GetProperties extends ApplicationFeatureViewModelTest {
 
         @Test
         public void givenClass_whenAddMember() throws Exception {
