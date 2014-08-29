@@ -24,7 +24,7 @@ import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
-import org.isisaddons.module.security.dom.actor.ApplicationRole;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.feature.*;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
@@ -74,6 +74,12 @@ import org.apache.isis.applib.util.TitleBuffer;
                 value = "SELECT "
                         + "FROM org.isisaddons.module.security.dom.permission.ApplicationPermission "
                         + "WHERE role == :role"),
+        @javax.jdo.annotations.Query(
+                name = "findByUser", language = "JDOQL",
+                value = "SELECT "
+                        + "FROM org.isisaddons.module.security.dom.permission.ApplicationPermission "
+                        + "WHERE (u.roles.contains(role) && u.username == :username) "
+                        + "VARIABLES org.isisaddons.module.security.dom.user.ApplicationUser u"),
         @javax.jdo.annotations.Query(
                 name = "findByFeature", language = "JDOQL",
                 value = "SELECT "
@@ -410,9 +416,17 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     //region > Functions
 
-    public static class Functions {
+    public static final class Functions {
 
         private Functions(){}
+
+        public static final Function<ApplicationPermission, ApplicationPermissionValue> AS_VALUE = new Function<ApplicationPermission, ApplicationPermissionValue>() {
+            @Override
+            public ApplicationPermissionValue apply(ApplicationPermission input) {
+                return new ApplicationPermissionValue(input.getFeatureId(), input.getRule(), input.getMode());
+            }
+        };
+
 
         public static final Function<ApplicationPermission, String> GET_FQN = new Function<ApplicationPermission, String>() {
             @Override

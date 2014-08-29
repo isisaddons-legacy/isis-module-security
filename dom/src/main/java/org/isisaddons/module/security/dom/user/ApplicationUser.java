@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.dom.actor;
+package org.isisaddons.module.security.dom.user;
 
 import java.util.Collection;
 import java.util.List;
@@ -25,13 +25,16 @@ import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureViewModel;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
+import org.isisaddons.module.security.dom.permission.ApplicationPermission;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.role.ApplicationRoles;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
@@ -54,12 +57,12 @@ import org.apache.isis.applib.util.ObjectContracts;
         @javax.jdo.annotations.Query(
                 name = "findByUsername", language = "JDOQL",
                 value = "SELECT "
-                        + "FROM org.isisaddons.module.security.dom.actor.ApplicationUser "
+                        + "FROM org.isisaddons.module.security.dom.user.ApplicationUser "
                         + "WHERE username == :username"),
         @javax.jdo.annotations.Query(
                 name = "findByName", language = "JDOQL",
                 value = "SELECT "
-                        + "FROM org.isisaddons.module.security.dom.actor.ApplicationUser "
+                        + "FROM org.isisaddons.module.security.dom.user.ApplicationUser "
                         + "WHERE username.matches(:nameRegex)"
                         + "   || familyName.matches(:nameRegex)"
                         + "   || givenName.matches(:nameRegex)"
@@ -69,11 +72,12 @@ import org.apache.isis.applib.util.ObjectContracts;
 @AutoComplete(repository=ApplicationUsers.class, action="autoComplete")
 @ObjectType("IsisSecurityApplicationUser")
 @Bookmarkable
-@MemberGroupLayout(columnSpans = {4,4,0,4},
+@MemberGroupLayout(columnSpans = {4,4,4,12},
     left = {"Id", "Name"},
-    middle= {"Contact Details"}
+    middle= {"Contact Details"},
+    right= {"Tenancy"}
 )
-public class ApplicationUser implements Comparable<ApplicationUser>, Actor {
+public class ApplicationUser implements Comparable<ApplicationUser> {
 
     //region > identification
 
@@ -313,7 +317,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, Actor {
     private ApplicationTenancy tenancy;
 
     @javax.jdo.annotations.Column(name = "tenancyId", allowsNull="true")
-    @MemberOrder(name="Contact Details", sequence = "3.4")
+    @MemberOrder(name="Tenancy", sequence = "3.4")
     @Disabled
     public ApplicationTenancy getTenancy() {
         return tenancy;
@@ -403,27 +407,31 @@ public class ApplicationUser implements Comparable<ApplicationUser>, Actor {
     }
     //endregion
 
-    //region > granted (derived collection)
+    //region > features (derived collection)
 
-    @Programmatic // TODO: in progress
-    public List<ApplicationFeatureViewModel> getGranted(DomainObjectContainer container) {
-        final Collection<ApplicationFeature> allMembers = Lists.newArrayList(applicationFeatures.allMembers());
+    @MemberOrder(sequence = "30")
+    @Render(Render.Type.EAGERLY)
+    @Disabled
+    @Paged(50)
+    public List<UserPermissionViewModel> getPermissions() {
+        final Collection<ApplicationFeature> allMembers = applicationFeatures.allMembers();
         return Lists.newArrayList(
                 Iterables.transform(
-                        Iterables.filter(allMembers,
-                                isGranted()), ApplicationFeatureViewModel.Functions.asViewModel(container))
+                        allMembers,
+                        UserPermissionViewModel.Functions.asViewModel(this, container))
         );
 
     }
 
-    private Predicate<ApplicationFeature> isGranted() {
-        return new Predicate<ApplicationFeature>() {
-            @Override
-            public boolean apply(ApplicationFeature input) {
-                // TODO: in progress
-                return false;
-            }
-        };
+    // short-term caching
+    private transient ApplicationPermissionValueSet cachedPermissionSet;
+    ApplicationPermissionValueSet getPermissionSet() {
+        if(cachedPermissionSet != null) {
+            return cachedPermissionSet;
+        }
+        final List<ApplicationPermission> permissions = applicationPermissions.findByUser(this);
+        final ApplicationPermissionValueSet permissionSet = new ApplicationPermissionValueSet(Iterables.transform(permissions, ApplicationPermission.Functions.AS_VALUE));
+        return cachedPermissionSet = permissionSet;
     }
     //endregion
 
@@ -456,6 +464,10 @@ public class ApplicationUser implements Comparable<ApplicationUser>, Actor {
     //region  >  (injected)
     @javax.inject.Inject
     ApplicationRoles applicationRoles;
+    @javax.inject.Inject
+    DomainObjectContainer container;
+    @javax.inject.Inject
+    ApplicationPermissions applicationPermissions;
     @javax.inject.Inject
     ApplicationFeatures applicationFeatures;
     //endregion

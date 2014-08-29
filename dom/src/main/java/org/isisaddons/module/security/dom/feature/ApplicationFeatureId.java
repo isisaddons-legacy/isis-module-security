@@ -120,9 +120,18 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
         type.init(this, iterator.next());
     }
 
+    /**
+     * Must be called by {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#init(ApplicationFeatureId, String)} immediately afterwards
+     * to fully initialize.
+     */
     ApplicationFeatureId(ApplicationFeatureType type) {
         this.type = type;
     }
+
+    public ApplicationFeatureId(ApplicationFeatureType type, String fullyQualifiedName) {
+        type.init(this, fullyQualifiedName);
+    }
+
     //endregion
 
     //region > identification
@@ -373,13 +382,31 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        return ObjectContracts.equals(this, obj, propertyNames);
+    public boolean equals(Object o) {
+        // not using because trying to be efficient.  Premature optimization?
+        // return ObjectContracts.equals(this, obj, propertyNames);
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ApplicationFeatureId that = (ApplicationFeatureId) o;
+
+        if (className != null ? !className.equals(that.className) : that.className != null) return false;
+        if (memberName != null ? !memberName.equals(that.memberName) : that.memberName != null) return false;
+        if (packageName != null ? !packageName.equals(that.packageName) : that.packageName != null) return false;
+        if (type != that.type) return false;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return ObjectContracts.hashCode(this, propertyNames);
+        // not using because trying to be efficient.  Premature optimization?
+        // return ObjectContracts.hashCode(this, propertyNames);
+        int result = type != null ? type.hashCode() : 0;
+        result = 31 * result + (packageName != null ? packageName.hashCode() : 0);
+        result = 31 * result + (className != null ? className.hashCode() : 0);
+        result = 31 * result + (memberName != null ? memberName.hashCode() : 0);
+        return result;
     }
 
     @Override

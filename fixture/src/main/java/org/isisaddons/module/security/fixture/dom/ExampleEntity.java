@@ -16,14 +16,14 @@ import org.apache.isis.applib.annotation.Title;
         column = "version")
 @javax.jdo.annotations.Uniques({
         @javax.jdo.annotations.Unique(
-                name = "ExampleSecuredEntity_name_UNQ", members = { "name" })
+                name = "ExampleEntity_name_UNQ", members = { "name" })
 })
 @MemberGroupLayout(columnSpans = {4,4,4,12},
         left = {"General"},
         middle = {},
         right = {}
 )
-public class ExampleSecuredEntity {
+public class ExampleEntity {
 
 
     //region > name

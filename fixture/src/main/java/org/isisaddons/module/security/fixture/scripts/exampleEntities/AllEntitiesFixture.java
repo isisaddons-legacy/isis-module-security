@@ -19,7 +19,7 @@
 
 package org.isisaddons.module.security.fixture.scripts.exampleEntities;
 
-import org.isisaddons.module.security.fixture.dom.ExampleSecuredEntities;
+import org.isisaddons.module.security.fixture.dom.ExampleEntities;
 import org.apache.isis.applib.fixturescripts.DiscoverableFixtureScript;
 
 public class AllEntitiesFixture extends DiscoverableFixtureScript {
@@ -37,6 +37,6 @@ public class AllEntitiesFixture extends DiscoverableFixtureScript {
     // //////////////////////////////////////
 
     @javax.inject.Inject
-    private ExampleSecuredEntities exampleSecuredEntities;
+    private ExampleEntities exampleEntities;
 
 }

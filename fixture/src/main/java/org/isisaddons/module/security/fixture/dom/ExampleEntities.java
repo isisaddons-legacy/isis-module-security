@@ -23,8 +23,8 @@ import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
 
-@DomainService(menuOrder = "10")
-public class ExampleSecuredEntities {
+@DomainService(menuOrder = "10", repositoryFor = ExampleEntity.class)
+public class ExampleEntities {
 
     //region > identification in the UI
     // //////////////////////////////////////
@@ -45,8 +45,8 @@ public class ExampleSecuredEntities {
     @Bookmarkable
     @ActionSemantics(Of.SAFE)
     @MemberOrder(sequence = "1")
-    public List<ExampleSecuredEntity> listAll() {
-        return container.allInstances(ExampleSecuredEntity.class);
+    public List<ExampleEntity> listAll() {
+        return container.allInstances(ExampleEntity.class);
     }
 
     //endregion
@@ -55,9 +55,9 @@ public class ExampleSecuredEntities {
     // //////////////////////////////////////
     
     @MemberOrder(sequence = "2")
-    public ExampleSecuredEntity create(
+    public ExampleEntity create(
             final @Named("Name") String name) {
-        final ExampleSecuredEntity obj = container.newTransientInstance(ExampleSecuredEntity.class);
+        final ExampleEntity obj = container.newTransientInstance(ExampleEntity.class);
         obj.setName(name);
         container.persistIfNotAlready(obj);
         return obj;

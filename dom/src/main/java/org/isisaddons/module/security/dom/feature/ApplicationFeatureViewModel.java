@@ -33,8 +33,9 @@ import org.apache.isis.applib.util.ObjectContracts;
  * View model identified by {@link ApplicationFeatureId} and backed by an {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
  */
 @MemberGroupLayout(
-        columnSpans = {6,0,0,6},
-        left = {"Id", "Parent"}
+        columnSpans = {6,0,6,12},
+        left = {"Id"},
+        right= {"Parent"}
 )
 @Bookmarkable
 public class ApplicationFeatureViewModel implements ViewModel {
@@ -115,7 +116,6 @@ public class ApplicationFeatureViewModel implements ViewModel {
     }
 
     @TypicalLength(60)
-    @Hidden(where=Where.PARENTED_TABLES)
     @MemberOrder(name="Id", sequence = "2.2")
     public String getPackageName() {
         return getFeatureId().getPackageName();

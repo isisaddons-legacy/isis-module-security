@@ -2,8 +2,8 @@ package org.isisaddons.module.security.integtests.example;
 
 import java.util.List;
 import javax.inject.Inject;
-import org.isisaddons.module.security.fixture.dom.ExampleSecuredEntities;
-import org.isisaddons.module.security.fixture.dom.ExampleSecuredEntity;
+import org.isisaddons.module.security.fixture.dom.ExampleEntities;
+import org.isisaddons.module.security.fixture.dom.ExampleEntity;
 import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
 import org.isisaddons.module.security.fixture.scripts.exampleEntities.Bar;
 import org.isisaddons.module.security.fixture.scripts.exampleEntities.Baz;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertThat;
 
 public class SecurityModuleAppEntityTest extends SecurityModuleAppIntegTest {
 
-    ExampleSecuredEntity entity;
+    ExampleEntity entity;
 
     @Before
     public void setUpData() throws Exception {
@@ -33,14 +33,14 @@ public class SecurityModuleAppEntityTest extends SecurityModuleAppIntegTest {
     }
 
     @Inject
-    ExampleSecuredEntities exampleSecuredEntities;
+    ExampleEntities exampleEntities;
 
     @Inject
     IsisJdoSupport isisJdoSupport;
 
     @Before
     public void setUp() throws Exception {
-        final List<ExampleSecuredEntity> all = wrap(exampleSecuredEntities).listAll();
+        final List<ExampleEntity> all = wrap(exampleEntities).listAll();
         assertThat(all.size(), is(4));
 
         entity = all.get(0);

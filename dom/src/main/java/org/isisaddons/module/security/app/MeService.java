@@ -15,22 +15,26 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.dom.actor;
+package org.isisaddons.module.security.app;
 
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
 import org.apache.isis.applib.annotation.DescribedAs;
+import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MemberOrder;
 
-// not a @DomainService simply to provide flexibility for it to be subclassed etc.
+// not a @DomainService because contributes to the UI
+@DomainService(menuOrder = "1")
 public class MeService extends AbstractFactoryAndRepository {
 
     public String iconName() {
         return "applicationUser";
     }
 
-    @MemberOrder(name = "Security", sequence = "1")
+    @MemberOrder(name = "Users", sequence = "1")
     @DescribedAs("Looks up ApplicationUser entity corresponding to your user account")
     @ActionSemantics(Of.SAFE)
     public ApplicationUser me() {

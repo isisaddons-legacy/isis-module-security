@@ -18,17 +18,23 @@
 package org.isisaddons.module.security.dom.permission;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
 import javax.inject.Inject;
-import org.isisaddons.module.security.dom.actor.ApplicationRole;
+import com.google.common.collect.Maps;
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.query.QueryDefault;
+import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 
-@DomainService(repositoryFor = ApplicationPermission.class)
+@Named("Permissions")
+@DomainService(menuOrder = "90.3", repositoryFor = ApplicationPermission.class)
 public class ApplicationPermissions {
 
     public String iconName() {
@@ -43,6 +49,46 @@ public class ApplicationPermissions {
                 new QueryDefault<>(
                         ApplicationPermission.class, "findByRole",
                         "role", role));
+    }
+    //endregion
+
+    //region > findByUser (programmatic)
+    @Programmatic
+    public List<ApplicationPermission> findByUser(final ApplicationUser user) {
+        final String username = user.getUsername();
+        return findByUser(username);
+    }
+
+    private List<ApplicationPermission> findByUser(String username) {
+        return container.allMatches(
+                new QueryDefault<>(
+                        ApplicationPermission.class, "findByUser",
+                        "username", username));
+    }
+    //endregion
+
+
+    //region > findByUserAndPermissionValue (programmatic)
+    /**
+     * Uses the {@link org.apache.isis.applib.services.queryresultscache.QueryResultsCache} in order to support
+     * multiple lookups from {@link org.isisaddons.module.security.dom.user.UserPermissionViewModel}.
+     */
+    @Programmatic
+    public ApplicationPermission findByUserAndPermissionValue(final String username, ApplicationPermissionValue permissionValue) {
+
+        // obtain all permissions for this user, map by its value, and
+        // put into query cache (so that this method can be safely called in a tight loop)
+        final Map<ApplicationPermissionValue, ApplicationPermission> permissions =
+            queryResultsCache.execute(new Callable<Map<ApplicationPermissionValue, ApplicationPermission>>() {
+                @Override
+                public Map<ApplicationPermissionValue, ApplicationPermission> call() throws Exception {
+                    final List<ApplicationPermission> applicationPermissions = findByUser(username);
+                    return Maps.uniqueIndex(applicationPermissions, ApplicationPermission.Functions.AS_VALUE);
+                }
+            }, ApplicationPermissions.class, "findByUserAndPermissionValue", username);
+
+        // now simply return the permission from the required value (if it exists)
+        return permissions.get(permissionValue);
     }
     //endregion
 
@@ -141,7 +187,7 @@ public class ApplicationPermissions {
     //region > allPermission (action)
     @Prototype
     @ActionSemantics(ActionSemantics.Of.SAFE)
-    @MemberOrder(name = "Security", sequence = "60.9")
+    @MemberOrder(sequence = "60.9")
     public List<ApplicationPermission> allPermissions() {
         return container.allInstances(ApplicationPermission.class);
     }
@@ -152,6 +198,7 @@ public class ApplicationPermissions {
     DomainObjectContainer container;
     @Inject
     ApplicationFeatures applicationFeatures;
-
+    @Inject
+    QueryResultsCache queryResultsCache;
     //endregion
 }

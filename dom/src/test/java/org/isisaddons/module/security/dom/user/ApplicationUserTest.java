@@ -1,7 +1,6 @@
 package org.isisaddons.module.security.dom.user;
 
 import java.util.List;
-import org.isisaddons.module.security.dom.actor.ApplicationUser;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

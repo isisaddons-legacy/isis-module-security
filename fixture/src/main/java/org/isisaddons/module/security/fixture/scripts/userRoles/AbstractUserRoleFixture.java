@@ -1,9 +1,9 @@
 package org.isisaddons.module.security.fixture.scripts.userRoles;
 
-import org.isisaddons.module.security.dom.actor.ApplicationRole;
-import org.isisaddons.module.security.dom.actor.ApplicationRoles;
-import org.isisaddons.module.security.dom.actor.ApplicationUser;
-import org.isisaddons.module.security.dom.actor.ApplicationUsers;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.role.ApplicationRoles;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 
 public abstract class AbstractUserRoleFixture extends FixtureScript {

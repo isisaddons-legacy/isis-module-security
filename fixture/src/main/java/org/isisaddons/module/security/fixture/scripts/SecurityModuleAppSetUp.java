@@ -19,14 +19,15 @@
 
 package org.isisaddons.module.security.fixture.scripts;
 
-import org.isisaddons.module.security.fixture.dom.ExampleSecuredEntities;
+import org.isisaddons.module.security.fixture.dom.ExampleEntities;
 import org.isisaddons.module.security.fixture.scripts.exampleEntities.AllEntitiesFixture;
-import org.isisaddons.module.security.fixture.scripts.permission.AdminRoleAllowUsableToSelectedFeatures;
+import org.isisaddons.module.security.fixture.scripts.permission.AdminRole_AllowChanging_All;
+import org.isisaddons.module.security.fixture.scripts.permission.GuestRole_AllowViewing_ExampleDomPackage;
+import org.isisaddons.module.security.fixture.scripts.permission.NoFixtureScriptsRole_VetoViewing_FixtureScriptsPackage;
+import org.isisaddons.module.security.fixture.scripts.permission.RegularRole_AllowChanging_ExampleDomPackage;
 import org.isisaddons.module.security.fixture.scripts.roles.AllRolesFixture;
 import org.isisaddons.module.security.fixture.scripts.tenancy.AllTenanciesFixture;
-import org.isisaddons.module.security.fixture.scripts.userRoles.DickHasRegularUserRoleFixture;
-import org.isisaddons.module.security.fixture.scripts.userRoles.DickHasWriteOnlyRoleFixture;
-import org.isisaddons.module.security.fixture.scripts.userRoles.SvenHasAdminRoleFixture;
+import org.isisaddons.module.security.fixture.scripts.userRoles.*;
 import org.isisaddons.module.security.fixture.scripts.users.AllUsersFixture;
 import org.apache.isis.applib.fixturescripts.DiscoverableFixtureScript;
 
@@ -43,19 +44,25 @@ public class SecurityModuleAppSetUp extends DiscoverableFixtureScript {
         execute(new AllUsersFixture(), executionContext);
         execute(new AllTenanciesFixture(), executionContext);
 
-        // user/role
-        execute(new SvenHasAdminRoleFixture(), executionContext);
-        execute(new DickHasRegularUserRoleFixture(), executionContext);
-        execute(new DickHasWriteOnlyRoleFixture(), executionContext);
-
         // perms (role/features)
-        execute(new AdminRoleAllowUsableToSelectedFeatures(), executionContext);
+        execute(new AdminRole_AllowChanging_All(), executionContext);
+        execute(new GuestRole_AllowViewing_ExampleDomPackage(), executionContext);
+        execute(new RegularRole_AllowChanging_ExampleDomPackage(), executionContext);
+        execute(new NoFixtureScriptsRole_VetoViewing_FixtureScriptsPackage(), executionContext);
+
+        // user/role
+        execute(new BobUser_Has_AdminRole(), executionContext);
+        execute(new BobUser_Has_NoFixtureScriptsRole(), executionContext);
+        execute(new DickUser_Has_RegularRole(), executionContext);
+        execute(new GuestUser_Has_GuestRole(), executionContext);
+        execute(new JoeUser_Has_ReadOnlyRole(), executionContext);
+        execute(new SvenUser_Has_AdminRole(), executionContext);
 
     }
 
     // //////////////////////////////////////
 
     @javax.inject.Inject
-    private ExampleSecuredEntities exampleSecuredEntities;
+    private ExampleEntities exampleEntities;
 
 }

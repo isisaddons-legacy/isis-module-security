@@ -116,10 +116,10 @@ public class ApplicationFeaturesIntegTest extends SecurityModuleAppIntegTest {
             // then
             assertThat(pkg, is(notNullValue()));
             assertThat(pkg.getContents(), containsAtLeast(
-                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.actor.ApplicationRole"),
-                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.actor.ApplicationRoles"),
-                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.actor.ApplicationUser"),
-                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.actor.ApplicationUsers")
+                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.role.ApplicationRole"),
+                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.role.ApplicationRoles"),
+                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.user.ApplicationUser"),
+                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.user.ApplicationUsers")
             ));
         }
 

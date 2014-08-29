@@ -19,7 +19,7 @@
 package org.isisaddons.module.security.fixture.scripts;
 
 import java.util.List;
-import org.isisaddons.module.security.dom.actor.ApplicationRole;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Named;
@@ -31,7 +31,7 @@ import org.apache.isis.applib.fixturescripts.FixtureScripts;
 /**
  * Enables fixtures to be installed from the application.
  */
-@DomainService(menuOrder = "20")
+@DomainService(menuOrder = "99")
 @Named("Prototyping")
 public class SecurityModuleAppFixturesService extends FixtureScripts {
 

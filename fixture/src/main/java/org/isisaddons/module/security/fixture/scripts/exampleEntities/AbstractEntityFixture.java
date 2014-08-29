@@ -1,20 +1,20 @@
 package org.isisaddons.module.security.fixture.scripts.exampleEntities;
 
-import org.isisaddons.module.security.fixture.dom.ExampleSecuredEntities;
-import org.isisaddons.module.security.fixture.dom.ExampleSecuredEntity;
+import org.isisaddons.module.security.fixture.dom.ExampleEntities;
+import org.isisaddons.module.security.fixture.dom.ExampleEntity;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 
 public abstract class AbstractEntityFixture extends FixtureScript {
 
-    protected ExampleSecuredEntity create(
+    protected ExampleEntity create(
             final String name,
             final ExecutionContext executionContext) {
-        final ExampleSecuredEntity entity = exampleSecuredEntities.create(name);
+        final ExampleEntity entity = exampleEntities.create(name);
         executionContext.add(this, name, entity);
         return entity;
     }
 
     @javax.inject.Inject
-    private ExampleSecuredEntities exampleSecuredEntities;
+    private ExampleEntities exampleEntities;
 
 }

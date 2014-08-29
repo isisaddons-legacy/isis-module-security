@@ -135,14 +135,38 @@ public class ApplicationPermissionValue implements Comparable<ApplicationPermiss
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        return ObjectContracts.equals(this, obj, propertyNames);
+    public boolean equals(Object o) {
+        // not using because trying to be efficient.  Premature optimization?
+        // return ObjectContracts.equals(this, obj, propertyNames);
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ApplicationPermissionValue that = (ApplicationPermissionValue) o;
+
+        if (featureId != null ? !featureId.equals(that.featureId) : that.featureId != null) return false;
+        if (mode != that.mode) return false;
+        if (rule != that.rule) return false;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return ObjectContracts.hashCode(this, propertyNames);
+        // not using because trying to be efficient.  Premature optimization?
+        // return ObjectContracts.hashCode(this, propertyNames);
+        int result = featureId != null ? featureId.hashCode() : 0;
+        result = 31 * result + (rule != null ? rule.hashCode() : 0);
+        result = 31 * result + (mode != null ? mode.hashCode() : 0);
+        return result;
     }
+
+    //    @Override
+//    public boolean equals(final Object obj) {
+//    }
+
+//    @Override
+//    public int hashCode() {
+//    }
 
     @Override
     public String toString() {

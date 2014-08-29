@@ -1,7 +1,7 @@
 package org.isisaddons.module.security.fixture.scripts.users;
 
-import org.isisaddons.module.security.dom.actor.ApplicationUser;
-import org.isisaddons.module.security.dom.actor.ApplicationUsers;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 
 public abstract class AbstractUserFixture extends FixtureScript {

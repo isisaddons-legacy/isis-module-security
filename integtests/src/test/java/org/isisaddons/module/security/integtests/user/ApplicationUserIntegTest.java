@@ -19,16 +19,16 @@
 package org.isisaddons.module.security.integtests.user;
 
 import javax.inject.Inject;
-import org.isisaddons.module.security.dom.actor.ApplicationRole;
-import org.isisaddons.module.security.dom.actor.ApplicationRoles;
-import org.isisaddons.module.security.dom.actor.ApplicationUser;
-import org.isisaddons.module.security.dom.actor.ApplicationUsers;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.role.ApplicationRoles;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancies;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
 import org.isisaddons.module.security.fixture.scripts.roles.AdminRoleFixture;
 import org.isisaddons.module.security.fixture.scripts.roles.AllRolesFixture;
-import org.isisaddons.module.security.fixture.scripts.roles.RegularUserRoleFixture;
+import org.isisaddons.module.security.fixture.scripts.roles.RegularRoleFixture;
 import org.isisaddons.module.security.fixture.scripts.tenancy.AllTenanciesFixture;
 import org.isisaddons.module.security.fixture.scripts.tenancy.FranceTenancyFixture;
 import org.isisaddons.module.security.fixture.scripts.tenancy.SwedenTenancyFixture;
@@ -83,7 +83,7 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
 
                 // then
                 expectedExceptions.expect(DisabledException.class);
-                expectedExceptions.expectMessage("Reason: Always disabled. Identifier: org.isisaddons.module.security.dom.actor.ApplicationUser#username()");
+                expectedExceptions.expectMessage("Reason: Always disabled. Identifier: org.isisaddons.module.security.dom.user.ApplicationUser#username()");
 
                 // when
                 user.setUsername("fred");
@@ -151,7 +151,7 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
 
                 // then
                 expectedExceptions.expect(DisabledException.class);
-                expectedExceptions.expectMessage("Reason: Always disabled. Identifier: org.isisaddons.module.security.dom.actor.ApplicationUser#tenancy()");
+                expectedExceptions.expectMessage("Reason: Always disabled. Identifier: org.isisaddons.module.security.dom.user.ApplicationUser#tenancy()");
 
                 // when
                 user.setTenancy(swedenTenancy);
@@ -219,7 +219,7 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
             user = wrap(applicationUsers.findUserByUsername(SvenUserFixture.USER_NAME));
 
             adminRole = applicationRoles.findRoleByName(AdminRoleFixture.ROLE_NAME);
-            userRole = applicationRoles.findRoleByName(RegularUserRoleFixture.ROLE_NAME);
+            userRole = applicationRoles.findRoleByName(RegularRoleFixture.ROLE_NAME);
 
             assertThat(adminRole, is(notNullValue()));
             assertThat(userRole, is(notNullValue()));

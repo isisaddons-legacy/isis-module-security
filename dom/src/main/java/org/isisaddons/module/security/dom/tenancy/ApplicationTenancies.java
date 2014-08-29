@@ -23,21 +23,22 @@ import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
 import org.apache.isis.applib.query.QueryDefault;
 
-@DomainService(repositoryFor = ApplicationTenancy.class)
+@Named("User Tenancies")
+@DomainService(menuOrder = "90.3", repositoryFor = ApplicationTenancy.class)
 public class ApplicationTenancies extends AbstractFactoryAndRepository {
 
     public String iconName() {
         return "applicationTenancy";
     }
 
-    @MemberOrder(name = "Security", sequence = "90.1")
+    @MemberOrder(sequence = "90.1")
     @ActionSemantics(Of.SAFE)
     public ApplicationTenancy findTenancyByName(
             final @Named("Name") String name) {
         return uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByName", "name", name));
     }
 
-    @MemberOrder(name = "Security", sequence = "90.2")
+    @MemberOrder(sequence = "90.2")
     @ActionSemantics(Of.NON_IDEMPOTENT)
     public ApplicationTenancy newTenancy(
             final @Named("Name") String name) {
@@ -47,7 +48,7 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
         return tenancy;
     }
 
-    @MemberOrder(name = "Security", sequence = "90.3")
+    @MemberOrder(sequence = "90.3")
     @ActionSemantics(Of.SAFE)
     public List<ApplicationTenancy> allTenancies() {
         return allInstances(ApplicationTenancy.class);

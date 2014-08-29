@@ -19,13 +19,13 @@
 
 package org.isisaddons.module.security.fixture.scripts.roles;
 
-public class ReadOnlyRoleFixture extends AbstractRoleFixture {
+public class RegularRoleFixture extends AbstractRoleFixture {
 
-    public static final String ROLE_NAME = "readOnly";
+    public static final String ROLE_NAME = "canChangeAll";
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        create(ROLE_NAME, executionContext);
+        create(ROLE_NAME, null, executionContext);
     }
 
 }

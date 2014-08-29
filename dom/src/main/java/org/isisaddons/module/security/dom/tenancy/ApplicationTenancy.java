@@ -26,8 +26,8 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
 import com.google.common.collect.Lists;
-import org.isisaddons.module.security.dom.actor.ApplicationUser;
-import org.isisaddons.module.security.dom.actor.ApplicationUsers;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.util.ObjectContracts;
 

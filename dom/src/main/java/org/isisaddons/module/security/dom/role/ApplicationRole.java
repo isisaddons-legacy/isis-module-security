@@ -15,23 +15,32 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.dom.actor;
+package org.isisaddons.module.security.dom.role;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.isisaddons.module.security.dom.feature.*;
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
+import org.isisaddons.module.security.dom.feature.ApplicationMemberType;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.util.ObjectContracts;
 import org.apache.isis.applib.util.TitleBuffer;
+import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 
 @javax.jdo.annotations.PersistenceCapable(
         identityType = IdentityType.DATASTORE, table = "IsisSecurityApplicationRole")
@@ -47,18 +56,18 @@ import org.apache.isis.applib.util.TitleBuffer;
         @javax.jdo.annotations.Query(
                 name = "findByName", language = "JDOQL",
                 value = "SELECT "
-                        + "FROM org.isisaddons.module.security.dom.actor.ApplicationRole "
+                        + "FROM org.isisaddons.module.security.dom.role.ApplicationRole "
                         + "WHERE name == :name"),
         @javax.jdo.annotations.Query(
                 name = "findByNameContaining", language = "JDOQL",
                 value = "SELECT "
-                        + "FROM org.isisaddons.module.security.dom.actor.ApplicationRole "
+                        + "FROM org.isisaddons.module.security.dom.role.ApplicationRole "
                         + "WHERE name.indexOf(:name) >= 0")
 })
 @AutoComplete(repository=ApplicationRoles.class, action="autoComplete")
 @ObjectType("IsisSecurityApplicationRole")
 @Bookmarkable
-public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
+public class ApplicationRole implements Comparable<ApplicationRole> {
 
 
     //region > identification
@@ -103,7 +112,7 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
     //region > description (property)
     private String description;
 
-    @javax.jdo.annotations.Column(allowsNull="true")
+    @javax.jdo.annotations.Column(allowsNull="true", length = JdoColumnLength.DESCRIPTION)
     @Disabled
     @MemberOrder(sequence = "2")
     public String getDescription() {
@@ -116,7 +125,7 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
     @MemberOrder(name="description", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationRole updateDescription(
-            final @Named("Description") @Optional String description) {
+            final @Named("Description") @Optional @TypicalLength(50) @MaxLength(JdoColumnLength.DESCRIPTION) String description) {
         setDescription(description);
         return this;
     }
@@ -127,14 +136,6 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
 
     //endregion
 
-    //region > roles (collection, not persisted, programmatic)
-
-    @Programmatic
-    public SortedSet<ApplicationRole> getRoles() {
-        return new TreeSet(Collections.singleton(this));
-    }
-
-    //endregion
 
     //region > permissions (derived collection)
     @MemberOrder(sequence = "10")
@@ -372,10 +373,10 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
 
     //endregion
 
-    //region > remove (action)
+    //region > removePermission (action)
     @MemberOrder(name = "Permissions", sequence = "9")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
-    public ApplicationRole remove(
+    public ApplicationRole removePermission(
             final @Named("Rule") ApplicationPermissionRule rule,
             final @Named("Type") ApplicationFeatureType type,
             final @Named("Feature") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME) String featureFqn) {
@@ -386,14 +387,14 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
         return this;
     }
 
-    public ApplicationPermissionRule default0Remove() {
+    public ApplicationPermissionRule default0RemovePermission() {
         return ApplicationPermissionRule.ALLOW;
     }
-    public ApplicationFeatureType default1Remove() {
+    public ApplicationFeatureType default1RemovePermission() {
         return ApplicationFeatureType.PACKAGE;
     }
 
-    public Collection<String> choices2Remove(
+    public Collection<String> choices2RemovePermission(
             final ApplicationPermissionRule rule,
             final ApplicationFeatureType type) {
         final List<ApplicationPermission> permissions = applicationPermissions.findByRoleAndRuleAndFeatureType(this, rule, type);

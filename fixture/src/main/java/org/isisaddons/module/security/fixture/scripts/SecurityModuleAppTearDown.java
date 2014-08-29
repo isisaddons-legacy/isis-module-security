@@ -32,7 +32,7 @@ public class SecurityModuleAppTearDown extends FixtureScript {
         isisJdoSupport.executeUpdate("delete from \"IsisSecurityApplicationUser\"");
         isisJdoSupport.executeUpdate("delete from \"IsisSecurityApplicationTenancy\"");
 
-        isisJdoSupport.executeUpdate("delete from \"ExampleSecuredEntity\"");
+        isisJdoSupport.executeUpdate("delete from \"ExampleEntity\"");
     }
 
 

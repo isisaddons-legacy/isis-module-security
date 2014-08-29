@@ -89,26 +89,52 @@ public class ApplicationPermissionValueSet implements Serializable {
             permissionsByFeature.put(featureId, permissionValue);
         }
     }
+    public ApplicationPermissionValueSet(Iterable<ApplicationPermissionValue> permissionValues) {
+        this(Lists.newArrayList(permissionValues));
+    }
     //endregion
 
 
 
     //region > grants
-    public boolean grants(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
+
+    public static class Evaluation {
+        private final ApplicationPermissionValue permissionValue;
+        private final boolean granted;
+
+        public Evaluation(ApplicationPermissionValue permissionValue, boolean granted) {
+            this.permissionValue = permissionValue;
+            this.granted = granted;
+        }
+
+        public ApplicationPermissionValue getCause() {
+            return permissionValue;
+        }
+
+        public boolean isGranted() {
+            return granted;
+        }
+    }
+
+    public Evaluation evaluate(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
         final List<ApplicationFeatureId> pathIds = featureId.getPathIds();
         for (ApplicationFeatureId pathId : pathIds) {
             final Collection<ApplicationPermissionValue> permissionValues = permissionsByFeature.get(pathId);
             // permission values are carefully ordered so that the ALLOWs come before the VETOs
             for (ApplicationPermissionValue permissionValue : permissionValues) {
                 if(permissionValue.implies(featureId, mode)) {
-                    return true;
+                    return new Evaluation(permissionValue, true);
                 }
                 if(permissionValue.refutes(featureId, mode)) {
-                    return false;
+                    return new Evaluation(permissionValue, false);
                 }
             }
         }
-        return false;
+        return new Evaluation(null, false);
+    }
+
+    public boolean grants(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
+        return evaluate(featureId, mode).isGranted();
     }
 
     //endregion

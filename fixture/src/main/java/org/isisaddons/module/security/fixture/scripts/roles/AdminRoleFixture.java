@@ -25,7 +25,7 @@ public class AdminRoleFixture extends AbstractRoleFixture {
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        create(ROLE_NAME, executionContext);
+        create(ROLE_NAME, null, executionContext);
     }
 
 }

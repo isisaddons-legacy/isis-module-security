@@ -15,40 +15,41 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.dom.actor;
+package org.isisaddons.module.security.dom.role;
 
 import java.util.List;
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
 import org.apache.isis.applib.query.QueryDefault;
+import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 
-@Named("Application Roles")
-@DomainService(repositoryFor = ApplicationRole.class)
+@Named("Roles")
+@DomainService(menuOrder = "90.2", repositoryFor = ApplicationRole.class)
 public class ApplicationRoles extends AbstractFactoryAndRepository {
 
     public String iconName() {
         return "applicationRole";
     }
 
-    @MemberOrder(name = "Security", sequence = "20.1")
+    @MemberOrder(sequence = "20.1")
     @ActionSemantics(Of.SAFE)
     public ApplicationRole findRoleByName(final String name) {
         return uniqueMatch(new QueryDefault<ApplicationRole>(ApplicationRole.class, "findByName", "name", name));
     }
 
-    @MemberOrder(name = "Security", sequence = "20.2")
+    @MemberOrder(sequence = "20.2")
     @ActionSemantics(Of.NON_IDEMPOTENT)
     public ApplicationRole newRole(
             final @Named("Name") String name,
-            final @Named("Description") @Optional String description) {
+            final @Named("Description") @Optional @TypicalLength(50) @MaxLength(JdoColumnLength.DESCRIPTION) String description) {
         ApplicationRole role = newTransientInstance(ApplicationRole.class);
         role.setName(name);
         persist(role);
         return role;
     }
 
-    @MemberOrder(name = "Security", sequence = "20.2")
+    @MemberOrder(sequence = "20.2")
     @Prototype
     @ActionSemantics(Of.SAFE)
     public List<ApplicationRole> allRoles() {
