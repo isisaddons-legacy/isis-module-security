@@ -25,7 +25,7 @@ import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
 import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
-import org.junit.Assert;
+import org.isisaddons.module.security.integtests.ThrowableMatchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,6 +34,7 @@ import org.junit.rules.ExpectedException;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
 
@@ -55,22 +56,22 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
 
             // given
             final List<ApplicationUser> before = applicationUsers.allUsers();
-            Assert.assertThat(before.size(), is(0));
+            assertThat(before.size(), is(0));
 
             // when
             final ApplicationUser applicationUser = applicationUsers.newUser("fred");
-            Assert.assertThat(applicationUser.getUsername(), is("fred"));
+            assertThat(applicationUser.getUsername(), is("fred"));
 
             // then
             final List<ApplicationUser> after = applicationUsers.allUsers();
-            Assert.assertThat(after.size(), is(1));
+            assertThat(after.size(), is(1));
         }
 
         @Test
         public void alreadyExists() throws Exception {
 
             // then
-            expectedExceptions.expect(JDODataStoreException.class);
+            expectedExceptions.expect(ThrowableMatchers.causalChainContains(JDODataStoreException.class));
 
             // given
             applicationUsers.newUser("fred");
@@ -93,23 +94,25 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
             final ApplicationUser fred = applicationUsers.findUserByUsername("fred");
 
             // then
-            Assert.assertThat(fred, is(not(nullValue())));
-            Assert.assertThat(fred.getUsername(), is("fred"));
+            assertThat(fred, is(not(nullValue())));
+            assertThat(fred.getUsername(), is("fred"));
         }
 
         @Test
-        public void whenDoesntMatch() throws Exception {
+        public void whenDoesntMatchWillAutoCreate() throws Exception {
 
             // given
             applicationUsers.newUser("fred");
             applicationUsers.newUser("mary");
 
             // when
-            final ApplicationUser nonExistent = applicationUsers.findUserByUsername("bill");
+            final ApplicationUser autoCreated = applicationUsers.findUserByUsername("bill");
 
             // then
-            Assert.assertThat(nonExistent, is(nullValue()));
+            assertThat(autoCreated, is(not(nullValue())));
+            assertThat(autoCreated.getUsername(), is("bill"));
         }
+
     }
 
     public static class AutoComplete extends ApplicationUsersIntegTest {
@@ -126,7 +129,7 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
             final List<ApplicationUser> after = applicationUsers.autoComplete("r");
 
             // then
-            Assert.assertThat(after.size(), is(2)); // fred and mary
+            assertThat(after.size(), is(2)); // fred and mary
         }
     }
 
@@ -143,7 +146,7 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
             final List<ApplicationUser> after = applicationUsers.allUsers();
 
             // then
-            Assert.assertThat(after.size(), is(2));
+            assertThat(after.size(), is(2));
         }
     }
 

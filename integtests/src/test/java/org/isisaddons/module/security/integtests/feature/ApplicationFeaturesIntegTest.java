@@ -76,9 +76,10 @@ public class ApplicationFeaturesIntegTest extends SecurityModuleAppIntegTest {
                     ApplicationFeatureId.newPackage("org.isisaddons.module"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module.security"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom"),
-                    ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.actor"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.feature"),
+                    ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.role"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.tenancy"),
+                    ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.user"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module.security.fixture.dom")
             )));
 
@@ -111,15 +112,13 @@ public class ApplicationFeaturesIntegTest extends SecurityModuleAppIntegTest {
         public void whenExistsAndContainsClasses() throws Exception {
 
             // when
-            final ApplicationFeature pkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.actor"));
+            final ApplicationFeature pkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.role"));
 
             // then
             assertThat(pkg, is(notNullValue()));
             assertThat(pkg.getContents(), containsAtLeast(
                     ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.role.ApplicationRole"),
-                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.role.ApplicationRoles"),
-                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.user.ApplicationUser"),
-                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.user.ApplicationUsers")
+                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.role.ApplicationRoles")
             ));
         }
 
