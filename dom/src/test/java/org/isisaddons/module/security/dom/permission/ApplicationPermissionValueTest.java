@@ -17,7 +17,7 @@ public class ApplicationPermissionValueTest {
 
     public static class Implies_and_Refutes extends ApplicationPermissionValueTest {
 
-        public static class MemberOnMember extends Implies_and_Refutes {
+        public static class GivenMember extends Implies_and_Refutes {
 
             @Test
             public void allowChanging() throws Exception {
@@ -86,7 +86,7 @@ public class ApplicationPermissionValueTest {
             }
         }
 
-        public static class ClassOnMember extends Implies_and_Refutes {
+        public static class GivenClass extends Implies_and_Refutes {
 
             @Test
             public void allowChanging() throws Exception {
@@ -169,7 +169,7 @@ public class ApplicationPermissionValueTest {
             }
         }
 
-        public static class PackageOnMember extends Implies_and_Refutes {
+        public static class GivenPackage extends Implies_and_Refutes {
 
             @Test
             public void allowChanging() throws Exception {
