@@ -17,6 +17,7 @@
  */
 package org.isisaddons.module.security.dom.feature;
 
+import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
@@ -33,10 +34,15 @@ import org.apache.isis.applib.util.ObjectContracts;
 import org.apache.isis.applib.util.TitleBuffer;
 
 /**
- * Value type (compares only package, class and member names).
+ * Value type representing a package, class or member.
+ *
+ * <p>
+ *     This value is {@link java.lang.Comparable}, the implementation of which considers {@link #getType() (feature) type},
+ *     {@link #getPackageName() package name}, {@link #getClassName() class name} and {@link #getMemberName() member name}.
+ * </p>
  */
 @Hidden
-public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
+public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, Serializable {
 
     //region > factory methods
     public static ApplicationFeatureId newFeature(ApplicationFeatureType featureType, String fullyQualifiedName) {
@@ -307,6 +313,27 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
                 }
             };
         }
+    }
+    //endregion
+
+    //region > parentIds
+    @Programmatic
+    public List<ApplicationFeatureId> getParentIds() {
+        final List<ApplicationFeatureId> parentIds = Lists.newArrayList();
+        ApplicationFeatureId parentId = getParentId();
+        return appendParents(parentId, parentIds);
+    }
+
+    private ApplicationFeatureId getParentId() {
+        return type == ApplicationFeatureType.MEMBER? getParentClassId(): getParentPackageId();
+    }
+
+    private List<ApplicationFeatureId> appendParents(ApplicationFeatureId featureId, List<ApplicationFeatureId> parentIds) {
+        if(featureId != null) {
+            parentIds.add(featureId);
+            appendParents(featureId.getParentId(), parentIds);
+        }
+        return parentIds;
     }
     //endregion
 

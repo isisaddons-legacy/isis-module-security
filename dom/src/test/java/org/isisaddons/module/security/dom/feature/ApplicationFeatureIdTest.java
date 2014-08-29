@@ -1,11 +1,14 @@
 package org.isisaddons.module.security.dom.feature;
 
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.junit.Assert.assertThat;
 
 public class ApplicationFeatureIdTest {
@@ -92,6 +95,86 @@ public class ApplicationFeatureIdTest {
             // then
             assertThat(applicationFeatureId, is(ApplicationFeatureId.newMember("com.mycompany.Bar","foo")));
         }
+    }
+
+    public static class GetParentIds extends ApplicationFeatureIdTest {
+
+        @Test
+        public void whenPackageWithNoParent() throws Exception {
+
+            // given
+            final ApplicationFeatureId applicationFeatureId = ApplicationFeatureId.newPackage("com");
+
+            // when
+            final List<ApplicationFeatureId> parentIds = applicationFeatureId.getParentIds();
+
+            // then
+            assertThat(parentIds, emptyCollectionOf(ApplicationFeatureId.class));
+        }
+
+        @Test
+        public void whenPackageWithHasParent() throws Exception {
+
+            // given
+            final ApplicationFeatureId applicationFeatureId = ApplicationFeatureId.newPackage("com.mycompany");
+
+            // when
+            final List<ApplicationFeatureId> parentIds = applicationFeatureId.getParentIds();
+
+            // then
+            assertThat(parentIds, contains(ApplicationFeatureId.newPackage("com")));
+        }
+
+        @Test
+        public void whenPackageWithHasParents() throws Exception {
+
+            // given
+            final ApplicationFeatureId applicationFeatureId = ApplicationFeatureId.newPackage("com.mycompany.bish.bosh");
+
+            // when
+            final List<ApplicationFeatureId> parentIds = applicationFeatureId.getParentIds();
+
+            // then
+            assertThat(parentIds, contains(
+                    ApplicationFeatureId.newPackage("com.mycompany.bish"),
+                    ApplicationFeatureId.newPackage("com.mycompany"),
+                    ApplicationFeatureId.newPackage("com")
+                    ));
+        }
+
+        @Test
+        public void whenClassWithParents() throws Exception {
+
+            // given
+            final ApplicationFeatureId applicationFeatureId = ApplicationFeatureId.newClass("com.mycompany.Bar");
+
+            // when
+            final List<ApplicationFeatureId> parentIds = applicationFeatureId.getParentIds();
+
+            // then
+            assertThat(parentIds, contains(
+                    ApplicationFeatureId.newPackage("com.mycompany"),
+                    ApplicationFeatureId.newPackage("com")
+                    ));
+        }
+
+        @Test
+        public void whenMember() throws Exception {
+
+            // given
+            final ApplicationFeatureId applicationFeatureId = ApplicationFeatureId.newMember("com.mycompany.Bar", "foo");
+
+            // when
+            final List<ApplicationFeatureId> parentIds = applicationFeatureId.getParentIds();
+
+            // then
+            assertThat(parentIds, contains(
+                    ApplicationFeatureId.newClass("com.mycompany.Bar"),
+                    ApplicationFeatureId.newPackage("com.mycompany"),
+                    ApplicationFeatureId.newPackage("com")
+                    ));
+        }
+
     }
 
     public static class GetParentPackageId extends ApplicationFeatureIdTest {
