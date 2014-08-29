@@ -19,6 +19,7 @@ package org.isisaddons.module.security.dom.feature;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import com.google.common.base.Function;
@@ -267,6 +268,7 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
     }
 
 
+
     //endregion
 
     //region > Functions
@@ -316,19 +318,28 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
     }
     //endregion
 
-    //region > parentIds
+    //region > pathIds, parentIds
+
+    @Programmatic
+    public List<ApplicationFeatureId> getPathIds() {
+        return pathIds(this);
+    }
+
     @Programmatic
     public List<ApplicationFeatureId> getParentIds() {
-        final List<ApplicationFeatureId> parentIds = Lists.newArrayList();
-        ApplicationFeatureId parentId = getParentId();
-        return appendParents(parentId, parentIds);
+        return pathIds(getParentId());
     }
 
     private ApplicationFeatureId getParentId() {
         return type == ApplicationFeatureType.MEMBER? getParentClassId(): getParentPackageId();
     }
 
-    private List<ApplicationFeatureId> appendParents(ApplicationFeatureId featureId, List<ApplicationFeatureId> parentIds) {
+    private static List<ApplicationFeatureId> pathIds(ApplicationFeatureId id) {
+        final List<ApplicationFeatureId> featureIds = Lists.newArrayList();
+        return Collections.unmodifiableList(appendParents(id, featureIds));
+    }
+
+    private static List<ApplicationFeatureId> appendParents(ApplicationFeatureId featureId, List<ApplicationFeatureId> parentIds) {
         if(featureId != null) {
             parentIds.add(featureId);
             appendParents(featureId.getParentId(), parentIds);

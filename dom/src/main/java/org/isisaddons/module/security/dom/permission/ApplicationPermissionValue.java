@@ -18,6 +18,7 @@
 package org.isisaddons.module.security.dom.permission;
 
 import java.io.Serializable;
+import java.util.List;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.apache.isis.applib.annotation.Hidden;
 import org.apache.isis.applib.util.ObjectContracts;
@@ -32,7 +33,7 @@ import org.apache.isis.applib.util.ObjectContracts;
  * </p>
  */
 @Hidden
-public class ApplicationPermissionValue implements Comparable<ApplicationPermissionValue>, Serializable {
+public class ApplicationPermissionValue implements ApplicationPermissionImplier, Comparable<ApplicationPermissionValue>, Serializable {
 
     //region > constructor
 
@@ -65,6 +66,50 @@ public class ApplicationPermissionValue implements Comparable<ApplicationPermiss
     public ApplicationPermissionMode getMode() {
         return mode;
     }
+    //endregion
+
+    //region > ApplicationPermissionImplier implementation
+    @Override
+    public boolean implies(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
+        if(getRule() != ApplicationPermissionRule.ALLOW) {
+            // only allow rules can imply
+            return false;
+        }
+        if(getMode() == ApplicationPermissionMode.VIEWING && mode == ApplicationPermissionMode.CHANGING) {
+            // an "allow viewing" permission does not imply ability to change
+            return false;
+        }
+
+        // determine if this permission is on the path (ie the feature or one of its parents)
+        return onPathOf(featureId);
+    }
+
+    @Override
+    public boolean refutes(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
+        if(getRule() != ApplicationPermissionRule.VETO) {
+            // only veto rules can refute
+            return false;
+        }
+        if(getMode() == ApplicationPermissionMode.CHANGING && mode == ApplicationPermissionMode.VIEWING) {
+            // an "veto changing" permission does not refute ability to view
+            return false;
+        }
+        // determine if this permission is on the path (ie the feature or one of its parents)
+        return onPathOf(featureId);
+    }
+
+    private boolean onPathOf(ApplicationFeatureId featureId) {
+
+        final List<ApplicationFeatureId> pathIds = featureId.getPathIds();
+        for (ApplicationFeatureId pathId : pathIds) {
+            if(getFeatureId().equals(pathId)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     //endregion
 
     //region > equals, hashCode, compareTo, toString

@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import com.google.common.collect.Lists;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.apache.isis.applib.annotation.Hidden;
 
 /**
@@ -31,7 +32,7 @@ import org.apache.isis.applib.annotation.Hidden;
  * </p>
  */
 @Hidden
-public class ApplicationPermissionValueSet implements Serializable {
+public class ApplicationPermissionValueSet implements ApplicationPermissionImplier, Serializable {
 
     //region > constructor
     public ApplicationPermissionValueSet(ApplicationPermissionValue... values) {
@@ -48,6 +49,20 @@ public class ApplicationPermissionValueSet implements Serializable {
     public List<ApplicationPermissionValue> getValues() {
         return values;
     }
+    //endregion
+
+
+    //region > ApplicationPermissionImplier implementation
+    @Override
+    public boolean implies(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
+        return false;
+    }
+
+    @Override
+    public boolean refutes(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
+        return false;
+    }
+
     //endregion
 
     //region > equals, hashCode, toString
