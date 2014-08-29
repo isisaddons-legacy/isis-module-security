@@ -121,8 +121,8 @@ public class ApplicationFeatureViewModelTest {
 
             final ApplicationFeature applicationFeature = new ApplicationFeature(applicationFeatureId);
 
-            applicationFeature.addToMembers(memberFeatureId);
-            applicationFeature.addToMembers(memberFeatureId2);
+            applicationFeature.addToMembers(memberFeatureId, ApplicationMemberType.PROPERTY);
+            applicationFeature.addToMembers(memberFeatureId2, ApplicationMemberType.PROPERTY);
 
             applicationFeatureVM = new ApplicationFeatureViewModel(applicationFeatureId);
             applicationFeatureVM.applicationFeatures = mockApplicationFeatures;
@@ -141,7 +141,7 @@ public class ApplicationFeatureViewModelTest {
             }});
 
             // when
-            final List<ApplicationFeatureViewModel> members = applicationFeatureVM.getMembers();
+            final List<ApplicationFeatureViewModel> members = applicationFeatureVM.getProperties();
 
             // then
             assertThat(members.size(), is(2));

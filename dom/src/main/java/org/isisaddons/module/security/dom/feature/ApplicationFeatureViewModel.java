@@ -34,16 +34,17 @@ import org.apache.isis.applib.util.ObjectContracts;
  */
 @MemberGroupLayout(
         columnSpans = {6,0,0,6},
-        left = {"Type", "Id", "Parent"}
+        left = {"Id", "Parent"}
 )
 @Bookmarkable
 public class ApplicationFeatureViewModel implements ViewModel {
 
-    public String iconName() {
-        return "applicationFeature";
-    }
 
     //region > constructors
+    public static ApplicationFeatureViewModel newViewModel(final ApplicationFeatureId featureId, final DomainObjectContainer container) {
+        return container.newViewModelInstance(ApplicationFeatureViewModel.class, featureId.asEncodedString());
+    }
+
     public ApplicationFeatureViewModel() {
     }
 
@@ -59,6 +60,9 @@ public class ApplicationFeatureViewModel implements ViewModel {
      */
     public String title() {
         return getFullyQualifiedName();
+    }
+    public String iconName() {
+        return "applicationFeature";
     }
     //endregion
 
@@ -130,7 +134,15 @@ public class ApplicationFeatureViewModel implements ViewModel {
         return getFeatureId().getMemberName();
     }
     public boolean hideMemberName() {
-        return getFeatureId().getType().hideMemberName();
+        return getFeatureId().getType().hideMember();
+    }
+    @MemberOrder(name="Type", sequence = "2.5")
+    @Hidden(where=Where.OBJECT_FORMS)
+    public ApplicationMemberType getMemberType() {
+        return getFeature().getMemberType();
+    }
+    public boolean hideMemberType() {
+        return getFeatureId().getType().hideMember();
     }
     //endregion
 
@@ -154,7 +166,7 @@ public class ApplicationFeatureViewModel implements ViewModel {
     //endregion
 
     //region > permissions (collection)
-    @MemberOrder(sequence = "3")
+    @MemberOrder(sequence = "10")
     @Render(Render.Type.EAGERLY)
     public List<ApplicationPermission> getPermissions() {
         final ApplicationFeatureId featureId = this.getFeatureId();
@@ -181,18 +193,42 @@ public class ApplicationFeatureViewModel implements ViewModel {
      */
     @Programmatic
     public ApplicationFeatureViewModel getParentPackage() {
-        return Functions.asViewModel(container).apply(getFeatureId().getParentPackageId());
+        return Functions.asViewModelForId(container).apply(getFeatureId().getParentPackageId());
     }
     //endregion
 
-    //region > members (collection, for classes only)
-    @MemberOrder(sequence = "5")
+    //region > properties (collection, for classes only)
+    @MemberOrder(sequence = "20.1")
     @Render(Render.Type.EAGERLY)
-    public List<ApplicationFeatureViewModel> getMembers() {
-        final SortedSet<ApplicationFeatureId> members = getFeature().getMembers();
+    public List<ApplicationFeatureViewModel> getProperties() {
+        final SortedSet<ApplicationFeatureId> members = getFeature().getProperties();
         return asViewModels(members);
     }
-    public boolean hideMembers() {
+    public boolean hideProperties() {
+        return getType() != ApplicationFeatureType.CLASS;
+    }
+    //endregion
+
+    //region > collections (collection, for classes only)
+    @MemberOrder(sequence = "20.2")
+    @Render(Render.Type.EAGERLY)
+    public List<ApplicationFeatureViewModel> getCollections() {
+        final SortedSet<ApplicationFeatureId> members = getFeature().getCollections();
+        return asViewModels(members);
+    }
+    public boolean hideCollections() {
+        return getType() != ApplicationFeatureType.CLASS;
+    }
+    //endregion
+
+    //region > actions (collection, for classes only)
+    @MemberOrder(sequence = "20.3")
+    @Render(Render.Type.EAGERLY)
+    public List<ApplicationFeatureViewModel> getActions() {
+        final SortedSet<ApplicationFeatureId> members = getFeature().getActions();
+        return asViewModels(members);
+    }
+    public boolean hideActions() {
         return getType() != ApplicationFeatureType.CLASS;
     }
     //endregion
@@ -220,19 +256,27 @@ public class ApplicationFeatureViewModel implements ViewModel {
     //region > helpers
     private List<ApplicationFeatureViewModel> asViewModels(SortedSet<ApplicationFeatureId> members) {
         return Lists.newArrayList(
-                Iterables.transform(members, Functions.asViewModel(container)));
+                Iterables.transform(members, Functions.asViewModelForId(container)));
     }
     //endregion
 
     //region > Functions
 
-    static class Functions {
+    public static class Functions {
         private Functions(){}
-        public static Function<ApplicationFeatureId, ApplicationFeatureViewModel> asViewModel(final DomainObjectContainer container) {
+        public static Function<ApplicationFeatureId, ApplicationFeatureViewModel> asViewModelForId(final DomainObjectContainer container) {
             return new Function<ApplicationFeatureId, ApplicationFeatureViewModel>(){
                 @Override
                 public ApplicationFeatureViewModel apply(ApplicationFeatureId input) {
-                    return container.newViewModelInstance(ApplicationFeatureViewModel.class, input.asEncodedString());
+                    return ApplicationFeatureViewModel.newViewModel(input, container);
+                }
+            };
+        }
+        public static Function<ApplicationFeature, ApplicationFeatureViewModel> asViewModel(final DomainObjectContainer container) {
+            return new Function<ApplicationFeature, ApplicationFeatureViewModel>(){
+                @Override
+                public ApplicationFeatureViewModel apply(ApplicationFeature input) {
+                    return ApplicationFeatureViewModel.newViewModel(input.getFeatureId(), container);
                 }
             };
         }

@@ -31,7 +31,6 @@ import org.apache.isis.applib.util.ObjectContracts;
  */
 public class ApplicationFeature implements Comparable<ApplicationFeature> {
 
-
     //region > constants
 
     // using same value for all to neaten up rendering
@@ -62,6 +61,19 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
     }
     //endregion
 
+    //region > featureId
+    private ApplicationMemberType memberType;
+    @Programmatic
+    public ApplicationMemberType getMemberType() {
+        return memberType;
+    }
+
+    public void setMemberType(ApplicationMemberType memberType) {
+        this.memberType = memberType;
+    }
+    //endregion
+
+
     //region > packages: Contents
     private SortedSet<ApplicationFeatureId> contents = Sets.newTreeSet();
 
@@ -77,18 +89,47 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
     }
     //endregion
 
-    //region > classes: Members
-    private SortedSet<ApplicationFeatureId> members = Sets.newTreeSet();
 
-    public SortedSet<ApplicationFeatureId> getMembers() {
+    //region > classes: Properties, Collections, Actions
+    private SortedSet<ApplicationFeatureId> properties = Sets.newTreeSet();
+
+    public SortedSet<ApplicationFeatureId> getProperties() {
         ApplicationFeatureType.ensureClass(this.getFeatureId());
-        return members;
+        return properties;
     }
 
-    void addToMembers(ApplicationFeatureId memberId) {
+
+    private SortedSet<ApplicationFeatureId> collections = Sets.newTreeSet();
+    public SortedSet<ApplicationFeatureId> getCollections() {
+        ApplicationFeatureType.ensureClass(this.getFeatureId());
+        return collections;
+    }
+
+
+    private SortedSet<ApplicationFeatureId> actions = Sets.newTreeSet();
+
+    public SortedSet<ApplicationFeatureId> getActions() {
+        ApplicationFeatureType.ensureClass(this.getFeatureId());
+        return actions;
+    }
+
+    void addToMembers(ApplicationFeatureId memberId, ApplicationMemberType memberType) {
         ApplicationFeatureType.ensureClass(this.getFeatureId());
         ApplicationFeatureType.ensureMember(memberId);
-        this.members.add(memberId);
+
+        membersOf(memberType).add(memberId);
+    }
+
+    public SortedSet<ApplicationFeatureId> membersOf(ApplicationMemberType memberType) {
+        ApplicationFeatureType.ensureClass(this.getFeatureId());
+        switch (memberType) {
+            case PROPERTY:
+                return properties;
+            case COLLECTION:
+                return collections;
+            default: // case ACTION:
+                return actions;
+        }
     }
     //endregion
 
@@ -116,15 +157,19 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
     public static class Predicates {
         private Predicates(){}
 
-        public static final Predicate<ApplicationFeature> PACKAGE_CONTAINING_CLASSES = new Predicate<ApplicationFeature>() {
-            @Override
-            public boolean apply(ApplicationFeature input) {
-                final Iterable<ApplicationFeatureId> classes =
-                        Iterables.filter(input.getContents(), ApplicationFeatureId.Predicates.IS_CLASS);
-                return classes.iterator().hasNext();
-            }
-        };
-
+        public static Predicate<ApplicationFeature> packageContainingClasses(
+                final ApplicationMemberType memberType, final ApplicationFeatures applicationFeatures) {
+            return new Predicate<ApplicationFeature>() {
+                @Override
+                public boolean apply(ApplicationFeature input) {
+                    // all the classes in this package
+                    final Iterable<ApplicationFeatureId> classIds =
+                            Iterables.filter(input.getContents(),
+                                    ApplicationFeatureId.Predicates.isClassContaining(memberType, applicationFeatures));
+                    return classIds.iterator().hasNext();
+                }
+            };
+        }
     }
 
     //endregion

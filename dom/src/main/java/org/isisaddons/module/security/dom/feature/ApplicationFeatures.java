@@ -17,12 +17,10 @@
  */
 package org.isisaddons.module.security.dom.feature;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.SortedMap;
+import java.util.*;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.isis.applib.DomainObjectContainer;
@@ -53,6 +51,9 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     SortedMap<ApplicationFeatureId, ApplicationFeature> packageFeatures = Maps.newTreeMap();
     private SortedMap<ApplicationFeatureId, ApplicationFeature> classFeatures = Maps.newTreeMap();
     private SortedMap<ApplicationFeatureId, ApplicationFeature> memberFeatures = Maps.newTreeMap();
+    private SortedMap<ApplicationFeatureId, ApplicationFeature> propertyFeatures = Maps.newTreeMap();
+    private SortedMap<ApplicationFeatureId, ApplicationFeature> collectionFeatures = Maps.newTreeMap();
+    private SortedMap<ApplicationFeatureId, ApplicationFeature> actionFeatures = Maps.newTreeMap();
     //endregion
 
     //region > init
@@ -104,13 +105,13 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         // add members
         boolean addedMembers = false;
         for (ObjectAssociation property : properties) {
-            addedMembers = newMember(classFeatureId, property) || addedMembers;
+            addedMembers = newMember(classFeatureId, property, ApplicationMemberType.PROPERTY) || addedMembers;
         }
         for (ObjectAssociation collection : collections) {
-            addedMembers = newMember(classFeatureId, collection) || addedMembers;
+            addedMembers = newMember(classFeatureId, collection, ApplicationMemberType.COLLECTION) || addedMembers;
         }
         for (ObjectAction act : actions) {
-            addedMembers = newMember(classFeatureId, act) || addedMembers;
+            addedMembers = newMember(classFeatureId, act, ApplicationMemberType.ACTION) || addedMembers;
         }
 
         if(!addedMembers) {
@@ -164,21 +165,37 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         return parentPackage;
     }
 
-    private boolean newMember(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember) {
+    private boolean newMember(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember, ApplicationMemberType memberType) {
         if(objectMember.isAlwaysHidden()) {
             return false;
         }
-        newMember(classFeatureId, objectMember.getId());
+        newMember(classFeatureId, objectMember.getId(), memberType);
         return true;
     }
 
-    private void newMember(ApplicationFeatureId classFeatureId, String memberId) {
+    private void newMember(ApplicationFeatureId classFeatureId, String memberId, ApplicationMemberType memberType) {
         final ApplicationFeatureId featureId = ApplicationFeatureId.newMember(classFeatureId.getFullyQualifiedName(), memberId);
+
         final ApplicationFeature memberFeature = newFeature(featureId);
+        memberFeature.setMemberType(memberType);
         memberFeatures.put(featureId, memberFeature);
 
+        // also cache per memberType
+        featuresMapFor(memberType).put(featureId, memberFeature);
+
         final ApplicationFeature classFeature = findClass(classFeatureId);
-        classFeature.addToMembers(featureId);
+        classFeature.addToMembers(featureId, memberType);
+    }
+
+    private SortedMap<ApplicationFeatureId, ApplicationFeature> featuresMapFor(ApplicationMemberType memberType) {
+        switch (memberType) {
+            case PROPERTY:
+                return propertyFeatures;
+            case COLLECTION:
+                return collectionFeatures;
+            default: // case ACTION:
+                return actionFeatures;
+        }
     }
 
     private ApplicationFeature newFeature(ApplicationFeatureId featureId) {
@@ -313,6 +330,53 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         return memberFeatures.values();
     }
     //endregion
+
+
+    /**
+     *
+     * @param memberType - additionally classes containing members of specified type (can be null).
+     */
+    @Programmatic
+    public List<String> packageNamesContainingClasses(ApplicationMemberType memberType) {
+        final Collection<ApplicationFeature> packages = allFeatures(ApplicationFeatureType.PACKAGE);
+        return Lists.newArrayList(
+                Iterables.transform(
+                        Iterables.filter(
+                                packages,
+                                ApplicationFeature.Predicates.packageContainingClasses(memberType, this)
+                        ),
+                        ApplicationFeature.Functions.GET_FQN));
+    }
+
+    @Programmatic
+    public List<String> classNamesContainedIn(String packageFqn, ApplicationMemberType memberType) {
+        final ApplicationFeatureId packageId = ApplicationFeatureId.newPackage(packageFqn);
+        final ApplicationFeature pkg = findPackage(packageId);
+        if(pkg == null) {
+            return Collections.emptyList();
+        }
+        final SortedSet<ApplicationFeatureId> contents = pkg.getContents();
+        return Lists.newArrayList(
+                Iterables.transform(
+                        Iterables.filter(
+                                contents,
+                                ApplicationFeatureId.Predicates.isClassContaining(memberType, this)),
+                        ApplicationFeatureId.Functions.GET_CLASS_NAME));
+    }
+
+    @Programmatic
+    public List<String> memberNamesOf(String packageFqn, String className, ApplicationMemberType memberType) {
+        final ApplicationFeatureId classId = ApplicationFeatureId.newClass(packageFqn + "." + className);
+        final ApplicationFeature cls = findClass(classId);
+        if(cls == null) {
+            return Collections.emptyList();
+        }
+        final SortedSet<ApplicationFeatureId> featureIds = cls.membersOf(memberType);
+        return Lists.newArrayList(
+                Iterables.transform(featureIds, ApplicationFeatureId.Functions.GET_MEMBER)
+        );
+    }
+
 
     // //////////////////////////////////////
 

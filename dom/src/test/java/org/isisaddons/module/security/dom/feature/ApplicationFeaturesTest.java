@@ -178,11 +178,19 @@ public class ApplicationFeaturesTest {
             assertThat(barClass, is(Matchers.notNullValue()));
 
             // then the mockActThatIsHidden is not listed.
-            assertThat(barClass.getMembers().size(), is(3));
-            assertThat(barClass.getMembers(),
+            assertThat(barClass.getProperties().size(), is(1));
+            assertThat(barClass.getCollections().size(), is(1));
+            assertThat(barClass.getActions().size(), is(1));
+            assertThat(barClass.getProperties(),
                     containsInAnyOrder(
-                            ApplicationFeatureId.newMember(Bar.class.getName(), "someProperty"),
-                            ApplicationFeatureId.newMember(Bar.class.getName(), "someCollection"),
+                            ApplicationFeatureId.newMember(Bar.class.getName(), "someProperty")
+                    ));
+            assertThat(barClass.getCollections(),
+                    containsInAnyOrder(
+                            ApplicationFeatureId.newMember(Bar.class.getName(), "someCollection")
+                    ));
+            assertThat(barClass.getActions(),
+                    containsInAnyOrder(
                             ApplicationFeatureId.newMember(Bar.class.getName(), "someAction")
                     ));
         }

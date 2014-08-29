@@ -23,10 +23,7 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
+import org.isisaddons.module.security.dom.feature.*;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
@@ -179,89 +176,204 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
     }
     //endregion
 
-    //region > addClassOrMember (action)
+    //region > addClass (action)
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
-    @Named("Add Class/Member")
     @MemberOrder(name = "Permissions", sequence = "2")
-    public ApplicationRole addClassOrMember(
+    public ApplicationRole addClass(
             final @Named("Rule") ApplicationPermissionRule rule,
             final @Named("Mode") ApplicationPermissionMode mode,
             final @Named("Package") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_PKG_FQN) String packageFqn,
-            final @Named("Class") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_CLS_NAME) String className,
-            final @Optional @Named("Member") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME) String memberName) {
-        applicationPermissions.newPermission(this, rule, mode, packageFqn, className, memberName);
+            final @Named("Class") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_CLS_NAME) String className) {
+        applicationPermissions.newPermission(this, rule, mode, ApplicationFeatureType.CLASS, packageFqn + "." + className);
         return this;
     }
 
-    public ApplicationPermissionRule default0AddClassOrMember() {
+    public ApplicationPermissionRule default0AddClass() {
         return ApplicationPermissionRule.ALLOW;
     }
 
-    public ApplicationPermissionMode default1AddClassOrMember() {
+    public ApplicationPermissionMode default1AddClass() {
         return ApplicationPermissionMode.CHANGING;
     }
 
     /**
      * Package names that have classes in them.
      */
-    public List<String> choices2AddClassOrMember() {
-        final Collection<ApplicationFeature> packages = applicationFeatures.allFeatures(ApplicationFeatureType.PACKAGE);
-        return Lists.newArrayList(
-                Iterables.transform(
-                        Iterables.filter(
-                                packages,
-                                ApplicationFeature.Predicates.PACKAGE_CONTAINING_CLASSES
-                        ),
-                        ApplicationFeature.Functions.GET_FQN));
+    public List<String> choices2AddClass() {
+        return applicationFeatures.packageNamesContainingClasses(null);
     }
 
     /**
      * Class names for selected package.
      */
-    public List<String> choices3AddClassOrMember(
+    public List<String> choices3AddClass(
             final ApplicationPermissionRule rule,
             final ApplicationPermissionMode mode,
             final String packageFqn) {
-        final ApplicationFeatureId packageId = ApplicationFeatureId.newPackage(packageFqn);
-        final ApplicationFeature pkg = applicationFeatures.findPackage(packageId);
-        if(pkg == null) {
-            return Collections.emptyList();
-        }
-        final SortedSet<ApplicationFeatureId> contents = pkg.getContents();
-        return Lists.newArrayList(
-                Iterables.transform(
-                        Iterables.filter(
-                                contents,
-                                ApplicationFeatureId.Predicates.IS_CLASS),
-                        ApplicationFeatureId.Functions.GET_CLASS_NAME));
+        return applicationFeatures.classNamesContainedIn(packageFqn, null);
+    }
+
+    //endregion
+
+    //region > addProperty (action)
+    /**
+     * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
+     * {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#PROPERTY property}
+     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
+     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
+     */
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @MemberOrder(name = "Permissions", sequence = "3")
+    public ApplicationRole addProperty(
+            final @Named("Rule") ApplicationPermissionRule rule,
+            final @Named("Mode") ApplicationPermissionMode mode,
+            final @Named("Package") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_PKG_FQN) String packageFqn,
+            final @Named("Class") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_CLS_NAME) String className,
+            final @Named("Property") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME) String memberName) {
+        applicationPermissions.newPermission(this, rule, mode, packageFqn, className, memberName);
+        return this;
+    }
+
+    public ApplicationPermissionRule default0AddProperty() {
+        return ApplicationPermissionRule.ALLOW;
+    }
+
+    public ApplicationPermissionMode default1AddProperty() {
+        return ApplicationPermissionMode.CHANGING;
+    }
+
+    /**
+     * Package names that have classes in them.
+     */
+    public List<String> choices2AddProperty() {
+        return applicationFeatures.packageNamesContainingClasses(ApplicationMemberType.PROPERTY);
+    }
+
+    /**
+     * Class names for selected package.
+     */
+    public List<String> choices3AddProperty(
+            final ApplicationPermissionRule rule,
+            final ApplicationPermissionMode mode,
+            final String packageFqn) {
+        return applicationFeatures.classNamesContainedIn(packageFqn, ApplicationMemberType.PROPERTY);
     }
 
     /**
      * Member names for selected class.
      */
-    public List<String> choices4AddClassOrMember(
+    public List<String> choices4AddProperty(
             final ApplicationPermissionRule rule,
             final ApplicationPermissionMode mode,
             final String packageFqn,
             final String className) {
-        final ApplicationFeatureId classId = ApplicationFeatureId.newClass(packageFqn + "." + className);
-        final ApplicationFeature cls = applicationFeatures.findClass(classId);
-        if(cls == null) {
-            return Collections.emptyList();
-        }
-        return Lists.newArrayList(
-                Iterables.transform(cls.getMembers(), ApplicationFeatureId.Functions.GET_MEMBER)
-        );
+        return applicationFeatures.memberNamesOf(packageFqn, className, ApplicationMemberType.PROPERTY);
     }
     //endregion
 
+    //region > addCollection (action)
+    /**
+     * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
+     * {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#COLLECTION collection}
+     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
+     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
+     */
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @MemberOrder(name = "Permissions", sequence = "4")
+    public ApplicationRole addCollection(
+            final @Named("Rule") ApplicationPermissionRule rule,
+            final @Named("Mode") ApplicationPermissionMode mode,
+            final @Named("Package") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_PKG_FQN) String packageFqn,
+            final @Named("Class") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_CLS_NAME) String className,
+            final @Named("Collection") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME) String memberName) {
+        applicationPermissions.newPermission(this, rule, mode, packageFqn, className, memberName);
+        return this;
+    }
+
+    public ApplicationPermissionRule default0AddCollection() {
+        return ApplicationPermissionRule.ALLOW;
+    }
+
+    public ApplicationPermissionMode default1AddCollection() {
+        return ApplicationPermissionMode.CHANGING;
+    }
+
+    public List<String> choices2AddCollection() {
+        return applicationFeatures.packageNamesContainingClasses(ApplicationMemberType.COLLECTION);
+    }
+
+    public List<String> choices3AddCollection(
+            final ApplicationPermissionRule rule,
+            final ApplicationPermissionMode mode,
+            final String packageFqn) {
+        return applicationFeatures.classNamesContainedIn(packageFqn, ApplicationMemberType.COLLECTION);
+    }
+
+    public List<String> choices4AddCollection(
+            final ApplicationPermissionRule rule,
+            final ApplicationPermissionMode mode,
+            final String packageFqn,
+            final String className) {
+        return applicationFeatures.memberNamesOf(packageFqn, className, ApplicationMemberType.COLLECTION);
+    }
+
+    //endregion
+
+    //region > addAction (action)
+    /**
+     * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
+     * {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#ACTION action}
+     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
+     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
+     */
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @MemberOrder(name = "Permissions", sequence = "5")
+    public ApplicationRole addAction(
+            final @Named("Rule") ApplicationPermissionRule rule,
+            final @Named("Mode") ApplicationPermissionMode mode,
+            final @Named("Package") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_PKG_FQN) String packageFqn,
+            final @Named("Class") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_CLS_NAME) String className,
+            final @Named("Action") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME) String memberName) {
+        applicationPermissions.newPermission(this, rule, mode, packageFqn, className, memberName);
+        return this;
+    }
+
+    public ApplicationPermissionRule default0AddAction() {
+        return ApplicationPermissionRule.ALLOW;
+    }
+
+    public ApplicationPermissionMode default1AddAction() {
+        return ApplicationPermissionMode.CHANGING;
+    }
+
+    public List<String> choices2AddAction() {
+        return applicationFeatures.packageNamesContainingClasses(ApplicationMemberType.ACTION);
+    }
+
+    public List<String> choices3AddAction(
+            final ApplicationPermissionRule rule,
+            final ApplicationPermissionMode mode,
+            final String packageFqn) {
+        return applicationFeatures.classNamesContainedIn(packageFqn, ApplicationMemberType.ACTION);
+    }
+
+    public List<String> choices4AddAction(
+            final ApplicationPermissionRule rule,
+            final ApplicationPermissionMode mode,
+            final String packageFqn,
+            final String className) {
+        return applicationFeatures.memberNamesOf(packageFqn, className, ApplicationMemberType.ACTION);
+    }
+
+    //endregion
+
     //region > remove (action)
-    @MemberOrder(name = "Permissions", sequence = "2")
+    @MemberOrder(name = "Permissions", sequence = "9")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationRole remove(
             final @Named("Rule") ApplicationPermissionRule rule,
@@ -284,8 +396,7 @@ public class ApplicationRole implements Comparable<ApplicationRole>, Actor {
     public Collection<String> choices2Remove(
             final ApplicationPermissionRule rule,
             final ApplicationFeatureType type) {
-        final ApplicationRole role = this;
-        final List<ApplicationPermission> permissions = applicationPermissions.findByRoleAndRuleAndFeatureType(rule, type, role);
+        final List<ApplicationPermission> permissions = applicationPermissions.findByRoleAndRuleAndFeatureType(this, rule, type);
         return Lists.newArrayList(
                 Iterables.transform(
                         permissions,

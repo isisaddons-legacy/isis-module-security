@@ -26,6 +26,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
+import org.apache.isis.applib.annotation.Hidden;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.util.ObjectContracts;
@@ -34,6 +35,7 @@ import org.apache.isis.applib.util.TitleBuffer;
 /**
  * Value type (compares only package, class and member names).
  */
+@Hidden
 public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
 
     //region > factory methods
@@ -289,13 +291,22 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId> {
     public static class Predicates {
         private Predicates(){}
 
-        public static final Predicate<ApplicationFeatureId> IS_CLASS = new Predicate<ApplicationFeatureId>() {
-            @Override
-            public boolean apply(ApplicationFeatureId input) {
-                return input.getType() == ApplicationFeatureType.CLASS;
-            }
-        };
-
+        public static Predicate<ApplicationFeatureId> isClassContaining(
+                final ApplicationMemberType memberType, final ApplicationFeatures applicationFeatures) {
+            return new Predicate<ApplicationFeatureId>() {
+                @Override
+                public boolean apply(ApplicationFeatureId input) {
+                    if(input.getType() != ApplicationFeatureType.CLASS) {
+                        return false;
+                    }
+                    final ApplicationFeature feature = applicationFeatures.findFeature(input);
+                    if(feature == null) {
+                        return false;
+                    }
+                    return memberType == null || !feature.membersOf(memberType).isEmpty();
+                }
+            };
+        }
     }
     //endregion
 

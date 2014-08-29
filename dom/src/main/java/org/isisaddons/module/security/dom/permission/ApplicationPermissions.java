@@ -49,9 +49,8 @@ public class ApplicationPermissions {
     //region > findByRoleAndRuleAndFeatureType (programmatic)
     @Programmatic
     public List<ApplicationPermission> findByRoleAndRuleAndFeatureType(
-            final ApplicationPermissionRule rule,
-            final ApplicationFeatureType type,
-            final ApplicationRole role) {
+            final ApplicationRole role, final ApplicationPermissionRule rule,
+            final ApplicationFeatureType type) {
         return container.allMatches(
                 new QueryDefault<>(
                         ApplicationPermission.class, "findByRoleAndRuleAndFeatureType",

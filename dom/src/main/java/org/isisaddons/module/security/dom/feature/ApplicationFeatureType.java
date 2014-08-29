@@ -45,7 +45,7 @@ public enum ApplicationFeatureType {
     public boolean hideClassName() {
         return this == ApplicationFeatureType.PACKAGE;
     }
-    public boolean hideMemberName() {
+    public boolean hideMember() {
         return this == ApplicationFeatureType.PACKAGE || this == ApplicationFeatureType.CLASS;
     }
 

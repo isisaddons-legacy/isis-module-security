@@ -23,9 +23,9 @@ public class ApplicationFeatureTypeTest {
 
         @Test
         public void all() throws Exception {
-            Assert.assertThat(ApplicationFeatureType.PACKAGE.hideMemberName(), is(true));
-            Assert.assertThat(ApplicationFeatureType.CLASS.hideMemberName(), is(true));
-            Assert.assertThat(ApplicationFeatureType.MEMBER.hideMemberName(), is(false));
+            Assert.assertThat(ApplicationFeatureType.PACKAGE.hideMember(), is(true));
+            Assert.assertThat(ApplicationFeatureType.CLASS.hideMember(), is(true));
+            Assert.assertThat(ApplicationFeatureType.MEMBER.hideMember(), is(false));
         }
     }
 

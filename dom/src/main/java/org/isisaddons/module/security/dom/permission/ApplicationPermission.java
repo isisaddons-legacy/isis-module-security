@@ -177,7 +177,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     private ApplicationPermissionRule rule;
 
     @javax.jdo.annotations.Column(allowsNull="false")
-    //@Disabled
+    @Disabled
     @MemberOrder(name="Permissions", sequence = "2")
     public ApplicationPermissionRule getRule() {
         return rule;
@@ -245,7 +245,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     }
     //endregion
 
-    //region > feature (derived property), updateFeature (action)
+    //region > feature (derived property)
 
     ApplicationFeatureId getFeatureId() {
         return ApplicationFeatureId.newFeature(getFeatureType(), getFeatureFqn());
@@ -259,8 +259,31 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
         if(getFeatureType() == null) {
             return null;
         }
-        return container.newViewModelInstance(ApplicationFeatureViewModel.class, getFeatureId().asEncodedString());
+        return ApplicationFeatureViewModel.newViewModel(getFeatureId(), container);
     }
+
+    //endregion
+
+
+    // region > type (derived, combined featureType and memberType)
+
+    /**
+     * Combines {@link #getFeatureType() feature type} and member type.
+     */
+    @Disabled
+    @MemberOrder(name="Feature", sequence = "5")
+    public String getType() {
+        Enum<?> e = getFeatureType() != ApplicationFeatureType.MEMBER ? getFeatureType() : getMemberType();
+        return e.name();
+    }
+
+    @Programmatic
+    private ApplicationMemberType getMemberType() {
+        return getFeature().getMemberType();
+    }
+    //endregion
+
+    //region > featureType
 
     @javax.jdo.annotations.Column(allowsNull="false")
     private ApplicationFeatureType featureType;
@@ -276,8 +299,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
      *
      * @see #getFeatureFqn()
      */
-    @Disabled
-    @MemberOrder(name="Feature", sequence = "5")
+    @Programmatic
     public ApplicationFeatureType getFeatureType() {
         return featureType;
     }
@@ -285,7 +307,9 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     public void setFeatureType(ApplicationFeatureType featureType) {
         this.featureType = featureType;
     }
+    //endregion
 
+    //region > featureFqn
 
     @javax.jdo.annotations.Column(allowsNull="false")
     private String featureFqn;
@@ -293,7 +317,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     /**
      * The {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId#getFullyQualifiedName() fully qualified name}
      * of the feature.
-     * 
+     *
      * <p>
      *     The combination of the {@link #getFeatureType() feature type} and the fully qualified name is used to build
      *     the corresponding {@link #getFeature() feature} (view model).

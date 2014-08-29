@@ -76,7 +76,7 @@ public class ApplicationFeatureTest {
             final ApplicationFeature applicationFeature = new ApplicationFeature(ApplicationFeatureId.newPackage("com.mycompany"));
             final ApplicationFeatureId memberFeatureId = ApplicationFeatureId.newMember("com.mycompany.Bar", "foo");
 
-            applicationFeature.addToMembers(memberFeatureId);
+            applicationFeature.addToMembers(memberFeatureId, ApplicationMemberType.PROPERTY);
         }
 
         @Test
@@ -86,11 +86,11 @@ public class ApplicationFeatureTest {
             final ApplicationFeatureId memberFeatureId = ApplicationFeatureId.newMember("com.mycompany.Bar", "foo");
             final ApplicationFeatureId memberFeatureId2 = ApplicationFeatureId.newMember("com.mycompany.Bar", "boz");
 
-            applicationFeature.addToMembers(memberFeatureId);
-            applicationFeature.addToMembers(memberFeatureId2);
+            applicationFeature.addToMembers(memberFeatureId, ApplicationMemberType.PROPERTY);
+            applicationFeature.addToMembers(memberFeatureId2, ApplicationMemberType.PROPERTY);
 
-            Assert.assertThat(applicationFeature.getMembers().size(), is(2));
-            Assert.assertThat(applicationFeature.getMembers(), containsInAnyOrder(memberFeatureId, memberFeatureId2));
+            Assert.assertThat(applicationFeature.getProperties().size(), is(2));
+            Assert.assertThat(applicationFeature.getProperties(), containsInAnyOrder(memberFeatureId, memberFeatureId2));
         }
 
         @Test
@@ -101,7 +101,7 @@ public class ApplicationFeatureTest {
             final ApplicationFeature applicationFeature = new ApplicationFeature(ApplicationFeatureId.newClass("com.mycompany.Bar"));
             final ApplicationFeatureId packageFeatureId = ApplicationFeatureId.newPackage("com.mycompany");
 
-            applicationFeature.addToMembers(packageFeatureId);
+            applicationFeature.addToMembers(packageFeatureId, ApplicationMemberType.PROPERTY);
         }
 
         @Test
@@ -112,7 +112,7 @@ public class ApplicationFeatureTest {
             final ApplicationFeature applicationFeature = new ApplicationFeature(ApplicationFeatureId.newClass("com.mycompany.Bar"));
             final ApplicationFeatureId classFeatureId = ApplicationFeatureId.newClass("com.mycompany.Bop");
 
-            applicationFeature.addToMembers(classFeatureId);
+            applicationFeature.addToMembers(classFeatureId, ApplicationMemberType.PROPERTY);
         }
 
         @Test
@@ -123,7 +123,7 @@ public class ApplicationFeatureTest {
             final ApplicationFeature applicationFeature = new ApplicationFeature(ApplicationFeatureId.newMember("com.mycompany.Bar", "foo"));
             final ApplicationFeatureId classFeatureId = ApplicationFeatureId.newClass("com.mycompany.flob.Bar");
 
-            applicationFeature.addToMembers(classFeatureId);
+            applicationFeature.addToMembers(classFeatureId, ApplicationMemberType.PROPERTY);
         }
     }
 }

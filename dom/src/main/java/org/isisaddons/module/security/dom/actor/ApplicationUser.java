@@ -17,6 +17,7 @@
  */
 package org.isisaddons.module.security.dom.actor;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -24,8 +25,15 @@ import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureViewModel;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.util.ObjectContracts;
 
@@ -301,7 +309,6 @@ public class ApplicationUser implements Comparable<ApplicationUser>, Actor {
 
     //endregion
 
-
     //region > tenancy (property)
     private ApplicationTenancy tenancy;
 
@@ -357,7 +364,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, Actor {
     }
     //endregion
 
-    //region > addRole (actions)
+    //region > addRole (action)
     @MemberOrder(name="roles", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @Named("Add")
@@ -378,7 +385,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, Actor {
     }
     //endregion
 
-    //region > removeRole (actions)
+    //region > removeRole (action)
     @MemberOrder(name="roles", sequence = "2")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @Named("Remove")
@@ -395,6 +402,31 @@ public class ApplicationUser implements Comparable<ApplicationUser>, Actor {
         return choices0RemoveRole().isEmpty()? "No roles to remove": null;
     }
     //endregion
+
+    //region > granted (derived collection)
+
+    @Programmatic // TODO: in progress
+    public List<ApplicationFeatureViewModel> getGranted(DomainObjectContainer container) {
+        final Collection<ApplicationFeature> allMembers = Lists.newArrayList(applicationFeatures.allMembers());
+        return Lists.newArrayList(
+                Iterables.transform(
+                        Iterables.filter(allMembers,
+                                isGranted()), ApplicationFeatureViewModel.Functions.asViewModel(container))
+        );
+
+    }
+
+    private Predicate<ApplicationFeature> isGranted() {
+        return new Predicate<ApplicationFeature>() {
+            @Override
+            public boolean apply(ApplicationFeature input) {
+                // TODO: in progress
+                return false;
+            }
+        };
+    }
+    //endregion
+
 
     //region > equals, hashCode, compareTo, toString
     private final static String propertyNames = "username";
@@ -424,5 +456,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, Actor {
     //region  >  (injected)
     @javax.inject.Inject
     ApplicationRoles applicationRoles;
+    @javax.inject.Inject
+    ApplicationFeatures applicationFeatures;
     //endregion
 }
