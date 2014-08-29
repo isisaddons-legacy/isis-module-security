@@ -18,6 +18,7 @@
 package org.isisaddons.module.security.dom.permission;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.List;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.apache.isis.applib.annotation.Hidden;
@@ -33,7 +34,7 @@ import org.apache.isis.applib.util.ObjectContracts;
  * </p>
  */
 @Hidden
-public class ApplicationPermissionValue implements ApplicationPermissionImplier, Comparable<ApplicationPermissionValue>, Serializable {
+public class ApplicationPermissionValue implements Comparable<ApplicationPermissionValue>, Serializable {
 
     //region > constructor
 
@@ -68,8 +69,7 @@ public class ApplicationPermissionValue implements ApplicationPermissionImplier,
     }
     //endregion
 
-    //region > ApplicationPermissionImplier implementation
-    @Override
+    //region > implies, refutes
     public boolean implies(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
         if(getRule() != ApplicationPermissionRule.ALLOW) {
             // only allow rules can imply
@@ -84,7 +84,6 @@ public class ApplicationPermissionValue implements ApplicationPermissionImplier,
         return onPathOf(featureId);
     }
 
-    @Override
     public boolean refutes(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
         if(getRule() != ApplicationPermissionRule.VETO) {
             // only veto rules can refute
@@ -110,6 +109,20 @@ public class ApplicationPermissionValue implements ApplicationPermissionImplier,
         return false;
     }
 
+    //endregion
+
+    //region > Comparators
+    public static final class Comparators {
+        private Comparators(){}
+        public static Comparator<ApplicationPermissionValue> evaluationPrecedence() {
+            return new Comparator<ApplicationPermissionValue>() {
+                @Override
+                public int compare(ApplicationPermissionValue o1, ApplicationPermissionValue o2) {
+                    return 0;
+                }
+            };
+        }
+    }
     //endregion
 
     //region > equals, hashCode, compareTo, toString

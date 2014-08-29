@@ -18,9 +18,12 @@
 package org.isisaddons.module.security.dom.permission;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.apache.isis.applib.annotation.Hidden;
 
@@ -32,34 +35,79 @@ import org.apache.isis.applib.annotation.Hidden;
  * </p>
  */
 @Hidden
-public class ApplicationPermissionValueSet implements ApplicationPermissionImplier, Serializable {
-
-    //region > constructor
-    public ApplicationPermissionValueSet(ApplicationPermissionValue... values) {
-        this(Lists.newArrayList(values));
-    }
-    public ApplicationPermissionValueSet(List<ApplicationPermissionValue> values) {
-        this.values = Collections.unmodifiableList(values);
-    }
-    //endregion
+public class ApplicationPermissionValueSet implements Serializable {
 
     //region > values
     private final List<ApplicationPermissionValue> values;
+    /**
+     * Partitions the {@link ApplicationPermissionValue permissions} by feature and within that orders according to their
+     * evaluation precedence.
+     *
+     * <p>
+     *     The following sketches out what is stored:
+     * </p>
+     * <pre>
+     *     com.foo.Bar#bip -> ALLOW, CHANGING
+     *                     -> ALLOW, VIEWING
+     *                     -> VETO, VIEWING
+     *                     -> VETO, CHANGING
+     *     com.foo.Bar     -> ALLOW, CHANGING
+     *                     -> ALLOW, VIEWING
+     *                     -> VETO, VIEWING
+     *                     -> VETO, CHANGING
+     *     com.foo         -> ALLOW, CHANGING
+     *                     -> ALLOW, VIEWING
+     *                     -> VETO, VIEWING
+     *                     -> VETO, CHANGING
+     *     com             -> ALLOW, CHANGING
+     *                     -> ALLOW, VIEWING
+     *                     -> VETO, VIEWING
+     *                     -> VETO, CHANGING
+     * </pre>
+     * 
+     * <p>
+     *     Note that {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionRule#ALLOW allow} rule
+     *     is ordered before {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionRule#VETO veto} rule
+     *     meaning that it is checked first and therefore also takes precedence.
+     * </p>
+     */
+    private final Multimap<ApplicationFeatureId, ApplicationPermissionValue> permissionsByFeature = TreeMultimap.create(
+            Collections.reverseOrder(ApplicationFeatureId.Comparators.natural()),
+            ApplicationPermissionValue.Comparators.evaluationPrecedence());
 
-    public List<ApplicationPermissionValue> getValues() {
-        return values;
+
+    //endregion
+
+    //region > constructor
+    public ApplicationPermissionValueSet(ApplicationPermissionValue... permissionValues) {
+        this(Lists.newArrayList(permissionValues));
+    }
+    public ApplicationPermissionValueSet(List<ApplicationPermissionValue> permissionValues) {
+        this.values = Collections.unmodifiableList(permissionValues);
+        for (ApplicationPermissionValue permissionValue : permissionValues) {
+            final ApplicationFeatureId featureId = permissionValue.getFeatureId();
+            permissionsByFeature.put(featureId, permissionValue);
+        }
     }
     //endregion
 
 
-    //region > ApplicationPermissionImplier implementation
-    @Override
-    public boolean implies(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
-        return false;
-    }
 
-    @Override
-    public boolean refutes(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
+    //region > grants
+    public boolean grants(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
+        final List<ApplicationFeatureId> pathIds = featureId.getPathIds();
+        for (ApplicationFeatureId pathId : pathIds) {
+            final Collection<ApplicationPermissionValue> permissionValues = permissionsByFeature.get(pathId);
+            // permission values are carefully ordered so that the ALLOWs come before the VETOs
+            for (ApplicationPermissionValue permissionValue : permissionValues) {
+                if(permissionValue.implies(featureId, mode)) {
+                    return true;
+                }
+                if(permissionValue.refutes(featureId, mode)) {
+                    return false;
+                }
+            }
+        }
         return false;
     }
 

@@ -17,244 +17,241 @@ public class ApplicationPermissionValueTest {
 
     public static class Implies_and_Refutes extends ApplicationPermissionValueTest {
 
-        public static class Member extends Implies_and_Refutes  {
+        public static class MemberOnMember extends Implies_and_Refutes {
 
-            public static class MemberOnMember extends Member {
+            @Test
+            public void allowChanging() throws Exception {
+                // given
+                final ApplicationPermissionValue apv = allowChanging(mComFooBar_bip);
 
-                @Test
-                public void allowChanging() throws Exception {
-                    // given
-                    final ApplicationPermissionValue apv = allowChanging(mComFooBar_bip);
+                // when, then
+                assertThat(apv.implies(mComFooBar_bip, changing()), is(true));
+                assertThat(apv.implies(mComFooBar_bip, viewing()), is(true));
 
-                    // when, then
-                    assertThat(apv.implies(mComFooBar_bip, changing()), is(true));
-                    assertThat(apv.implies(mComFooBar_bip, viewing()), is(true));
+                assertThat(apv.refutes(mComFooBar_bip, changing()), is(false));
+                assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
 
-                    assertThat(apv.refutes(mComFooBar_bip, changing()), is(false));
-                    assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
-
-                    // when, then (for some other member)
-                    assertThat(apv.implies(mComFooBar_bop, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bop, viewing()), is(false));
-                }
-
-                @Test
-                public void allowViewing() throws Exception {
-                    // given
-                    final ApplicationPermissionValue apv = allowViewing(mComFooBar_bip);
-
-                    // when, then
-                    assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bip, viewing()), is(true));
-
-                    assertThat(apv.refutes(mComFooBar_bip, changing()), is(false));
-                    assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
-
-                    // when, then (for some other member)
-                    assertThat(apv.implies(mComFooBar_bop, viewing()), is(false));
-                }
-
-                @Test
-                public void vetoChanging() throws Exception {
-                    // given
-                    final ApplicationPermissionValue apv = vetoChanging(mComFooBar_bip);
-
-                    // when, then
-                    assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bip, viewing()), is(false));
-
-                    assertThat(apv.refutes(mComFooBar_bip, changing()), is(true));
-                    assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
-
-                    // when, then (for some other member)
-                    assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
-                }
-
-                @Test
-                public void vetoViewing() throws Exception {
-                    // given
-                    final ApplicationPermissionValue apv = vetoViewing(mComFooBar_bip);
-
-                    // when, then
-                    assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bip, viewing()), is(false));
-
-                    assertThat(apv.refutes(mComFooBar_bip, changing()), is(true));
-                    assertThat(apv.refutes(mComFooBar_bip, viewing()), is(true));
-
-                    // when, then (for some other member)
-                    assertThat(apv.refutes(mComFooBar_bop, changing()), is(false));
-                    assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
-                }
+                // when, then (for some other member)
+                assertThat(apv.implies(mComFooBar_bop, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bop, viewing()), is(false));
             }
 
-            public static class ClassOnMember extends Member {
+            @Test
+            public void allowViewing() throws Exception {
+                // given
+                final ApplicationPermissionValue apv = allowViewing(mComFooBar_bip);
 
-                @Test
-                public void allowChanging() throws Exception {
-                    // given
-                    final ApplicationPermissionValue apv = allowChanging(cComFooBar);
+                // when, then
+                assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bip, viewing()), is(true));
 
-                    // when, then
-                    assertThat(apv.implies(mComFooBar_bip, changing()), is(true));
-                    assertThat(apv.implies(mComFooBar_bip, viewing()), is(true));
+                assertThat(apv.refutes(mComFooBar_bip, changing()), is(false));
+                assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
 
-                    assertThat(apv.refutes(mComFooBar_bip, changing()), is(false));
-                    assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
-
-                    // when, then (for some other member)
-                    assertThat(apv.implies(mComFooBar_bop, changing()), is(true));
-                    assertThat(apv.implies(mComFooBar_bop, viewing()), is(true));
-
-                    assertThat(apv.refutes(mComFooBar_bop, changing()), is(false));
-                    assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
-                }
-
-                @Test
-                public void allowViewing() throws Exception {
-                    // given
-                    final ApplicationPermissionValue apv = allowViewing(cComFooBar);
-
-                    // when, then
-                    assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bip, viewing()), is(true));
-
-                    assertThat(apv.refutes(mComFooBar_bip, changing()), is(false));
-                    assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
-
-                    // when, then (for some other member)
-                    assertThat(apv.implies(mComFooBar_bop, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bop, viewing()), is(true));
-
-                    assertThat(apv.refutes(mComFooBar_bop, changing()), is(false));
-                    assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
-                }
-
-                @Test
-                public void vetoChanging() throws Exception {
-                    // given
-                    final ApplicationPermissionValue apv = vetoChanging(cComFooBar);
-
-                    // when, then
-                    assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bip, viewing()), is(false));
-
-                    assertThat(apv.refutes(mComFooBar_bip, changing()), is(true));
-                    assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
-
-                    // when, then (for some other member)
-                    assertThat(apv.implies(mComFooBar_bop, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bop, viewing()), is(false));
-
-                    assertThat(apv.refutes(mComFooBar_bop, changing()), is(true));
-                    assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
-                }
-
-                @Test
-                public void vetoViewing() throws Exception {
-                    // given
-                    final ApplicationPermissionValue apv = vetoViewing(cComFooBar);
-
-                    // when, then
-                    assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bip, viewing()), is(false));
-
-                    assertThat(apv.refutes(mComFooBar_bip, changing()), is(true));
-                    assertThat(apv.refutes(mComFooBar_bip, viewing()), is(true));
-
-                    // when, then (for some other member)
-                    assertThat(apv.implies(mComFooBar_bop, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bop, viewing()), is(false));
-
-                    assertThat(apv.refutes(mComFooBar_bop, changing()), is(true));
-                    assertThat(apv.refutes(mComFooBar_bop, viewing()), is(true));
-                }
+                // when, then (for some other member)
+                assertThat(apv.implies(mComFooBar_bop, viewing()), is(false));
             }
 
-            public static class PackageOnMember extends Member {
+            @Test
+            public void vetoChanging() throws Exception {
+                // given
+                final ApplicationPermissionValue apv = vetoChanging(mComFooBar_bip);
 
-                @Test
-                public void allowChanging() throws Exception {
-                    // given
-                    final ApplicationPermissionValue apv = allowChanging(pCom);
+                // when, then
+                assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bip, viewing()), is(false));
 
-                    // when, then
-                    assertThat(apv.implies(mComFooBar_bip, changing()), is(true));
-                    assertThat(apv.implies(mComFooBar_bip, viewing()), is(true));
+                assertThat(apv.refutes(mComFooBar_bip, changing()), is(true));
+                assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
 
-                    assertThat(apv.refutes(mComFooBar_bip, changing()), is(false));
-                    assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
-
-                    // when, then (for some other member)
-                    assertThat(apv.implies(mComFooBar_bop, changing()), is(true));
-                    assertThat(apv.implies(mComFooBar_bop, viewing()), is(true));
-
-                    assertThat(apv.refutes(mComFooBar_bop, changing()), is(false));
-                    assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
-                }
-
-                @Test
-                public void allowViewing() throws Exception {
-                    // given
-                    final ApplicationPermissionValue apv = allowViewing(pCom);
-
-                    // when, then
-                    assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bip, viewing()), is(true));
-
-                    assertThat(apv.refutes(mComFooBar_bip, changing()), is(false));
-                    assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
-
-                    // when, then (for some other member)
-                    assertThat(apv.implies(mComFooBar_bop, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bop, viewing()), is(true));
-
-                    assertThat(apv.refutes(mComFooBar_bop, changing()), is(false));
-                    assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
-                }
-
-                @Test
-                public void vetoChanging() throws Exception {
-                    // given
-                    final ApplicationPermissionValue apv = vetoChanging(pCom);
-
-                    // when, then
-                    assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bip, viewing()), is(false));
-
-                    assertThat(apv.refutes(mComFooBar_bip, changing()), is(true));
-                    assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
-
-                    // when, then (for some other member)
-                    assertThat(apv.implies(mComFooBar_bop, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bop, viewing()), is(false));
-
-                    assertThat(apv.refutes(mComFooBar_bop, changing()), is(true));
-                    assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
-                }
-
-                @Test
-                public void vetoViewing() throws Exception {
-                    // given
-                    final ApplicationPermissionValue apv = vetoViewing(pCom);
-
-                    // when, then
-                    assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bip, viewing()), is(false));
-
-                    assertThat(apv.refutes(mComFooBar_bip, changing()), is(true));
-                    assertThat(apv.refutes(mComFooBar_bip, viewing()), is(true));
-
-                    // when, then (for some other member)
-                    assertThat(apv.implies(mComFooBar_bop, changing()), is(false));
-                    assertThat(apv.implies(mComFooBar_bop, viewing()), is(false));
-
-                    assertThat(apv.refutes(mComFooBar_bop, changing()), is(true));
-                    assertThat(apv.refutes(mComFooBar_bop, viewing()), is(true));
-                }
+                // when, then (for some other member)
+                assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
             }
 
+            @Test
+            public void vetoViewing() throws Exception {
+                // given
+                final ApplicationPermissionValue apv = vetoViewing(mComFooBar_bip);
+
+                // when, then
+                assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bip, viewing()), is(false));
+
+                assertThat(apv.refutes(mComFooBar_bip, changing()), is(true));
+                assertThat(apv.refutes(mComFooBar_bip, viewing()), is(true));
+
+                // when, then (for some other member)
+                assertThat(apv.refutes(mComFooBar_bop, changing()), is(false));
+                assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
+            }
         }
+
+        public static class ClassOnMember extends Implies_and_Refutes {
+
+            @Test
+            public void allowChanging() throws Exception {
+                // given
+                final ApplicationPermissionValue apv = allowChanging(cComFooBar);
+
+                // when, then
+                assertThat(apv.implies(mComFooBar_bip, changing()), is(true));
+                assertThat(apv.implies(mComFooBar_bip, viewing()), is(true));
+
+                assertThat(apv.refutes(mComFooBar_bip, changing()), is(false));
+                assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
+
+                // when, then (for some other member)
+                assertThat(apv.implies(mComFooBar_bop, changing()), is(true));
+                assertThat(apv.implies(mComFooBar_bop, viewing()), is(true));
+
+                assertThat(apv.refutes(mComFooBar_bop, changing()), is(false));
+                assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
+            }
+
+            @Test
+            public void allowViewing() throws Exception {
+                // given
+                final ApplicationPermissionValue apv = allowViewing(cComFooBar);
+
+                // when, then
+                assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bip, viewing()), is(true));
+
+                assertThat(apv.refutes(mComFooBar_bip, changing()), is(false));
+                assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
+
+                // when, then (for some other member)
+                assertThat(apv.implies(mComFooBar_bop, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bop, viewing()), is(true));
+
+                assertThat(apv.refutes(mComFooBar_bop, changing()), is(false));
+                assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
+            }
+
+            @Test
+            public void vetoChanging() throws Exception {
+                // given
+                final ApplicationPermissionValue apv = vetoChanging(cComFooBar);
+
+                // when, then
+                assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bip, viewing()), is(false));
+
+                assertThat(apv.refutes(mComFooBar_bip, changing()), is(true));
+                assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
+
+                // when, then (for some other member)
+                assertThat(apv.implies(mComFooBar_bop, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bop, viewing()), is(false));
+
+                assertThat(apv.refutes(mComFooBar_bop, changing()), is(true));
+                assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
+            }
+
+            @Test
+            public void vetoViewing() throws Exception {
+                // given
+                final ApplicationPermissionValue apv = vetoViewing(cComFooBar);
+
+                // when, then
+                assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bip, viewing()), is(false));
+
+                assertThat(apv.refutes(mComFooBar_bip, changing()), is(true));
+                assertThat(apv.refutes(mComFooBar_bip, viewing()), is(true));
+
+                // when, then (for some other member)
+                assertThat(apv.implies(mComFooBar_bop, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bop, viewing()), is(false));
+
+                assertThat(apv.refutes(mComFooBar_bop, changing()), is(true));
+                assertThat(apv.refutes(mComFooBar_bop, viewing()), is(true));
+            }
+        }
+
+        public static class PackageOnMember extends Implies_and_Refutes {
+
+            @Test
+            public void allowChanging() throws Exception {
+                // given
+                final ApplicationPermissionValue apv = allowChanging(pCom);
+
+                // when, then
+                assertThat(apv.implies(mComFooBar_bip, changing()), is(true));
+                assertThat(apv.implies(mComFooBar_bip, viewing()), is(true));
+
+                assertThat(apv.refutes(mComFooBar_bip, changing()), is(false));
+                assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
+
+                // when, then (for some other member)
+                assertThat(apv.implies(mComFooBar_bop, changing()), is(true));
+                assertThat(apv.implies(mComFooBar_bop, viewing()), is(true));
+
+                assertThat(apv.refutes(mComFooBar_bop, changing()), is(false));
+                assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
+            }
+
+            @Test
+            public void allowViewing() throws Exception {
+                // given
+                final ApplicationPermissionValue apv = allowViewing(pCom);
+
+                // when, then
+                assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bip, viewing()), is(true));
+
+                assertThat(apv.refutes(mComFooBar_bip, changing()), is(false));
+                assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
+
+                // when, then (for some other member)
+                assertThat(apv.implies(mComFooBar_bop, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bop, viewing()), is(true));
+
+                assertThat(apv.refutes(mComFooBar_bop, changing()), is(false));
+                assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
+            }
+
+            @Test
+            public void vetoChanging() throws Exception {
+                // given
+                final ApplicationPermissionValue apv = vetoChanging(pCom);
+
+                // when, then
+                assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bip, viewing()), is(false));
+
+                assertThat(apv.refutes(mComFooBar_bip, changing()), is(true));
+                assertThat(apv.refutes(mComFooBar_bip, viewing()), is(false));
+
+                // when, then (for some other member)
+                assertThat(apv.implies(mComFooBar_bop, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bop, viewing()), is(false));
+
+                assertThat(apv.refutes(mComFooBar_bop, changing()), is(true));
+                assertThat(apv.refutes(mComFooBar_bop, viewing()), is(false));
+            }
+
+            @Test
+            public void vetoViewing() throws Exception {
+                // given
+                final ApplicationPermissionValue apv = vetoViewing(pCom);
+
+                // when, then
+                assertThat(apv.implies(mComFooBar_bip, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bip, viewing()), is(false));
+
+                assertThat(apv.refutes(mComFooBar_bip, changing()), is(true));
+                assertThat(apv.refutes(mComFooBar_bip, viewing()), is(true));
+
+                // when, then (for some other member)
+                assertThat(apv.implies(mComFooBar_bop, changing()), is(false));
+                assertThat(apv.implies(mComFooBar_bop, viewing()), is(false));
+
+                assertThat(apv.refutes(mComFooBar_bop, changing()), is(true));
+                assertThat(apv.refutes(mComFooBar_bop, viewing()), is(true));
+            }
+        }
+
     }
 
 

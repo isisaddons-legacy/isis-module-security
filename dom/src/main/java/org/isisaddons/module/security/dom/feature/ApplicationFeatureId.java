@@ -20,6 +20,7 @@ package org.isisaddons.module.security.dom.feature;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import com.google.common.base.Function;
@@ -312,6 +313,20 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
                         return false;
                     }
                     return memberType == null || !feature.membersOf(memberType).isEmpty();
+                }
+            };
+        }
+    }
+    //endregion
+
+    //region > Comparators
+    public static final class Comparators {
+        private Comparators(){}
+        public static Comparator<ApplicationFeatureId> natural() {
+            return new Comparator<ApplicationFeatureId>() {
+                @Override
+                public int compare(ApplicationFeatureId o1, ApplicationFeatureId o2) {
+                    return o1.compareTo(o2);
                 }
             };
         }
