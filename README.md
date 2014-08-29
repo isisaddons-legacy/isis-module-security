@@ -10,9 +10,163 @@ The module consists of ...
 
 ## Screenshots ##
 
-The following screenshots show an example app's usage of the module.
+The following screenshots show an example app's usage of the module.  This example app has its own very simple 
+`ExampleEntity` entity (and corresponding`ExampleEntities` repository), along with all the services and entities 
+provided by the module itself.
 
-#### Installing the Fixture Data ####
+#### Application Menus ####
+
+The security module provides a number of menus: _Users_, _Roles_, _Permissions_ and _User Tenancies_:
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/010-menus.png)
+
+#### Install example fixture data ####
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/020-install-fixtures.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/030-role.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/040-role-add-permission-package.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/050-permission-rule.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/060-permission-mode.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/070-permission-package-from-isis-metamodel.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/080-permission-added.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/090-role-add-permission-class.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/100-role-add-permission-class-in-package.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/110-role-add-permission-property.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/120-role-add-property-filtered-packages.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/130-role-add-permission-property.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/140-role-property-permission-added.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/150-role-add-collection-permission.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/160-role-add-collection-filtered-packages.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/170-role-add-permission-action.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/180-using-rules-and-modes-to-finetune.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/190-role-add-permission-filtered-packages.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/200-role-add-permission-action.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/210-role-action-permission-added.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/220-remove-permission.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/230-remove-permission-available.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/240-role-add-user.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/250-role-add-user-autoComplete.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/260-role-permission.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/270-permission.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/280-feature.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/290-user-update-name.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/300-user-name.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/310-user-name-updated.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/320-user-permission.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/320-user-update-tenancy.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/330-user-add-remove-roles.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/340-user-remove-role.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/350-user-effective-permissions-updated.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/360-user-effective-permissions.png)
+
+todo: write about...
+
+![]https://raw.github.com/isisaddons/isis-module-security/master/images/370-user-permission.png)
 
 
 #### yada ####
