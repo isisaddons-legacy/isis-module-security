@@ -18,6 +18,8 @@ A key design objective of this module has been to limit the amount of permission
   overrides a package-level permission; the lower-level package permission overrides a higher-level one 
   (eg `com.mycompany.invoicing` overrides `com.mycompany`).
 
+* if there are conflicting permissions at the same scope, then the ALLOW takes precedence over the VETO.
+  
 (TODO) The module also provides an implementation of [Apache Shiro](http://shiro.apache.org)'s [AuthorizingRealm](https://shiro.apache.org/static/1.2.2/apidocs/org/apache/shiro/realm/AuthorizingRealm.html).  This allows the users/permissions to be used
 for Isis' authentication and/or authorization.
   
@@ -25,6 +27,8 @@ for Isis' authentication and/or authorization.
 
 This module is work-in-progress:
 - implemented: domain model, plus UI maintenance (see screenshots below)
+- todo: tidy up length and `@TypicalLength` of all properties
+- todo: tidy up action semantics of all actions
 - todo: tidy up domain model UI services, to make more easily extensible
 - todo: extend user to include encrypted password
 - todo: implement Shiro realm for authentication and/or authorizing
@@ -76,99 +80,106 @@ The list of packages is derived from Isis' own metamodel.
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/070-permission-package-from-isis-metamodel.png)
 
-#### Xxx ####
+#### Permission added ####
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/080-permission-added.png)
 
-#### Xxx ####
+#### Add permission for all members in a class ####
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/090-role-add-permission-class.png)
 
-#### Xxx ####
+#### Select classes within package ####
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/100-role-add-permission-class-in-package.png)
 
-#### Xxx ####
+#### Add permission to an individual property of a class ####
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/110-role-add-permission-property.png)
 
-#### Xxx ####
+#### Package list is filtered to those that contain classes that have properties ####
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/120-role-add-property-filtered-packages.png)
 
-#### Xxx ####
+#### Select property ####
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/130-role-add-permission-property.png)
 
-#### Xxx ####
+#### Add permission to an individual collection ####
 
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/140-role-property-permission-added.png)
-
-#### Xxx ####
+Works similarly to adding a property; the package list is filtered to those classes that actually have collections.
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/150-role-add-collection-permission.png)
 
-#### Xxx ####
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/160-role-add-collection-filtered-packages.png)
-
-#### Xxx ####
+#### Add permission to an individual action ####
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/170-role-add-permission-action.png)
 
-#### Xxx ####
+#### Using rules to fine-tune permissions ####
+
+A VETO CHANGING rule prevents the action from being invoked.
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/180-using-rules-and-modes-to-finetune.png)
 
-#### Xxx ####
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/190-role-add-permission-filtered-packages.png)
-
-#### Xxx ####
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/200-role-add-permission-action.png)
-
-#### Xxx ####
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/210-role-action-permission-added.png)
-
-#### Xxx ####
+#### Permissions can also be removed ####
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/220-remove-permission.png)
 
-#### Xxx ####
+To remove, specify the permission's rule, mode and feature:
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/230-remove-permission-available.png)
 
-#### Xxx ####
+#### Add user to a role ####
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/240-role-add-user.png)
 
-#### Xxx ####
-
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/250-role-add-user-autoComplete.png)
 
-#### Xxx ####
+#### Can navigate from role ... ####
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/260-role-permission.png)
 
-#### Xxx ####
+#### ... to role's permission ####
+
+Permission simply holds the role, rule, mode and feature.  The role, rule and mode can be changed.  The feature cannot,
+but can be navigated to...
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/270-permission.png)
 
-#### Xxx ####
+#### Application feature for a class member ####
+
+... lists the associated permissions, and provides access to the parent (class) feature...
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/280-feature.png)
 
-#### Xxx ####
+#### Application feature for a class ####
+
+The class feature lists associated permissions (if any), also the child properties, collections and actions.  It also 
+provides access to its parent (package) feature ...
+
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/283-class-feature.png)
+
+#### Application feature for a package ####
+
+The package feature lists its associated permissions (if any), its contents (class or package features) and also 
+provides access to its parent (package) feature.
+
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/286-package-feature.png)
+
+#### Application users ####
+
+The minimum information held for users its just the `username`; this corresponds to the name used to log in to Isis via
+Shiro.  Additional information can also be stored, for example their full name.
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/290-user-update-name.png)
 
-#### Xxx ####
+#### Entering a user's full name ####
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/300-user-name.png)
 
-#### Xxx ####
+#### User tenancy ####
+
+Each user can have an associated tenancy, so for example an Italian user sees only Italian data.  
+(This anticipates support for multi-tenancy within Isis itself, not yet implemented as of 1.6.0).
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/310-user-name-updated.png)
 
@@ -212,7 +223,7 @@ The above diagram was generated by [yuml.me](http://yuml.me) using the following
 [ApplicationRole]1-0..*>[ApplicationPermission]
 [ApplicationFeature|fullyQualifiedName{bg:green}]-memberType>0..1[ApplicationMemberType|PROPERTY;COLLECTION;ACTION]
 [ApplicationFeature]->type[ApplicationFeatureType|PACKAGE;CLASS;MEMBER]
-[ApplicationPermission{bg:pink}]->[ApplicationFeature]
+[ApplicationPermission{bg:pink}]++->[ApplicationFeature]
 [ApplicationPermission]->[ApplicationPermissionMode|VIEWING;CHANGING]
 [ApplicationPermission]->[ApplicationPermissionRule|ALLOW;VETO]
 </pre>
