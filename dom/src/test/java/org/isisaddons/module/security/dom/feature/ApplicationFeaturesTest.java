@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.apache.isis.applib.DomainObjectContainer;
+import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.core.metamodel.facets.all.hide.HiddenFacet;
 import org.apache.isis.core.metamodel.facets.members.hidden.HiddenFacetNever;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjector;
@@ -106,11 +107,17 @@ public class ApplicationFeaturesTest {
                 allowing(mockAct).isAlwaysHidden();
                 will(returnValue(false));
 
+                allowing(mockAct).getSemantics();
+                will(returnValue(ActionSemantics.Of.SAFE));
+
                 allowing(mockActThatIsHidden).getId();
                 will(returnValue("someActionThatIsHidden"));
 
                 allowing(mockActThatIsHidden).isAlwaysHidden();
                 will(returnValue(true));
+
+                allowing(mockActThatIsHidden).getSemantics();
+                will(returnValue(ActionSemantics.Of.SAFE));
 
                 allowing(mockServicesInjector).getRegisteredServices();
                 will(returnValue(Lists.newArrayList()));

@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.dom.user;
+package org.isisaddons.module.security.app.user;
 
 import java.nio.charset.Charset;
 import java.util.Iterator;
@@ -23,8 +23,11 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.io.BaseEncoding;
+import org.isisaddons.module.security.app.feature.ApplicationFeatureViewModel;
 import org.isisaddons.module.security.dom.feature.*;
 import org.isisaddons.module.security.dom.permission.*;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.ViewModel;
 import org.apache.isis.applib.annotation.*;

@@ -15,13 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.dom.feature;
+package org.isisaddons.module.security.app.feature;
 
 import java.util.List;
 import java.util.SortedSet;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.isisaddons.module.security.dom.feature.*;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.apache.isis.applib.DomainObjectContainer;
@@ -30,7 +31,7 @@ import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.util.ObjectContracts;
 
 /**
- * View model identified by {@link ApplicationFeatureId} and backed by an {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
+ * View model identified by {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId} and backed by an {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
  */
 @MemberGroupLayout(
         columnSpans = {6,0,6,12},
@@ -108,7 +109,7 @@ public class ApplicationFeatureViewModel implements ViewModel {
     }
     //endregion
 
-    //region > type, packageName, className, memberName (properties)
+    //region > type, packageName, className, memberName, actionSemantics (properties)
     @MemberOrder(name="Type", sequence = "2.1")
     @Hidden(where=Where.OBJECT_FORMS)
     public ApplicationFeatureType getType() {
@@ -136,6 +137,7 @@ public class ApplicationFeatureViewModel implements ViewModel {
     public boolean hideMemberName() {
         return getFeatureId().getType().hideMember();
     }
+
     @MemberOrder(name="Type", sequence = "2.5")
     @Hidden(where=Where.OBJECT_FORMS)
     public ApplicationMemberType getMemberType() {
@@ -143,6 +145,15 @@ public class ApplicationFeatureViewModel implements ViewModel {
     }
     public boolean hideMemberType() {
         return getFeatureId().getType().hideMember();
+    }
+
+    @MemberOrder(name="Type", sequence = "2.6")
+    @Hidden(where=Where.OBJECT_FORMS)
+    public ActionSemantics.Of getActionSemantics() {
+        return getFeature().getActionSemantics();
+    }
+    public boolean hideActionSemantics() {
+        return getFeatureId().getType().hideMember() || getMemberType() != ApplicationMemberType.ACTION;
     }
     //endregion
 

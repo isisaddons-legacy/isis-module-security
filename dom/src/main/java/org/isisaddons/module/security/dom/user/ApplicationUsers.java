@@ -36,7 +36,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     /**
      * Uses the {@link org.apache.isis.applib.services.queryresultscache.QueryResultsCache} in order to support
-     * multiple lookups from {@link org.isisaddons.module.security.dom.user.UserPermissionViewModel}.
+     * multiple lookups from <code>org.isisaddons.module.security.app.user.UserPermissionViewModel</code>.
      *
      * <p>
      *     If the user does not exist, it will be automatically created.

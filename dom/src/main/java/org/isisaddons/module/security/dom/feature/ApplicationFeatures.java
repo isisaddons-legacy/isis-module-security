@@ -24,10 +24,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.annotation.DomainService;
-import org.apache.isis.applib.annotation.Programmatic;
-import org.apache.isis.applib.annotation.When;
-import org.apache.isis.applib.annotation.Where;
+import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 import org.apache.isis.core.metamodel.facets.all.hide.HiddenFacet;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjector;
@@ -105,13 +102,13 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         // add members
         boolean addedMembers = false;
         for (ObjectAssociation property : properties) {
-            addedMembers = newMember(classFeatureId, property, ApplicationMemberType.PROPERTY) || addedMembers;
+            addedMembers = newProperty(classFeatureId, property) || addedMembers;
         }
         for (ObjectAssociation collection : collections) {
-            addedMembers = newMember(classFeatureId, collection, ApplicationMemberType.COLLECTION) || addedMembers;
+            addedMembers = newCollection(classFeatureId, collection) || addedMembers;
         }
         for (ObjectAction act : actions) {
-            addedMembers = newMember(classFeatureId, act, ApplicationMemberType.ACTION) || addedMembers;
+            addedMembers = newAction(classFeatureId, act, act.getSemantics()) || addedMembers;
         }
 
         if(!addedMembers) {
@@ -165,19 +162,34 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         return parentPackage;
     }
 
-    private boolean newMember(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember, ApplicationMemberType memberType) {
+    private boolean newProperty(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember) {
+        return newMember(classFeatureId, objectMember, ApplicationMemberType.PROPERTY, null);
+    }
+
+    private boolean newCollection(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember) {
+        return newMember(classFeatureId, objectMember, ApplicationMemberType.COLLECTION, null);
+    }
+
+    private boolean newAction(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember, ActionSemantics.Of actionSemantics) {
+        return newMember(classFeatureId, objectMember, ApplicationMemberType.ACTION, actionSemantics);
+    }
+
+    private boolean newMember(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember, ApplicationMemberType memberType, ActionSemantics.Of actionSemantics) {
         if(objectMember.isAlwaysHidden()) {
             return false;
         }
-        newMember(classFeatureId, objectMember.getId(), memberType);
+        newMember(classFeatureId, objectMember.getId(), memberType, actionSemantics);
         return true;
     }
 
-    private void newMember(ApplicationFeatureId classFeatureId, String memberId, ApplicationMemberType memberType) {
+    private void newMember(ApplicationFeatureId classFeatureId, String memberId, ApplicationMemberType memberType, ActionSemantics.Of actionSemantics) {
         final ApplicationFeatureId featureId = ApplicationFeatureId.newMember(classFeatureId.getFullyQualifiedName(), memberId);
 
         final ApplicationFeature memberFeature = newFeature(featureId);
         memberFeature.setMemberType(memberType);
+        if(actionSemantics != null) {
+            memberFeature.setActionSemantics(actionSemantics);
+        }
         memberFeatures.put(featureId, memberFeature);
 
         // also cache per memberType
@@ -331,7 +343,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     }
     //endregion
 
-
+    //region > packageNamesContainingClasses, classNamesContainedIn, memberNamesOf
     /**
      *
      * @param memberType - additionally classes containing members of specified type (can be null).
@@ -377,6 +389,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         );
     }
 
+    //endregion
 
     // //////////////////////////////////////
 

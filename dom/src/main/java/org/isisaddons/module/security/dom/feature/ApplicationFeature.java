@@ -22,6 +22,8 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.Hidden;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.util.ObjectContracts;
 
@@ -29,6 +31,7 @@ import org.apache.isis.applib.util.ObjectContracts;
  * Canonical application feature, identified by {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId},
  * and wired together with other application features and cached by {@link org.isisaddons.module.security.dom.feature.ApplicationFeatures}.
  */
+@Hidden
 public class ApplicationFeature implements Comparable<ApplicationFeature> {
 
     //region > constants
@@ -43,7 +46,7 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
     public ApplicationFeature() {
         this(null);
     }
-    ApplicationFeature(final ApplicationFeatureId featureId) {
+    public ApplicationFeature(final ApplicationFeatureId featureId) {
         setFeatureId(featureId);
     }
     //endregion
@@ -61,8 +64,12 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
     }
     //endregion
 
-    //region > featureId
+    //region > memberType
     private ApplicationMemberType memberType;
+
+    /**
+     * Only for {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}s.
+     */
     @Programmatic
     public ApplicationMemberType getMemberType() {
         return memberType;
@@ -73,26 +80,43 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
     }
     //endregion
 
+    //region > actionSemantics
+    private ActionSemantics.Of actionSemantics;
+
+    /**
+     * Only for {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#ACTION action}s.
+     */
+    @Programmatic
+    public ActionSemantics.Of getActionSemantics() {
+        return actionSemantics;
+    }
+
+    public void setActionSemantics(ActionSemantics.Of actionSemantics) {
+        this.actionSemantics = actionSemantics;
+    }
+    //endregion
 
     //region > packages: Contents
     private SortedSet<ApplicationFeatureId> contents = Sets.newTreeSet();
 
+    @Programmatic
     public SortedSet<ApplicationFeatureId> getContents() {
         ApplicationFeatureType.ensurePackage(this.getFeatureId());
         return contents;
     }
 
-    void addToContents(ApplicationFeatureId contentId) {
+    @Programmatic
+    public void addToContents(ApplicationFeatureId contentId) {
         ApplicationFeatureType.ensurePackage(this.getFeatureId());
         ApplicationFeatureType.ensurePackageOrClass(contentId);
         this.contents.add(contentId);
     }
     //endregion
 
-
     //region > classes: Properties, Collections, Actions
     private SortedSet<ApplicationFeatureId> properties = Sets.newTreeSet();
 
+    @Programmatic
     public SortedSet<ApplicationFeatureId> getProperties() {
         ApplicationFeatureType.ensureClass(this.getFeatureId());
         return properties;
@@ -100,6 +124,7 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
 
 
     private SortedSet<ApplicationFeatureId> collections = Sets.newTreeSet();
+    @Programmatic
     public SortedSet<ApplicationFeatureId> getCollections() {
         ApplicationFeatureType.ensureClass(this.getFeatureId());
         return collections;
@@ -108,18 +133,21 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
 
     private SortedSet<ApplicationFeatureId> actions = Sets.newTreeSet();
 
+    @Programmatic
     public SortedSet<ApplicationFeatureId> getActions() {
         ApplicationFeatureType.ensureClass(this.getFeatureId());
         return actions;
     }
 
-    void addToMembers(ApplicationFeatureId memberId, ApplicationMemberType memberType) {
+    @Programmatic
+    public void addToMembers(ApplicationFeatureId memberId, ApplicationMemberType memberType) {
         ApplicationFeatureType.ensureClass(this.getFeatureId());
         ApplicationFeatureType.ensureMember(memberId);
 
         membersOf(memberType).add(memberId);
     }
 
+    @Programmatic
     public SortedSet<ApplicationFeatureId> membersOf(ApplicationMemberType memberType) {
         ApplicationFeatureType.ensureClass(this.getFeatureId());
         switch (memberType) {

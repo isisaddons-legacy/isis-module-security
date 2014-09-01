@@ -1,7 +1,9 @@
 package org.isisaddons.module.security.dom.permission;
 
+import org.isisaddons.module.security.app.feature.ApplicationFeatureViewModel;
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureViewModel;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.junit.Assert;
@@ -21,6 +23,9 @@ public class ApplicationPermissionTest {
     @Mock
     DomainObjectContainer mockContainer;
 
+    @Mock
+    ApplicationFeatures mockApplicationFeatures;
+
     ApplicationPermission applicationPermission;
 
     @Before
@@ -34,22 +39,24 @@ public class ApplicationPermissionTest {
         public void happyCase() throws Exception {
             // given
             final ApplicationFeatureId applicationFeatureId = ApplicationFeatureId.newPackage("org.company");
-            final String applicationFeatureEncodedString = applicationFeatureId.asEncodedString();
             applicationPermission.setFeatureType(applicationFeatureId.getType());
             applicationPermission.setFeatureFqn(applicationFeatureId.getFullyQualifiedName());
+            applicationPermission.applicationFeatures = mockApplicationFeatures;
+
+            final ApplicationFeature applicationFeature = new ApplicationFeature();
 
             // then
             final ApplicationFeatureViewModel applicationFeatureViewModel = new ApplicationFeatureViewModel();
             context.checking(new Expectations() {{
-                oneOf(mockContainer).newViewModelInstance(ApplicationFeatureViewModel.class, applicationFeatureEncodedString);
-                will(returnValue(applicationFeatureViewModel));
+                oneOf(mockApplicationFeatures).findFeature(applicationFeatureId);
+                will(returnValue(applicationFeature));
             }});
 
             // when
-            final ApplicationFeatureViewModel feature = applicationPermission.getFeature();
+            final ApplicationFeature feature = applicationPermission.getFeature();
 
             // then
-            Assert.assertThat(feature, is(equalTo(applicationFeatureViewModel)));
+            Assert.assertThat(feature, is(equalTo(applicationFeature)));
         }
         @Test
         public void whenNull() throws Exception {
@@ -63,7 +70,7 @@ public class ApplicationPermissionTest {
             }});
 
             // when
-            final ApplicationFeatureViewModel feature = applicationPermission.getFeature();
+            final ApplicationFeature feature = applicationPermission.getFeature();
 
             // then
             Assert.assertThat(feature, is(nullValue()));

@@ -26,6 +26,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.SelfDescribing;
 import org.hamcrest.TypeSafeMatcher;
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
@@ -68,25 +69,22 @@ public class ApplicationFeaturesIntegTest extends SecurityModuleAppIntegTest {
             assertThat(packages.size(), greaterThan(0));
 
             assertThat(packages, transformedBy(ApplicationFeature.Functions.GET_ID, containsAtLeast(
-                    ApplicationFeatureId.newPackage("org"),
+                    ApplicationFeatureId.newPackage("org")
+                    ,
                     ApplicationFeatureId.newPackage("org.apache"),
                     ApplicationFeatureId.newPackage("org.apache.isis"),
                     ApplicationFeatureId.newPackage("org.apache.isis.applib"),
                     ApplicationFeatureId.newPackage("org.isisaddons"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module.security"),
+                    ApplicationFeatureId.newPackage("org.isisaddons.module.security.app.feature"),
+                    ApplicationFeatureId.newPackage("org.isisaddons.module.security.app.user"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom"),
-                    ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.feature"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.role"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.tenancy"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.user"),
                     ApplicationFeatureId.newPackage("org.isisaddons.module.security.fixture.dom")
             )));
-
-//            for (ApplicationFeature pkg : packages) {
-//                System.out.println(pkg.toString());
-//            }
-//            System.out.flush();
         }
 
     }
@@ -145,7 +143,14 @@ public class ApplicationFeaturesIntegTest extends SecurityModuleAppIntegTest {
 
             @Override
             public void describeTo(Description description) {
-                description.appendText("transformed by ").appendDescriptionOf(underlying);
+                description.appendText("transformed by ");
+                if(function instanceof SelfDescribing) {
+                    SelfDescribing selfDescribingFunction = (SelfDescribing) function;
+                    description.appendDescriptionOf(selfDescribingFunction);
+                } else {
+                    description.appendText("function ");
+                }
+                description.appendDescriptionOf(underlying);
             }
         };
     }

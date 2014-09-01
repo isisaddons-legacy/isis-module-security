@@ -1,6 +1,8 @@
-package org.isisaddons.module.security.dom.feature;
+package org.isisaddons.module.security.app.feature;
 
 import java.util.List;
+import org.hamcrest.CoreMatchers;
+import org.isisaddons.module.security.dom.feature.*;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.junit.Rule;
@@ -34,7 +36,7 @@ public class ApplicationFeatureViewModelTest {
             final ApplicationFeatureViewModel applicationFeatureVM2 = new ApplicationFeatureViewModel();
             applicationFeatureVM2.viewModelInit(str);
 
-            assertThat(applicationFeatureVM2.getType(), is(ApplicationFeatureType.PACKAGE));
+            assertThat(applicationFeatureVM2.getType(), CoreMatchers.is(ApplicationFeatureType.PACKAGE));
             assertThat(applicationFeatureVM2.getPackageName(), is("com.mycompany"));
             assertThat(applicationFeatureVM2.getClassName(), is(nullValue()));
             assertThat(applicationFeatureVM2.getMemberName(), is(nullValue()));

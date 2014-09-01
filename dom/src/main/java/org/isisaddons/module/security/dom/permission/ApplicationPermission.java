@@ -24,8 +24,8 @@ import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
-import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.feature.*;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.util.ObjectContracts;
@@ -251,21 +251,19 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     }
     //endregion
 
-    //region > feature (derived property)
+    //region > featureId (derived property)
 
-    ApplicationFeatureId getFeatureId() {
-        return ApplicationFeatureId.newFeature(getFeatureType(), getFeatureFqn());
-    }
-
-    @javax.jdo.annotations.NotPersistent
-    @Disabled
-    @Hidden(where=Where.REFERENCES_PARENT)
-    @MemberOrder(name="Feature", sequence = "4")
-    public ApplicationFeatureViewModel getFeature() {
+    private ApplicationFeatureId getFeatureId() {
         if(getFeatureType() == null) {
             return null;
         }
-        return ApplicationFeatureViewModel.newViewModel(getFeatureId(), container);
+        return ApplicationFeatureId.newFeature(getFeatureType(), getFeatureFqn());
+    }
+    ApplicationFeature getFeature() {
+        if(getFeatureId() == null) {
+            return null;
+        }
+        return applicationFeatures.findFeature(getFeatureId());
     }
 
     //endregion

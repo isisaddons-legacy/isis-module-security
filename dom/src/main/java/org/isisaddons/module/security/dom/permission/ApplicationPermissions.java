@@ -71,7 +71,7 @@ public class ApplicationPermissions {
     //region > findByUserAndPermissionValue (programmatic)
     /**
      * Uses the {@link org.apache.isis.applib.services.queryresultscache.QueryResultsCache} in order to support
-     * multiple lookups from {@link org.isisaddons.module.security.dom.user.UserPermissionViewModel}.
+     * multiple lookups from <code>org.isisaddons.module.security.app.user.UserPermissionViewModel</code>.
      */
     @Programmatic
     public ApplicationPermission findByUserAndPermissionValue(final String username, ApplicationPermissionValue permissionValue) {

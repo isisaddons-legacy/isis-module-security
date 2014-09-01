@@ -17,7 +17,6 @@
  */
 package org.isisaddons.module.security.dom.user;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -26,17 +25,13 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
-import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.util.ObjectContracts;
 
@@ -407,25 +402,13 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
     //endregion
 
-    //region > features (derived collection)
 
-    @MemberOrder(sequence = "30")
-    @Render(Render.Type.EAGERLY)
-    @Disabled
-    @Paged(50)
-    public List<UserPermissionViewModel> getPermissions() {
-        final Collection<ApplicationFeature> allMembers = applicationFeatures.allMembers();
-        return Lists.newArrayList(
-                Iterables.transform(
-                        allMembers,
-                        UserPermissionViewModel.Functions.asViewModel(this, container))
-        );
-
-    }
+    //region > PermissionSet (programmatic)
 
     // short-term caching
     private transient ApplicationPermissionValueSet cachedPermissionSet;
-    ApplicationPermissionValueSet getPermissionSet() {
+    @Programmatic
+    public ApplicationPermissionValueSet getPermissionSet() {
         if(cachedPermissionSet != null) {
             return cachedPermissionSet;
         }
@@ -465,10 +448,6 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @javax.inject.Inject
     ApplicationRoles applicationRoles;
     @javax.inject.Inject
-    DomainObjectContainer container;
-    @javax.inject.Inject
     ApplicationPermissions applicationPermissions;
-    @javax.inject.Inject
-    ApplicationFeatures applicationFeatures;
     //endregion
 }
