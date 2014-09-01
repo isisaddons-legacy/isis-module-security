@@ -26,6 +26,7 @@ import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import org.isisaddons.module.security.app.SeedSecurityModuleService;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
@@ -366,6 +367,10 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         return this;
     }
     public String disableDisable() {
+        final String adminUser = SeedSecurityModuleService.AdminUserFixtureScript.USER_NAME;
+        if(this.getName().equals(adminUser)) {
+            return "Cannot disable the '" + adminUser + "' user.";
+        }
         return getStatus() == ApplicationUserStatus.DISABLED ? "Status is already set to DISABLE": null;
     }
     //endregion

@@ -49,7 +49,7 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
         return role;
     }
 
-    @MemberOrder(sequence = "20.2")
+    @MemberOrder(sequence = "20.3")
     @ActionSemantics(Of.SAFE)
     public List<ApplicationRole> allRoles() {
         return allInstances(ApplicationRole.class);

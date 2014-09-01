@@ -17,6 +17,7 @@ import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUserStatus;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.core.runtime.system.context.IsisContext;
 import org.apache.isis.core.runtime.system.internal.InitialisationSession;
@@ -50,10 +51,10 @@ public class IsisAddonsSecurityAuthorizingRealm extends AuthorizingRealm {
         String username = ((UsernamePasswordToken) token).getUsername();
         final Object credentials = token.getCredentials();
         final UsernameAndRolesAndPermissions userPermissions = lookupUserPerms(username);
-//        if (userPermissions.isDisabled()) {
-//            throw new DisabledAccountException();
-//        }
-        if(userPermissions == null) {
+        if (userPermissions.isDisabled()) {
+            throw new DisabledAccountException();
+        }
+        if (userPermissions == null) {
             throw new UnknownAccountException("Invalid user/password");
         }
         return new AuthenticationInfo() {
@@ -72,6 +73,9 @@ public class IsisAddonsSecurityAuthorizingRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         final UsernameAndRolesAndPermissions urp = principals.oneByType(UsernameAndRolesAndPermissions.class);
+        if (urp == null) {
+            return null;
+        }
         return new AuthorizationInfo() {
             @Override
             public Collection<String> getRoles() {
@@ -92,9 +96,7 @@ public class IsisAddonsSecurityAuthorizingRealm extends AuthorizingRealm {
                             return false;
                         }
                         final PermissionForMember pfm = (PermissionForMember) p;
-                        final ApplicationFeatureId memberId = pfm.featureId;
-                        final ApplicationPermissionMode mode = pfm.mode;
-                        return urp.permissionSet.grants(memberId, mode);
+                        return urp.permissionSet.grants(pfm.featureId, pfm.mode);
                     }
                 };
                 return Collections.singleton(o);
@@ -118,31 +120,33 @@ public class IsisAddonsSecurityAuthorizingRealm extends AuthorizingRealm {
      *     creating an adapter object for the appropriate Shiro API.
      * </p>
      */
-    static class UsernameAndRolesAndPermissions {
+    static class UsernameAndRolesAndPermissions  {
 
         public static UsernameAndRolesAndPermissions from(ApplicationUser applicationUser) {
             if(applicationUser == null) {
                 return null;
             }
-            final String username = applicationUser.getUsername();
             final Set<String> roles = setOf(Lists.newArrayList(Iterables.transform(applicationUser.getRoles(), ApplicationRole.Functions.GET_NAME)));
             final ApplicationPermissionValueSet permissionSet = applicationUser.getPermissionSet();
-            return new UsernameAndRolesAndPermissions(username, roles, permissionSet);
+            return new UsernameAndRolesAndPermissions(roles, applicationUser.getStatus(), permissionSet);
         }
 
-        private final String username;
         private final Set<String> roles;
+        private final ApplicationUserStatus status;
         private final ApplicationPermissionValueSet permissionSet;
 
-        public UsernameAndRolesAndPermissions(
-                final String username,
+        UsernameAndRolesAndPermissions(
                 final Set<String> roles,
+                final ApplicationUserStatus status,
                 final ApplicationPermissionValueSet applicationPermissionValueSet) {
             this.permissionSet = applicationPermissionValueSet;
             this.roles = roles;
-            this.username = username;
+            this.status = status;
         }
 
+        public boolean isDisabled() {
+            return status == ApplicationUserStatus.DISABLED;
+        }
     }
 
 

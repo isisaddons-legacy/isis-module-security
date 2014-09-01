@@ -60,10 +60,12 @@ public class SeedSecurityModuleService {
         @Override
         protected void execute(ExecutionContext executionContext) {
             execute(new AdminRoleAndPermissions(), executionContext);
-            execute(new AdminUserFixtureScript(), executionContext);
 
+            execute(new FixtureRoleAndPermissions(), executionContext);
             execute(new MeServiceRoleAndPermissions(), executionContext);
             execute(new ApplibFixtureResultsRoleAndPermissions(), executionContext);
+
+            execute(new AdminUserFixtureScript(), executionContext);
         }
     }
 
@@ -113,10 +115,21 @@ public class SeedSecurityModuleService {
     public static class AdminRoleAndPermissions extends RoleAndPermissionsFixtureScriptAbstract {
 
         public static final String ROLE_NAME = "isis-security-module-admin";
-        public static final String PACKAGE_FQN = "org.isisaddons.module.security";
+        public static final String PACKAGE_APP_FQN = "org.isisaddons.module.security.app";
+        public static final String PACKAGE_DOM_FQN = "org.isisaddons.module.security.dom";
 
         public AdminRoleAndPermissions() {
-            super(ROLE_NAME, "Administer security", Arrays.asList(PACKAGE_FQN));
+            super(ROLE_NAME, "Administer security", Arrays.asList(PACKAGE_APP_FQN, PACKAGE_DOM_FQN));
+        }
+    }
+
+    public static class FixtureRoleAndPermissions extends RoleAndPermissionsFixtureScriptAbstract {
+
+        public static final String ROLE_NAME = "isis-security-module-fixtures";
+        public static final String PACKAGE_FQN = "org.isisaddons.module.security.fixture";
+
+        public FixtureRoleAndPermissions() {
+            super(ROLE_NAME, "Security module fixtures", Arrays.asList(PACKAGE_FQN));
         }
     }
 
@@ -180,7 +193,7 @@ public class SeedSecurityModuleService {
         public static final String USER_NAME = "admin";
 
         public AdminUserFixtureScript() {
-            super(USER_NAME, Arrays.asList(AdminRoleAndPermissions.ROLE_NAME));
+            super(USER_NAME, Arrays.asList(AdminRoleAndPermissions.ROLE_NAME, FixtureRoleAndPermissions.ROLE_NAME));
         }
     }
 

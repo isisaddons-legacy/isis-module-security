@@ -22,7 +22,6 @@ package org.isisaddons.module.security.fixture.scripts;
 import org.isisaddons.module.security.app.SeedSecurityModuleService;
 import org.isisaddons.module.security.fixture.dom.ExampleEntities;
 import org.isisaddons.module.security.fixture.scripts.exampleEntities.AllEntitiesFixture;
-import org.isisaddons.module.security.fixture.scripts.permission.AdminRole_AllowChanging_All;
 import org.isisaddons.module.security.fixture.scripts.permission.GuestRole_AllowViewing_ExampleDomPackage;
 import org.isisaddons.module.security.fixture.scripts.permission.NoFixtureScriptsRole_VetoViewing_FixtureScriptsPackage;
 import org.isisaddons.module.security.fixture.scripts.permission.RegularRole_AllowChanging_ExampleDomPackage;
@@ -47,7 +46,6 @@ public class SecurityModuleAppSetUp extends DiscoverableFixtureScript {
         execute(new AllTenanciesFixture(), executionContext);
 
         // perms (role/features)
-        execute(new AdminRole_AllowChanging_All(), executionContext);
         execute(new GuestRole_AllowViewing_ExampleDomPackage(), executionContext);
         execute(new RegularRole_AllowChanging_ExampleDomPackage(), executionContext);
         execute(new NoFixtureScriptsRole_VetoViewing_FixtureScriptsPackage(), executionContext);
