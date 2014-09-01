@@ -211,7 +211,7 @@ public class UserPermissionViewModel implements ViewModel {
         if(getFeatureId() == null) {
             return null;
         }
-        return ApplicationFeatureViewModel.newViewModel(getFeatureId(), container);
+        return ApplicationFeatureViewModel.newViewModel(getFeatureId(), applicationFeatures, container);
     }
 
     private ApplicationFeatureId featureId;

@@ -136,7 +136,6 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //endregion
 
-
     //region > permissions (derived collection)
     @MemberOrder(sequence = "10")
     @ActionSemantics(ActionSemantics.Of.SAFE)
@@ -221,6 +220,54 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //endregion
 
+    //region > addAction (action)
+    /**
+     * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
+     * {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#ACTION action}
+     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
+     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
+     */
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @MemberOrder(name = "Permissions", sequence = "3")
+    public ApplicationRole addAction(
+            final @Named("Rule") ApplicationPermissionRule rule,
+            final @Named("Mode") ApplicationPermissionMode mode,
+            final @Named("Package") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_PKG_FQN) String packageFqn,
+            final @Named("Class") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_CLS_NAME) String className,
+            final @Named("Action") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME) String memberName) {
+        applicationPermissions.newPermission(this, rule, mode, packageFqn, className, memberName);
+        return this;
+    }
+
+    public ApplicationPermissionRule default0AddAction() {
+        return ApplicationPermissionRule.ALLOW;
+    }
+
+    public ApplicationPermissionMode default1AddAction() {
+        return ApplicationPermissionMode.CHANGING;
+    }
+
+    public List<String> choices2AddAction() {
+        return applicationFeatures.packageNamesContainingClasses(ApplicationMemberType.ACTION);
+    }
+
+    public List<String> choices3AddAction(
+            final ApplicationPermissionRule rule,
+            final ApplicationPermissionMode mode,
+            final String packageFqn) {
+        return applicationFeatures.classNamesContainedIn(packageFqn, ApplicationMemberType.ACTION);
+    }
+
+    public List<String> choices4AddAction(
+            final ApplicationPermissionRule rule,
+            final ApplicationPermissionMode mode,
+            final String packageFqn,
+            final String className) {
+        return applicationFeatures.memberNamesOf(packageFqn, className, ApplicationMemberType.ACTION);
+    }
+
+    //endregion
+
     //region > addProperty (action)
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
@@ -229,7 +276,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
-    @MemberOrder(name = "Permissions", sequence = "3")
+    @MemberOrder(name = "Permissions", sequence = "4")
     public ApplicationRole addProperty(
             final @Named("Rule") ApplicationPermissionRule rule,
             final @Named("Mode") ApplicationPermissionMode mode,
@@ -285,7 +332,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
-    @MemberOrder(name = "Permissions", sequence = "4")
+    @MemberOrder(name = "Permissions", sequence = "5")
     public ApplicationRole addCollection(
             final @Named("Rule") ApplicationPermissionRule rule,
             final @Named("Mode") ApplicationPermissionMode mode,
@@ -321,54 +368,6 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             final String packageFqn,
             final String className) {
         return applicationFeatures.memberNamesOf(packageFqn, className, ApplicationMemberType.COLLECTION);
-    }
-
-    //endregion
-
-    //region > addAction (action)
-    /**
-     * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#ACTION action}
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
-     */
-    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
-    @MemberOrder(name = "Permissions", sequence = "5")
-    public ApplicationRole addAction(
-            final @Named("Rule") ApplicationPermissionRule rule,
-            final @Named("Mode") ApplicationPermissionMode mode,
-            final @Named("Package") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_PKG_FQN) String packageFqn,
-            final @Named("Class") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_CLS_NAME) String className,
-            final @Named("Action") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME) String memberName) {
-        applicationPermissions.newPermission(this, rule, mode, packageFqn, className, memberName);
-        return this;
-    }
-
-    public ApplicationPermissionRule default0AddAction() {
-        return ApplicationPermissionRule.ALLOW;
-    }
-
-    public ApplicationPermissionMode default1AddAction() {
-        return ApplicationPermissionMode.CHANGING;
-    }
-
-    public List<String> choices2AddAction() {
-        return applicationFeatures.packageNamesContainingClasses(ApplicationMemberType.ACTION);
-    }
-
-    public List<String> choices3AddAction(
-            final ApplicationPermissionRule rule,
-            final ApplicationPermissionMode mode,
-            final String packageFqn) {
-        return applicationFeatures.classNamesContainedIn(packageFqn, ApplicationMemberType.ACTION);
-    }
-
-    public List<String> choices4AddAction(
-            final ApplicationPermissionRule rule,
-            final ApplicationPermissionMode mode,
-            final String packageFqn,
-            final String className) {
-        return applicationFeatures.memberNamesOf(packageFqn, className, ApplicationMemberType.ACTION);
     }
 
     //endregion
@@ -501,4 +500,5 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     @javax.inject.Inject
     ApplicationUsers applicationUsers;
     //endregion
+
 }

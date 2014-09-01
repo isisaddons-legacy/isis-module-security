@@ -39,7 +39,7 @@ public class ApplicationFeatureViewModelContributions {
             return null;
         }
         final ApplicationFeatureId featureId = getFeatureId(permission);
-        return ApplicationFeatureViewModel.newViewModel(featureId, container);
+        return ApplicationFeatureViewModel.newViewModel(featureId, applicationFeatures, container);
     }
 
     private static ApplicationFeatureId getFeatureId(ApplicationPermission permission) {

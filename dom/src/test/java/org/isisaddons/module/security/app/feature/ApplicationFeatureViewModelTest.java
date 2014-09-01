@@ -24,16 +24,14 @@ public class ApplicationFeatureViewModelTest {
     @Mock
     DomainObjectContainer mockContainer;
 
-    ApplicationFeatureViewModel applicationFeatureVM;
-
     public static class ViewModelRoundtrip extends ApplicationFeatureViewModelTest {
 
         @Test
         public void whenPackage() throws Exception {
-            applicationFeatureVM = new ApplicationFeatureViewModel(ApplicationFeatureId.newPackage("com.mycompany"));
+            ApplicationPackage applicationPackage = new ApplicationPackage(ApplicationFeatureId.newPackage("com.mycompany"));
 
-            final String str = applicationFeatureVM.viewModelMemento();
-            final ApplicationFeatureViewModel applicationFeatureVM2 = new ApplicationFeatureViewModel();
+            final String str = applicationPackage.viewModelMemento();
+            final ApplicationFeatureViewModel applicationFeatureVM2 = new ApplicationPackage();
             applicationFeatureVM2.viewModelInit(str);
 
             assertThat(applicationFeatureVM2.getType(), CoreMatchers.is(ApplicationFeatureType.PACKAGE));
@@ -44,10 +42,10 @@ public class ApplicationFeatureViewModelTest {
 
         @Test
         public void whenClass() throws Exception {
-            applicationFeatureVM = new ApplicationFeatureViewModel(ApplicationFeatureId.newClass("com.mycompany.Bar"));
+            ApplicationClass applicationClass = new ApplicationClass(ApplicationFeatureId.newClass("com.mycompany.Bar"));
 
-            final String str = applicationFeatureVM.viewModelMemento();
-            final ApplicationFeatureViewModel applicationFeatureVM2 = new ApplicationFeatureViewModel();
+            final String str = applicationClass.viewModelMemento();
+            final ApplicationFeatureViewModel applicationFeatureVM2 = new ApplicationClass();
             applicationFeatureVM2.viewModelInit(str);
 
             assertThat(applicationFeatureVM2.getType(), is(ApplicationFeatureType.CLASS));
@@ -58,10 +56,10 @@ public class ApplicationFeatureViewModelTest {
 
         @Test
         public void whenMember() throws Exception {
-            applicationFeatureVM = new ApplicationFeatureViewModel(ApplicationFeatureId.newMember("com.mycompany.Bar", "foo"));
+            ApplicationClassProperty applicationClassProperty = new ApplicationClassProperty(ApplicationFeatureId.newMember("com.mycompany.Bar", "foo"));
 
-            final String str = applicationFeatureVM.viewModelMemento();
-            final ApplicationFeatureViewModel applicationFeatureVM2 = new ApplicationFeatureViewModel();
+            final String str = applicationClassProperty.viewModelMemento();
+            final ApplicationFeatureViewModel applicationFeatureVM2 = new ApplicationClassProperty();
             applicationFeatureVM2.viewModelInit(str);
 
             assertThat(applicationFeatureVM2.getType(), is(ApplicationFeatureType.MEMBER));
@@ -86,7 +84,7 @@ public class ApplicationFeatureViewModelTest {
             applicationFeature.addToContents(packageFeatureId);
             applicationFeature.addToContents(classFeatureId);
 
-            applicationFeatureVM = new ApplicationFeatureViewModel(applicationFeatureId);
+            ApplicationPackage applicationFeatureVM = new ApplicationPackage(applicationFeatureId);
             applicationFeatureVM.applicationFeatures = mockApplicationFeatures;
             applicationFeatureVM.container = mockContainer;
 
@@ -96,10 +94,10 @@ public class ApplicationFeatureViewModelTest {
                 will(returnValue(applicationFeature));
 
                 oneOf(mockContainer).newViewModelInstance(ApplicationFeatureViewModel.class, packageFeatureId.asEncodedString());
-                will(returnValue(new ApplicationFeatureViewModel()));
+                will(returnValue(new ApplicationPackage()));
 
                 oneOf(mockContainer).newViewModelInstance(ApplicationFeatureViewModel.class, classFeatureId.asEncodedString());
-                will(returnValue(new ApplicationFeatureViewModel()));
+                will(returnValue(new ApplicationClass()));
             }});
 
             // when
@@ -126,24 +124,24 @@ public class ApplicationFeatureViewModelTest {
             applicationFeature.addToMembers(memberFeatureId, ApplicationMemberType.PROPERTY);
             applicationFeature.addToMembers(memberFeatureId2, ApplicationMemberType.PROPERTY);
 
-            applicationFeatureVM = new ApplicationFeatureViewModel(applicationFeatureId);
-            applicationFeatureVM.applicationFeatures = mockApplicationFeatures;
-            applicationFeatureVM.container = mockContainer;
+            ApplicationClass applicationClass = new ApplicationClass(applicationFeatureId);
+            applicationClass.applicationFeatures = mockApplicationFeatures;
+            applicationClass.container = mockContainer;
 
             // then
             context.checking(new Expectations() {{
                 allowing(mockApplicationFeatures).findFeature(applicationFeatureId);
                 will(returnValue(applicationFeature));
 
-                oneOf(mockContainer).newViewModelInstance(ApplicationFeatureViewModel.class, memberFeatureId.asEncodedString());
-                will(returnValue(new ApplicationFeatureViewModel()));
+                oneOf(mockContainer).newViewModelInstance(ApplicationClassProperty.class, memberFeatureId.asEncodedString());
+                will(returnValue(new ApplicationClassProperty(memberFeatureId)));
 
-                oneOf(mockContainer).newViewModelInstance(ApplicationFeatureViewModel.class, memberFeatureId2.asEncodedString());
-                will(returnValue(new ApplicationFeatureViewModel()));
+                oneOf(mockContainer).newViewModelInstance(ApplicationClassAction.class, memberFeatureId2.asEncodedString());
+                will(returnValue(new ApplicationClassAction(memberFeatureId2)));
             }});
 
             // when
-            final List<ApplicationFeatureViewModel> members = applicationFeatureVM.getProperties();
+            final List<ApplicationClassProperty> members = applicationClass.getProperties();
 
             // then
             assertThat(members.size(), is(2));

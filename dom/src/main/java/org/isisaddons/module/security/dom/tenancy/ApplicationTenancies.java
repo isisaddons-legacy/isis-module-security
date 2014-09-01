@@ -24,7 +24,7 @@ import org.apache.isis.applib.annotation.ActionSemantics.Of;
 import org.apache.isis.applib.query.QueryDefault;
 
 @Named("User Tenancies")
-@DomainService(menuOrder = "90.3", repositoryFor = ApplicationTenancy.class)
+@DomainService(menuOrder = "90.5", repositoryFor = ApplicationTenancy.class)
 public class ApplicationTenancies extends AbstractFactoryAndRepository {
 
     public String iconName() {

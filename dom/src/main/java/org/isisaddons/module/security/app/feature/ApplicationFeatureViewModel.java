@@ -39,12 +39,35 @@ import org.apache.isis.applib.util.ObjectContracts;
         right= {"Parent", "Detail"}
 )
 @Bookmarkable
-public class ApplicationFeatureViewModel implements ViewModel {
-
+public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     //region > constructors
-    public static ApplicationFeatureViewModel newViewModel(final ApplicationFeatureId featureId, final DomainObjectContainer container) {
-        return container.newViewModelInstance(ApplicationFeatureViewModel.class, featureId.asEncodedString());
+    public static ApplicationFeatureViewModel newViewModel(
+            final ApplicationFeatureId featureId,
+            final ApplicationFeatures applicationFeatures,
+            final DomainObjectContainer container) {
+        Class<? extends ApplicationFeatureViewModel> cls = viewModelClassFor(featureId, applicationFeatures);
+        return container.newViewModelInstance(cls, featureId.asEncodedString());
+    }
+
+    private static Class<? extends ApplicationFeatureViewModel> viewModelClassFor(ApplicationFeatureId featureId, ApplicationFeatures applicationFeatures) {
+        switch (featureId.getType()) {
+            case PACKAGE:
+                return ApplicationPackage.class;
+            case CLASS:
+                return ApplicationClass.class;
+            case MEMBER:
+            final ApplicationFeature feature = applicationFeatures.findFeature(featureId);
+                switch(feature.getMemberType()) {
+                    case PROPERTY:
+                        return ApplicationClassProperty.class;
+                    case COLLECTION:
+                        return ApplicationClassCollection.class;
+                    case ACTION:
+                        return ApplicationClassAction.class;
+                }
+        }
+        throw new IllegalArgumentException("could not determine feature type; featureId = " + featureId);
     }
 
     public ApplicationFeatureViewModel() {
@@ -109,71 +132,42 @@ public class ApplicationFeatureViewModel implements ViewModel {
     }
     //endregion
 
-    //region > type, packageName, className, memberName (properties)
-    @MemberOrder(name="Type", sequence = "2.1")
-    @Hidden(where=Where.OBJECT_FORMS)
+    //region > type (programmatic)
+    @Programmatic
     public ApplicationFeatureType getType() {
         return getFeatureId().getType();
     }
+    //endregion
 
+    //region > type, packageName, className, memberName (properties)
     @TypicalLength(60)
     @MemberOrder(name="Id", sequence = "2.2")
     public String getPackageName() {
         return getFeatureId().getPackageName();
     }
 
+    /**
+     * For packages, will be null. Is in this class (rather than subclasses) so is shown in
+     * {@link ApplicationPackage#getContents() package contents}.
+     */
     @MemberOrder(name="Id", sequence = "2.3")
     public String getClassName() {
         return getFeatureId().getClassName();
     }
     public boolean hideClassName() {
-        return getFeatureId().getType().hideClassName();
+        return getType().hideClassName();
     }
 
+    /**
+     * For packages and class names, will be null.
+     */
     @MemberOrder(name="Id", sequence = "2.4")
     public String getMemberName() {
         return getFeatureId().getMemberName();
     }
+
     public boolean hideMemberName() {
-        return getFeatureId().getType().hideMember();
-    }
-    //endregion
-
-    //region > memberType, maxLength, typicalLength, actionSemantics (properties)
-    @MemberOrder(name="Detail", sequence = "2.5")
-    @Hidden(where=Where.OBJECT_FORMS)
-    public ApplicationMemberType getMemberType() {
-        return getFeature().getMemberType();
-    }
-    public boolean hideMemberType() {
-        return getFeatureId().getType().hideMember();
-    }
-
-    @MemberOrder(name="Detail", sequence = "2.6")
-    @Hidden(where=Where.OBJECT_FORMS)
-    public Integer getMaxLength() {
-        return getFeature().getPropertyMaxLength();
-    }
-    public boolean hideMaxLength() {
-        return getFeatureId().getType().hideMember() || getMemberType() != ApplicationMemberType.PROPERTY;
-    }
-
-    @MemberOrder(name="Detail", sequence = "2.6")
-    @Hidden(where=Where.OBJECT_FORMS)
-    public Integer getTypicalLength() {
-        return getFeature().getPropertyTypicalLength();
-    }
-    public boolean hideTypicalLength() {
-        return getFeatureId().getType().hideMember() || getMemberType() != ApplicationMemberType.PROPERTY;
-    }
-
-    @MemberOrder(name="Detail", sequence = "2.8")
-    @Hidden(where=Where.OBJECT_FORMS)
-    public ActionSemantics.Of getActionSemantics() {
-        return getFeature().getActionSemantics();
-    }
-    public boolean hideActionSemantics() {
-        return getFeatureId().getType().hideMember() || getMemberType() != ApplicationMemberType.ACTION;
+        return getType().hideMember();
     }
     //endregion
 
@@ -190,9 +184,13 @@ public class ApplicationFeatureViewModel implements ViewModel {
             return null;
         }
         final ApplicationFeature feature = applicationFeatures.findFeature(parentId);
-        return feature != null
-                ? container.newViewModelInstance(ApplicationFeatureViewModel.class, parentId.asEncodedString())
-                : null;
+        if (feature != null) {
+            final Class<? extends ApplicationFeatureViewModel> cls = viewModelClassFor(parentId, applicationFeatures);
+            return container.newViewModelInstance(cls, parentId.asEncodedString());
+        }
+        else {
+            return null;
+        }
     }
     //endregion
 
@@ -205,18 +203,6 @@ public class ApplicationFeatureViewModel implements ViewModel {
     }
     //endregion
 
-    //region > contents (collection, for packages only)
-    @MemberOrder(sequence = "4")
-    @Render(Render.Type.EAGERLY)
-    public List<ApplicationFeatureViewModel> getContents() {
-        final SortedSet<ApplicationFeatureId> contents = getFeature().getContents();
-        return asViewModels(contents);
-    }
-    public boolean hideContents() {
-        return getType() != ApplicationFeatureType.PACKAGE;
-    }
-    //endregion
-
     //region > parentPackage (property, programmatic, for packages & classes only)
 
     /**
@@ -224,43 +210,7 @@ public class ApplicationFeatureViewModel implements ViewModel {
      */
     @Programmatic
     public ApplicationFeatureViewModel getParentPackage() {
-        return Functions.asViewModelForId(container).apply(getFeatureId().getParentPackageId());
-    }
-    //endregion
-
-    //region > properties (collection, for classes only)
-    @MemberOrder(sequence = "20.1")
-    @Render(Render.Type.EAGERLY)
-    public List<ApplicationFeatureViewModel> getProperties() {
-        final SortedSet<ApplicationFeatureId> members = getFeature().getProperties();
-        return asViewModels(members);
-    }
-    public boolean hideProperties() {
-        return getType() != ApplicationFeatureType.CLASS;
-    }
-    //endregion
-
-    //region > collections (collection, for classes only)
-    @MemberOrder(sequence = "20.2")
-    @Render(Render.Type.EAGERLY)
-    public List<ApplicationFeatureViewModel> getCollections() {
-        final SortedSet<ApplicationFeatureId> members = getFeature().getCollections();
-        return asViewModels(members);
-    }
-    public boolean hideCollections() {
-        return getType() != ApplicationFeatureType.CLASS;
-    }
-    //endregion
-
-    //region > actions (collection, for classes only)
-    @MemberOrder(sequence = "20.3")
-    @Render(Render.Type.EAGERLY)
-    public List<ApplicationFeatureViewModel> getActions() {
-        final SortedSet<ApplicationFeatureId> members = getFeature().getActions();
-        return asViewModels(members);
-    }
-    public boolean hideActions() {
-        return getType() != ApplicationFeatureType.CLASS;
+        return Functions.asViewModelForId(applicationFeatures, container).apply(getFeatureId().getParentPackageId());
     }
     //endregion
 
@@ -285,9 +235,10 @@ public class ApplicationFeatureViewModel implements ViewModel {
     //endregion
 
     //region > helpers
-    private List<ApplicationFeatureViewModel> asViewModels(SortedSet<ApplicationFeatureId> members) {
+    <T extends ApplicationFeatureViewModel> List<T> asViewModels(SortedSet<ApplicationFeatureId> members) {
+        final Function<ApplicationFeatureId, T> function = Functions.<T>asViewModelForId(applicationFeatures, container);
         return Lists.newArrayList(
-                Iterables.transform(members, Functions.asViewModelForId(container)));
+                Iterables.transform(members, function));
     }
     //endregion
 
@@ -295,19 +246,21 @@ public class ApplicationFeatureViewModel implements ViewModel {
 
     public static class Functions {
         private Functions(){}
-        public static Function<ApplicationFeatureId, ApplicationFeatureViewModel> asViewModelForId(final DomainObjectContainer container) {
-            return new Function<ApplicationFeatureId, ApplicationFeatureViewModel>(){
+        public static <T extends ApplicationFeatureViewModel> Function<ApplicationFeatureId, T> asViewModelForId(
+                final ApplicationFeatures applicationFeatures, final DomainObjectContainer container) {
+            return new Function<ApplicationFeatureId, T>(){
                 @Override
-                public ApplicationFeatureViewModel apply(ApplicationFeatureId input) {
-                    return ApplicationFeatureViewModel.newViewModel(input, container);
+                public T apply(ApplicationFeatureId input) {
+                    return (T)ApplicationFeatureViewModel.newViewModel(input, applicationFeatures, container);
                 }
             };
         }
-        public static Function<ApplicationFeature, ApplicationFeatureViewModel> asViewModel(final DomainObjectContainer container) {
-            return new Function<ApplicationFeature, ApplicationFeatureViewModel>(){
+        public static <T extends ApplicationFeatureViewModel> Function<ApplicationFeature, T> asViewModel(
+                final ApplicationFeatures applicationFeatures, final DomainObjectContainer container) {
+            return new Function<ApplicationFeature, T>(){
                 @Override
-                public ApplicationFeatureViewModel apply(ApplicationFeature input) {
-                    return ApplicationFeatureViewModel.newViewModel(input.getFeatureId(), container);
+                public T apply(ApplicationFeature input) {
+                    return (T) ApplicationFeatureViewModel.newViewModel(input.getFeatureId(), applicationFeatures, container);
                 }
             };
         }

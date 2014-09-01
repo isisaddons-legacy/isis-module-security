@@ -355,6 +355,21 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     public Collection<ApplicationFeature> allMembers() {
         return memberFeatures.values();
     }
+
+    @Programmatic
+    public Collection<ApplicationFeature> allProperties() {
+        return propertyFeatures.values();
+    }
+
+    @Programmatic
+    public Collection<ApplicationFeature> allCollections() {
+        return collectionFeatures.values();
+    }
+
+    @Programmatic
+    public Collection<ApplicationFeature> allActions() {
+        return actionFeatures.values();
+    }
     //endregion
 
     //region > packageNamesContainingClasses, classNamesContainedIn, memberNamesOf
