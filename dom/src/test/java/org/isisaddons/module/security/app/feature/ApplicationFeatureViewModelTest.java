@@ -93,10 +93,10 @@ public class ApplicationFeatureViewModelTest {
                 allowing(mockApplicationFeatures).findFeature(applicationFeatureId);
                 will(returnValue(applicationFeature));
 
-                oneOf(mockContainer).newViewModelInstance(ApplicationFeatureViewModel.class, packageFeatureId.asEncodedString());
+                oneOf(mockContainer).newViewModelInstance(ApplicationPackage.class, packageFeatureId.asEncodedString());
                 will(returnValue(new ApplicationPackage()));
 
-                oneOf(mockContainer).newViewModelInstance(ApplicationFeatureViewModel.class, classFeatureId.asEncodedString());
+                oneOf(mockContainer).newViewModelInstance(ApplicationClass.class, classFeatureId.asEncodedString());
                 will(returnValue(new ApplicationClass()));
             }});
 
@@ -115,36 +115,52 @@ public class ApplicationFeatureViewModelTest {
         public void givenClass_whenAddMember() throws Exception {
 
             // given
-            final ApplicationFeatureId applicationFeatureId = ApplicationFeatureId.newClass("com.mycompany.Bar");
-            final ApplicationFeatureId memberFeatureId = ApplicationFeatureId.newMember("com.mycompany.Bar", "foo");
-            final ApplicationFeatureId memberFeatureId2 = ApplicationFeatureId.newMember("com.mycompany.Bar", "boz");
+            final ApplicationFeatureId classId = ApplicationFeatureId.newClass("com.mycompany.Bar");
+            final ApplicationFeatureId propertyId = ApplicationFeatureId.newMember("com.mycompany.Bar", "foo");
+            final ApplicationFeatureId actionId = ApplicationFeatureId.newMember("com.mycompany.Bar", "boz");
 
-            final ApplicationFeature applicationFeature = new ApplicationFeature(applicationFeatureId);
+            final ApplicationFeature classFeature = new ApplicationFeature(classId);
+            final ApplicationFeature propertyFeature = new ApplicationFeature(propertyId);
+            propertyFeature.setMemberType(ApplicationMemberType.PROPERTY);
+            final ApplicationFeature actionFeature = new ApplicationFeature(actionId);
+            actionFeature.setMemberType(ApplicationMemberType.ACTION);
 
-            applicationFeature.addToMembers(memberFeatureId, ApplicationMemberType.PROPERTY);
-            applicationFeature.addToMembers(memberFeatureId2, ApplicationMemberType.PROPERTY);
+            classFeature.addToMembers(propertyId, ApplicationMemberType.PROPERTY);
+            classFeature.addToMembers(actionId, ApplicationMemberType.ACTION);
 
-            ApplicationClass applicationClass = new ApplicationClass(applicationFeatureId);
+            ApplicationClass applicationClass = new ApplicationClass(classId);
             applicationClass.applicationFeatures = mockApplicationFeatures;
             applicationClass.container = mockContainer;
 
             // then
             context.checking(new Expectations() {{
-                allowing(mockApplicationFeatures).findFeature(applicationFeatureId);
-                will(returnValue(applicationFeature));
+                allowing(mockApplicationFeatures).findFeature(classId);
+                will(returnValue(classFeature));
 
-                oneOf(mockContainer).newViewModelInstance(ApplicationClassProperty.class, memberFeatureId.asEncodedString());
-                will(returnValue(new ApplicationClassProperty(memberFeatureId)));
+                allowing(mockApplicationFeatures).findFeature(propertyId);
+                will(returnValue(propertyFeature));
 
-                oneOf(mockContainer).newViewModelInstance(ApplicationClassAction.class, memberFeatureId2.asEncodedString());
-                will(returnValue(new ApplicationClassAction(memberFeatureId2)));
+                allowing(mockApplicationFeatures).findFeature(actionId);
+                will(returnValue(actionFeature));
+
+                oneOf(mockContainer).newViewModelInstance(ApplicationClassProperty.class, propertyId.asEncodedString());
+                will(returnValue(new ApplicationClassProperty(propertyId)));
+
+                oneOf(mockContainer).newViewModelInstance(ApplicationClassAction.class, actionId.asEncodedString());
+                will(returnValue(new ApplicationClassAction(actionId)));
             }});
 
             // when
-            final List<ApplicationClassProperty> members = applicationClass.getProperties();
+            final List<ApplicationClassProperty> properties = applicationClass.getProperties();
 
             // then
-            assertThat(members.size(), is(2));
+            assertThat(properties.size(), is(1));
+
+            // when
+            final List<ApplicationClassAction> actions = applicationClass.getActions();
+
+            // then
+            assertThat(actions.size(), is(1));
         }
     }
 }
