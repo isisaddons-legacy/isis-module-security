@@ -268,7 +268,6 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     //endregion
 
-
     // region > type (derived, combined featureType and memberType)
 
     /**

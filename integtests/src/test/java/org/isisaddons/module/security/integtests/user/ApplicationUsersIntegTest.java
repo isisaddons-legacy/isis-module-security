@@ -59,7 +59,7 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
             assertThat(before.size(), is(0));
 
             // when
-            final ApplicationUser applicationUser = applicationUsers.newUser("fred");
+            final ApplicationUser applicationUser = applicationUsers.newUser("fred", null);
             assertThat(applicationUser.getUsername(), is("fred"));
 
             // then
@@ -74,10 +74,10 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
             expectedExceptions.expect(ThrowableMatchers.causalChainContains(JDODataStoreException.class));
 
             // given
-            applicationUsers.newUser("fred");
+            applicationUsers.newUser("fred", null);
 
             // when
-            applicationUsers.newUser("fred");
+            applicationUsers.newUser("fred", null);
         }
     }
 
@@ -87,8 +87,8 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
         public void happyCase() throws Exception {
 
             // given
-            applicationUsers.newUser("fred");
-            applicationUsers.newUser("mary");
+            applicationUsers.newUser("fred", null);
+            applicationUsers.newUser("mary", null);
 
             // when
             final ApplicationUser fred = applicationUsers.findUserByUsername("fred");
@@ -102,8 +102,8 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
         public void whenDoesntMatchWillAutoCreate() throws Exception {
 
             // given
-            applicationUsers.newUser("fred");
-            applicationUsers.newUser("mary");
+            applicationUsers.newUser("fred", null);
+            applicationUsers.newUser("mary", null);
 
             // when
             final ApplicationUser autoCreated = applicationUsers.findUserByUsername("bill");
@@ -121,9 +121,9 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
         public void happyCase() throws Exception {
 
             // given
-            applicationUsers.newUser("fred");
-            applicationUsers.newUser("mary");
-            applicationUsers.newUser("bill");
+            applicationUsers.newUser("fred", null);
+            applicationUsers.newUser("mary", null);
+            applicationUsers.newUser("bill", null);
 
             // when
             final List<ApplicationUser> after = applicationUsers.autoComplete("r");
@@ -139,8 +139,8 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
         public void happyCase() throws Exception {
 
             // given
-            applicationUsers.newUser("fred");
-            applicationUsers.newUser("mary");
+            applicationUsers.newUser("fred", null);
+            applicationUsers.newUser("mary", null);
 
             // when
             final List<ApplicationUser> after = applicationUsers.allUsers();

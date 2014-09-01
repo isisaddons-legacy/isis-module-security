@@ -33,6 +33,8 @@ language governing permissions and limitations under the License.
         <isis.version>1.6.0</isis.version>
         <isis-viewer-wicket.version>1.6.0</isis-viewer-wicket.version>
 
+        <jbcrypt.version>0.3m</jbcrypt.version>
+
         <!-- must be consistent with the versions defined by the JDO Objectstore -->
         <datanucleus-accessplatform-jdo-rdbms.version>3.3.6</datanucleus-accessplatform-jdo-rdbms.version>
         <datanucleus-maven-plugin.version>3.3.2</datanucleus-maven-plugin.version>
@@ -310,6 +312,11 @@ language governing permissions and limitations under the License.
                 <scope>import</scope>
             </dependency>
 
+            <dependency>
+                <groupId>org.mindrot</groupId>
+                <artifactId>jbcrypt</artifactId>
+                <version>${jbcrypt.version}</version>
+            </dependency>
 
             <!-- this project's own modules -->
             <dependency>

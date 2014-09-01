@@ -24,6 +24,7 @@ import java.util.TreeSet;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
+import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
@@ -463,6 +464,20 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
         return choices0RemoveUser().isEmpty()? "No users to remove": null;
     }
 
+    //endregion
+
+    //region > Functions
+
+    public static class Functions {
+        private Functions(){}
+
+        public static Function<ApplicationRole, String> GET_NAME = new Function<ApplicationRole, String>() {
+            @Override
+            public String apply(ApplicationRole input) {
+                return input.getName();
+            }
+        };
+    }
     //endregion
 
     //region > equals, hashCode, compareTo, toString

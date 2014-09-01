@@ -9,7 +9,7 @@ public abstract class AbstractUserFixture extends FixtureScript {
     protected ApplicationUser create(
             final String name,
             final ExecutionContext executionContext) {
-        final ApplicationUser entity = applicationUsers.newUser(name);
+        final ApplicationUser entity = applicationUsers.newUser(name, null);
         executionContext.add(this, name, entity);
         return entity;
     }

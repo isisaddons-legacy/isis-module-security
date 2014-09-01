@@ -30,6 +30,7 @@ import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUserStatus;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.Hidden;
@@ -112,10 +113,10 @@ public class SeedSecurityModuleService {
     public static class AdminRoleAndPermissions extends RoleAndPermissionsFixtureScriptAbstract {
 
         public static final String ROLE_NAME = "isis-security-module-admin";
-        private static final String SECURITY_MODULE_PACKAGE = "org.isisaddons.module.security";
+        public static final String PACKAGE_FQN = "org.isisaddons.module.security";
 
         public AdminRoleAndPermissions() {
-            super(ROLE_NAME, "Administer security", Arrays.asList(SECURITY_MODULE_PACKAGE));
+            super(ROLE_NAME, "Administer security", Arrays.asList(PACKAGE_FQN));
         }
     }
 
@@ -155,7 +156,8 @@ public class SeedSecurityModuleService {
             // create user if does not exist, and assign to the role
             ApplicationUser adminUser = applicationUsers.findUserByUsernameNoAutocreate(username);
             if(adminUser == null) {
-                adminUser = applicationUsers.newUser(username);
+                adminUser = applicationUsers.newUser(username, null);
+                adminUser.setStatus(ApplicationUserStatus.ENABLED);
 
                 for (String roleName : roleNames) {
                     ApplicationRole securityAdminRole = applicationRoles.findRoleByName(roleName);

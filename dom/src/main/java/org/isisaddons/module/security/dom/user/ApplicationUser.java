@@ -70,7 +70,7 @@ import org.apache.isis.applib.util.ObjectContracts;
 @MemberGroupLayout(columnSpans = {4,4,4,12},
     left = {"Id", "Name"},
     middle= {"Contact Details"},
-    right= {"Tenancy"}
+    right= {"Tenancy", "Status"}
 )
 public class ApplicationUser implements Comparable<ApplicationUser> {
 
@@ -333,6 +333,44 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         return getTenancy();
     }
     //endregion
+
+    //region > status (property), visible (action), usable (action)
+
+    private ApplicationUserStatus status;
+
+    @javax.jdo.annotations.Column(allowsNull="false")
+    @Disabled
+    @MemberOrder(name="Status", sequence = "3")
+    public ApplicationUserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ApplicationUserStatus status) {
+        this.status = status;
+    }
+
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @MemberOrder(name = "Status", sequence = "1")
+    public ApplicationUser enable() {
+        setStatus(ApplicationUserStatus.ENABLED);
+        return this;
+    }
+    public String disableEnable() {
+        return getStatus() == ApplicationUserStatus.ENABLED ? "Status is already set to ENABLE": null;
+    }
+
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @MemberOrder(name = "Status", sequence = "2")
+    public ApplicationUser disable() {
+        setStatus(ApplicationUserStatus.DISABLED);
+        return this;
+    }
+    public String disableDisable() {
+        return getStatus() == ApplicationUserStatus.DISABLED ? "Status is already set to DISABLE": null;
+    }
+    //endregion
+
+
 
     //region > roles (collection)
     @javax.jdo.annotations.Persistent(table="IsisSecurityApplicationUserRoles")

@@ -50,12 +50,10 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
     }
 
     @MemberOrder(sequence = "20.2")
-    @Prototype
     @ActionSemantics(Of.SAFE)
     public List<ApplicationRole> allRoles() {
         return allInstances(ApplicationRole.class);
     }
-
 
     @Programmatic // not part of metamodel
     public List<ApplicationRole> autoComplete(final String name) {

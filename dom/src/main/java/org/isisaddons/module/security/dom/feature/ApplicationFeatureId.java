@@ -383,8 +383,10 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
 
     @Override
     public boolean equals(Object o) {
-        // not using because trying to be efficient.  Premature optimization?
+
+        // not using our ObjectContracts helper because trying to be efficient.  Premature optimization?
         // return ObjectContracts.equals(this, obj, propertyNames);
+
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 

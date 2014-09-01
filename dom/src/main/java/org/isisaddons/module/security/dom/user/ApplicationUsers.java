@@ -55,7 +55,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
                 if (applicationUser != null) {
                     return applicationUser;
                 }
-                return newUser(username);
+                return newUser(username, null);
             }
         }, ApplicationUsers.class, "findUserByUsername", username );
     }
@@ -85,15 +85,16 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     @MemberOrder(sequence = "10.4")
     @ActionSemantics(Of.NON_IDEMPOTENT)
     public ApplicationUser newUser(
-            final @Named("Name") String username) {
+            final @Named("Name") String username,
+            final @Named("Enabled?") @Optional Boolean enabled) {
         ApplicationUser user = newTransientInstance(ApplicationUser.class);
         user.setUsername(username);
+        user.setStatus(ApplicationUserStatus.parse(enabled));
         persist(user);
         return user;
     }
 
     @MemberOrder(sequence = "10.9")
-    @Prototype
     @ActionSemantics(Of.SAFE)
     public List<ApplicationUser> allUsers() {
         return allInstances(ApplicationUser.class);

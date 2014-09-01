@@ -256,6 +256,12 @@ language governing permissions and limitations under the License.
           </exclusions>
         </dependency>
 
+        <!-- include on classpath of your webapp if using the PasswordEncryptionServiceUsingJBcrypt -->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+        </dependency>
+
     </dependencies>
 
     <profiles>

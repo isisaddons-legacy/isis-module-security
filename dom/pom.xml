@@ -59,6 +59,8 @@ language governing permissions and limitations under the License.
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <shiro-core.version>1.2.3</shiro-core.version>
+        <jbcrypt.version>0.3m</jbcrypt.version>
     </properties>
 
     <build>
@@ -226,9 +228,8 @@ language governing permissions and limitations under the License.
         </dependency>
         <dependency>
             <groupId>org.apache.isis.core</groupId>
-            <artifactId>isis-core-metamodel</artifactId>
+            <artifactId>isis-core-runtime</artifactId>
             <version>${isis.version}</version>
-            <!-- only to avoid polluting the classpath; is required to run -->
             <optional>true</optional>
         </dependency>
         <dependency>
@@ -236,6 +237,22 @@ language governing permissions and limitations under the License.
              <artifactId>isis-core-unittestsupport</artifactId>
             <version>${isis.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>${shiro-core.version}</version>
+            <!-- only to avoid polluting the classpath; is required to run -->
+            <optional>true</optional>
+        </dependency>
+
+        <!-- include on classpath of your webapp if using the PasswordEncryptionServiceUsingJBcrypt -->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>${jbcrypt.version}</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
