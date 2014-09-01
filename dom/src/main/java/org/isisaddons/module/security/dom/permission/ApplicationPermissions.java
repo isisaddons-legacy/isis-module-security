@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014 Jeroen van der Wal
+ *  Copyright 2014 Dan Haywood
  *
  *
  *  Licensed under the Apache License, Version 2.0 (the
@@ -133,7 +133,7 @@ public class ApplicationPermissions {
     //region > newPermission (programmatic)
 
     @Programmatic
-    public void newPermission(
+    public ApplicationPermission newPermission(
             final ApplicationRole role,
             final ApplicationPermissionRule rule,
             final ApplicationPermissionMode mode,
@@ -143,8 +143,18 @@ public class ApplicationPermissions {
         final ApplicationFeature feature = applicationFeatures.findFeature(featureId);
         if(feature == null) {
             container.warnUser("No such " + featureType.name().toLowerCase() + ": " + featureFqn);
-            return;
+            return null;
         }
+        return newPermissionNoCheck(role, rule, mode, featureType, featureFqn);
+    }
+
+    @Programmatic
+    public ApplicationPermission newPermissionNoCheck(
+            final ApplicationRole role,
+            final ApplicationPermissionRule rule,
+            final ApplicationPermissionMode mode,
+            final ApplicationFeatureType featureType,
+            final String featureFqn) {
         final ApplicationPermission permission = container.newTransientInstance(ApplicationPermission.class);
         permission.setRole(role);
         permission.setRule(rule);
@@ -152,6 +162,7 @@ public class ApplicationPermissions {
         permission.setFeatureType(featureType);
         permission.setFeatureFqn(featureFqn);
         container.persistIfNotAlready(permission);
+        return permission;
     }
 
     @Programmatic

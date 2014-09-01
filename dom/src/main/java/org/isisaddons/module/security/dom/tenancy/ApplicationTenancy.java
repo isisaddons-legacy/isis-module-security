@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014 Jeroen van der Wal
+ *  Copyright 2014 Dan Haywood
  *
  *
  *  Licensed under the Apache License, Version 2.0 (the

@@ -14,6 +14,10 @@ import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.core.metamodel.facets.all.hide.HiddenFacet;
 import org.apache.isis.core.metamodel.facets.members.hidden.HiddenFacetNever;
+import org.apache.isis.core.metamodel.facets.objpropparam.typicallen.TypicalLengthFacet;
+import org.apache.isis.core.metamodel.facets.properties.typicallen.annotation.TypicalLengthFacetOnPropertyAnnotation;
+import org.apache.isis.core.metamodel.facets.properties.validating.maxlenannot.MaxLengthFacetOnPropertyAnnotation;
+import org.apache.isis.core.metamodel.facets.propparam.maxlen.MaxLengthFacet;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjector;
 import org.apache.isis.core.metamodel.spec.ObjectSpecification;
 import org.apache.isis.core.metamodel.spec.feature.*;
@@ -91,6 +95,12 @@ public class ApplicationFeaturesTest {
 
                 allowing(mockProp).getId();
                 will(returnValue("someProperty"));
+
+                allowing(mockProp).getFacet(MaxLengthFacet.class);
+                will(returnValue(new MaxLengthFacetOnPropertyAnnotation(30, mockProp)));
+
+                allowing(mockProp).getFacet(TypicalLengthFacet.class);
+                will(returnValue(new TypicalLengthFacetOnPropertyAnnotation(15, mockProp)));
 
                 allowing(mockProp).isAlwaysHidden();
                 will(returnValue(false));

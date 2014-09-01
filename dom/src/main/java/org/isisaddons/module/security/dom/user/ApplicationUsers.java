@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014 Jeroen van der Wal
+ *  Copyright 2014 Dan Haywood
  *
  *
  *  Licensed under the Apache License, Version 2.0 (the
@@ -30,9 +30,11 @@ import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 @DomainService(menuOrder = "90.1", repositoryFor = ApplicationUser.class)
 public class ApplicationUsers extends AbstractFactoryAndRepository {
 
+    //region > identification
     public String iconName() {
         return "applicationUser";
     }
+    //endregion
 
     /**
      * Uses the {@link org.apache.isis.applib.services.queryresultscache.QueryResultsCache} in order to support
@@ -49,15 +51,25 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
         return queryResultsCache.execute(new Callable<ApplicationUser>() {
             @Override
             public ApplicationUser call() throws Exception {
-                ApplicationUser applicationUser = uniqueMatch(new QueryDefault<>(
-                        ApplicationUser.class,
-                        "findByUsername", "username", username));
-                if(applicationUser == null) {
-                    applicationUser = newUser(username);
+                ApplicationUser applicationUser = findUserByUsernameNoAutocreate(username);
+                if (applicationUser != null) {
+                    return applicationUser;
                 }
-                return applicationUser;
+                return newUser(username);
             }
         }, ApplicationUsers.class, "findUserByUsername", username );
+    }
+
+    /**
+     * Uses the {@link org.apache.isis.applib.services.queryresultscache.QueryResultsCache} in order to support
+     * multiple lookups from <code>org.isisaddons.module.security.app.user.UserPermissionViewModel</code>.
+     */
+    @Programmatic
+    public ApplicationUser findUserByUsernameNoAutocreate(
+            final @Named("Username") String username) {
+        return uniqueMatch(new QueryDefault<>(
+                ApplicationUser.class,
+                "findByUsername", "username", username));
     }
 
     @MemberOrder(sequence = "10.3")

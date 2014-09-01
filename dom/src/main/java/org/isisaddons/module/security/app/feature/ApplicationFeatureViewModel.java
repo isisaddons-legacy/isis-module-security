@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014 Jeroen van der Wal
+ *  Copyright 2014 Dan Haywood
  *
  *
  *  Licensed under the Apache License, Version 2.0 (the
@@ -36,7 +36,7 @@ import org.apache.isis.applib.util.ObjectContracts;
 @MemberGroupLayout(
         columnSpans = {6,0,6,12},
         left = {"Id"},
-        right= {"Parent"}
+        right= {"Parent", "Detail"}
 )
 @Bookmarkable
 public class ApplicationFeatureViewModel implements ViewModel {
@@ -109,7 +109,7 @@ public class ApplicationFeatureViewModel implements ViewModel {
     }
     //endregion
 
-    //region > type, packageName, className, memberName, actionSemantics (properties)
+    //region > type, packageName, className, memberName (properties)
     @MemberOrder(name="Type", sequence = "2.1")
     @Hidden(where=Where.OBJECT_FORMS)
     public ApplicationFeatureType getType() {
@@ -137,8 +137,10 @@ public class ApplicationFeatureViewModel implements ViewModel {
     public boolean hideMemberName() {
         return getFeatureId().getType().hideMember();
     }
+    //endregion
 
-    @MemberOrder(name="Type", sequence = "2.5")
+    //region > memberType, maxLength, typicalLength, actionSemantics (properties)
+    @MemberOrder(name="Detail", sequence = "2.5")
     @Hidden(where=Where.OBJECT_FORMS)
     public ApplicationMemberType getMemberType() {
         return getFeature().getMemberType();
@@ -147,7 +149,25 @@ public class ApplicationFeatureViewModel implements ViewModel {
         return getFeatureId().getType().hideMember();
     }
 
-    @MemberOrder(name="Type", sequence = "2.6")
+    @MemberOrder(name="Detail", sequence = "2.6")
+    @Hidden(where=Where.OBJECT_FORMS)
+    public Integer getMaxLength() {
+        return getFeature().getPropertyMaxLength();
+    }
+    public boolean hideMaxLength() {
+        return getFeatureId().getType().hideMember() || getMemberType() != ApplicationMemberType.PROPERTY;
+    }
+
+    @MemberOrder(name="Detail", sequence = "2.6")
+    @Hidden(where=Where.OBJECT_FORMS)
+    public Integer getTypicalLength() {
+        return getFeature().getPropertyTypicalLength();
+    }
+    public boolean hideTypicalLength() {
+        return getFeatureId().getType().hideMember() || getMemberType() != ApplicationMemberType.PROPERTY;
+    }
+
+    @MemberOrder(name="Detail", sequence = "2.8")
     @Hidden(where=Where.OBJECT_FORMS)
     public ActionSemantics.Of getActionSemantics() {
         return getFeature().getActionSemantics();

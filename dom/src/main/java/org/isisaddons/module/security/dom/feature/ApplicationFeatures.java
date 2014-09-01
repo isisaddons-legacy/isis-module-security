@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014 Jeroen van der Wal
+ *  Copyright 2014 Dan Haywood
  *
  *
  *  Licensed under the Apache License, Version 2.0 (the
@@ -26,7 +26,11 @@ import com.google.common.collect.Maps;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
+import org.apache.isis.core.metamodel.facetapi.FacetHolder;
+import org.apache.isis.core.metamodel.facets.SingleIntValueFacet;
 import org.apache.isis.core.metamodel.facets.all.hide.HiddenFacet;
+import org.apache.isis.core.metamodel.facets.objpropparam.typicallen.TypicalLengthFacet;
+import org.apache.isis.core.metamodel.facets.propparam.maxlen.MaxLengthFacet;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjector;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjectorAware;
 import org.apache.isis.core.metamodel.spec.ObjectSpecification;
@@ -102,7 +106,9 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         // add members
         boolean addedMembers = false;
         for (ObjectAssociation property : properties) {
-            addedMembers = newProperty(classFeatureId, property) || addedMembers;
+            final Integer maxLength = valueOf(property, MaxLengthFacet.class);
+            final Integer typicalLength = valueOf(property, TypicalLengthFacet.class);
+            addedMembers = newProperty(classFeatureId, property, maxLength, typicalLength) || addedMembers;
         }
         for (ObjectAssociation collection : collections) {
             addedMembers = newCollection(classFeatureId, collection) || addedMembers;
@@ -123,6 +129,12 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         }
 
     }
+
+    private static Integer valueOf(FacetHolder facetHolder, Class<? extends SingleIntValueFacet> cls) {
+        final SingleIntValueFacet facet = facetHolder.getFacet(cls);
+        return facet != null ? facet.value() : null;
+    }
+
 
     ApplicationFeatureId addClassParent(ApplicationFeatureId classFeatureId) {
         final ApplicationFeatureId parentPackageId = classFeatureId.getParentPackageId();
@@ -162,34 +174,36 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         return parentPackage;
     }
 
-    private boolean newProperty(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember) {
-        return newMember(classFeatureId, objectMember, ApplicationMemberType.PROPERTY, null);
+    private boolean newProperty(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember, Integer maxLength, Integer typicalLength) {
+        return newMember(classFeatureId, objectMember, ApplicationMemberType.PROPERTY, null, maxLength, typicalLength);
     }
 
     private boolean newCollection(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember) {
-        return newMember(classFeatureId, objectMember, ApplicationMemberType.COLLECTION, null);
+        return newMember(classFeatureId, objectMember, ApplicationMemberType.COLLECTION, null, null, null);
     }
 
     private boolean newAction(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember, ActionSemantics.Of actionSemantics) {
-        return newMember(classFeatureId, objectMember, ApplicationMemberType.ACTION, actionSemantics);
+        return newMember(classFeatureId, objectMember, ApplicationMemberType.ACTION, actionSemantics, null, null);
     }
 
-    private boolean newMember(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember, ApplicationMemberType memberType, ActionSemantics.Of actionSemantics) {
+    private boolean newMember(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember, ApplicationMemberType memberType, ActionSemantics.Of actionSemantics, Integer maxLength, Integer typicalLength) {
         if(objectMember.isAlwaysHidden()) {
             return false;
         }
-        newMember(classFeatureId, objectMember.getId(), memberType, actionSemantics);
+        newMember(classFeatureId, objectMember.getId(), memberType, maxLength, typicalLength, actionSemantics);
         return true;
     }
 
-    private void newMember(ApplicationFeatureId classFeatureId, String memberId, ApplicationMemberType memberType, ActionSemantics.Of actionSemantics) {
+    private void newMember(ApplicationFeatureId classFeatureId, String memberId, ApplicationMemberType memberType, Integer maxLength, Integer typicalLength, ActionSemantics.Of actionSemantics) {
         final ApplicationFeatureId featureId = ApplicationFeatureId.newMember(classFeatureId.getFullyQualifiedName(), memberId);
 
         final ApplicationFeature memberFeature = newFeature(featureId);
         memberFeature.setMemberType(memberType);
-        if(actionSemantics != null) {
-            memberFeature.setActionSemantics(actionSemantics);
-        }
+
+        memberFeature.setPropertyMaxLength(maxLength);
+        memberFeature.setPropertyTypicalLength(typicalLength);
+        memberFeature.setActionSemantics(actionSemantics);
+
         memberFeatures.put(featureId, memberFeature);
 
         // also cache per memberType

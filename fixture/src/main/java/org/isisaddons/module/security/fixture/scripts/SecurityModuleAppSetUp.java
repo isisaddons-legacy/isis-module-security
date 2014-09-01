@@ -19,6 +19,7 @@
 
 package org.isisaddons.module.security.fixture.scripts;
 
+import org.isisaddons.module.security.app.SeedSecurityModuleService;
 import org.isisaddons.module.security.fixture.dom.ExampleEntities;
 import org.isisaddons.module.security.fixture.scripts.exampleEntities.AllEntitiesFixture;
 import org.isisaddons.module.security.fixture.scripts.permission.AdminRole_AllowChanging_All;
@@ -37,6 +38,7 @@ public class SecurityModuleAppSetUp extends DiscoverableFixtureScript {
     protected void execute(ExecutionContext executionContext) {
 
         execute(new SecurityModuleAppTearDown(), executionContext);
+        execute(new SeedSecurityModuleService.AdminRoleAndPermissions(), executionContext);
 
         execute(new AllEntitiesFixture(), executionContext);
 

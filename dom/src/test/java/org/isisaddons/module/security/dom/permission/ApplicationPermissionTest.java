@@ -46,7 +46,6 @@ public class ApplicationPermissionTest {
             final ApplicationFeature applicationFeature = new ApplicationFeature();
 
             // then
-            final ApplicationFeatureViewModel applicationFeatureViewModel = new ApplicationFeatureViewModel();
             context.checking(new Expectations() {{
                 oneOf(mockApplicationFeatures).findFeature(applicationFeatureId);
                 will(returnValue(applicationFeature));

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2014 Jeroen van der Wal
+ *  Copyright 2014 Dan Haywood
  *
  *
  *  Licensed under the Apache License, Version 2.0 (the
@@ -80,7 +80,39 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
     }
     //endregion
 
-    //region > actionSemantics
+    //region > propertyMaxLength (properties only)
+    private Integer propertyMaxLength;
+
+    /**
+     * Only for {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#ACTION action}s.
+     */
+    @Programmatic
+    public Integer getPropertyMaxLength() {
+        return propertyMaxLength;
+    }
+
+    public void setPropertyMaxLength(Integer propertyMaxLength) {
+        this.propertyMaxLength = propertyMaxLength;
+    }
+    //endregion
+
+    //region > propertyTypicalLength (properties only)
+    private Integer propertyTypicalLength;
+
+    /**
+     * Only for {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#ACTION action}s.
+     */
+    @Programmatic
+    public Integer getPropertyTypicalLength() {
+        return propertyTypicalLength;
+    }
+
+    public void setPropertyTypicalLength(Integer propertyTypicalLength) {
+        this.propertyTypicalLength = propertyTypicalLength;
+    }
+    //endregion
+
+    //region > actionSemantics (actions only)
     private ActionSemantics.Of actionSemantics;
 
     /**
