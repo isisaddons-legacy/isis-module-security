@@ -62,10 +62,14 @@ import org.apache.isis.applib.util.ObjectContracts;
 @Bookmarkable
 public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
+    public static final int MAX_LENGTH_NAME = 40;
+    public static final int TYPICAL_LENGTH_NAME = 20;
+
     //region > name (property, title)
     private String name;
 
-    @javax.jdo.annotations.Column(allowsNull="false")
+    @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_NAME)
+    @TypicalLength(TYPICAL_LENGTH_NAME)
     @Title
     @Disabled
     @MemberOrder(sequence = "1")
@@ -76,9 +80,11 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     public void setName(String name) {
         this.name = name;
     }
+
     @MemberOrder(name="name", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
-    public ApplicationTenancy updateName(final String name) {
+    public ApplicationTenancy updateName(
+            final @Named("Name") @TypicalLength(TYPICAL_LENGTH_NAME) @MaxLength(MAX_LENGTH_NAME) String name) {
         setName(name);
         return this;
     }

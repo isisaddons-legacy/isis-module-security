@@ -25,12 +25,14 @@ import org.apache.isis.applib.annotation.Title;
 )
 public class ExampleEntity {
 
+    public static final int MAX_LENGTH_NAME = 30;
+    public static final int MAX_LENGTH_DESCRIPTION = 254;
 
     //region > name
 
     private String name;
 
-    @javax.jdo.annotations.Column(allowsNull="false")
+    @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_NAME)
     @Title(sequence="1")
     @MemberOrder(sequence="1")
     public String getName() {
@@ -46,7 +48,7 @@ public class ExampleEntity {
 
     private String description;
 
-    @javax.jdo.annotations.Column(allowsNull="true")
+    @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_DESCRIPTION)
     @MemberOrder(sequence="2")
     public String getDescription() {
         return description;

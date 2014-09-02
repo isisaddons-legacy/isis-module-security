@@ -29,7 +29,10 @@ import org.apache.isis.applib.fixturescripts.FixtureScript;
 import org.apache.isis.core.metamodel.facetapi.FacetHolder;
 import org.apache.isis.core.metamodel.facets.SingleIntValueFacet;
 import org.apache.isis.core.metamodel.facets.all.hide.HiddenFacet;
+import org.apache.isis.core.metamodel.facets.collections.modify.CollectionAddToFacet;
+import org.apache.isis.core.metamodel.facets.collections.modify.CollectionRemoveFromFacet;
 import org.apache.isis.core.metamodel.facets.objpropparam.typicallen.TypicalLengthFacet;
+import org.apache.isis.core.metamodel.facets.properties.update.modify.PropertySetterFacet;
 import org.apache.isis.core.metamodel.facets.propparam.maxlen.MaxLengthFacet;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjector;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjectorAware;
@@ -40,6 +43,7 @@ import org.apache.isis.core.metamodel.spec.feature.Contributed;
 import org.apache.isis.core.metamodel.spec.feature.ObjectAction;
 import org.apache.isis.core.metamodel.spec.feature.ObjectAssociation;
 import org.apache.isis.core.metamodel.spec.feature.ObjectMember;
+import org.apache.isis.core.metamodel.specloader.specimpl.ContributeeMember;
 
 @DomainService(repositoryFor = ApplicationFeature.class)
 public class ApplicationFeatures implements SpecificationLoaderSpiAware, ServicesInjectorAware {
@@ -106,15 +110,24 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         // add members
         boolean addedMembers = false;
         for (ObjectAssociation property : properties) {
-            final Integer maxLength = valueOf(property, MaxLengthFacet.class);
-            final Integer typicalLength = valueOf(property, TypicalLengthFacet.class);
-            addedMembers = newProperty(classFeatureId, property, maxLength, typicalLength) || addedMembers;
+            final Class<?> returnType = correspondingClassFor(property.getSpecification());
+            final Integer maxLength = returnType == String.class? valueOf(property, MaxLengthFacet.class): null;
+            final Integer typicalLength = returnType == String.class? valueOf(property, TypicalLengthFacet.class): null;
+            final boolean derived = !property.containsDoOpFacet(PropertySetterFacet.class);
+            final boolean contributed = property instanceof ContributeeMember;
+            addedMembers = newProperty(classFeatureId, property, returnType, contributed, maxLength, typicalLength, derived) || addedMembers;
         }
         for (ObjectAssociation collection : collections) {
-            addedMembers = newCollection(classFeatureId, collection) || addedMembers;
+            final boolean derived = !(collection.containsDoOpFacet(CollectionAddToFacet.class) || collection.containsDoOpFacet(CollectionRemoveFromFacet.class));
+            final Class<?> elementType = correspondingClassFor(collection.getSpecification());
+            final boolean contributed = collection instanceof ContributeeMember;
+            addedMembers = newCollection(classFeatureId, collection, elementType, contributed, derived) || addedMembers;
         }
-        for (ObjectAction act : actions) {
-            addedMembers = newAction(classFeatureId, act, act.getSemantics()) || addedMembers;
+        for (ObjectAction action : actions) {
+            final Class<?> returnType = correspondingClassFor(action.getReturnType());
+            final ActionSemantics.Of actionSemantics = action.getSemantics();
+            final boolean contributed = action instanceof ContributeeMember;
+            addedMembers = newAction(classFeatureId, action, returnType, contributed, actionSemantics) || addedMembers;
         }
 
         if(!addedMembers) {
@@ -130,13 +143,19 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
 
     }
 
-    private static Integer valueOf(FacetHolder facetHolder, Class<? extends SingleIntValueFacet> cls) {
+    private static Class<?> correspondingClassFor(final ObjectSpecification objectSpec) {
+        return objectSpec != null? objectSpec.getCorrespondingClass(): null;
+    }
+
+    private static Integer valueOf(
+            final FacetHolder facetHolder,
+            final Class<? extends SingleIntValueFacet> cls) {
         final SingleIntValueFacet facet = facetHolder.getFacet(cls);
         return facet != null ? facet.value() : null;
     }
 
 
-    ApplicationFeatureId addClassParent(ApplicationFeatureId classFeatureId) {
+    ApplicationFeatureId addClassParent(final ApplicationFeatureId classFeatureId) {
         final ApplicationFeatureId parentPackageId = classFeatureId.getParentPackageId();
 
         ApplicationFeature parentPackage = findPackageElseCreate(parentPackageId);
@@ -174,32 +193,67 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         return parentPackage;
     }
 
-    private boolean newProperty(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember, Integer maxLength, Integer typicalLength) {
-        return newMember(classFeatureId, objectMember, ApplicationMemberType.PROPERTY, null, maxLength, typicalLength);
+    private boolean newProperty(
+            final ApplicationFeatureId classFeatureId,
+            final ObjectMember objectMember,
+            final Class<?> returnType,
+            final boolean contributed,
+            final Integer maxLength, final Integer typicalLength,
+            final boolean derived) {
+        return newMember(classFeatureId, objectMember, ApplicationMemberType.PROPERTY, returnType, contributed, derived, maxLength, typicalLength, null);
     }
 
-    private boolean newCollection(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember) {
-        return newMember(classFeatureId, objectMember, ApplicationMemberType.COLLECTION, null, null, null);
+    private boolean newCollection(
+            final ApplicationFeatureId classFeatureId,
+            final ObjectMember objectMember,
+            final Class<?> returnType,
+            final boolean contributed,
+            final boolean derived) {
+        return newMember(classFeatureId, objectMember, ApplicationMemberType.COLLECTION, returnType, contributed, derived, null, null, null);
     }
 
-    private boolean newAction(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember, ActionSemantics.Of actionSemantics) {
-        return newMember(classFeatureId, objectMember, ApplicationMemberType.ACTION, actionSemantics, null, null);
+    private boolean newAction(
+            final ApplicationFeatureId classFeatureId,
+            final ObjectMember objectMember,
+            final Class<?> returnType,
+            final boolean contributed,
+            final ActionSemantics.Of actionSemantics) {
+        return newMember(classFeatureId, objectMember, ApplicationMemberType.ACTION, returnType, contributed, null, null, null, actionSemantics);
     }
 
-    private boolean newMember(final ApplicationFeatureId classFeatureId, final ObjectMember objectMember, ApplicationMemberType memberType, ActionSemantics.Of actionSemantics, Integer maxLength, Integer typicalLength) {
+    private boolean newMember(
+            final ApplicationFeatureId classFeatureId,
+            final ObjectMember objectMember,
+            final ApplicationMemberType memberType,
+            final Class<?> returnType,
+            final boolean contributed,
+            final Boolean derived,
+            final Integer maxLength, final Integer typicalLength,
+            final ActionSemantics.Of actionSemantics) {
         if(objectMember.isAlwaysHidden()) {
             return false;
         }
-        newMember(classFeatureId, objectMember.getId(), memberType, maxLength, typicalLength, actionSemantics);
+        newMember(classFeatureId, objectMember.getId(), memberType, returnType, contributed, derived, maxLength, typicalLength, actionSemantics);
         return true;
     }
 
-    private void newMember(ApplicationFeatureId classFeatureId, String memberId, ApplicationMemberType memberType, Integer maxLength, Integer typicalLength, ActionSemantics.Of actionSemantics) {
+    private void newMember(
+            final ApplicationFeatureId classFeatureId,
+            final String memberId,
+            final ApplicationMemberType memberType,
+            final Class<?> returnType,
+            final boolean contributed,
+            final Boolean derived,
+            final Integer maxLength, final Integer typicalLength,
+            final ActionSemantics.Of actionSemantics) {
         final ApplicationFeatureId featureId = ApplicationFeatureId.newMember(classFeatureId.getFullyQualifiedName(), memberId);
 
         final ApplicationFeature memberFeature = newFeature(featureId);
         memberFeature.setMemberType(memberType);
 
+        memberFeature.setReturnTypeName(returnType != null? returnType.getSimpleName(): null);
+        memberFeature.setContributed(contributed);
+        memberFeature.setDerived(derived);
         memberFeature.setPropertyMaxLength(maxLength);
         memberFeature.setPropertyTypicalLength(typicalLength);
         memberFeature.setActionSemantics(actionSemantics);

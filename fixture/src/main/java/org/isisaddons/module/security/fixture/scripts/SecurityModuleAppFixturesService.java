@@ -20,10 +20,7 @@ package org.isisaddons.module.security.fixture.scripts;
 
 import java.util.List;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
-import org.apache.isis.applib.annotation.DomainService;
-import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.Named;
-import org.apache.isis.applib.annotation.Prototype;
+import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.fixturescripts.FixtureResult;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 import org.apache.isis.applib.fixturescripts.FixtureScripts;
@@ -57,6 +54,7 @@ public class SecurityModuleAppFixturesService extends FixtureScripts {
     // //////////////////////////////////////
 
 
+    @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @Prototype
     @MemberOrder(sequence="20")
     public Object installFixturesAndReturnFirstRole() {

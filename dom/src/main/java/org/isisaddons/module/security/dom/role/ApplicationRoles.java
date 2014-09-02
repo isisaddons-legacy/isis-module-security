@@ -34,17 +34,19 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
 
     @MemberOrder(sequence = "20.1")
     @ActionSemantics(Of.SAFE)
-    public ApplicationRole findRoleByName(final String name) {
-        return uniqueMatch(new QueryDefault<ApplicationRole>(ApplicationRole.class, "findByName", "name", name));
+    public ApplicationRole findRoleByName(
+            final @Named("Name") @TypicalLength(ApplicationRole.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationRole.MAX_LENGTH_NAME) String name) {
+        return uniqueMatch(new QueryDefault<>(ApplicationRole.class, "findByName", "name", name));
     }
 
     @MemberOrder(sequence = "20.2")
     @ActionSemantics(Of.NON_IDEMPOTENT)
     public ApplicationRole newRole(
-            final @Named("Name") String name,
-            final @Named("Description") @Optional @TypicalLength(50) @MaxLength(JdoColumnLength.DESCRIPTION) String description) {
+            final @Named("Name") @TypicalLength(ApplicationRole.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationRole.MAX_LENGTH_NAME) String name,
+            final @Named("Description") @Optional @TypicalLength(ApplicationRole.TYPICAL_LENGTH_DESCRIPTION) @MaxLength(JdoColumnLength.DESCRIPTION) String description) {
         ApplicationRole role = newTransientInstance(ApplicationRole.class);
         role.setName(name);
+        role.setDescription(description);
         persist(role);
         return role;
     }
@@ -53,14 +55,6 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
     @ActionSemantics(Of.SAFE)
     public List<ApplicationRole> allRoles() {
         return allInstances(ApplicationRole.class);
-    }
-
-    @Programmatic // not part of metamodel
-    public List<ApplicationRole> autoComplete(final String name) {
-        return allMatches(
-                new QueryDefault<ApplicationRole>(ApplicationRole.class,
-                        "findByNameContaining",
-                        "name", name));
     }
 
 }

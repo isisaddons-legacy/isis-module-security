@@ -34,14 +34,14 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     @MemberOrder(sequence = "90.1")
     @ActionSemantics(Of.SAFE)
     public ApplicationTenancy findTenancyByName(
-            final @Named("Name") String name) {
+            final @Named("Name") @TypicalLength(ApplicationTenancy.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME) String name) {
         return uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByName", "name", name));
     }
 
     @MemberOrder(sequence = "90.2")
     @ActionSemantics(Of.NON_IDEMPOTENT)
     public ApplicationTenancy newTenancy(
-            final @Named("Name") String name) {
+            final @Named("Name") @TypicalLength(ApplicationTenancy.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME) String name) {
         ApplicationTenancy tenancy = newTransientInstance(ApplicationTenancy.class);
         tenancy.setName(name);
         persist(tenancy);

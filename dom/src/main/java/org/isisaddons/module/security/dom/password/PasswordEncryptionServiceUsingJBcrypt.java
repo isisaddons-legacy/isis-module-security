@@ -15,11 +15,17 @@ public class PasswordEncryptionServiceUsingJBcrypt implements PasswordEncryption
 
     @Programmatic
     public String encrypt(String password) {
-        return BCrypt.hashpw(password, salt);
+        return password == null? null: BCrypt.hashpw(password, salt);
     }
 
     @Programmatic
     public boolean matches(String candidate, String encrypted) {
+        if(candidate == null && encrypted == null) {
+            return true;
+        }
+        if(candidate == null || encrypted == null) {
+            return false;
+        }
         return BCrypt.checkpw(candidate, encrypted);
     }
 }

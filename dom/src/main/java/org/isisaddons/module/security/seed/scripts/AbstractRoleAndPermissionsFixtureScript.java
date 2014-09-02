@@ -1,0 +1,134 @@
+package org.isisaddons.module.security.seed.scripts;
+
+import java.util.Arrays;
+import javax.inject.Inject;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.role.ApplicationRoles;
+import org.apache.isis.applib.fixturescripts.FixtureScript;
+
+public abstract class AbstractRoleAndPermissionsFixtureScript extends FixtureScript {
+
+    private final String roleName;
+    private final String roleDescription;
+
+    AbstractRoleAndPermissionsFixtureScript(
+            final String roleName,
+            final String roleDescriptionIfAny) {
+        this.roleName = roleName;
+        this.roleDescription = roleDescriptionIfAny;
+    }
+
+    /**
+     * Subclasses should override and call any of
+     * {@link #newPackagePermissions(org.isisaddons.module.security.dom.permission.ApplicationPermissionRule, org.isisaddons.module.security.dom.permission.ApplicationPermissionMode, String...)},
+     * {@link #newClassPermissions(org.isisaddons.module.security.dom.permission.ApplicationPermissionRule, org.isisaddons.module.security.dom.permission.ApplicationPermissionMode, Class[])} or
+     * {@link #newMemberPermissions(org.isisaddons.module.security.dom.permission.ApplicationPermissionRule, org.isisaddons.module.security.dom.permission.ApplicationPermissionMode, Class, String...)}.
+     */
+    @Override
+    protected abstract void execute(ExecutionContext executionContext);
+
+    //region > newPackagePermissions, newClassPermissions, newMemberPermissions
+
+    /**
+     * For subclasses to call in {@link #execute(org.apache.isis.applib.fixturescripts.FixtureScript.ExecutionContext)}.
+     */
+    protected void newPackagePermissions(
+            final ApplicationPermissionRule rule,
+            final ApplicationPermissionMode mode,
+            final String... featureFqns) {
+
+        newPermissions(rule, mode, ApplicationFeatureType.PACKAGE, Arrays.asList(featureFqns));
+    }
+
+    /**
+     * For subclasses to call in {@link #execute(org.apache.isis.applib.fixturescripts.FixtureScript.ExecutionContext)}.
+     */
+    protected void newClassPermissions(
+            final ApplicationPermissionRule rule,
+            final ApplicationPermissionMode mode,
+            final Class... classes) {
+
+        newPermissions(rule, mode, ApplicationFeatureType.CLASS, asFeatureFqns(classes));
+    }
+
+
+    /**
+     * For subclasses to call in {@link #execute(org.apache.isis.applib.fixturescripts.FixtureScript.ExecutionContext)}.
+     */
+    protected void newMemberPermissions(
+            final ApplicationPermissionRule rule,
+            final ApplicationPermissionMode mode,
+            final Class cls,
+            final String... members) {
+        newPermissions(rule, mode, ApplicationFeatureType.MEMBER, asFeatureFqns(cls, members));
+    }
+
+    //endregion
+
+
+    //region > helpers
+
+    private void newPermissions(
+            final ApplicationPermissionRule rule,
+            final ApplicationPermissionMode mode,
+            final ApplicationFeatureType featureType,
+            final Iterable<String> featureFqns) {
+
+        if(featureFqns == null) {
+            return;
+        }
+
+        ApplicationRole securityAdminRole = applicationRoles.findRoleByName(roleName);
+        if(securityAdminRole == null) {
+            securityAdminRole = applicationRoles.newRole(roleName, roleDescription);
+        }
+        for (String featureFqn : featureFqns) {
+            // can't use role#addPackage because that does a check for existence of the package, which is
+            // not guaranteed to exist yet (the SecurityFeatures#init() may not have run).
+            applicationPermissions.newPermissionNoCheck(
+                    securityAdminRole,
+                    rule,
+                    mode,
+                    featureType, featureFqn);
+        }
+    }
+
+    private static Iterable<String> asFeatureFqns(Class<?>[] classes) {
+        return Iterables.transform(Arrays.asList(classes), new Function<Class<?>, String>(){
+            @Override
+            public String apply(Class<?> input) {
+                return input.getName();
+            }
+        });
+    }
+
+    private static Iterable<String> asFeatureFqns(final Class cls, final String[] members) {
+        return Iterables.transform(Arrays.asList(members), new Function<String,String>(){
+            @Override
+            public String apply(String memberName) {
+                final StringBuilder buf = new StringBuilder(cls.getName());
+                if(!memberName.startsWith("#")) {
+                    buf.append("#");
+                }
+                buf.append(memberName);
+                return buf.toString();
+            }
+        });
+    }
+
+
+    //endregion
+
+    //region  >  (injected)
+    @Inject
+    ApplicationRoles applicationRoles;
+    @Inject
+    ApplicationPermissions applicationPermissions;
+    //endregion
+}

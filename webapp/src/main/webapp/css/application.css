@@ -71,6 +71,20 @@ div.x-key span.scalarName {
 }
 
 
+
+/*
+patches
+*/
+.isisPasswordPanel input[type=password] {
+    border-radius:4px;
+    -moz-border-radius:4px;
+    -webkit-border-radius:4px;
+    padding:6px;
+    border:1px solid #F0EFEA;
+    border-top:1px solid #CCCBC7;
+}
+
+
 /*
  * customisations
  */

@@ -18,9 +18,7 @@
 package org.isisaddons.module.security.app.feature;
 
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.apache.isis.applib.annotation.Hidden;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.Where;
 
 public class ApplicationClassProperty extends ApplicationClassMember {
 
@@ -33,16 +31,31 @@ public class ApplicationClassProperty extends ApplicationClassMember {
     }
     //endregion
 
+    //region > returnType
+
+    @MemberOrder(name="Detail", sequence = "2.6")
+    public String getReturnType() {
+        return getFeature().getReturnTypeName();
+    }
+    //endregion
+
+    //region > derived
+
+    @MemberOrder(name="Detail", sequence = "2.7")
+    public boolean isDerived() {
+        return getFeature().isDerived();
+    }
+    //endregion
+
 
     //region > maxLength, typicalLength (properties)
-    @MemberOrder(name="Detail", sequence = "2.6")
-    @Hidden(where= Where.OBJECT_FORMS)
+    @MemberOrder(name="Detail", sequence = "2.8")
     public Integer getMaxLength() {
         return getFeature().getPropertyMaxLength();
     }
 
-    @MemberOrder(name="Detail", sequence = "2.6")
-    @Hidden(where=Where.OBJECT_FORMS)
+
+    @MemberOrder(name="Detail", sequence = "2.9")
     public Integer getTypicalLength() {
         return getFeature().getPropertyTypicalLength();
     }

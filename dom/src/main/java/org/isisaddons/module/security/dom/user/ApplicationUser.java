@@ -18,23 +18,27 @@
 package org.isisaddons.module.security.dom.user;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.isisaddons.module.security.app.SeedSecurityModuleService;
+import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminUser;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.util.ObjectContracts;
+import org.apache.isis.applib.value.Password;
 
 @javax.jdo.annotations.PersistenceCapable(
         identityType = IdentityType.DATASTORE, table = "IsisSecurityApplicationUser")
@@ -71,9 +75,16 @@ import org.apache.isis.applib.util.ObjectContracts;
 @MemberGroupLayout(columnSpans = {4,4,4,12},
     left = {"Id", "Name"},
     middle= {"Contact Details"},
-    right= {"Tenancy", "Status"}
+    right= {"Status", "Tenancy"}
 )
 public class ApplicationUser implements Comparable<ApplicationUser> {
+
+    public static final int MAX_LENGTH_USERNAME = 30;
+    public static final int MAX_LENGTH_FAMILY_NAME = 50;
+    public static final int MAX_LENGTH_GIVEN_NAME = 50;
+    public static final int MAX_LENGTH_KNOWN_AS = 20;
+    public static final int MAX_LENGTH_EMAIL_ADDRESS = 50;
+    public static final int MAX_LENGTH_PHONE_NUMBER = 25;
 
     //region > identification
 
@@ -113,7 +124,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //region > username (property)
     private String username;
 
-    @javax.jdo.annotations.Column(allowsNull="false")
+    @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_USERNAME)
     @Hidden(where=Where.PARENTED_TABLES)
     @Disabled
     @MemberOrder(name="Id", sequence = "1")
@@ -128,7 +139,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @MemberOrder(name="username", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updateUsername(
-            final @Named("Username") String username) {
+            final @Named("Username") @MaxLength(MAX_LENGTH_USERNAME) String username) {
         setUsername(username);
         return this;
     }
@@ -141,7 +152,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //region > familyName (property)
     private String familyName;
 
-    @javax.jdo.annotations.Column(allowsNull="true")
+    @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_FAMILY_NAME)
     @Hidden(where=Where.ALL_TABLES)
     @Disabled
     @MemberOrder(name="Name",sequence = "2.1")
@@ -157,7 +168,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //region > givenName (property)
     private String givenName;
 
-    @javax.jdo.annotations.Column(allowsNull="true")
+    @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_GIVEN_NAME)
     @Hidden(where=Where.ALL_TABLES)
     @Disabled
     @MemberOrder(name="Name", sequence = "2.2")
@@ -173,7 +184,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //region > knownAs (property)
     private String knownAs;
 
-    @javax.jdo.annotations.Column(allowsNull="true")
+    @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_KNOWN_AS)
     @Hidden(where=Where.ALL_TABLES)
     @Disabled
     @MemberOrder(name="Name",sequence = "2.3")
@@ -191,9 +202,9 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @MemberOrder(name="knownAs", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updateName(
-            final @Named("Family Name") @Optional String familyName,
-            final @Named("Given Name") @Optional String givenName,
-            final @Named("Known As") @Optional String knownAs
+            final @Named("Family Name") @Optional @MaxLength(MAX_LENGTH_FAMILY_NAME) String familyName,
+            final @Named("Given Name") @Optional @MaxLength(MAX_LENGTH_GIVEN_NAME) String givenName,
+            final @Named("Known As") @Optional @MaxLength(MAX_LENGTH_KNOWN_AS) String knownAs
     ) {
         setFamilyName(familyName);
         setGivenName(givenName);
@@ -227,7 +238,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //region > emailAddress (property)
     private String emailAddress;
 
-    @javax.jdo.annotations.Column(allowsNull="true", length = 50)
+    @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_EMAIL_ADDRESS)
     @Disabled
     @MemberOrder(name="Contact Details", sequence = "3.1")
     public String getEmailAddress() {
@@ -241,7 +252,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @MemberOrder(name="emailAddress", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updateEmailAddress(
-            final @Named("Email") String emailAddress) {
+            final @Named("Email") @MaxLength(MAX_LENGTH_EMAIL_ADDRESS) String emailAddress) {
         setEmailAddress(emailAddress);
         return this;
     }
@@ -255,7 +266,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //region > phoneNumber (property)
     private String phoneNumber;
 
-    @javax.jdo.annotations.Column(allowsNull="true", length = 20)
+    @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_PHONE_NUMBER)
     @Disabled
     @MemberOrder(name="Contact Details", sequence = "3.2")
     public String getPhoneNumber() {
@@ -269,7 +280,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @MemberOrder(name="phoneNumber", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updatePhoneNumber(
-            final @Named("Phone") String phoneNumber) {
+            final @Named("Phone") @Optional @MaxLength(MAX_LENGTH_PHONE_NUMBER) String phoneNumber) {
         setPhoneNumber(phoneNumber);
         return this;
     }
@@ -283,7 +294,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //region > faxNumber (property)
     private String faxNumber;
 
-    @javax.jdo.annotations.Column(allowsNull="true", length = 20)
+    @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_PHONE_NUMBER)
     @Hidden(where=Where.PARENTED_TABLES)
     @Disabled
     @MemberOrder(name="Contact Details", sequence = "3.3")
@@ -298,7 +309,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @MemberOrder(name="faxNumber", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updateFaxNumber(
-            final @Named("Fax") String faxNumber) {
+            final @Named("Fax") @Optional @MaxLength(MAX_LENGTH_PHONE_NUMBER) String faxNumber) {
         setFaxNumber(faxNumber);
         return this;
     }
@@ -367,7 +378,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         return this;
     }
     public String disableDisable() {
-        final String adminUser = SeedSecurityModuleService.AdminUserFixtureScript.USER_NAME;
+        final String adminUser = IsisModuleSecurityAdminUser.USER_NAME;
         if(this.getName().equals(adminUser)) {
             return "Cannot disable the '" + adminUser + "' user.";
         }
@@ -375,7 +386,132 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
     //endregion
 
+    //region > encryptedPassword (hidden property)
+    private String encryptedPassword;
 
+    @javax.jdo.annotations.Column(allowsNull="true")
+    @Hidden
+    public String getEncryptedPassword() {
+        return encryptedPassword;
+    }
+
+    public void setEncryptedPassword(final String encryptedPassword) {
+        this.encryptedPassword = encryptedPassword;
+    }
+
+    public boolean hideEncryptedPassword() {
+        return applicationUsers.isPasswordsFeatureDisabled();
+    }
+    //endregion
+
+    //region > hasPassword (derived property)
+
+
+    @Disabled
+    @MemberOrder(name="Status", sequence = "4")
+    public boolean isHasPassword() {
+        return !Strings.isNullOrEmpty(getEncryptedPassword());
+    }
+
+    public boolean hideHasPassword() {
+        return applicationUsers.isPasswordsFeatureDisabled();
+    }
+
+    //endregion
+
+    //region > updatePassword (action)
+
+    @MemberOrder(name="hasPassword", sequence = "10")
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    public ApplicationUser updatePassword(
+            final @Named("Existing password") Password existingPassword,
+            final @Named("New password") Password newPassword,
+            final @Named("Re-enter password") Password newPasswordRepeat) {
+        updatePassword(newPassword.getPassword());
+        return this;
+    }
+
+    public boolean hideUpdatePassword(
+            final Password existingPassword,
+            final Password newPassword,
+            final Password newPasswordRepeat) {
+        return applicationUsers.isPasswordsFeatureDisabled();
+    }
+
+    public String disableUpdatePassword(
+            final Password existingPassword,
+            final Password newPassword,
+            final Password newPasswordConfirm) {
+        return !isHasPassword()
+                ?"Password must be reset by administator."
+                :null;
+    }
+
+    public String validateUpdatePassword(
+            final Password existingPassword,
+            final Password newPassword,
+            final Password newPasswordRepeat) {
+        if(applicationUsers.isPasswordsFeatureDisabled()) {
+            return null;
+        }
+
+        if(getEncryptedPassword() != null) {
+            if (!passwordEncryptionService.matches(existingPassword.getPassword(), getEncryptedPassword())) {
+                return "Existing password is incorrect";
+            }
+        }
+
+        if (!Objects.equals(newPassword.getPassword(), newPasswordRepeat.getPassword())) {
+            return "Passwords do not match";
+        }
+
+        return null;
+    }
+
+    @Programmatic
+    public void updatePassword(String password) {
+        // in case called programmatically
+        if(applicationUsers.isPasswordsFeatureDisabled()) {
+            return;
+        }
+        final String encryptedPassword = passwordEncryptionService.encrypt(password);
+        setEncryptedPassword(encryptedPassword);
+    }
+
+    //endregion
+
+    //region > resetPassword (action)
+
+    @MemberOrder(name="hasPassword", sequence = "20")
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    public ApplicationUser resetPassword(
+            final @Named("New password") Password newPassword,
+            final @Named("Repeat password") Password newPasswordRepeat) {
+        updatePassword(newPassword.getPassword());
+        return this;
+    }
+
+    public boolean hideResetPassword(
+            final Password newPassword,
+            final Password newPasswordRepeat) {
+        return applicationUsers.isPasswordsFeatureDisabled();
+    }
+
+    public String validateResetPassword(
+            final Password newPassword,
+            final Password newPasswordRepeat) {
+        if(applicationUsers.isPasswordsFeatureDisabled()) {
+            return null;
+        }
+
+        if (!Objects.equals(newPassword.getPassword(), newPasswordRepeat.getPassword())) {
+            return "Passwords do not match";
+        }
+
+        return null;
+    }
+
+    //endregion
 
     //region > roles (collection)
     @javax.jdo.annotations.Persistent(table="IsisSecurityApplicationUserRoles")
@@ -445,7 +581,6 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
     //endregion
 
-
     //region > PermissionSet (programmatic)
 
     // short-term caching
@@ -460,7 +595,6 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         return cachedPermissionSet = permissionSet;
     }
     //endregion
-
 
     //region > equals, hashCode, compareTo, toString
     private final static String propertyNames = "username";
@@ -491,6 +625,10 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @javax.inject.Inject
     ApplicationRoles applicationRoles;
     @javax.inject.Inject
+    ApplicationUsers applicationUsers;
+    @javax.inject.Inject
     ApplicationPermissions applicationPermissions;
+    @javax.inject.Inject
+    PasswordEncryptionService passwordEncryptionService;
     //endregion
 }

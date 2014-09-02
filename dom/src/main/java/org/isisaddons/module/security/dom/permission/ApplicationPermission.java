@@ -115,6 +115,8 @@ import org.apache.isis.applib.util.TitleBuffer;
 @Bookmarkable(BookmarkPolicy.AS_CHILD)
 public class ApplicationPermission implements Comparable<ApplicationPermission> {
 
+    private static final int TYPICAL_LENGTH_TYPE = 7;  // ApplicationFeatureType.PACKAGE is longest
+
     //region > identification
     /**
      * having a title() method (rather than using @Title annotation) is necessary as a workaround to be able to use
@@ -166,6 +168,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
         this.role = role;
     }
 
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name="Role", sequence = "1")
     public ApplicationPermission updateRole(final ApplicationRole applicationRole) {
         setRole(applicationRole);
@@ -275,6 +278,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
      */
     @Disabled
     @MemberOrder(name="Feature", sequence = "5")
+    @TypicalLength(ApplicationPermission.TYPICAL_LENGTH_TYPE)
     public String getType() {
         Enum<?> e = getFeatureType() != ApplicationFeatureType.MEMBER ? getFeatureType() : getMemberType();
         return e.name();

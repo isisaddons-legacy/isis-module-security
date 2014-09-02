@@ -120,23 +120,6 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
         }
     }
 
-    public static class AutoComplete extends ApplicationRolesIntegTest {
-
-        @Test
-        public void happyCase() throws Exception {
-
-            // given
-            applicationRoles.newRole("guest", null);
-            applicationRoles.newRole("root", null);
-            applicationRoles.newRole("admin", null);
-
-            // when
-            final List<ApplicationRole> after = applicationRoles.autoComplete("t");
-
-            // then
-            Assert.assertThat(after.size(), is(2)); // guest and root
-        }
-    }
 
 
     public static class AllTenancies extends ApplicationRolesIntegTest {

@@ -18,6 +18,8 @@
 package org.isisaddons.module.security.app.feature;
 
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.apache.isis.applib.annotation.Hidden;
+import org.apache.isis.applib.annotation.MemberOrder;
 
 public class ApplicationClassCollection extends ApplicationClassMember {
 
@@ -31,4 +33,23 @@ public class ApplicationClassCollection extends ApplicationClassMember {
         super(featureId);
     }
     //endregion
+
+    //region > returnType
+
+    @MemberOrder(name="Detail", sequence = "2.6")
+    public String getElementType() {
+        return getFeature().getReturnTypeName();
+    }
+    //endregion
+
+    //region > derived
+
+    @MemberOrder(name="Detail", sequence = "2.7")
+    @Hidden
+    public boolean isDerived() {
+        return getFeature().isDerived();
+    }
+    //endregion
+
+
 }

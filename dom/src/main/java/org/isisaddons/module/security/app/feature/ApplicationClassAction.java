@@ -21,7 +21,6 @@ import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.Hidden;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.Where;
 
 public class ApplicationClassAction extends ApplicationClassMember {
 
@@ -36,10 +35,17 @@ public class ApplicationClassAction extends ApplicationClassMember {
     //endregion
 
 
+    //region > returnType
+
+    @MemberOrder(name="Detail", sequence = "2.6")
+    public String getReturnType() {
+        return getFeature().getReturnTypeName();
+    }
+    //endregion
+
 
     //region > actionSemantics (property)
     @MemberOrder(name="Detail", sequence = "2.8")
-    @Hidden(where= Where.OBJECT_FORMS)
     public ActionSemantics.Of getActionSemantics() {
         return getFeature().getActionSemantics();
     }

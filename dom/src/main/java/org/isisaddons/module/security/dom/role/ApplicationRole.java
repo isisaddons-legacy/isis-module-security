@@ -63,13 +63,16 @@ import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
                 name = "findByNameContaining", language = "JDOQL",
                 value = "SELECT "
                         + "FROM org.isisaddons.module.security.dom.role.ApplicationRole "
-                        + "WHERE name.indexOf(:name) >= 0")
+                        + "WHERE name.matches(:nameRegex) >= 0")
 })
-@AutoComplete(repository=ApplicationRoles.class, action="autoComplete")
+@Bounded
 @ObjectType("IsisSecurityApplicationRole")
 @Bookmarkable
 public class ApplicationRole implements Comparable<ApplicationRole> {
 
+    public static final int MAX_LENGTH_NAME = 50;
+    public static final int TYPICAL_LENGTH_NAME = 30;
+    public static final int TYPICAL_LENGTH_DESCRIPTION = 50;
 
     //region > identification
     /**
@@ -86,7 +89,8 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //region > name (property,)
     private String name;
 
-    @javax.jdo.annotations.Column(allowsNull="false")
+    @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_NAME)
+    @TypicalLength(TYPICAL_LENGTH_NAME)
     @Disabled
     @MemberOrder(sequence = "1")
     public String getName() {
@@ -99,7 +103,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     @MemberOrder(name="name", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationRole updateName(
-            final @Named("Name") String name) {
+            final @Named("Name") @TypicalLength(TYPICAL_LENGTH_NAME) @MaxLength(MAX_LENGTH_NAME) String name) {
         setName(name);
         return this;
     }
@@ -114,6 +118,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     private String description;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = JdoColumnLength.DESCRIPTION)
+    @TypicalLength(TYPICAL_LENGTH_DESCRIPTION)
     @Disabled
     @MemberOrder(sequence = "2")
     public String getDescription() {
@@ -126,7 +131,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     @MemberOrder(name="description", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationRole updateDescription(
-            final @Named("Description") @Optional @TypicalLength(50) @MaxLength(JdoColumnLength.DESCRIPTION) String description) {
+            final @Named("Description") @Optional @TypicalLength(TYPICAL_LENGTH_DESCRIPTION) @MaxLength(JdoColumnLength.DESCRIPTION) String description) {
         setDescription(description);
         return this;
     }
@@ -154,7 +159,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#PACKAGE package}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
-    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(name = "Permissions", sequence = "1")
     public ApplicationRole addPackage(
             final @Named("Rule") ApplicationPermissionRule rule,
@@ -183,7 +188,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
-    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(name = "Permissions", sequence = "2")
     public ApplicationRole addClass(
             final @Named("Rule") ApplicationPermissionRule rule,
@@ -228,7 +233,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
-    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(name = "Permissions", sequence = "3")
     public ApplicationRole addAction(
             final @Named("Rule") ApplicationPermissionRule rule,
@@ -276,7 +281,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
-    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(name = "Permissions", sequence = "4")
     public ApplicationRole addProperty(
             final @Named("Rule") ApplicationPermissionRule rule,
@@ -332,7 +337,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
-    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(name = "Permissions", sequence = "5")
     public ApplicationRole addCollection(
             final @Named("Rule") ApplicationPermissionRule rule,

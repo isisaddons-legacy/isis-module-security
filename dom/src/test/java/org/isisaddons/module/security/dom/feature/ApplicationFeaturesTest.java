@@ -6,10 +6,7 @@ import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.Sequence;
 import org.jmock.auto.Mock;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.core.metamodel.facets.all.hide.HiddenFacet;
@@ -64,6 +61,7 @@ public class ApplicationFeaturesTest {
 
         public static class Bar {}
 
+        @Ignore // considering deleting this test, it's too long and too fragile.  integ tests ought to suffice.
         @Test
         public void happyCase() throws Exception {
 

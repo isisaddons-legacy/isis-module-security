@@ -44,6 +44,8 @@ import org.apache.isis.applib.util.ObjectContracts;
 @Bookmarkable
 public class UserPermissionViewModel implements ViewModel {
 
+    private static final int TYPICAL_LENGTH_VERB = 12;
+
     //region > constructors, factory methods
     public static UserPermissionViewModel newViewModel(
             final ApplicationFeatureId featureId, final ApplicationUser user, final ApplicationPermissionValueSet.Evaluation viewingEvaluation, final ApplicationPermissionValueSet.Evaluation changingEvaluation, final DomainObjectContainer container) {
@@ -191,6 +193,7 @@ public class UserPermissionViewModel implements ViewModel {
     private boolean viewingGranted;
     private boolean changingGranted;
 
+    @TypicalLength(UserPermissionViewModel.TYPICAL_LENGTH_VERB)
     @MemberOrder(name="Permission", sequence = "2")
     public String getVerb() {
         return changingGranted

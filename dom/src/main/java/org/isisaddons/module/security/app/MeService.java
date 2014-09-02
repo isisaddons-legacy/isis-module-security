@@ -23,11 +23,9 @@ import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
 import org.apache.isis.applib.annotation.DescribedAs;
-import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MemberOrder;
 
 // not a @DomainService because contributes to the UI
-@DomainService(menuOrder = "1")
 public class MeService extends AbstractFactoryAndRepository {
 
     public String iconName() {

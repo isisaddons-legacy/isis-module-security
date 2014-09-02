@@ -19,7 +19,7 @@
 package org.isisaddons.module.security.integtests.user;
 
 import javax.inject.Inject;
-import org.isisaddons.module.security.app.SeedSecurityModuleService;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancies;
@@ -55,7 +55,7 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
     public void setUpData() throws Exception {
         scenarioExecution().install(
                 new SecurityModuleAppTearDown(),
-                new SeedSecurityModuleService.AdminRoleAndPermissions(),
+                new IsisModuleSecurityAdminRoleAndPermissions(),
                 new SvenUserFixture()
         );
     }
@@ -219,7 +219,7 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
             // necessary to lookup again because above fixtures will be installed in a new xactn
             user = wrap(applicationUsers.findUserByUsername(SvenUserFixture.USER_NAME));
 
-            adminRole = applicationRoles.findRoleByName(SeedSecurityModuleService.AdminRoleAndPermissions.ROLE_NAME);
+            adminRole = applicationRoles.findRoleByName(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME);
             userRole = applicationRoles.findRoleByName(RegularRoleFixture.ROLE_NAME);
 
             assertThat(adminRole, is(notNullValue()));

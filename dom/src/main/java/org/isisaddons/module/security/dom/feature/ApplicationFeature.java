@@ -80,6 +80,51 @@ public class ApplicationFeature implements Comparable<ApplicationFeature> {
     }
     //endregion
 
+    //region > returnTypeName (for: properties, collections, actions)
+    private String returnTypeName;
+
+    /**
+     * Only for {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#ACTION action}s.
+     */
+    @Programmatic
+    public String getReturnTypeName() {
+        return returnTypeName;
+    }
+
+    public void setReturnTypeName(String returnTypeName) {
+        this.returnTypeName = returnTypeName;
+    }
+    //endregion
+
+    //region > contributed (for: properties, collections, actions)
+    private boolean contributed;
+
+    @Programmatic
+    public boolean isContributed() {
+        return contributed;
+    }
+
+    public void setContributed(boolean contributed) {
+        this.contributed = contributed;
+    }
+    //endregion
+
+    //region > derived (properties and collections)
+    private Boolean derived;
+
+    /**
+     * Only for {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#PROPERTY} and {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#COLLECTION}
+     */
+    @Programmatic
+    public Boolean isDerived() {
+        return derived;
+    }
+
+    public void setDerived(Boolean derived) {
+        this.derived = derived;
+    }
+    //endregion
+
     //region > propertyMaxLength (properties only)
     private Integer propertyMaxLength;
 

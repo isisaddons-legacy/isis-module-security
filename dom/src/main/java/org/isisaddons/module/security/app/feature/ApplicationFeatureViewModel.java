@@ -140,7 +140,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     //endregion
 
     //region > type, packageName, className, memberName (properties)
-    @TypicalLength(60)
+    @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_PKG_FQN)
     @MemberOrder(name="Id", sequence = "2.2")
     public String getPackageName() {
         return getFeatureId().getPackageName();
@@ -150,6 +150,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
      * For packages, will be null. Is in this class (rather than subclasses) so is shown in
      * {@link ApplicationPackage#getContents() package contents}.
      */
+    @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_CLS_NAME)
     @MemberOrder(name="Id", sequence = "2.3")
     public String getClassName() {
         return getFeatureId().getClassName();
@@ -161,6 +162,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     /**
      * For packages and class names, will be null.
      */
+    @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME)
     @MemberOrder(name="Id", sequence = "2.4")
     public String getMemberName() {
         return getFeatureId().getMemberName();
@@ -169,11 +171,13 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     public boolean hideMemberName() {
         return getType().hideMember();
     }
+
+
     //endregion
 
     //region > parent (property)
 
-    @Hidden(where=Where.REFERENCES_PARENT)
+    @Hidden(where=Where.ALL_TABLES)
     @MemberOrder(name = "Parent", sequence = "2.6")
     public ApplicationFeatureViewModel getParent() {
         final ApplicationFeatureId parentId;
@@ -191,6 +195,21 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
         else {
             return null;
         }
+    }
+    //endregion
+
+    //region > contributed (property)
+
+    /**
+     * For packages and class names, will be null.
+     */
+    @MemberOrder(name="Detail", sequence = "2.5.5")
+    public boolean isContributed() {
+        return getFeature().isContributed();
+    }
+
+    public boolean hideContributed() {
+        return getType().hideMember();
     }
     //endregion
 
