@@ -2,8 +2,6 @@
 
 [![Build Status](https://travis-ci.org/isisaddons/isis-module-security.png?branch=master)](https://travis-ci.org/isisaddons/isis-module-security)
 
-*This is substantially complete, but still work-in-progress; see section below for detailed status*
-
 This module, intended for use within [Apache Isis](http://isis.apache.org), provides the ability to manage *user*s, *role*s,
 and *permission*s.  Users have roles, roles have permissions, and permissions are associated with *application feature*s. 
 These features are derived from the Isis metamodel and can be scoped at either a _package_, _class_ or individual _class member_.
@@ -22,8 +20,11 @@ A key design objective of this module has been to limit the amount of permission
 
 * if there are conflicting permissions at the same scope, then the ALLOW takes precedence over the VETO.
   
-(TODO) The module also provides an implementation of [Apache Shiro](http://shiro.apache.org)'s [AuthorizingRealm](https://shiro.apache.org/static/1.2.2/apidocs/org/apache/shiro/realm/AuthorizingRealm.html).  This allows the users/permissions to be used
-for Isis' authentication and/or authorization.
+The module also provides an implementation of [Apache Shiro](http://shiro.apache.org)'s 
+[AuthorizingRealm](https://shiro.apache.org/static/1.2.2/apidocs/org/apache/shiro/realm/AuthorizingRealm.html).  This 
+allows the users/permissions to be used for Isis' authentication and/or authorization.  If using for authentication,
+passwords are encrypted using a `PasswordEncryptionService`.  The module provides a default implementation based on
+[jBCrypt](http://www.mindrot.org/projects/jBCrypt/), but will other implementations can be plugged-in if required.
   
 ## Domain Model ##
 
@@ -40,7 +41,7 @@ also has its own very simple `ExampleEntity` entity and corresponding repository
 
 #### Application Menus ####
 
-The security module provides a number of menus: _Users_, _Roles_, _Permissions_ and _User Tenancies_:
+The security module provides a number of menus: _Users_, _Roles_, _Features_, _Permissions_ and _User Tenancies_:
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/010-menus.png)
 
@@ -224,19 +225,6 @@ role permission that is allowing/vetoing the ability to view or change the featu
 Cool huh?
 
 
-## Status ##
-
-This module is work-in-progress:
-- implemented: domain model, plus UI maintenance (see screenshots below)
-- todo: tidy up length and `@TypicalLength` of all properties
-- todo: tidy up action semantics of all actions
-- todo: tidy up domain model UI services, to make more easily extensible
-- todo: extend user to include encrypted password
-- todo: implement Shiro realm for authentication and/or authorizing
-- todo? extend user to include user settings (move over from [isis-module-settings](http://?)
-- todo: support the root package
-
-
 ## How to configure/use ##
 
 *TODO: this is incomplete.  It also needs to be extended to include Shiro configuration*
@@ -299,6 +287,14 @@ public interface XxxService {
 }
 </pre>
 
+
+## Future Directions/Possible Improvements ##
+
+The module currently does not support:
+- setting permissions on the root package.  Instead, must specify for `org` or `com` top-level package.  This means that
+  the edge case of permissions for a class in the root package is not supported.
+- users could possibly be extended to include user settings, refactored out from [isis-module-settings](https://github.com/isisaddons/isis-module-settings)
+- features could possibly be refactored out/merged with [isis-module-devutils](https://github.com/isisaddons/isis-module-devutils). 
 
 
 ## Legal Stuff ##

@@ -18,8 +18,11 @@
 package org.isisaddons.module.security.app.feature;
 
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.apache.isis.applib.annotation.BookmarkPolicy;
+import org.apache.isis.applib.annotation.Bookmarkable;
 import org.apache.isis.applib.annotation.MemberOrder;
 
+@Bookmarkable(BookmarkPolicy.AS_CHILD)
 public abstract class ApplicationClassMember extends ApplicationFeatureViewModel {
 
     //region > constructors

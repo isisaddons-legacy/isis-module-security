@@ -35,10 +35,9 @@ import org.apache.isis.applib.util.ObjectContracts;
  */
 @MemberGroupLayout(
         columnSpans = {6,0,6,12},
-        left = {"Id"},
-        right= {"Parent", "Detail"}
+        left = {"Id", "Data Type"},
+        right= {"Parent", "Contributed", "Detail"}
 )
-@Bookmarkable
 public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     //region > constructors
@@ -203,7 +202,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     /**
      * For packages and class names, will be null.
      */
-    @MemberOrder(name="Detail", sequence = "2.5.5")
+    @MemberOrder(name="Contributed", sequence = "2.5.5")
     public boolean isContributed() {
         return getFeature().isContributed();
     }

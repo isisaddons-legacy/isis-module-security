@@ -19,6 +19,7 @@ package org.isisaddons.module.security.app.feature;
 
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.Optional;
 
 public class ApplicationClassProperty extends ApplicationClassMember {
 
@@ -33,7 +34,7 @@ public class ApplicationClassProperty extends ApplicationClassMember {
 
     //region > returnType
 
-    @MemberOrder(name="Detail", sequence = "2.6")
+    @MemberOrder(name="Data Type", sequence = "2.6")
     public String getReturnType() {
         return getFeature().getReturnTypeName();
     }
@@ -49,16 +50,27 @@ public class ApplicationClassProperty extends ApplicationClassMember {
 
 
     //region > maxLength, typicalLength (properties)
+    @Optional
     @MemberOrder(name="Detail", sequence = "2.8")
     public Integer getMaxLength() {
         return getFeature().getPropertyMaxLength();
     }
 
+    public boolean hideMaxLength() {
+        return !String.class.getSimpleName().equals(getReturnType());
+    }
 
+
+    @Optional
     @MemberOrder(name="Detail", sequence = "2.9")
     public Integer getTypicalLength() {
         return getFeature().getPropertyTypicalLength();
     }
+
+    public boolean hideTypicalLength() {
+        return !String.class.getSimpleName().equals(getReturnType());
+    }
+
     //endregion
 
 }

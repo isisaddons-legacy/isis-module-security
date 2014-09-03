@@ -19,7 +19,6 @@ package org.isisaddons.module.security.app.feature;
 
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.apache.isis.applib.annotation.ActionSemantics;
-import org.apache.isis.applib.annotation.Hidden;
 import org.apache.isis.applib.annotation.MemberOrder;
 
 public class ApplicationClassAction extends ApplicationClassMember {
@@ -37,7 +36,7 @@ public class ApplicationClassAction extends ApplicationClassMember {
 
     //region > returnType
 
-    @MemberOrder(name="Detail", sequence = "2.6")
+    @MemberOrder(name="Data Type", sequence = "2.6")
     public String getReturnType() {
         return getFeature().getReturnTypeName();
     }

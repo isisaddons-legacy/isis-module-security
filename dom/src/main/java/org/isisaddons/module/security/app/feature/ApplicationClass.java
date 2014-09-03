@@ -20,9 +20,12 @@ package org.isisaddons.module.security.app.feature;
 import java.util.List;
 import java.util.SortedSet;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.apache.isis.applib.annotation.BookmarkPolicy;
+import org.apache.isis.applib.annotation.Bookmarkable;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Render;
 
+@Bookmarkable(BookmarkPolicy.AS_ROOT)
 public class ApplicationClass extends ApplicationFeatureViewModel {
 
     //region > constructors

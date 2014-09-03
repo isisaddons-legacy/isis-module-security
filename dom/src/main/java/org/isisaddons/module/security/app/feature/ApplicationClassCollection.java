@@ -36,7 +36,7 @@ public class ApplicationClassCollection extends ApplicationClassMember {
 
     //region > returnType
 
-    @MemberOrder(name="Detail", sequence = "2.6")
+    @MemberOrder(name="Data Type", sequence = "2.6")
     public String getElementType() {
         return getFeature().getReturnTypeName();
     }
@@ -45,7 +45,6 @@ public class ApplicationClassCollection extends ApplicationClassMember {
     //region > derived
 
     @MemberOrder(name="Detail", sequence = "2.7")
-    @Hidden
     public boolean isDerived() {
         return getFeature().isDerived();
     }
