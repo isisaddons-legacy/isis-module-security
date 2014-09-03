@@ -1,5 +1,11 @@
 package org.isisaddons.module.security.seed;
 
+import java.util.List;
+import javax.inject.Inject;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.role.ApplicationRoles;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.isisaddons.module.security.seed.scripts.*;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 
@@ -14,6 +20,16 @@ public class SeedUsersAndRolesFixtureScript extends FixtureScript {
     @Override
     protected void execute(ExecutionContext executionContext) {
 
+        // only run if there is no data.
+        final List<ApplicationRole> roleList = applicationRoles.allRoles();
+        if(!roleList.isEmpty()) {
+            return;
+        }
+        final List<ApplicationUser> userList = applicationUsers.allUsers();
+        if(!userList.isEmpty()) {
+            return;
+        }
+
         // security module
         execute(new IsisModuleSecurityAdminRoleAndPermissions(), executionContext);
 
@@ -25,4 +41,11 @@ public class SeedUsersAndRolesFixtureScript extends FixtureScript {
         // isis applib
         execute(new IsisApplibFixtureResultsRoleAndPermissions(), executionContext);
     }
+
+    //region > injected
+    @Inject
+    ApplicationRoles applicationRoles;
+    @Inject
+    ApplicationUsers applicationUsers;
+    //endregion
 }

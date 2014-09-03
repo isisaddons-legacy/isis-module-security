@@ -222,7 +222,7 @@ language governing permissions and limitations under the License.
             <artifactId>hsqldb</artifactId>
         </dependency>
 
-        <!-- 
+        <!--
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
