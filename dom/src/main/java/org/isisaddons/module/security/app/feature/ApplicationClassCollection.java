@@ -1,7 +1,6 @@
 /*
  *  Copyright 2014 Dan Haywood
  *
- *
  *  Licensed under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
@@ -18,7 +17,6 @@
 package org.isisaddons.module.security.app.feature;
 
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.apache.isis.applib.annotation.Hidden;
 import org.apache.isis.applib.annotation.MemberOrder;
 
 public class ApplicationClassCollection extends ApplicationClassMember {
