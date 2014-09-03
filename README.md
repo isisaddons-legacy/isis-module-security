@@ -288,6 +288,17 @@ public interface XxxService {
 </pre>
 
 
+To use the `PasswordEncryptionServiceUsingJbcrypt`
+
+        <!-- include on classpath of your webapp if using the PasswordEncryptionServiceUsingJBcrypt -->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.3m</version>
+        </dependency>
+
+
+
 ## Future Directions/Possible Improvements ##
 
 The module currently does not support:
@@ -319,9 +330,9 @@ The module currently does not support:
 
 #### Dependencies ####
 
-*TODO: incomplete; expect to take a dependency on [jBcrypt](http://www.mindrot.org/projects/jBCrypt/) in order to perform
-secure password encryption*
+In addition to Apache Isis, this module depends on:
 
+* `org.mindrot:jbcrypt` (Apache-like license)
 
 
 ##  Maven deploy notes ##
