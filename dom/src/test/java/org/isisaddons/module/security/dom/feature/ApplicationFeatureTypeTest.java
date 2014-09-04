@@ -16,22 +16,22 @@
  */
 package org.isisaddons.module.security.dom.feature;
 
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class ApplicationFeatureTypeTest {
 
     public static class HideClassName extends ApplicationFeatureTypeTest {
         @Test
         public void all() throws Exception {
-            Assert.assertThat(ApplicationFeatureType.PACKAGE.hideClassName(), is(true));
-            Assert.assertThat(ApplicationFeatureType.CLASS.hideClassName(), is(false));
-            Assert.assertThat(ApplicationFeatureType.MEMBER.hideClassName(), is(false));
+            assertThat(ApplicationFeatureType.PACKAGE.hideClassName(), is(true));
+            assertThat(ApplicationFeatureType.CLASS.hideClassName(), is(false));
+            assertThat(ApplicationFeatureType.MEMBER.hideClassName(), is(false));
         }
     }
 
@@ -39,13 +39,16 @@ public class ApplicationFeatureTypeTest {
 
         @Test
         public void all() throws Exception {
-            Assert.assertThat(ApplicationFeatureType.PACKAGE.hideMember(), is(true));
-            Assert.assertThat(ApplicationFeatureType.CLASS.hideMember(), is(true));
-            Assert.assertThat(ApplicationFeatureType.MEMBER.hideMember(), is(false));
+            assertThat(ApplicationFeatureType.PACKAGE.hideMember(), is(true));
+            assertThat(ApplicationFeatureType.CLASS.hideMember(), is(true));
+            assertThat(ApplicationFeatureType.MEMBER.hideMember(), is(false));
         }
     }
 
     public static class Init extends ApplicationFeatureTypeTest {
+
+        @Rule
+        public ExpectedException expectedException = ExpectedException.none();
 
         @Test
         public void givenPackage() throws Exception {
@@ -54,9 +57,9 @@ public class ApplicationFeatureTypeTest {
 
             ApplicationFeatureType.PACKAGE.init(applicationFeatureId, "com.mycompany");
 
-            Assert.assertThat(applicationFeatureId.getPackageName(), is("com.mycompany"));
-            Assert.assertThat(applicationFeatureId.getClassName(), is(nullValue()));
-            Assert.assertThat(applicationFeatureId.getMemberName(), is(nullValue()));
+            assertThat(applicationFeatureId.getPackageName(), is("com.mycompany"));
+            assertThat(applicationFeatureId.getClassName(), is(nullValue()));
+            assertThat(applicationFeatureId.getMemberName(), is(nullValue()));
 
         }
         @Test
@@ -66,9 +69,9 @@ public class ApplicationFeatureTypeTest {
 
             ApplicationFeatureType.CLASS.init(applicationFeatureId, "com.mycompany.Bar");
 
-            Assert.assertThat(applicationFeatureId.getPackageName(), is("com.mycompany"));
-            Assert.assertThat(applicationFeatureId.getClassName(), is("Bar"));
-            Assert.assertThat(applicationFeatureId.getMemberName(), is(nullValue()));
+            assertThat(applicationFeatureId.getPackageName(), is("com.mycompany"));
+            assertThat(applicationFeatureId.getClassName(), is("Bar"));
+            assertThat(applicationFeatureId.getMemberName(), is(nullValue()));
 
         }
         @Test
@@ -78,9 +81,17 @@ public class ApplicationFeatureTypeTest {
 
             ApplicationFeatureType.MEMBER.init(applicationFeatureId, "com.mycompany.Bar#foo");
 
-            Assert.assertThat(applicationFeatureId.getPackageName(), is("com.mycompany"));
-            Assert.assertThat(applicationFeatureId.getClassName(), is("Bar"));
-            Assert.assertThat(applicationFeatureId.getMemberName(), is("foo"));
+            assertThat(applicationFeatureId.getPackageName(), is("com.mycompany"));
+            assertThat(applicationFeatureId.getClassName(), is("Bar"));
+            assertThat(applicationFeatureId.getMemberName(), is("foo"));
+        }
+        @Test
+        public void givenMemberMalformed() throws Exception {
+
+            expectedException.expect(IllegalArgumentException.class);
+            final ApplicationFeatureId applicationFeatureId = new ApplicationFeatureId(ApplicationFeatureType.MEMBER);
+
+            ApplicationFeatureType.MEMBER.init(applicationFeatureId, "com.mycompany.BarISMISSINGTHEHASHSYMBOL");
         }
     }
 
@@ -126,7 +137,6 @@ public class ApplicationFeatureTypeTest {
 
     }
 
-
     public static class EnsureClass extends ApplicationFeatureTypeTest {
         @Rule
         public ExpectedException expectedException = ExpectedException.none();
@@ -148,8 +158,6 @@ public class ApplicationFeatureTypeTest {
 
     }
 
-
-
     public static class EnsureMember extends ApplicationFeatureTypeTest {
         @Rule
         public ExpectedException expectedException = ExpectedException.none();
@@ -167,6 +175,14 @@ public class ApplicationFeatureTypeTest {
         @Test
         public void whenMember() throws Exception {
             ApplicationFeatureType.ensureMember(new ApplicationFeatureId(ApplicationFeatureType.MEMBER));
+        }
+    }
+
+    public static class ToString extends ApplicationFeatureTypeTest {
+
+        @Test
+        public void happyCase() throws Exception {
+            assertThat(ApplicationFeatureType.PACKAGE.toString(), is("PACKAGE"));
         }
     }
 

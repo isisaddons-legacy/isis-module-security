@@ -16,19 +16,19 @@
  */
 package org.isisaddons.module.security.dom.permission;
 
+import com.danhaywood.java.testsupport.coverage.PojoTester;
+import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
 import static org.hamcrest.CoreMatchers.*;
+import static org.isisaddons.module.security.dom.FixtureDatumFactories.roles;
 
 public class ApplicationPermissionTest {
 
@@ -90,4 +90,26 @@ public class ApplicationPermissionTest {
             Assert.assertThat(feature, is(nullValue()));
         }
     }
+
+    public static class PrivateConstructors {
+
+        @Test
+        public void forFunctions() throws Exception {
+            new PrivateConstructorTester(ApplicationPermission.Functions.class).exercise();
+        }
+    }
+
+    public static class BeanProperties extends ApplicationPermissionTest {
+
+        @Ignore("intermittent failures... suspect an issue with PojoTester, not thread-safe or something?")
+        @Test
+        public void exercise() throws Exception {
+            PojoTester.relaxed()
+                    .withFixture(roles())
+                    .exercise(new ApplicationPermission());
+        }
+
+    }
+
+
 }

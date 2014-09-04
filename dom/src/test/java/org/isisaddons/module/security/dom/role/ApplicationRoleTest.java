@@ -17,6 +17,8 @@
 package org.isisaddons.module.security.dom.role;
 
 import java.util.List;
+import com.danhaywood.java.testsupport.coverage.PojoTester;
+import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -107,5 +109,24 @@ public class ApplicationRoleTest {
         }
 
     }
+
+    public static class PrivateConstructors {
+
+        @Test
+        public void forFunctions() throws Exception {
+            new PrivateConstructorTester(ApplicationRole.Functions.class).exercise();
+        }
+    }
+
+    public static class BeanProperties extends ApplicationRoleTest {
+
+        @Test
+        public void exercise() throws Exception {
+            PojoTester.relaxed()
+                    .exercise(new ApplicationRole());
+        }
+
+    }
+
 
 }

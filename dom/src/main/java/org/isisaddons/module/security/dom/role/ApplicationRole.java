@@ -16,10 +16,7 @@
  */
 package org.isisaddons.module.security.dom.role;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
@@ -36,6 +33,7 @@ import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.util.ObjectContracts;
@@ -69,9 +67,12 @@ import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 @Bookmarkable
 public class ApplicationRole implements Comparable<ApplicationRole> {
 
+    //region > constants
+
     public static final int MAX_LENGTH_NAME = 50;
     public static final int TYPICAL_LENGTH_NAME = 30;
     public static final int TYPICAL_LENGTH_DESCRIPTION = 50;
+    //endregion
 
     //region > identification
     /**
@@ -391,6 +392,15 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
         return this;
     }
 
+    public String validateRemovePermission(
+            final @Named("Rule") ApplicationPermissionRule rule,
+            final @Named("Type") ApplicationFeatureType type,
+            final @Named("Feature") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME) String featureFqn) {
+        if(isAdminRole() && IsisModuleSecurityAdminRoleAndPermissions.oneOf(featureFqn)) {
+            return "Cannot remove top-level package permissions for the admin role.";
+        }
+        return null;
+    }
     public ApplicationPermissionRule default0RemovePermission() {
         return ApplicationPermissionRule.ALLOW;
     }
@@ -470,6 +480,39 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //endregion
 
+    //region > delete (action)
+    @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
+    @MemberOrder(sequence = "1")
+    public List<ApplicationRole> delete(
+            final @Named("Are you sure?") @Optional Boolean areYouSure) {
+        getUsers().clear();
+        getPermissions().clear();
+        container.flush();
+        container.removeIfNotAlready(this);
+        container.flush();
+        return applicationRoles.allRoles();
+    }
+
+    public String disableDelete(final Boolean areYouSure) {
+        return isAdminRole() ? "Cannot delete the admin role" : null;
+    }
+
+    public String validateDelete(final Boolean areYouSure) {
+        return not(areYouSure) ? "Please confirm this action": null;
+    }
+
+    static boolean not(Boolean areYouSure) {
+        return areYouSure == null || !areYouSure;
+    }
+    //endregion
+
+    //region > helpers
+    boolean isAdminRole() {
+        final ApplicationRole adminRole = applicationRoles.findRoleByName(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME);
+        return this == adminRole;
+    }
+    //endregion
+
     //region > Functions
 
     public static class Functions {
@@ -518,6 +561,8 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     ApplicationPermissions applicationPermissions;
     @javax.inject.Inject
     ApplicationUsers applicationUsers;
+    @javax.inject.Inject
+    ApplicationRoles applicationRoles;
     //endregion
 
 }

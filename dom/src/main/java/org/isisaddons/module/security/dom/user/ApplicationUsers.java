@@ -22,6 +22,8 @@ import javax.inject.Inject;
 import org.apache.shiro.authc.AuthenticationException;
 import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.role.ApplicationRoles;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityRegularUserRoleAndPermissions;
 import org.isisaddons.module.security.shiro.ShiroUtils;
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.annotation.*;
@@ -117,16 +119,22 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             final Boolean enabled) {
         return isPasswordsFeatureEnabled();
     }
+
+    public ApplicationRole default1NewUser() {
+        return applicationRoles.findRoleByName(IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
+    }
+
     //endregion
 
     //region > newUser (with password)
     @MemberOrder(sequence = "10.4")
     @ActionSemantics(Of.NON_IDEMPOTENT)
     @NotContributed
-    public ApplicationUser newUser(
+    @Named("New user")
+    public ApplicationUser newUserWithPassword(
             final @Named("Name") @MaxLength(ApplicationUser.MAX_LENGTH_USERNAME) String username,
-            final @Named("Password") Password password,
-            final @Named("Repeat password") Password passwordRepeat,
+            final @Named("Password") @Optional Password password,
+            final @Named("Repeat password") @Optional Password passwordRepeat,
             final @Named("Initial role") @Optional ApplicationRole initialRole,
             final @Named("Enabled?") @Optional Boolean enabled) {
         ApplicationUser user = newTransientInstance(ApplicationUser.class);
@@ -135,11 +143,13 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
         if(initialRole != null) {
             user.addRole(initialRole);
         }
-        user.resetPassword(password, passwordRepeat);
+        if(password != null) {
+            user.updatePassword(password.getPassword());
+        }
         persist(user);
         return user;
     }
-    public boolean hideNewUser(
+    public boolean hideNewUserWithPassword(
             final String username,
             final Password password,
             final Password password2,
@@ -147,7 +157,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             final Boolean enabled) {
         return isPasswordsFeatureDisabled();
     }
-    public String validateNewUser(
+    public String validateNewUserWithPassword(
             final String username,
             final Password password,
             final Password passwordRepeat,
@@ -155,6 +165,10 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             final Boolean enabled) {
         ApplicationUser user = newTransientInstance(ApplicationUser.class);
         return user.validateResetPassword(password, passwordRepeat);
+    }
+
+    public ApplicationRole default3NewUserWithPassword() {
+        return applicationRoles.findRoleByName(IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
     }
     //endregion
 
@@ -201,6 +215,8 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     QueryResultsCache queryResultsCache;
     @Inject
     PasswordEncryptionService passwordEncryptionService;
+    @Inject
+    ApplicationRoles applicationRoles;
     //endregion
 
 }

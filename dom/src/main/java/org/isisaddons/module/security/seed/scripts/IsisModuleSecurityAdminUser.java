@@ -24,6 +24,8 @@ public class IsisModuleSecurityAdminUser extends AbstractUserAndRolesFixtureScri
     public static final String PASSWORD = "pass";
 
     public IsisModuleSecurityAdminUser() {
-        super(USER_NAME, PASSWORD, Arrays.asList(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME, IsisModuleSecurityFixtureRoleAndPermissions.ROLE_NAME));
+        super(USER_NAME, PASSWORD, Arrays.asList(
+                IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME,
+                IsisModuleSecurityFixtureRoleAndPermissions.ROLE_NAME));
     }
 }

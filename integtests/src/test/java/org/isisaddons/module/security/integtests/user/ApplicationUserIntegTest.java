@@ -17,6 +17,12 @@
 package org.isisaddons.module.security.integtests.user;
 
 import javax.inject.Inject;
+import org.isisaddons.module.security.fixture.scripts.rolesandperms.AllExampleRolesAndPermissions;
+import org.isisaddons.module.security.fixture.scripts.rolesandperms.ExampleRegularRoleAndPermissions;
+import org.isisaddons.module.security.fixture.scripts.tenancy.AllTenancies;
+import org.isisaddons.module.security.fixture.scripts.tenancy.FranceTenancy;
+import org.isisaddons.module.security.fixture.scripts.tenancy.SwedenTenancy;
+import org.isisaddons.module.security.fixture.scripts.users.SvenUser;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
@@ -25,12 +31,6 @@ import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
-import org.isisaddons.module.security.fixture.scripts.roles.AllRolesFixture;
-import org.isisaddons.module.security.fixture.scripts.roles.RegularRoleFixture;
-import org.isisaddons.module.security.fixture.scripts.tenancy.AllTenanciesFixture;
-import org.isisaddons.module.security.fixture.scripts.tenancy.FranceTenancyFixture;
-import org.isisaddons.module.security.fixture.scripts.tenancy.SwedenTenancyFixture;
-import org.isisaddons.module.security.fixture.scripts.users.SvenUserFixture;
 import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
 import org.junit.Before;
 import org.junit.Rule;
@@ -54,7 +54,7 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
         scenarioExecution().install(
                 new SecurityModuleAppTearDown(),
                 new IsisModuleSecurityAdminRoleAndPermissions(),
-                new SvenUserFixture()
+                new SvenUser()
         );
     }
 
@@ -66,11 +66,11 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
 
     @Before
     public void setUp() throws Exception {
-        user = wrap(applicationUsers.findUserByUsername(SvenUserFixture.USER_NAME));
+        user = wrap(applicationUsers.findUserByUsername(SvenUser.USER_NAME));
         assertThat(unwrap(user).getRoles().size(), is(0));
 
         assertThat(user, is(not(nullValue())));
-        assertThat(user.getUsername(), is(SvenUserFixture.USER_NAME));
+        assertThat(user.getUsername(), is(SvenUser.USER_NAME));
     }
 
     public static class Username_and_UpdateUsername extends ApplicationUserIntegTest {
@@ -125,13 +125,13 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
         @Before
         public void setUpTenancies() throws Exception {
             scenarioExecution().install(
-                    new AllTenanciesFixture()
+                    new AllTenancies()
             );
             // necessary to lookup again because above fixtures will be installed in a new xactn
-            user = wrap(applicationUsers.findUserByUsername(SvenUserFixture.USER_NAME));
+            user = wrap(applicationUsers.findUserByUsername(SvenUser.USER_NAME));
 
-            swedenTenancy = applicationTenancies.findTenancyByName(SwedenTenancyFixture.TENANCY_NAME);
-            franceTenancy = applicationTenancies.findTenancyByName(FranceTenancyFixture.TENANCY_NAME);
+            swedenTenancy = applicationTenancies.findTenancyByName(SwedenTenancy.TENANCY_NAME);
+            franceTenancy = applicationTenancies.findTenancyByName(FranceTenancy.TENANCY_NAME);
 
             assertThat(swedenTenancy, is(notNullValue()));
             assertThat(franceTenancy, is(notNullValue()));
@@ -211,14 +211,14 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
         @Before
         public void setUpRoles() throws Exception {
             scenarioExecution().install(
-                    new AllRolesFixture()
+                    new AllExampleRolesAndPermissions()
             );
 
             // necessary to lookup again because above fixtures will be installed in a new xactn
-            user = wrap(applicationUsers.findUserByUsername(SvenUserFixture.USER_NAME));
+            user = wrap(applicationUsers.findUserByUsername(SvenUser.USER_NAME));
 
             adminRole = applicationRoles.findRoleByName(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME);
-            userRole = applicationRoles.findRoleByName(RegularRoleFixture.ROLE_NAME);
+            userRole = applicationRoles.findRoleByName(ExampleRegularRoleAndPermissions.ROLE_NAME);
 
             assertThat(adminRole, is(notNullValue()));
             assertThat(userRole, is(notNullValue()));

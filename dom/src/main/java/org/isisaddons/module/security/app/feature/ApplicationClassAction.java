@@ -33,7 +33,7 @@ public class ApplicationClassAction extends ApplicationClassMember {
     //endregion
 
 
-    //region > returnType
+    //region > returnTypeName (property)
 
     @MemberOrder(name="Data Type", sequence = "2.6")
     public String getReturnType() {

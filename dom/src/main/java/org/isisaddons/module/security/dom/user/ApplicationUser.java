@@ -34,8 +34,12 @@ import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminUser;
+import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
+import org.apache.isis.applib.security.RoleMemento;
+import org.apache.isis.applib.security.UserMemento;
 import org.apache.isis.applib.util.ObjectContracts;
 import org.apache.isis.applib.value.Password;
 
@@ -78,12 +82,15 @@ import org.apache.isis.applib.value.Password;
 )
 public class ApplicationUser implements Comparable<ApplicationUser> {
 
+    //region > constants
+
     public static final int MAX_LENGTH_USERNAME = 30;
     public static final int MAX_LENGTH_FAMILY_NAME = 50;
     public static final int MAX_LENGTH_GIVEN_NAME = 50;
     public static final int MAX_LENGTH_KNOWN_AS = 20;
     public static final int MAX_LENGTH_EMAIL_ADDRESS = 50;
     public static final int MAX_LENGTH_PHONE_NUMBER = 25;
+    //endregion
 
     //region > identification
 
@@ -223,6 +230,10 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         return getKnownAs();
     }
 
+    public String disableUpdateName(final String familyName, final String givenName, final String knownAs) {
+        return isSelfOrIsAdministrator()? null: "Can only update your own user record.";
+    }
+
     public String validateUpdateName(final String familyName, final String givenName, final String knownAs) {
         if(familyName != null && givenName == null) {
             return "Must provide given name if family name has been provided.";
@@ -260,6 +271,9 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         return getEmailAddress();
     }
 
+    public String disableUpdateEmailAddress(final String emailAddress) {
+        return isSelfOrIsAdministrator()? null: "Can only update your own user record.";
+    }
     //endregion
 
     //region > phoneNumber (property)
@@ -284,6 +298,9 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         return this;
     }
 
+    public String disableUpdatePhoneNumber(final String faxNumber) {
+        return isSelfOrIsAdministrator()? null: "Can only update your own user record.";
+    }
     public String default0UpdatePhoneNumber() {
         return getPhoneNumber();
     }
@@ -315,6 +332,10 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     public String default0UpdateFaxNumber() {
         return getFaxNumber();
+    }
+
+    public String disableUpdateFaxNumber(final String faxNumber) {
+        return isSelfOrIsAdministrator()? null: "Can only update your own user record.";
     }
 
     //endregion
@@ -441,10 +462,16 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
             final Password existingPassword,
             final Password newPassword,
             final Password newPasswordConfirm) {
-        return !isHasPassword()
-                ?"Password must be reset by administator."
-                :null;
+
+        if(!isSelfOrIsAdministrator()) {
+            return "Can only update password for your own user account.";
+        }
+        if (!isHasPassword()) {
+            return "Password must be reset by administrator.";
+        }
+        return null;
     }
+
 
     public String validateUpdatePassword(
             final Password existingPassword,
@@ -460,7 +487,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
             }
         }
 
-        if (!Objects.equals(newPassword.getPassword(), newPasswordRepeat.getPassword())) {
+        if (!match(newPassword, newPasswordRepeat)) {
             return "Passwords do not match";
         }
 
@@ -502,12 +529,21 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         if(applicationUsers.isPasswordsFeatureDisabled()) {
             return null;
         }
-
-        if (!Objects.equals(newPassword.getPassword(), newPasswordRepeat.getPassword())) {
+        if (!match(newPassword, newPasswordRepeat)) {
             return "Passwords do not match";
         }
 
         return null;
+    }
+
+    boolean match(Password newPassword, Password newPasswordRepeat) {
+        if (newPassword == null && newPasswordRepeat == null) {
+            return true;
+        }
+        if (newPassword == null || newPasswordRepeat == null) {
+            return false;
+        }
+        return Objects.equals(newPassword.getPassword(), newPasswordRepeat.getPassword());
     }
 
     //endregion
@@ -580,6 +616,25 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
     //endregion
 
+    //region > delete (action)
+    @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
+    @MemberOrder(sequence = "1")
+    public List<ApplicationUser> delete(
+            final @Named("Are you sure?") @Optional Boolean areYouSure) {
+        container.removeIfNotAlready(this);
+        container.flush();
+        return applicationUsers.allUsers();
+    }
+
+    public String validateDelete(final Boolean areYouSure) {
+        return not(areYouSure) ? "Please confirm this action": null;
+    }
+
+    static boolean not(Boolean areYouSure) {
+        return areYouSure == null || !areYouSure;
+    }
+    //endregion
+
     //region > PermissionSet (programmatic)
 
     // short-term caching
@@ -592,6 +647,31 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         final List<ApplicationPermission> permissions = applicationPermissions.findByUser(this);
         final ApplicationPermissionValueSet permissionSet = new ApplicationPermissionValueSet(Iterables.transform(permissions, ApplicationPermission.Functions.AS_VALUE));
         return cachedPermissionSet = permissionSet;
+    }
+    //endregion
+
+    //region > isSelf (helper)
+    boolean isSelfOrIsAdministrator() {
+        return isSelf() || isAdministrator();
+    }
+
+    boolean isSelf() {
+        final String currentUserName = container.getUser().getName();
+        return Objects.equals(getName(), currentUserName);
+    }
+    boolean isAdministrator() {
+        final UserMemento currentUser = container.getUser();
+        final List<RoleMemento> roles = currentUser.getRoles();
+        for (RoleMemento role : roles) {
+            final String roleName = role.getName();
+            // format is realmName:roleName.
+            // since we don't know what the realm's name is (depends on its configuration in shiro.ini),
+            // simply check that the last part matches the role name.
+            if(roleName.endsWith(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME)) {
+                return true;
+            }
+        }
+        return false;
     }
     //endregion
 
@@ -629,5 +709,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     ApplicationPermissions applicationPermissions;
     @javax.inject.Inject
     PasswordEncryptionService passwordEncryptionService;
+    @javax.inject.Inject
+    DomainObjectContainer container;
     //endregion
 }

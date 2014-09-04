@@ -293,7 +293,7 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
             }
         };
 
-        public static final Function<ApplicationFeatureId, String> GET_MEMBER = new Function<ApplicationFeatureId, String>() {
+        public static final Function<ApplicationFeatureId, String> GET_MEMBER_NAME = new Function<ApplicationFeatureId, String>() {
             @Override
             public String apply(ApplicationFeatureId input) {
                 return input.getMemberName();

@@ -186,13 +186,12 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
             return null;
         }
         final ApplicationFeature feature = applicationFeatures.findFeature(parentId);
-        if (feature != null) {
-            final Class<? extends ApplicationFeatureViewModel> cls = viewModelClassFor(parentId, applicationFeatures);
-            return container.newViewModelInstance(cls, parentId.asEncodedString());
-        }
-        else {
+        if (feature == null) {
             return null;
         }
+        final Class<? extends ApplicationFeatureViewModel> cls = viewModelClassFor(parentId, applicationFeatures);
+        return container.newViewModelInstance(cls, parentId.asEncodedString());
+
     }
     //endregion
 
@@ -215,8 +214,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     @MemberOrder(sequence = "10")
     @Render(Render.Type.EAGERLY)
     public List<ApplicationPermission> getPermissions() {
-        final ApplicationFeatureId featureId = this.getFeatureId();
-        return applicationPermissions.findByFeature(featureId);
+        return applicationPermissions.findByFeature(getFeatureId());
     }
     //endregion
 

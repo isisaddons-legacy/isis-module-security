@@ -16,13 +16,17 @@
  */
 package org.isisaddons.module.security.dom.feature;
 
-import org.junit.Assert;
+import com.danhaywood.java.testsupport.coverage.PojoTester;
+import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
+import org.isisaddons.module.security.dom.FixtureDatumFactories;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.Assert.assertThat;
 
 public class ApplicationFeatureTest {
 
@@ -40,8 +44,8 @@ public class ApplicationFeatureTest {
             applicationFeature.addToContents(packageFeatureId);
             applicationFeature.addToContents(classFeatureId);
 
-            Assert.assertThat(applicationFeature.getContents().size(), is(2));
-            Assert.assertThat(applicationFeature.getContents(), containsInAnyOrder(packageFeatureId, classFeatureId));
+            assertThat(applicationFeature.getContents().size(), is(2));
+            assertThat(applicationFeature.getContents(), containsInAnyOrder(packageFeatureId, classFeatureId));
         }
 
         @Test
@@ -105,8 +109,8 @@ public class ApplicationFeatureTest {
             applicationFeature.addToMembers(memberFeatureId, ApplicationMemberType.PROPERTY);
             applicationFeature.addToMembers(memberFeatureId2, ApplicationMemberType.PROPERTY);
 
-            Assert.assertThat(applicationFeature.getProperties().size(), is(2));
-            Assert.assertThat(applicationFeature.getProperties(), containsInAnyOrder(memberFeatureId, memberFeatureId2));
+            assertThat(applicationFeature.getProperties().size(), is(2));
+            assertThat(applicationFeature.getProperties(), containsInAnyOrder(memberFeatureId, memberFeatureId2));
         }
 
         @Test
@@ -142,4 +146,43 @@ public class ApplicationFeatureTest {
             applicationFeature.addToMembers(classFeatureId, ApplicationMemberType.PROPERTY);
         }
     }
+
+    public static class BeanProperties extends ApplicationTenancyTest {
+
+        @Test
+        public void exercise() throws Exception {
+            PojoTester.relaxed()
+                    .withFixture(FixtureDatumFactories.featureIds())
+                    .withFixture(FixtureDatumFactories.booleans())
+                    .exercise(new ApplicationFeature());
+        }
+    }
+
+    public static class FunctionsTest extends ApplicationTenancyTest {
+
+        @Test
+        public void GET_FQN() throws Exception {
+            final ApplicationFeature input = new ApplicationFeature(ApplicationFeatureId.newMember("com.mycompany.Foo#bar"));
+            assertThat(ApplicationFeature.Functions.GET_FQN.apply(input), is("com.mycompany.Foo#bar"));
+        }
+        @Test
+        public void GET_ID() throws Exception {
+            final ApplicationFeatureId featureId = ApplicationFeatureId.newMember("com.mycompany.Foo#bar");
+            final ApplicationFeature input = new ApplicationFeature(featureId);
+            assertThat(ApplicationFeature.Functions.GET_ID.apply(input), is(featureId));
+        }
+    }
+
+    public static class PrivateConstructors {
+
+        @Test
+        public void forFunctions() throws Exception {
+            new PrivateConstructorTester(ApplicationFeature.Functions.class).exercise();
+        }
+        @Test
+        public void forPredicates() throws Exception {
+            new PrivateConstructorTester(ApplicationFeature.Predicates.class).exercise();
+        }
+    }
+
 }

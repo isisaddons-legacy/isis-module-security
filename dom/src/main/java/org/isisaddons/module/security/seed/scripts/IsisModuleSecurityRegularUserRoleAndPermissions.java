@@ -16,7 +16,7 @@
  */
 package org.isisaddons.module.security.seed.scripts;
 
-import org.isisaddons.module.security.app.MeService;
+import org.isisaddons.module.security.app.user.MeService;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
@@ -24,7 +24,7 @@ import org.isisaddons.module.security.dom.user.ApplicationUser;
 
 /**
  * Role for regular users of the security module, providing the ability to lookup their user account using the
- * {@link org.isisaddons.module.security.app.MeService}, and for viewing and maintaining their user details.
+ * {@link org.isisaddons.module.security.app.user.MeService}, and for viewing and maintaining their user details.
  */
 public class IsisModuleSecurityRegularUserRoleAndPermissions extends AbstractRoleAndPermissionsFixtureScript {
 

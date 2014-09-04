@@ -16,10 +16,18 @@
  */
 package org.isisaddons.module.security.dom.feature;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.TreeSet;
+import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
+import com.google.common.base.Function;
+import org.jmock.Expectations;
+import org.jmock.auto.Mock;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
+import org.apache.isis.core.unittestsupport.value.ValueTypeContractTestAbstract;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -30,7 +38,20 @@ import static org.junit.Assert.assertThat;
 public class ApplicationFeatureIdTest {
 
     @Rule
+    public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(JUnitRuleMockery2.Mode.INTERFACES_AND_CLASSES);
+
+    @Rule
     public ExpectedException expectedException = ExpectedException.none();
+
+    public static class Title extends ApplicationFeatureIdTest {
+
+        @Test
+        public void happyCase() throws Exception {
+            final ApplicationFeatureId applicationFeatureId = ApplicationFeatureId.newMember("com.mycompany.Bar#foo");
+
+            assertThat(applicationFeatureId.title(), is("com.mycompany.Bar#foo"));
+        }
+    }
 
     public static class NewPackage extends ApplicationFeatureIdTest {
 
@@ -86,7 +107,34 @@ public class ApplicationFeatureIdTest {
 
     }
 
-    public static class NewFeature extends ApplicationFeatureIdTest {
+    public static class Constructor_AFT_String extends ApplicationFeatureIdTest {
+
+        @Test
+        public void whenPackage() throws Exception {
+            // when
+            final ApplicationFeatureId applicationFeatureId = new ApplicationFeatureId(ApplicationFeatureType.PACKAGE, "com.mycompany");
+            // then
+            assertThat(applicationFeatureId, is(ApplicationFeatureId.newPackage("com.mycompany")));
+        }
+
+        @Test
+        public void whenClass() throws Exception {
+            // when
+            final ApplicationFeatureId applicationFeatureId = new ApplicationFeatureId(ApplicationFeatureType.CLASS, "com.mycompany.Bar");
+            // then
+            assertThat(applicationFeatureId, is(ApplicationFeatureId.newClass("com.mycompany.Bar")));
+        }
+
+        @Test
+        public void whenMember() throws Exception {
+            // when
+            final ApplicationFeatureId applicationFeatureId = new ApplicationFeatureId(ApplicationFeatureType.MEMBER, "com.mycompany.Bar#foo");
+            // then
+            assertThat(applicationFeatureId, is(ApplicationFeatureId.newMember("com.mycompany.Bar","foo")));
+        }
+    }
+
+    public static class NewFeature_AFT_String extends ApplicationFeatureIdTest {
 
         @Test
         public void whenPackage() throws Exception {
@@ -108,6 +156,33 @@ public class ApplicationFeatureIdTest {
         public void whenMember() throws Exception {
             // when
             final ApplicationFeatureId applicationFeatureId = ApplicationFeatureId.newFeature(ApplicationFeatureType.MEMBER, "com.mycompany.Bar#foo");
+            // then
+            assertThat(applicationFeatureId, is(ApplicationFeatureId.newMember("com.mycompany.Bar","foo")));
+        }
+    }
+
+    public static class NewFeature_String_String_String extends ApplicationFeatureIdTest {
+
+        @Test
+        public void whenPackage() throws Exception {
+            // when
+            final ApplicationFeatureId applicationFeatureId = ApplicationFeatureId.newFeature("com.mycompany", null, null);
+            // then
+            assertThat(applicationFeatureId, is(ApplicationFeatureId.newPackage("com.mycompany")));
+        }
+
+        @Test
+        public void whenClass() throws Exception {
+            // when
+            final ApplicationFeatureId applicationFeatureId = ApplicationFeatureId.newFeature("com.mycompany", "Bar", null);
+            // then
+            assertThat(applicationFeatureId, is(ApplicationFeatureId.newClass("com.mycompany.Bar")));
+        }
+
+        @Test
+        public void whenMember() throws Exception {
+            // when
+            final ApplicationFeatureId applicationFeatureId = ApplicationFeatureId.newFeature("com.mycompany", "Bar", "foo");
             // then
             assertThat(applicationFeatureId, is(ApplicationFeatureId.newMember("com.mycompany.Bar","foo")));
         }
@@ -316,5 +391,223 @@ public class ApplicationFeatureIdTest {
         }
     }
 
+    public static abstract class ValueTypeContractTest extends ValueTypeContractTestAbstract<ApplicationFeatureId> {
+
+        public static class PackageFeatures extends ValueTypeContractTest {
+
+            @Override
+            protected List<ApplicationFeatureId> getObjectsWithSameValue() {
+                return Arrays.asList(
+                        ApplicationFeatureId.newPackage("com.mycompany"),
+                        ApplicationFeatureId.newPackage("com.mycompany"));
+            }
+
+            @Override
+            protected List<ApplicationFeatureId> getObjectsWithDifferentValue() {
+                return Arrays.asList(
+                        ApplicationFeatureId.newPackage("com.mycompany2"),
+                        ApplicationFeatureId.newClass("com.mycompany.Foo"),
+                        ApplicationFeatureId.newMember("com.mycompany.Foo#bar"));
+            }
+        }
+
+        public static class ClassFeatures extends ValueTypeContractTest {
+
+            @Override
+            protected List<ApplicationFeatureId> getObjectsWithSameValue() {
+                return Arrays.asList(
+                        ApplicationFeatureId.newClass("com.mycompany.Foo"),
+                        ApplicationFeatureId.newClass("com.mycompany.Foo"));
+            }
+
+            @Override
+            protected List<ApplicationFeatureId> getObjectsWithDifferentValue() {
+                return Arrays.asList(
+                        ApplicationFeatureId.newPackage("com.mycompany"),
+                        ApplicationFeatureId.newClass("com.mycompany.Foo2"),
+                        ApplicationFeatureId.newMember("com.mycompany.Foo#bar"));
+            }
+        }
+
+        public static class MemberFeatures extends ValueTypeContractTest {
+
+            @Override
+            protected List<ApplicationFeatureId> getObjectsWithSameValue() {
+                return Arrays.asList(
+                        ApplicationFeatureId.newMember("com.mycompany.Foo#bar"),
+                        ApplicationFeatureId.newMember("com.mycompany.Foo#bar"));
+            }
+
+            @Override
+            protected List<ApplicationFeatureId> getObjectsWithDifferentValue() {
+                return Arrays.asList(
+                        ApplicationFeatureId.newPackage("com.mycompany"),
+                        ApplicationFeatureId.newClass("com.mycompany.Foo"),
+                        ApplicationFeatureId.newMember("com.mycompany.Foo#bar2"));
+            }
+        }
+
+    }
+
+    public static class PrivateConstructors {
+
+        @Test
+        public void forFunctions() throws Exception {
+            new PrivateConstructorTester(ApplicationFeatureId.Functions.class).exercise();
+        }
+        @Test
+        public void forPredicates() throws Exception {
+            new PrivateConstructorTester(ApplicationFeatureId.Predicates.class).exercise();
+        }
+        @Test
+        public void forComparators() throws Exception {
+            new PrivateConstructorTester(ApplicationFeatureId.Comparators.class).exercise();
+        }
+    }
+
+    public static class FunctionsTest extends ApplicationFeatureIdTest {
+
+        public static class GET_CLASS_NAME extends FunctionsTest {
+
+            private Function<ApplicationFeatureId, String> func = ApplicationFeatureId.Functions.GET_CLASS_NAME;
+
+            @Test
+            public void whenNull() throws Exception {
+                expectedException.expect(NullPointerException.class);
+                func.apply(null);
+            }
+
+            @Test
+            public void whenPackage() throws Exception {
+                assertThat(func.apply(ApplicationFeatureId.newPackage("com.mycompany")), is(nullValue()));
+            }
+
+            @Test
+            public void whenClass() throws Exception {
+                assertThat(func.apply(ApplicationFeatureId.newClass("com.mycompany.Bar")), is("Bar"));
+            }
+
+            @Test
+            public void whenMember() throws Exception {
+                assertThat(func.apply(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")), is("Bar"));
+            }
+
+        }
+
+        public static class GET_MEMBER_NAME extends FunctionsTest {
+
+            private Function<ApplicationFeatureId, String> func = ApplicationFeatureId.Functions.GET_MEMBER_NAME;
+
+            @Test
+            public void whenNull() throws Exception {
+                expectedException.expect(NullPointerException.class);
+                func.apply(null);
+            }
+
+            @Test
+            public void whenPackage() throws Exception {
+                assertThat(func.apply(ApplicationFeatureId.newPackage("com.mycompany")), is(nullValue()));
+            }
+
+            @Test
+            public void whenClass() throws Exception {
+                assertThat(func.apply(ApplicationFeatureId.newClass("com.mycompany.Bar")), is(nullValue()));
+            }
+
+            @Test
+            public void whenMember() throws Exception {
+                assertThat(func.apply(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")), is("foo"));
+            }
+
+        }
+
+    }
+
+    public static class PredicatesTest extends ApplicationFeatureIdTest {
+
+        public static class IsClassContaining extends PredicatesTest {
+
+            private ApplicationMemberType memberType;
+
+            @Mock
+            private ApplicationFeatures mockApplicationFeatures;
+            @Mock
+            private ApplicationFeature mockApplicationFeature;
+
+            @Test
+            public void whenNull() throws Exception {
+                expectedException.expect(NullPointerException.class);
+
+                ApplicationFeatureId.Predicates.
+                        isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatures).
+                        apply(null);
+            }
+
+            @Test
+            public void whenNotClass() throws Exception {
+                assertThat(
+                        ApplicationFeatureId.Predicates.
+                                isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatures).
+                                apply(ApplicationFeatureId.newPackage("com.mycompany")),
+                        is(false));
+                assertThat(
+                        ApplicationFeatureId.Predicates.
+                                isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatures).
+                                apply(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")),
+                        is(false));
+            }
+
+            @Test
+            public void whenClassButFeatureNotFound() throws Exception {
+                final ApplicationFeatureId classFeature = ApplicationFeatureId.newClass("com.mycompany.Bar");
+                context.checking(new Expectations() {{
+                    allowing(mockApplicationFeatures).findFeature(classFeature);
+                    will(returnValue(null));
+                }});
+
+                assertThat(
+                        ApplicationFeatureId.Predicates.
+                                isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatures).
+                                apply(classFeature),
+                        is(false));
+            }
+            @Test
+            public void whenClassAndFeatureNotFoundButHasNoMembersOfType() throws Exception {
+                final ApplicationFeatureId classFeature = ApplicationFeatureId.newClass("com.mycompany.Bar");
+                context.checking(new Expectations() {{
+                    oneOf(mockApplicationFeatures).findFeature(classFeature);
+                    will(returnValue(mockApplicationFeature));
+
+                    allowing(mockApplicationFeature).membersOf(ApplicationMemberType.ACTION);
+                    will(returnValue(new TreeSet<>()));
+                }});
+
+                assertThat(
+                        ApplicationFeatureId.Predicates.
+                                isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatures).
+                                apply(classFeature),
+                        is(false));
+            }
+            @Test
+            public void whenClassAndFeatureNotFoundAndHasMembersOfType() throws Exception {
+                final ApplicationFeatureId classFeature = ApplicationFeatureId.newClass("com.mycompany.Bar");
+                context.checking(new Expectations() {{
+                    oneOf(mockApplicationFeatures).findFeature(classFeature);
+                    will(returnValue(mockApplicationFeature));
+
+                    allowing(mockApplicationFeature).membersOf(ApplicationMemberType.ACTION);
+                    will(returnValue(new TreeSet<ApplicationFeatureId>() {{
+                        add(ApplicationFeatureId.newMember("com.mycompany.Bar#foo"));
+                    }}));
+                }});
+
+                assertThat(
+                        ApplicationFeatureId.Predicates.
+                                isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatures).
+                                apply(classFeature),
+                        is(true));
+            }
+        }
+    }
 
 }

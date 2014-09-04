@@ -271,4 +271,16 @@ public class ApplicationFeaturesTest {
         }
 
     }
+
+    public static class IconName extends ApplicationFeaturesTest {
+
+        @Test
+        public void happyCase() throws Exception {
+
+            applicationFeatures = new ApplicationFeatures();
+            Assert.assertThat(applicationFeatures.iconName(), is("applicationFeature"));
+        }
+    }
+
+
 }

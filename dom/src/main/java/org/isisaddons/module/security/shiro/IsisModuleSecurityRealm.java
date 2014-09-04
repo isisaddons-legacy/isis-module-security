@@ -90,7 +90,7 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
         final Object credentials = token.getCredentials();
         final String realmName = getName();
-        return new AuthenticationInfoForApplicationUser(principal, realmName, credentials);
+        return new AuthInfoForApplicationUser(principal, realmName, credentials);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
         if (urp == null) {
             return null;
         }
-        return new AuthorizationInfoForApplicationUser(urp);
+        return urp;
     }
 
     //endregion

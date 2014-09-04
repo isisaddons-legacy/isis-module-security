@@ -33,7 +33,7 @@ public abstract class AbstractRoleAndPermissionsFixtureScript extends FixtureScr
     private final String roleName;
     private final String roleDescription;
 
-    AbstractRoleAndPermissionsFixtureScript(
+    protected AbstractRoleAndPermissionsFixtureScript(
             final String roleName,
             final String roleDescriptionIfAny) {
         this.roleName = roleName;

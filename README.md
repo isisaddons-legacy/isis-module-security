@@ -41,17 +41,24 @@ also has its own very simple `ExampleEntity` entity and corresponding repository
 
 #### Application Menus ####
 
-The security module provides a number of menus: _Users_, _Roles_, _Features_, _Permissions_ and _User Tenancies_:
+The security module provides a number of menus: _Users_, _Roles_, _Features_, _Permissions_ and _User Tenancies_.
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/010-menus.png)
 
-#### Installing example fixture data ####
+#### Automatically Seeds Roles ####
 
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/020-install-fixtures.png)
+When the security module starts up, it will automatically seed a number of roles, corresponding permissions and a 
+default 'admin' user.
 
-#### Application Role ####
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/020-roles.png)
+
+The `admin` role grants all permissions to all classes in the Security module itself:
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/030-role.png)
+
+The `regular-user` role grants selected permissions to the `ApplicationUser` class:
+
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/035-role-regular-user.png)
 
 #### Add permission for all features in a package ####
 

@@ -27,6 +27,7 @@ import javax.jdo.annotations.VersionStrategy;
 import com.google.common.collect.Lists;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
+import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.util.ObjectContracts;
 
@@ -152,6 +153,28 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //endregion
 
+    //region > delete (action)
+    @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
+    @MemberOrder(sequence = "1")
+    public List<ApplicationTenancy> delete(
+            final @Named("Are you sure?") @Optional Boolean areYouSure) {
+        for (ApplicationUser user : getUsers()) {
+            user.updateTenancy(null);
+        }
+        container.removeIfNotAlready(this);
+        container.flush();
+        return applicationTenancies.allTenancies();
+    }
+
+    public String validateDelete(final Boolean areYouSure) {
+        return not(areYouSure) ? "Please confirm this action": null;
+    }
+
+    static boolean not(Boolean areYouSure) {
+        return areYouSure == null || !areYouSure;
+    }
+    //endregion
+
     //region > compareTo
 
     @Override
@@ -163,5 +186,9 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     //region  >  (injected)
     @javax.inject.Inject
     ApplicationUsers applicationUsers;
+    @javax.inject.Inject
+    ApplicationTenancies applicationTenancies;
+    @javax.inject.Inject
+    DomainObjectContainer container;
     //endregion
 }

@@ -31,7 +31,7 @@ import org.apache.isis.applib.fixturescripts.FixtureScripts;
 public class SecurityModuleAppFixturesService extends FixtureScripts {
 
     public SecurityModuleAppFixturesService() {
-        super("org.isisaddons.module.security.fixture.scripts");
+        super(SecurityModuleAppFixturesService.class.getPackage().getName());
     }
 
     @Override

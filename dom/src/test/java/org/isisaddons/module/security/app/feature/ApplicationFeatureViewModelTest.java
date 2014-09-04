@@ -16,24 +16,32 @@
  */
 package org.isisaddons.module.security.app.feature;
 
+import java.util.Arrays;
 import java.util.List;
+import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
+import com.google.common.collect.Lists;
 import org.hamcrest.CoreMatchers;
 import org.isisaddons.module.security.dom.feature.*;
+import org.isisaddons.module.security.dom.permission.ApplicationPermission;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
+import org.apache.isis.core.unittestsupport.value.ValueTypeContractTestAbstract;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ApplicationFeatureViewModelTest {
 
     @Rule
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(JUnitRuleMockery2.Mode.INTERFACES_AND_CLASSES);
+
+    ApplicationFeatureViewModel applicationFeatureViewModel;
 
     @Mock
     ApplicationFeatures mockApplicationFeatures;
@@ -179,4 +187,386 @@ public class ApplicationFeatureViewModelTest {
             assertThat(actions.size(), is(1));
         }
     }
+
+    public static class PrivateConstructors {
+
+        @Test
+        public void forFunctions() throws Exception {
+            new PrivateConstructorTester(ApplicationFeatureViewModel.Functions.class).exercise();
+        }
+    }
+
+    public static class GetFullyQualifiedClassName extends ApplicationFeatureViewModelTest {
+
+        @Test
+        public void happyCase() throws Exception {
+
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")) {
+            };
+            assertThat(applicationFeatureViewModel.getFullyQualifiedName(), is("com.mycompany.Bar#foo"));
+       }
+    }
+
+    public static class GetType extends ApplicationFeatureViewModelTest {
+
+        @Test
+        public void whenPackage() throws Exception {
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newPackage("com.mycompany")) {
+            };
+            assertThat(applicationFeatureViewModel.getType(), is(ApplicationFeatureType.PACKAGE));
+        }
+        @Test
+        public void whenClass() throws Exception {
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newClass("com.mycompany.Bar")) {
+            };
+            assertThat(applicationFeatureViewModel.getType(), is(ApplicationFeatureType.CLASS));
+        }
+        @Test
+        public void whenMember() throws Exception {
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")) {
+            };
+            assertThat(applicationFeatureViewModel.getType(), is(ApplicationFeatureType.MEMBER));
+        }
+    }
+
+    public static class HideClassName extends ApplicationFeatureViewModelTest {
+
+        @Test
+        public void whenPackage() throws Exception {
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newPackage("com.mycompany")) {
+            };
+            assertThat(applicationFeatureViewModel.hideClassName(), is(true));
+        }
+        @Test
+        public void whenClass() throws Exception {
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newClass("com.mycompany.Bar")) {
+            };
+            assertThat(applicationFeatureViewModel.hideClassName(), is(false));
+        }
+        @Test
+        public void whenMember() throws Exception {
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")) {
+            };
+            assertThat(applicationFeatureViewModel.hideClassName(), is(false));
+        }
+    }
+
+    public static class HideMemberName extends ApplicationFeatureViewModelTest {
+
+        @Test
+        public void whenPackage() throws Exception {
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newPackage("com.mycompany")) {
+            };
+            assertThat(applicationFeatureViewModel.hideMemberName(), is(true));
+        }
+        @Test
+        public void whenClass() throws Exception {
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newClass("com.mycompany.Bar")) {
+            };
+            assertThat(applicationFeatureViewModel.hideMemberName(), is(true));
+        }
+        @Test
+        public void whenMember() throws Exception {
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")) {
+            };
+            assertThat(applicationFeatureViewModel.hideMemberName(), is(false));
+        }
+    }
+
+    public static class HideContributed extends ApplicationFeatureViewModelTest {
+
+        @Test
+        public void whenPackage() throws Exception {
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newPackage("com.mycompany")) {
+            };
+            assertThat(applicationFeatureViewModel.hideContributed(), is(true));
+        }
+        @Test
+        public void whenClass() throws Exception {
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newClass("com.mycompany.Bar")) {
+            };
+            assertThat(applicationFeatureViewModel.hideContributed(), is(true));
+        }
+        @Test
+        public void whenMember() throws Exception {
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")) {
+            };
+            assertThat(applicationFeatureViewModel.hideContributed(), is(false));
+        }
+    }
+
+    public static class IsContributed extends ApplicationFeatureViewModelTest {
+
+        @Mock
+        ApplicationFeature mockApplicationFeature;
+
+        @Test
+        public void delegatesToUnderlyingFeature() throws Exception {
+            // given
+            final ApplicationFeatureId featureId = ApplicationFeatureId.newMember("com.mycompany.Bar#foo");
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(featureId) {
+            };
+            applicationFeatureViewModel.applicationFeatures = mockApplicationFeatures;
+
+            // then
+            context.checking(new Expectations() {{
+                oneOf(mockApplicationFeatures).findFeature(featureId);
+                will(returnValue(mockApplicationFeature));
+
+                oneOf(mockApplicationFeature).isContributed();
+                will(returnValue(true));
+            }});
+
+            // when
+            assertThat(applicationFeatureViewModel.isContributed(), is(true));
+        }
+    }
+
+    public static class Title extends ApplicationFeatureViewModelTest {
+
+        @Test
+        public void happyCase() throws Exception {
+
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")) {
+            };
+            assertThat(applicationFeatureViewModel.title(), is("com.mycompany.Bar#foo"));
+        }
+    }
+
+    public static class IconName extends ApplicationFeatureViewModelTest {
+
+        @Test
+        public void happyCase() throws Exception {
+
+            applicationFeatureViewModel = new ApplicationFeatureViewModel() {
+            };
+            assertThat(applicationFeatureViewModel.iconName(), is("applicationFeature"));
+        }
+    }
+
+    public static class Parent extends ApplicationFeatureViewModelTest {
+
+        @Mock
+        ApplicationFeature mockApplicationFeature;
+        private ApplicationFeatureViewModel parent;
+
+        @Before
+        public void setUp() throws Exception {
+            applicationFeatureViewModel = new ApplicationFeatureViewModel() {
+            };
+            applicationFeatureViewModel.applicationFeatures = mockApplicationFeatures;
+            applicationFeatureViewModel.container = mockContainer;
+
+            parent = new ApplicationFeatureViewModel() {
+            };
+        }
+
+        @Test
+        public void whenPackage() throws Exception {
+
+            // given
+            final ApplicationFeatureId featureId = ApplicationFeatureId.newPackage("com.mycompany");
+            final ApplicationFeatureId parentId = ApplicationFeatureId.newPackage("com");
+            applicationFeatureViewModel.setFeatureId(featureId);
+
+            // then
+            context.checking(new Expectations() {{
+                allowing(mockApplicationFeatures).findFeature(parentId);
+                will(returnValue(mockApplicationFeature));
+
+                oneOf(mockContainer).newViewModelInstance(ApplicationPackage.class, parentId.asEncodedString());
+                will(returnValue(parent));
+            }});
+
+            // when
+            assertThat(applicationFeatureViewModel.getParent(), is(parent));
+        }
+
+        @Test
+        public void whenPackageTopLevel() throws Exception {
+
+            // given
+            final ApplicationFeatureId featureId = ApplicationFeatureId.newPackage("com");
+            applicationFeatureViewModel.setFeatureId(featureId);
+
+            // then
+            context.checking(new Expectations() {{
+                never(mockApplicationFeatures);
+
+                never(mockContainer);
+            }});
+
+            // when
+            assertThat(applicationFeatureViewModel.getParent(), is(nullValue()));
+        }
+
+        // should this instead fail-fast, given that the parent should always exist if the child does?
+        @Test
+        public void whenParentNonExistent() throws Exception {
+
+            // given
+            final ApplicationFeatureId featureId = ApplicationFeatureId.newPackage("com.mycompany");
+            final ApplicationFeatureId parentId = ApplicationFeatureId.newPackage("com");
+            applicationFeatureViewModel.setFeatureId(featureId);
+
+            // then
+            context.checking(new Expectations() {{
+                allowing(mockApplicationFeatures).findFeature(parentId);
+                will(returnValue(null));
+
+                never(mockContainer);
+            }});
+
+            // when
+            assertThat(applicationFeatureViewModel.getParent(), is(nullValue()));
+        }
+
+        @Test
+        public void whenClass() throws Exception {
+
+            // given
+            final ApplicationFeatureId featureId = ApplicationFeatureId.newClass("com.mycompany.Bar");
+            final ApplicationFeatureId parentId = ApplicationFeatureId.newPackage("com.mycompany");
+            applicationFeatureViewModel.setFeatureId(featureId);
+
+            // then
+            context.checking(new Expectations() {{
+                allowing(mockApplicationFeatures).findFeature(with(equalTo(parentId)));
+                will(returnValue(mockApplicationFeature));
+
+                oneOf(mockContainer).newViewModelInstance(ApplicationPackage.class, parentId.asEncodedString());
+                will(returnValue(parent));
+            }});
+
+            // when
+            assertThat(applicationFeatureViewModel.getParent(), is(parent));
+        }
+        @Test
+        public void whenMember() throws Exception {
+            // given
+            final ApplicationFeatureId featureId = ApplicationFeatureId.newMember("com.mycompany.Bar#foo");
+            final ApplicationFeatureId parentId = ApplicationFeatureId.newClass("com.mycompany.Bar");
+            applicationFeatureViewModel.setFeatureId(featureId);
+
+            // then
+            context.checking(new Expectations() {{
+                allowing(mockApplicationFeatures).findFeature(parentId);
+                will(returnValue(mockApplicationFeature));
+
+                oneOf(mockContainer).newViewModelInstance(ApplicationClass.class, parentId.asEncodedString());
+                will(returnValue(parent));
+            }});
+
+            // when
+            assertThat(applicationFeatureViewModel.getParent(), is(parent));
+        }
+    }
+
+    public static class GetPermissions extends ApplicationFeatureViewModelTest {
+
+        @Mock
+        ApplicationPermissions mockApplicationPermissions;
+
+        @Test
+        public void delegatesToUnderlyingRepo() throws Exception {
+            // given
+            final ApplicationFeatureId featureId = ApplicationFeatureId.newMember("com.mycompany.Bar#foo");
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(featureId) {
+            };
+            applicationFeatureViewModel.applicationPermissions = mockApplicationPermissions;
+
+
+            // then
+            final List<ApplicationPermission> result = Lists.newArrayList();
+            context.checking(new Expectations() {{
+                oneOf(mockApplicationPermissions).findByFeature(featureId);
+                will(returnValue(result));
+            }});
+
+            // when
+            assertThat(applicationFeatureViewModel.getPermissions(), is(result));
+        }
+    }
+
+    public static abstract class ValueTypeContractTest extends ValueTypeContractTestAbstract<ApplicationFeatureViewModel> {
+
+        static ApplicationFeatureViewModel pkg(ApplicationFeatureId applicationFeatureId) {
+            return new ApplicationPackage(applicationFeatureId);
+        }
+
+        static ApplicationFeatureViewModel cls(ApplicationFeatureId applicationFeatureId) {
+            return new ApplicationClass(applicationFeatureId);
+        }
+
+        static ApplicationFeatureViewModel prop(ApplicationFeatureId applicationFeatureId) {
+            return new ApplicationClassProperty(applicationFeatureId);
+        }
+
+        static ApplicationFeatureViewModel coll(ApplicationFeatureId applicationFeatureId) {
+            return new ApplicationClassCollection(applicationFeatureId);
+        }
+
+        static ApplicationFeatureViewModel act(ApplicationFeatureId applicationFeatureId) {
+            return new ApplicationClassAction(applicationFeatureId);
+        }
+
+
+        public static class PackageFeatures extends ValueTypeContractTest {
+
+            @Override
+            protected List<ApplicationFeatureViewModel> getObjectsWithSameValue() {
+                return Arrays.asList(
+                        pkg(ApplicationFeatureId.newPackage("com.mycompany")),
+                        pkg(ApplicationFeatureId.newPackage("com.mycompany")));
+            }
+
+            @Override
+            protected List<ApplicationFeatureViewModel> getObjectsWithDifferentValue() {
+                return Arrays.asList(
+                        pkg(ApplicationFeatureId.newPackage("com.mycompany2")),
+                        cls(ApplicationFeatureId.newClass("com.mycompany.Foo")),
+                        prop(ApplicationFeatureId.newMember("com.mycompany.Foo#bar")));
+            }
+        }
+
+        public static class ClassFeatures extends ValueTypeContractTest {
+
+            @Override
+            protected List<ApplicationFeatureViewModel> getObjectsWithSameValue() {
+                return Arrays.asList(
+                        cls(ApplicationFeatureId.newClass("com.mycompany.Foo")),
+                        cls(ApplicationFeatureId.newClass("com.mycompany.Foo")));
+            }
+
+            @Override
+            protected List<ApplicationFeatureViewModel> getObjectsWithDifferentValue() {
+                return Arrays.asList(
+                        pkg(ApplicationFeatureId.newPackage("com.mycompany")),
+                        cls(ApplicationFeatureId.newClass("com.mycompany.Foo2")),
+                        act(ApplicationFeatureId.newMember("com.mycompany.Foo#bar")));
+            }
+        }
+
+        public static class PropertyFeatures extends ValueTypeContractTest {
+
+            @Override
+            protected List<ApplicationFeatureViewModel> getObjectsWithSameValue() {
+                return Arrays.asList(
+                        prop(ApplicationFeatureId.newMember("com.mycompany.Foo#bar")),
+                        prop(ApplicationFeatureId.newMember("com.mycompany.Foo#bar")));
+            }
+
+            @Override
+            protected List<ApplicationFeatureViewModel> getObjectsWithDifferentValue() {
+                return Arrays.asList(
+                        pkg(ApplicationFeatureId.newPackage("com.mycompany")),
+                        cls(ApplicationFeatureId.newClass("com.mycompany.Foo")),
+                        prop(ApplicationFeatureId.newMember("com.mycompany.Foo#bar2")));
+            }
+        }
+
+    }
+
+
+
 }

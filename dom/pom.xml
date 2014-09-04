@@ -61,6 +61,7 @@ language governing permissions and limitations under the License.
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <shiro-core.version>1.2.3</shiro-core.version>
         <jbcrypt.version>0.3m</jbcrypt.version>
+        <danhaywood-java-testsupport.version>1.0.0</danhaywood-java-testsupport.version>
     </properties>
 
     <build>
@@ -254,6 +255,13 @@ language governing permissions and limitations under the License.
             <version>${jbcrypt.version}</version>
             <optional>true</optional>
         </dependency>
+
+        <dependency>
+            <groupId>com.danhaywood.java</groupId>
+            <artifactId>danhaywood-java-testsupport</artifactId>
+            <version>${danhaywood-java-testsupport.version}</version>
+        </dependency>
+
     </dependencies>
 
     <!-- http://central.sonatype.org/pages/apache-maven.html -->

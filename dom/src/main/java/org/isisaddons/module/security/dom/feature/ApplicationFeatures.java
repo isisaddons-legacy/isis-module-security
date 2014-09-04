@@ -467,7 +467,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         }
         final SortedSet<ApplicationFeatureId> featureIds = cls.membersOf(memberType);
         return Lists.newArrayList(
-                Iterables.transform(featureIds, ApplicationFeatureId.Functions.GET_MEMBER)
+                Iterables.transform(featureIds, ApplicationFeatureId.Functions.GET_MEMBER_NAME)
         );
     }
 

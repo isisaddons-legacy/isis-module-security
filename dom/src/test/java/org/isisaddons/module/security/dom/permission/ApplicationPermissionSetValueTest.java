@@ -16,8 +16,12 @@
  */
 package org.isisaddons.module.security.dom.permission;
 
+import java.util.Arrays;
+import java.util.List;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.junit.Test;
+
+import org.apache.isis.core.unittestsupport.value.ValueTypeContractTestAbstract;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -770,6 +774,56 @@ public class ApplicationPermissionSetValueTest {
         return ApplicationPermissionMode.VIEWING;
     }
     //endregion
+
+    public static class ValueTypeContractTest extends ValueTypeContractTestAbstract<ApplicationPermissionValueSet> {
+
+        @Override
+        protected List<ApplicationPermissionValueSet> getObjectsWithSameValue() {
+            return Arrays.asList(
+                    new ApplicationPermissionValueSet(
+                        new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING),
+                        new ApplicationPermissionValue(ApplicationFeatureId.newClass("com.mycompany.Bar"), ApplicationPermissionRule.VETO, ApplicationPermissionMode.VIEWING),
+                        new ApplicationPermissionValue(ApplicationFeatureId.newMember("com.mycompany.Bar#foo"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.VIEWING)),
+                    new ApplicationPermissionValueSet(
+                        new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING),
+                        new ApplicationPermissionValue(ApplicationFeatureId.newClass("com.mycompany.Bar"), ApplicationPermissionRule.VETO, ApplicationPermissionMode.VIEWING),
+                        new ApplicationPermissionValue(ApplicationFeatureId.newMember("com.mycompany.Bar#foo"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.VIEWING))
+                    );
+        }
+
+        @Override
+        protected List<ApplicationPermissionValueSet> getObjectsWithDifferentValue() {
+            return Arrays.asList(
+                    // first APV has different FQN
+                    new ApplicationPermissionValueSet(
+                            new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompanyX"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING),
+                            new ApplicationPermissionValue(ApplicationFeatureId.newClass("com.mycompany.Bar"), ApplicationPermissionRule.VETO, ApplicationPermissionMode.VIEWING),
+                            new ApplicationPermissionValue(ApplicationFeatureId.newMember("com.mycompany.Bar#foo"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.VIEWING)),
+                    // second APV has different Rule
+                    new ApplicationPermissionValueSet(
+                            new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING),
+                            new ApplicationPermissionValue(ApplicationFeatureId.newClass("com.mycompany.Bar"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.VIEWING),
+                            new ApplicationPermissionValue(ApplicationFeatureId.newMember("com.mycompany.Bar#foo"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.VIEWING)),
+                    // third APV has different Mode
+                    new ApplicationPermissionValueSet(
+                            new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING),
+                            new ApplicationPermissionValue(ApplicationFeatureId.newClass("com.mycompany.Bar"), ApplicationPermissionRule.VETO, ApplicationPermissionMode.VIEWING),
+                            new ApplicationPermissionValue(ApplicationFeatureId.newMember("com.mycompany.Bar#foo"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING)),
+                    // identical set of APVs, but 1 and 2 in different order
+                    new ApplicationPermissionValueSet(
+                            new ApplicationPermissionValue(ApplicationFeatureId.newClass("com.mycompany.Bar"), ApplicationPermissionRule.VETO, ApplicationPermissionMode.VIEWING),
+                            new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING),
+                            new ApplicationPermissionValue(ApplicationFeatureId.newMember("com.mycompany.Bar#foo"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.VIEWING)),
+                    // identical set of APVs, but 2 and 3 in different order
+                    new ApplicationPermissionValueSet(
+                            new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING),
+                            new ApplicationPermissionValue(ApplicationFeatureId.newMember("com.mycompany.Bar#foo"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.VIEWING),
+                            new ApplicationPermissionValue(ApplicationFeatureId.newClass("com.mycompany.Bar"), ApplicationPermissionRule.VETO, ApplicationPermissionMode.VIEWING))
+                    );
+        }
+
+    }
+
 
 
 }

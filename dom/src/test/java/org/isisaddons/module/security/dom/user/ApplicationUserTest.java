@@ -17,6 +17,7 @@
 package org.isisaddons.module.security.dom.user;
 
 import java.util.List;
+import com.danhaywood.java.testsupport.coverage.PojoTester;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,6 +26,7 @@ import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.isisaddons.module.security.dom.FixtureDatumFactories.tenancies;
 import static org.junit.Assert.assertThat;
 
 public class ApplicationUserTest {
@@ -186,5 +188,17 @@ public class ApplicationUserTest {
         }
 
     }
+
+    public static class BeanProperties extends ApplicationUserTest {
+
+        @Test
+        public void exercise() throws Exception {
+            PojoTester.relaxed()
+                    .withFixture(tenancies())
+                    .exercise(new ApplicationUser());
+        }
+
+    }
+
 
 }

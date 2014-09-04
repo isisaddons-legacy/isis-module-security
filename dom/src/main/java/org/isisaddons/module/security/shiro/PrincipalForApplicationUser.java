@@ -16,10 +16,14 @@
  */
 package org.isisaddons.module.security.shiro;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.Permission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
@@ -38,7 +42,7 @@ import org.isisaddons.module.security.dom.user.ApplicationUserStatus;
  *     creating an adapter object for the appropriate Shiro API.
  * </p>
  */
-class PrincipalForApplicationUser {
+class PrincipalForApplicationUser implements AuthorizationInfo {
 
     public static PrincipalForApplicationUser from(ApplicationUser applicationUser) {
         if(applicationUser == null) {
@@ -74,8 +78,29 @@ class PrincipalForApplicationUser {
         return getStatus() == ApplicationUserStatus.DISABLED;
     }
 
-    Set<String> getRoles() {
+    @Override
+    public Set<String> getRoles() {
         return roles;
+    }
+
+    @Override
+    public Collection<String> getStringPermissions() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Collection<Permission> getObjectPermissions() {
+        final Permission o = new Permission() {
+            @Override
+            public boolean implies(Permission p) {
+                if (!(p instanceof PermissionForMember)) {
+                    return false;
+                }
+                final PermissionForMember pfm = (PermissionForMember) p;
+                return getPermissionSet().grants(pfm.getFeatureId(), pfm.getMode());
+            }
+        };
+        return Collections.singleton(o);
     }
 
     ApplicationUserStatus getStatus() {

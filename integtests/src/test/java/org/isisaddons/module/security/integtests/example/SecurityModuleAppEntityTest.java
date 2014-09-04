@@ -21,10 +21,10 @@ import javax.inject.Inject;
 import org.isisaddons.module.security.fixture.dom.ExampleEntities;
 import org.isisaddons.module.security.fixture.dom.ExampleEntity;
 import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
-import org.isisaddons.module.security.fixture.scripts.exampleEntities.Bar;
-import org.isisaddons.module.security.fixture.scripts.exampleEntities.Baz;
-import org.isisaddons.module.security.fixture.scripts.exampleEntities.Bip;
-import org.isisaddons.module.security.fixture.scripts.exampleEntities.Bop;
+import org.isisaddons.module.security.fixture.scripts.exampleEntities.BarExampleEntity;
+import org.isisaddons.module.security.fixture.scripts.exampleEntities.BazExampleEntity;
+import org.isisaddons.module.security.fixture.scripts.exampleEntities.BipExampleEntity;
+import org.isisaddons.module.security.fixture.scripts.exampleEntities.BopExampleEntity;
 import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,10 +41,10 @@ public class SecurityModuleAppEntityTest extends SecurityModuleAppIntegTest {
     public void setUpData() throws Exception {
         scenarioExecution().install(
                 new SecurityModuleAppTearDown(),
-                new Bip(),
-                new Bar(),
-                new Baz(),
-                new Bop()
+                new BipExampleEntity(),
+                new BarExampleEntity(),
+                new BazExampleEntity(),
+                new BopExampleEntity()
                 );
     }
 

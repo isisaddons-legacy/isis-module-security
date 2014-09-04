@@ -16,8 +16,12 @@
  */
 package org.isisaddons.module.security.dom.permission;
 
+import java.util.Arrays;
+import java.util.List;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.junit.Test;
+
+import org.apache.isis.core.unittestsupport.value.ValueTypeContractTestAbstract;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -298,6 +302,29 @@ public class ApplicationPermissionValueTest {
         return ApplicationPermissionMode.VIEWING;
     }
     //endregion
+
+
+    public static class ValueTypeContractTest extends ValueTypeContractTestAbstract<ApplicationPermissionValue> {
+
+        @Override
+        protected List<ApplicationPermissionValue> getObjectsWithSameValue() {
+            return Arrays.asList(
+                    new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING),
+                    new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING)
+                    );
+        }
+
+        @Override
+        protected List<ApplicationPermissionValue> getObjectsWithDifferentValue() {
+            return Arrays.asList(
+                    new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany2"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING),
+                    new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.VETO, ApplicationPermissionMode.CHANGING),
+                    new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.VIEWING)
+                    );
+        }
+
+    }
+
 
 
 }

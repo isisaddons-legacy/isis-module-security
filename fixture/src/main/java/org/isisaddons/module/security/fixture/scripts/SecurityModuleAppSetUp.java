@@ -16,16 +16,13 @@
  */
 package org.isisaddons.module.security.fixture.scripts;
 
-import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
 import org.isisaddons.module.security.fixture.dom.ExampleEntities;
-import org.isisaddons.module.security.fixture.scripts.exampleEntities.AllEntitiesFixture;
-import org.isisaddons.module.security.fixture.scripts.permission.GuestRole_AllowViewing_ExampleDomPackage;
-import org.isisaddons.module.security.fixture.scripts.permission.NoFixtureScriptsRole_VetoViewing_FixtureScriptsPackage;
-import org.isisaddons.module.security.fixture.scripts.permission.RegularRole_AllowChanging_ExampleDomPackage;
-import org.isisaddons.module.security.fixture.scripts.roles.AllRolesFixture;
-import org.isisaddons.module.security.fixture.scripts.tenancy.AllTenanciesFixture;
-import org.isisaddons.module.security.fixture.scripts.userRoles.*;
-import org.isisaddons.module.security.fixture.scripts.users.AllUsersFixture;
+import org.isisaddons.module.security.fixture.scripts.exampleEntities.AllExampleEntities;
+import org.isisaddons.module.security.fixture.scripts.rolesandperms.*;
+import org.isisaddons.module.security.fixture.scripts.tenancy.AllTenancies;
+import org.isisaddons.module.security.fixture.scripts.userroles.*;
+import org.isisaddons.module.security.fixture.scripts.users.AllUsers;
+import org.isisaddons.module.security.seed.SeedUsersAndRolesFixtureScript;
 import org.apache.isis.applib.fixturescripts.DiscoverableFixtureScript;
 
 public class SecurityModuleAppSetUp extends DiscoverableFixtureScript {
@@ -34,27 +31,34 @@ public class SecurityModuleAppSetUp extends DiscoverableFixtureScript {
     protected void execute(ExecutionContext executionContext) {
 
         execute(new SecurityModuleAppTearDown(), executionContext);
-        execute(new IsisModuleSecurityAdminRoleAndPermissions(), executionContext);
+        execute(new SeedUsersAndRolesFixtureScript(), executionContext);
 
-        execute(new AllEntitiesFixture(), executionContext);
+        execute(new AllExampleEntities(), executionContext);
 
-        execute(new AllRolesFixture(), executionContext);
-        execute(new AllUsersFixture(), executionContext);
-        execute(new AllTenanciesFixture(), executionContext);
+        execute(new AllExampleRolesAndPermissions(), executionContext);
+        execute(new AllUsers(), executionContext);
+        execute(new AllTenancies(), executionContext);
 
         // perms (role/features)
-        execute(new GuestRole_AllowViewing_ExampleDomPackage(), executionContext);
-        execute(new RegularRole_AllowChanging_ExampleDomPackage(), executionContext);
-        execute(new NoFixtureScriptsRole_VetoViewing_FixtureScriptsPackage(), executionContext);
+        execute(new ExampleGuestRoleAndPremissions(), executionContext);
+        execute(new ExampleRegularRoleAndPermissions(), executionContext);
+        execute(new ExampleFixtureScriptsRoleAndPermissions(), executionContext);
+        execute(new ExampleHideEntityDescriptionRoleAndPermissions(), executionContext);
 
         // user/role
-        execute(new BobUser_Has_AdminRole(), executionContext);
-        execute(new BobUser_Has_NoFixtureScriptsRole(), executionContext);
-        execute(new DickUser_Has_RegularRole(), executionContext);
-        execute(new GuestUser_Has_GuestRole(), executionContext);
-        execute(new JoeUser_Has_ReadOnlyRole(), executionContext);
-        execute(new SvenUser_Has_AdminRole(), executionContext);
+        execute(new BobUser_Has_IsisSecurityAdminRole(), executionContext);
+        execute(new BobUser_Has_ExampleHideEntityDescriptionRole(), executionContext);
 
+        execute(new DickUser_Has_ExampleRegularRole(), executionContext);
+        execute(new DickUser_Has_IsisSecurityModuleRegularRole(), executionContext);
+
+        execute(new GuestUser_Has_ExampleGuestRole(), executionContext);
+        execute(new GuestUser_Has_IsisSecurityModuleRegularRole(), executionContext);
+
+        execute(new JoeUser_Has_ExampleGuestRole(), executionContext);
+        execute(new JoeUser_Has_IsisSecurityModuleRegularRole(), executionContext);
+
+        execute(new SvenUser_Has_IsisSecurityAdminRole(), executionContext);
     }
 
     // //////////////////////////////////////
