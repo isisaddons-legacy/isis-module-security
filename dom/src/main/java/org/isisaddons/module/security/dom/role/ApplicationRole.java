@@ -16,7 +16,10 @@
  */
 package org.isisaddons.module.security.dom.role;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
@@ -37,7 +40,6 @@ import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAn
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.util.ObjectContracts;
-import org.apache.isis.applib.util.TitleBuffer;
 import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 
 @javax.jdo.annotations.PersistenceCapable(
@@ -80,9 +82,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
      * wrapperFactory#unwrap(...) method, which is otherwise broken in Isis 1.6.0
      */
     public String title() {
-        final TitleBuffer buf = new TitleBuffer();
-        buf.append(getName());
-        return buf.toString();
+        return getName();
     }
     //endregion
 

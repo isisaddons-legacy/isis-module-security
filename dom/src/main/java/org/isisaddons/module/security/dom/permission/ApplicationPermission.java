@@ -28,7 +28,6 @@ import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.util.ObjectContracts;
-import org.apache.isis.applib.util.TitleBuffer;
 
 /**
  * Specifies how a particular {@link #getRole() application role} may interact with a specific
@@ -122,7 +121,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
      * wrapperFactory#unwrap(...) method, which is otherwise broken in Isis 1.6.0
      */
     public String title() {
-        final TitleBuffer buf = new TitleBuffer();
+        final StringBuilder buf = new StringBuilder();
         buf.append(getRole().getName()).append(":")  // admin:
            .append(" ").append(getRule().toString()) // Allow|Veto
            .append(" ").append(getMode().toString()) // Viewing|Changing
@@ -280,12 +279,13 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     @TypicalLength(ApplicationPermission.TYPICAL_LENGTH_TYPE)
     public String getType() {
         Enum<?> e = getFeatureType() != ApplicationFeatureType.MEMBER ? getFeatureType() : getMemberType();
-        return e.name();
+        return e != null ? e.name(): null;
     }
 
     @Programmatic
     private ApplicationMemberType getMemberType() {
-        return getFeature().getMemberType();
+        final ApplicationFeature feature = getFeature();
+        return feature != null? feature.getMemberType(): null;
     }
     //endregion
 
@@ -340,47 +340,6 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
         this.featureFqn = featureFqn;
     }
 
-    //endregion
-
-    //region > copy (action)
-
-    // TODO: split out into copyPackage (hide if not a package) and copyClassOrMember (hide if not),
-    // TODO: and do all the choices/defaults etc as in ApplicationRole#addPackage and ApplicationRole#addClassOrMember
-    @Hidden
-    @MemberOrder(sequence = "1")
-    public ApplicationPermission copy(
-            final ApplicationRole role,
-            final @Named("Rule") ApplicationPermissionRule rule,
-            final @Named("Mode") ApplicationPermissionMode mode,
-            final @Named("Package") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_PKG_FQN) String packageFqn,
-            final @Named("Class") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_CLS_NAME) String className,
-            final @Optional @Named("Member") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME) String memberName) {
-        return applicationPermissions.newPermission(role, rule, mode, packageFqn, className, memberName);
-    }
-
-    public ApplicationRole default0Copy() {
-        return getRole();
-    }
-
-    public ApplicationPermissionRule default1Copy() {
-        return getRule();
-    }
-
-    public ApplicationPermissionMode default2Copy() {
-        return getMode();
-    }
-
-    public String default3Copy() {
-        return getFeatureId().getPackageName();
-    }
-
-    public String default4Copy() {
-        return getFeatureId().getClassName();
-    }
-
-    public String default5Copy() {
-        return getFeatureId().getMemberName();
-    }
     //endregion
 
     //region > equals, hashCode, compareTo, toString

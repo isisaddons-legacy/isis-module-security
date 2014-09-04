@@ -19,6 +19,14 @@ package org.isisaddons.module.security.dom.role;
 import java.util.List;
 import com.danhaywood.java.testsupport.coverage.PojoTester;
 import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
+import com.google.common.collect.Lists;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.permission.ApplicationPermission;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
+import org.jmock.Expectations;
+import org.jmock.auto.Mock;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,9 +44,36 @@ public class ApplicationRoleTest {
 
     ApplicationRole applicationRole;
 
+    @Mock
+    ApplicationPermissions mockApplicationPermissions;
+
     @Before
     public void setUp() throws Exception {
         applicationRole = new ApplicationRole();
+        applicationRole.applicationPermissions = mockApplicationPermissions;
+    }
+
+
+    public static class Title extends ApplicationRoleTest {
+
+        @Test
+        public void whenMember() throws Exception {
+
+            applicationRole.setName("Role1");
+
+            assertThat(applicationRole.title(), is("Role1"));
+        }
+
+    }
+
+    public static class BeanProperties extends ApplicationRoleTest {
+
+        @Test
+        public void exercise() throws Exception {
+            PojoTester.relaxed()
+                    .exercise(new ApplicationRole());
+        }
+
     }
 
     public static class UpdateName extends ApplicationRoleTest {
@@ -54,6 +89,17 @@ public class ApplicationRoleTest {
 
             // then
             assertThat(applicationRole.getName(), is("New name"));
+        }
+    }
+
+    public static class Default0UpdateName extends ApplicationRoleTest {
+
+        @Test
+        public void happyCase() throws Exception {
+
+            applicationRole.setName("Original name");
+
+            assertThat(applicationRole.default0UpdateName(), is("Original name"));
         }
     }
 
@@ -83,6 +129,50 @@ public class ApplicationRoleTest {
 
             // then
             assertThat(applicationRole.getDescription(), is(nullValue()));
+        }
+    }
+
+    public static class Default0UpdateDescription extends ApplicationRoleTest {
+
+        @Test
+        public void happyCase() throws Exception {
+
+            applicationRole.setDescription("Original descr");
+
+            assertThat(applicationRole.default0UpdateDescription(), is("Original descr"));
+        }
+    }
+
+    public static class GetPermissions extends ApplicationRoleTest {
+
+        @Test
+        public void happyCase() throws Exception {
+
+            final List<ApplicationPermission> result = Lists.newArrayList();
+            context.checking(new Expectations() {{
+                oneOf(mockApplicationPermissions).findByRole(applicationRole);
+                will(returnValue(result));
+            }});
+
+            assertThat(applicationRole.getPermissions(), is(result));
+        }
+    }
+
+    public static class AddPackage extends ApplicationRoleTest {
+
+//        applicationPermissions.newPermission(this, rule, mode, ApplicationFeatureType.PACKAGE, packageFqn);
+//        return this;
+
+        @Test
+        public void happyCase() throws Exception {
+
+            applicationRole.applicationPermissions = mockApplicationPermissions;
+
+            context.checking(new Expectations() {{
+                oneOf(mockApplicationPermissions).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, ApplicationFeatureType.PACKAGE, "com.mycompany");
+            }});
+
+            applicationRole.addPackage(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany");
         }
     }
 
@@ -117,16 +207,5 @@ public class ApplicationRoleTest {
             new PrivateConstructorTester(ApplicationRole.Functions.class).exercise();
         }
     }
-
-    public static class BeanProperties extends ApplicationRoleTest {
-
-        @Test
-        public void exercise() throws Exception {
-            PojoTester.relaxed()
-                    .exercise(new ApplicationRole());
-        }
-
-    }
-
 
 }

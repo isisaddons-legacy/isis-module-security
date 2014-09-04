@@ -19,7 +19,6 @@ package org.isisaddons.module.security.dom.feature;
 import com.danhaywood.java.testsupport.coverage.PojoTester;
 import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
 import org.isisaddons.module.security.dom.FixtureDatumFactories;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -147,7 +146,7 @@ public class ApplicationFeatureTest {
         }
     }
 
-    public static class BeanProperties extends ApplicationTenancyTest {
+    public static class BeanProperties extends ApplicationFeatureTest {
 
         @Test
         public void exercise() throws Exception {
@@ -158,7 +157,7 @@ public class ApplicationFeatureTest {
         }
     }
 
-    public static class FunctionsTest extends ApplicationTenancyTest {
+    public static class FunctionsTest extends ApplicationFeatureTest {
 
         @Test
         public void GET_FQN() throws Exception {
@@ -173,7 +172,7 @@ public class ApplicationFeatureTest {
         }
     }
 
-    public static class PrivateConstructors {
+    public static class PrivateConstructors extends ApplicationFeatureTest {
 
         @Test
         public void forFunctions() throws Exception {
@@ -184,5 +183,7 @@ public class ApplicationFeatureTest {
             new PrivateConstructorTester(ApplicationFeature.Predicates.class).exercise();
         }
     }
+
+
 
 }

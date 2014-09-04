@@ -1,6 +1,7 @@
 package org.isisaddons.module.security.app.feature;
 
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.junit.Before;
@@ -31,6 +32,21 @@ public class ApplicationClassCollectionTest {
                 return mockApplicationFeature;
             }
         };
+    }
+
+    public static class GetFeatureId extends ApplicationClassCollectionTest {
+
+        @Override
+        @Before
+        public void setUp() throws Exception {
+            applicationClassCollection = new ApplicationClassCollection(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")) {
+            };
+        }
+
+        @Test
+        public void happyCase() throws Exception {
+            assertThat(applicationClassCollection.getFeatureId(), is(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")));
+        }
     }
 
     public static class GetElementType extends ApplicationClassCollectionTest {

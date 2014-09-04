@@ -159,14 +159,6 @@ public class ApplicationPermissionValue implements Comparable<ApplicationPermiss
         return result;
     }
 
-    //    @Override
-//    public boolean equals(final Object obj) {
-//    }
-
-//    @Override
-//    public int hashCode() {
-//    }
-
     @Override
     public String toString() {
             return ObjectContracts.toString(this, propertyNames);

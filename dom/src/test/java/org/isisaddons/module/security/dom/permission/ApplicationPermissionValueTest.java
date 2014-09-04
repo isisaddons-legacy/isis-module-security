@@ -18,6 +18,7 @@ package org.isisaddons.module.security.dom.permission;
 
 import java.util.Arrays;
 import java.util.List;
+import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.junit.Test;
 
@@ -273,6 +274,16 @@ public class ApplicationPermissionValueTest {
         }
 
     }
+
+    public static class PrivateConstructors extends ApplicationPermissionValueTest {
+
+        @Test
+        public void forComparators() throws Exception {
+            new PrivateConstructorTester(ApplicationPermissionValue.Comparators.class).exercise();
+        }
+
+    }
+
 
 
     //region > helpers just to make tests easier to read
