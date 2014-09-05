@@ -476,8 +476,10 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     public Collection<ApplicationUser> choices0RemoveUser() {
         return getUsers();
     }
-    public String disableRemoveUser(final ApplicationUser applicationUser) {
-        return choices0RemoveUser().isEmpty()? "No users to remove": null;
+
+    public String validateRemoveUser(
+            final ApplicationUser applicationUser) {
+        return applicationUser.validateRemoveRole(this);
     }
 
     //endregion
@@ -508,8 +510,9 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     }
     //endregion
 
-    //region > helpers
-    boolean isAdminRole() {
+    //region > isAdminRole (programmatic)
+    @Programmatic
+    public boolean isAdminRole() {
         final ApplicationRole adminRole = applicationRoles.findRoleByName(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME);
         return this == adminRole;
     }

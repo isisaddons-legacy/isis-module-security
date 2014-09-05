@@ -231,7 +231,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
 
     public String disableUpdateName(final String familyName, final String givenName, final String knownAs) {
-        return isSelfOrIsAdministrator()? null: "Can only update your own user record.";
+        return isForSelfOrRunAsAdministrator()? null: "Can only update your own user record.";
     }
 
     public String validateUpdateName(final String familyName, final String givenName, final String knownAs) {
@@ -272,7 +272,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
 
     public String disableUpdateEmailAddress(final String emailAddress) {
-        return isSelfOrIsAdministrator()? null: "Can only update your own user record.";
+        return isForSelfOrRunAsAdministrator()? null: "Can only update your own user record.";
     }
     //endregion
 
@@ -299,7 +299,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
 
     public String disableUpdatePhoneNumber(final String faxNumber) {
-        return isSelfOrIsAdministrator()? null: "Can only update your own user record.";
+        return isForSelfOrRunAsAdministrator()? null: "Can only update your own user record.";
     }
     public String default0UpdatePhoneNumber() {
         return getPhoneNumber();
@@ -335,7 +335,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
 
     public String disableUpdateFaxNumber(final String faxNumber) {
-        return isSelfOrIsAdministrator()? null: "Can only update your own user record.";
+        return isForSelfOrRunAsAdministrator()? null: "Can only update your own user record.";
     }
 
     //endregion
@@ -463,7 +463,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
             final Password newPassword,
             final Password newPasswordConfirm) {
 
-        if(!isSelfOrIsAdministrator()) {
+        if(!isForSelfOrRunAsAdministrator()) {
             return "Can only update password for your own user account.";
         }
         if (!isHasPassword()) {
@@ -607,13 +607,22 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         return this;
     }
 
+    public String disableRemoveRole(final ApplicationRole role) {
+        return getRoles().isEmpty()? "No roles to remove": null;
+    }
+
     public SortedSet<ApplicationRole> choices0RemoveRole() {
         return getRoles();
     }
 
-    public String disableRemoveRole(final ApplicationRole role) {
-        return choices0RemoveRole().isEmpty()? "No roles to remove": null;
+    public String validateRemoveRole(
+            final ApplicationRole applicationRole) {
+        if(isAdminUser() && applicationRole.isAdminRole()) {
+            return "Cannot remove admin user from the admin role.";
+        }
+        return null;
     }
+
     //endregion
 
     //region > delete (action)
@@ -650,16 +659,25 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
     //endregion
 
-    //region > isSelf (helper)
-    boolean isSelfOrIsAdministrator() {
-        return isSelf() || isAdministrator();
+
+    //region > isAdminUser (programmatic)
+    @Programmatic
+    public boolean isAdminUser() {
+        final ApplicationUser adminUser = applicationUsers.findUserByUsernameNoAutocreate(IsisModuleSecurityAdminUser.USER_NAME);
+        return this == adminUser;
+    }
+    //endregion
+
+    //region > helpers
+    boolean isForSelfOrRunAsAdministrator() {
+        return isForSelf() || isRunAsAdministrator();
     }
 
-    boolean isSelf() {
+    boolean isForSelf() {
         final String currentUserName = container.getUser().getName();
         return Objects.equals(getName(), currentUserName);
     }
-    boolean isAdministrator() {
+    boolean isRunAsAdministrator() {
         final UserMemento currentUser = container.getUser();
         final List<RoleMemento> roles = currentUser.getRoles();
         for (RoleMemento role : roles) {
