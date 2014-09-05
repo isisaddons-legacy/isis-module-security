@@ -35,6 +35,7 @@ import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 public class ApplicationRoleTest {
@@ -52,7 +53,6 @@ public class ApplicationRoleTest {
         applicationRole = new ApplicationRole();
         applicationRole.applicationPermissions = mockApplicationPermissions;
     }
-
 
     public static class Title extends ApplicationRoleTest {
 
@@ -78,68 +78,74 @@ public class ApplicationRoleTest {
 
     public static class UpdateName extends ApplicationRoleTest {
 
-        @Test
-        public void happyCase() throws Exception {
+        public static class Action extends UpdateName {
 
-            // given
-            applicationRole.setName("original name");
+            @Test
+            public void happyCase() throws Exception {
 
-            // when
-            applicationRole.updateName("New name");
+                // given
+                applicationRole.setName("original name");
 
-            // then
-            assertThat(applicationRole.getName(), is("New name"));
+                // when
+                applicationRole.updateName("New name");
+
+                // then
+                assertThat(applicationRole.getName(), is("New name"));
+            }
         }
-    }
 
-    public static class Default0UpdateName extends ApplicationRoleTest {
+        public static class Default0 extends UpdateName {
 
-        @Test
-        public void happyCase() throws Exception {
+            @Test
+            public void happyCase() throws Exception {
 
-            applicationRole.setName("Original name");
+                applicationRole.setName("Original name");
 
-            assertThat(applicationRole.default0UpdateName(), is("Original name"));
+                assertThat(applicationRole.default0UpdateName(), is("Original name"));
+            }
         }
     }
 
     public static class UpdateDescription extends ApplicationRoleTest {
 
-        @Test
-        public void happyCase() throws Exception {
+        public static class Action extends UpdateDescription {
 
-            // given
-            applicationRole.setDescription("original description");
+            @Test
+            public void happyCase() throws Exception {
 
-            // when
-            applicationRole.updateDescription("New description");
+                // given
+                applicationRole.setDescription("original description");
 
-            // then
-            assertThat(applicationRole.getDescription(), is("New description"));
+                // when
+                applicationRole.updateDescription("New description");
+
+                // then
+                assertThat(applicationRole.getDescription(), is("New description"));
+            }
+
+            @Test
+            public void setToNull() throws Exception {
+
+                // given
+                applicationRole.setDescription("original description");
+
+                // when
+                applicationRole.updateDescription(null);
+
+                // then
+                assertThat(applicationRole.getDescription(), is(nullValue()));
+            }
         }
 
-        @Test
-        public void setToNull() throws Exception {
+        public static class Default0 extends ApplicationRoleTest {
 
-            // given
-            applicationRole.setDescription("original description");
+            @Test
+            public void happyCase() throws Exception {
 
-            // when
-            applicationRole.updateDescription(null);
+                applicationRole.setDescription("Original descr");
 
-            // then
-            assertThat(applicationRole.getDescription(), is(nullValue()));
-        }
-    }
-
-    public static class Default0UpdateDescription extends ApplicationRoleTest {
-
-        @Test
-        public void happyCase() throws Exception {
-
-            applicationRole.setDescription("Original descr");
-
-            assertThat(applicationRole.default0UpdateDescription(), is("Original descr"));
+                assertThat(applicationRole.default0UpdateDescription(), is("Original descr"));
+            }
         }
     }
 
@@ -160,20 +166,100 @@ public class ApplicationRoleTest {
 
     public static class AddPackage extends ApplicationRoleTest {
 
-//        applicationPermissions.newPermission(this, rule, mode, ApplicationFeatureType.PACKAGE, packageFqn);
-//        return this;
+        public static class Action extends AddPackage {
 
-        @Test
-        public void happyCase() throws Exception {
+            @Test
+            public void happyCase() throws Exception {
 
-            applicationRole.applicationPermissions = mockApplicationPermissions;
+                applicationRole.applicationPermissions = mockApplicationPermissions;
 
-            context.checking(new Expectations() {{
-                oneOf(mockApplicationPermissions).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, ApplicationFeatureType.PACKAGE, "com.mycompany");
-            }});
+                context.checking(new Expectations() {{
+                    oneOf(mockApplicationPermissions).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, ApplicationFeatureType.PACKAGE, "com.mycompany");
+                }});
 
-            applicationRole.addPackage(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany");
+                final ApplicationRole role = applicationRole.addPackage(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany");
+                assertThat(role, sameInstance(applicationRole));
+            }
         }
+
+    }
+
+    public static class AddClass extends ApplicationRoleTest {
+
+        public static class Action extends AddClass {
+
+            @Test
+            public void happyCase() throws Exception {
+
+                applicationRole.applicationPermissions = mockApplicationPermissions;
+
+                context.checking(new Expectations() {{
+                    oneOf(mockApplicationPermissions).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, ApplicationFeatureType.CLASS, "com.mycompany.Bar");
+                }});
+
+                final ApplicationRole role = applicationRole.addClass(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar");
+                assertThat(role, sameInstance(applicationRole));
+            }
+        }
+    }
+
+    public static class AddAction extends ApplicationRoleTest {
+
+        public static class Action extends AddAction {
+
+            @Test
+            public void happyCase() throws Exception {
+
+                applicationRole.applicationPermissions = mockApplicationPermissions;
+
+                context.checking(new Expectations() {{
+                    oneOf(mockApplicationPermissions).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar", "foo");
+                }});
+
+                final ApplicationRole role = applicationRole.addAction(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar", "foo");
+                assertThat(role, sameInstance(applicationRole));
+            }
+        }
+
+    }
+
+    public static class AddProperty extends ApplicationRoleTest {
+        public static class Action extends AddProperty {
+
+            @Test
+            public void happyCase() throws Exception {
+
+                applicationRole.applicationPermissions = mockApplicationPermissions;
+
+                context.checking(new Expectations() {{
+                    oneOf(mockApplicationPermissions).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar", "foo");
+                }});
+
+                final ApplicationRole role = applicationRole.addProperty(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar", "foo");
+                assertThat(role, sameInstance(applicationRole));
+            }
+
+        }
+    }
+
+    public static class AddCollection extends ApplicationRoleTest {
+
+        public static class Action extends AddCollection {
+
+            @Test
+            public void happyCase() throws Exception {
+
+                applicationRole.applicationPermissions = mockApplicationPermissions;
+
+                context.checking(new Expectations() {{
+                    oneOf(mockApplicationPermissions).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar", "foo");
+                }});
+
+                final ApplicationRole role = applicationRole.addCollection(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar", "foo");
+                assertThat(role, sameInstance(applicationRole));
+            }
+        }
+
     }
 
     public static class CompareTo extends ComparableContractTest_compareTo<ApplicationRole> {

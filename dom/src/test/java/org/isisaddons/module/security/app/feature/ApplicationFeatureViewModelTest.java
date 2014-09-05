@@ -93,6 +93,116 @@ public class ApplicationFeatureViewModelTest {
         }
     }
 
+    public static class Title extends ApplicationFeatureViewModelTest {
+
+        @Test
+        public void happyCase() throws Exception {
+
+            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")) {
+            };
+            assertThat(applicationFeatureViewModel.title(), is("com.mycompany.Bar#foo"));
+        }
+    }
+
+    public static class IconName extends ApplicationFeatureViewModelTest {
+
+        @Test
+        public void happyCase() throws Exception {
+
+            applicationFeatureViewModel = new ApplicationFeatureViewModel() {
+            };
+            assertThat(applicationFeatureViewModel.iconName(), is("applicationFeature"));
+        }
+    }
+
+    public static class PrivateConstructors {
+
+        @Test
+        public void forFunctions() throws Exception {
+            new PrivateConstructorTester(ApplicationFeatureViewModel.Functions.class).exercise();
+        }
+    }
+
+    public static abstract class ValueTypeContractTest extends ValueTypeContractTestAbstract<ApplicationFeatureViewModel> {
+
+        static ApplicationFeatureViewModel pkg(ApplicationFeatureId applicationFeatureId) {
+            return new ApplicationPackage(applicationFeatureId);
+        }
+
+        static ApplicationFeatureViewModel cls(ApplicationFeatureId applicationFeatureId) {
+            return new ApplicationClass(applicationFeatureId);
+        }
+
+        static ApplicationFeatureViewModel prop(ApplicationFeatureId applicationFeatureId) {
+            return new ApplicationClassProperty(applicationFeatureId);
+        }
+
+        static ApplicationFeatureViewModel coll(ApplicationFeatureId applicationFeatureId) {
+            return new ApplicationClassCollection(applicationFeatureId);
+        }
+
+        static ApplicationFeatureViewModel act(ApplicationFeatureId applicationFeatureId) {
+            return new ApplicationClassAction(applicationFeatureId);
+        }
+
+
+        public static class PackageFeatures extends ValueTypeContractTest {
+
+            @Override
+            protected List<ApplicationFeatureViewModel> getObjectsWithSameValue() {
+                return Arrays.asList(
+                        pkg(ApplicationFeatureId.newPackage("com.mycompany")),
+                        pkg(ApplicationFeatureId.newPackage("com.mycompany")));
+            }
+
+            @Override
+            protected List<ApplicationFeatureViewModel> getObjectsWithDifferentValue() {
+                return Arrays.asList(
+                        pkg(ApplicationFeatureId.newPackage("com.mycompany2")),
+                        cls(ApplicationFeatureId.newClass("com.mycompany.Foo")),
+                        prop(ApplicationFeatureId.newMember("com.mycompany.Foo#bar")));
+            }
+        }
+
+        public static class ClassFeatures extends ValueTypeContractTest {
+
+            @Override
+            protected List<ApplicationFeatureViewModel> getObjectsWithSameValue() {
+                return Arrays.asList(
+                        cls(ApplicationFeatureId.newClass("com.mycompany.Foo")),
+                        cls(ApplicationFeatureId.newClass("com.mycompany.Foo")));
+            }
+
+            @Override
+            protected List<ApplicationFeatureViewModel> getObjectsWithDifferentValue() {
+                return Arrays.asList(
+                        pkg(ApplicationFeatureId.newPackage("com.mycompany")),
+                        cls(ApplicationFeatureId.newClass("com.mycompany.Foo2")),
+                        act(ApplicationFeatureId.newMember("com.mycompany.Foo#bar")));
+            }
+        }
+
+        public static class PropertyFeatures extends ValueTypeContractTest {
+
+            @Override
+            protected List<ApplicationFeatureViewModel> getObjectsWithSameValue() {
+                return Arrays.asList(
+                        prop(ApplicationFeatureId.newMember("com.mycompany.Foo#bar")),
+                        prop(ApplicationFeatureId.newMember("com.mycompany.Foo#bar")));
+            }
+
+            @Override
+            protected List<ApplicationFeatureViewModel> getObjectsWithDifferentValue() {
+                return Arrays.asList(
+                        pkg(ApplicationFeatureId.newPackage("com.mycompany")),
+                        cls(ApplicationFeatureId.newClass("com.mycompany.Foo")),
+                        prop(ApplicationFeatureId.newMember("com.mycompany.Foo#bar2")));
+            }
+        }
+
+    }
+
+
     public static class GetContents extends ApplicationFeatureViewModelTest {
 
         @Test
@@ -188,14 +298,6 @@ public class ApplicationFeatureViewModelTest {
         }
     }
 
-    public static class PrivateConstructors {
-
-        @Test
-        public void forFunctions() throws Exception {
-            new PrivateConstructorTester(ApplicationFeatureViewModel.Functions.class).exercise();
-        }
-    }
-
     public static class GetFullyQualifiedClassName extends ApplicationFeatureViewModelTest {
 
         @Test
@@ -273,75 +375,57 @@ public class ApplicationFeatureViewModelTest {
         }
     }
 
-    public static class HideContributed extends ApplicationFeatureViewModelTest {
+    public static class GetContributed extends ApplicationFeatureViewModelTest {
 
-        @Test
-        public void whenPackage() throws Exception {
-            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newPackage("com.mycompany")) {
-            };
-            assertThat(applicationFeatureViewModel.hideContributed(), is(true));
+        public static class PropertyImpl extends GetContributed {
+
+            @Mock
+            ApplicationFeature mockApplicationFeature;
+
+            @Test
+            public void delegatesToUnderlyingFeature() throws Exception {
+                // given
+                final ApplicationFeatureId featureId = ApplicationFeatureId.newMember("com.mycompany.Bar#foo");
+                applicationFeatureViewModel = new ApplicationFeatureViewModel(featureId) {
+                };
+                applicationFeatureViewModel.applicationFeatures = mockApplicationFeatures;
+
+                // then
+                context.checking(new Expectations() {{
+                    oneOf(mockApplicationFeatures).findFeature(featureId);
+                    will(returnValue(mockApplicationFeature));
+
+                    oneOf(mockApplicationFeature).isContributed();
+                    will(returnValue(true));
+                }});
+
+                // when
+                assertThat(applicationFeatureViewModel.isContributed(), is(true));
+            }
         }
-        @Test
-        public void whenClass() throws Exception {
-            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newClass("com.mycompany.Bar")) {
-            };
-            assertThat(applicationFeatureViewModel.hideContributed(), is(true));
+
+        public static class Hide extends GetContributed {
+
+            @Test
+            public void whenPackage() throws Exception {
+                applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newPackage("com.mycompany")) {
+                };
+                assertThat(applicationFeatureViewModel.hideContributed(), is(true));
+            }
+            @Test
+            public void whenClass() throws Exception {
+                applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newClass("com.mycompany.Bar")) {
+                };
+                assertThat(applicationFeatureViewModel.hideContributed(), is(true));
+            }
+            @Test
+            public void whenMember() throws Exception {
+                applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")) {
+                };
+                assertThat(applicationFeatureViewModel.hideContributed(), is(false));
+            }
         }
-        @Test
-        public void whenMember() throws Exception {
-            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")) {
-            };
-            assertThat(applicationFeatureViewModel.hideContributed(), is(false));
-        }
-    }
 
-    public static class IsContributed extends ApplicationFeatureViewModelTest {
-
-        @Mock
-        ApplicationFeature mockApplicationFeature;
-
-        @Test
-        public void delegatesToUnderlyingFeature() throws Exception {
-            // given
-            final ApplicationFeatureId featureId = ApplicationFeatureId.newMember("com.mycompany.Bar#foo");
-            applicationFeatureViewModel = new ApplicationFeatureViewModel(featureId) {
-            };
-            applicationFeatureViewModel.applicationFeatures = mockApplicationFeatures;
-
-            // then
-            context.checking(new Expectations() {{
-                oneOf(mockApplicationFeatures).findFeature(featureId);
-                will(returnValue(mockApplicationFeature));
-
-                oneOf(mockApplicationFeature).isContributed();
-                will(returnValue(true));
-            }});
-
-            // when
-            assertThat(applicationFeatureViewModel.isContributed(), is(true));
-        }
-    }
-
-    public static class Title extends ApplicationFeatureViewModelTest {
-
-        @Test
-        public void happyCase() throws Exception {
-
-            applicationFeatureViewModel = new ApplicationFeatureViewModel(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")) {
-            };
-            assertThat(applicationFeatureViewModel.title(), is("com.mycompany.Bar#foo"));
-        }
-    }
-
-    public static class IconName extends ApplicationFeatureViewModelTest {
-
-        @Test
-        public void happyCase() throws Exception {
-
-            applicationFeatureViewModel = new ApplicationFeatureViewModel() {
-            };
-            assertThat(applicationFeatureViewModel.iconName(), is("applicationFeature"));
-        }
     }
 
     public static class Parent extends ApplicationFeatureViewModelTest {
@@ -486,85 +570,6 @@ public class ApplicationFeatureViewModelTest {
             // when
             assertThat(applicationFeatureViewModel.getPermissions(), is(result));
         }
-    }
-
-    public static abstract class ValueTypeContractTest extends ValueTypeContractTestAbstract<ApplicationFeatureViewModel> {
-
-        static ApplicationFeatureViewModel pkg(ApplicationFeatureId applicationFeatureId) {
-            return new ApplicationPackage(applicationFeatureId);
-        }
-
-        static ApplicationFeatureViewModel cls(ApplicationFeatureId applicationFeatureId) {
-            return new ApplicationClass(applicationFeatureId);
-        }
-
-        static ApplicationFeatureViewModel prop(ApplicationFeatureId applicationFeatureId) {
-            return new ApplicationClassProperty(applicationFeatureId);
-        }
-
-        static ApplicationFeatureViewModel coll(ApplicationFeatureId applicationFeatureId) {
-            return new ApplicationClassCollection(applicationFeatureId);
-        }
-
-        static ApplicationFeatureViewModel act(ApplicationFeatureId applicationFeatureId) {
-            return new ApplicationClassAction(applicationFeatureId);
-        }
-
-
-        public static class PackageFeatures extends ValueTypeContractTest {
-
-            @Override
-            protected List<ApplicationFeatureViewModel> getObjectsWithSameValue() {
-                return Arrays.asList(
-                        pkg(ApplicationFeatureId.newPackage("com.mycompany")),
-                        pkg(ApplicationFeatureId.newPackage("com.mycompany")));
-            }
-
-            @Override
-            protected List<ApplicationFeatureViewModel> getObjectsWithDifferentValue() {
-                return Arrays.asList(
-                        pkg(ApplicationFeatureId.newPackage("com.mycompany2")),
-                        cls(ApplicationFeatureId.newClass("com.mycompany.Foo")),
-                        prop(ApplicationFeatureId.newMember("com.mycompany.Foo#bar")));
-            }
-        }
-
-        public static class ClassFeatures extends ValueTypeContractTest {
-
-            @Override
-            protected List<ApplicationFeatureViewModel> getObjectsWithSameValue() {
-                return Arrays.asList(
-                        cls(ApplicationFeatureId.newClass("com.mycompany.Foo")),
-                        cls(ApplicationFeatureId.newClass("com.mycompany.Foo")));
-            }
-
-            @Override
-            protected List<ApplicationFeatureViewModel> getObjectsWithDifferentValue() {
-                return Arrays.asList(
-                        pkg(ApplicationFeatureId.newPackage("com.mycompany")),
-                        cls(ApplicationFeatureId.newClass("com.mycompany.Foo2")),
-                        act(ApplicationFeatureId.newMember("com.mycompany.Foo#bar")));
-            }
-        }
-
-        public static class PropertyFeatures extends ValueTypeContractTest {
-
-            @Override
-            protected List<ApplicationFeatureViewModel> getObjectsWithSameValue() {
-                return Arrays.asList(
-                        prop(ApplicationFeatureId.newMember("com.mycompany.Foo#bar")),
-                        prop(ApplicationFeatureId.newMember("com.mycompany.Foo#bar")));
-            }
-
-            @Override
-            protected List<ApplicationFeatureViewModel> getObjectsWithDifferentValue() {
-                return Arrays.asList(
-                        pkg(ApplicationFeatureId.newPackage("com.mycompany")),
-                        cls(ApplicationFeatureId.newClass("com.mycompany.Foo")),
-                        prop(ApplicationFeatureId.newMember("com.mycompany.Foo#bar2")));
-            }
-        }
-
     }
 
 
