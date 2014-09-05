@@ -14,13 +14,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.fixture.scripts.exampleEntities;
+package org.isisaddons.module.security.fixture.scripts.perms;
 
-public class BopExampleEntity extends AbstractExampleEntityFixtureScript {
+import org.apache.isis.applib.fixturescripts.FixtureScript;
+
+public class AllExampleRolesAndPermissions extends FixtureScript {
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        create("Bop", executionContext);
+        execute(new ExampleGuestRoleAndPremissions(), executionContext);
+        execute(new ExampleRegularRoleAndPermissions(), executionContext);
     }
 
 }

@@ -14,9 +14,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.fixture.scripts.userroles;
+package org.isisaddons.module.security.fixture.scripts.userrole;
 
-import org.isisaddons.module.security.fixture.scripts.rolesandperms.ExampleGuestRoleAndPremissions;
+import org.isisaddons.module.security.fixture.scripts.perms.ExampleGuestRoleAndPremissions;
 import org.isisaddons.module.security.fixture.scripts.users.JoeUser;
 
 public class JoeUser_Has_ExampleGuestRole extends AbstractUserRoleFixtureScript {

@@ -14,26 +14,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.fixture.scripts.exampleEntities;
+package org.isisaddons.module.security.fixture.scripts.userrole;
 
-import org.isisaddons.module.security.fixture.dom.ExampleEntities;
-import org.apache.isis.applib.fixturescripts.DiscoverableFixtureScript;
+import org.isisaddons.module.security.fixture.scripts.perms.ExampleRegularRoleAndPermissions;
+import org.isisaddons.module.security.fixture.scripts.users.DickUser;
 
-public class AllExampleEntities extends DiscoverableFixtureScript {
+public class DickUser_Has_ExampleRegularRole extends AbstractUserRoleFixtureScript {
+    public DickUser_Has_ExampleRegularRole() {
+        super(DickUser.USER_NAME, ExampleRegularRoleAndPermissions.ROLE_NAME);
+    }
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-
-        execute(new BipExampleEntity(), executionContext);
-        execute(new BarExampleEntity(), executionContext);
-        execute(new BazExampleEntity(), executionContext);
-        execute(new BopExampleEntity(), executionContext);
+        super.execute(executionContext);
 
     }
-
-    // //////////////////////////////////////
-
-    @javax.inject.Inject
-    private ExampleEntities exampleEntities;
-
 }

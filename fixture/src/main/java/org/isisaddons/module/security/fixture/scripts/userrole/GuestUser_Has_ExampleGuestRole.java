@@ -14,16 +14,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.fixture.scripts.rolesandperms;
+package org.isisaddons.module.security.fixture.scripts.userrole;
 
-import org.apache.isis.applib.fixturescripts.FixtureScript;
+import org.isisaddons.module.security.fixture.scripts.perms.ExampleGuestRoleAndPremissions;
+import org.isisaddons.module.security.fixture.scripts.users.GuestUser;
 
-public class AllExampleRolesAndPermissions extends FixtureScript {
-
-    @Override
-    protected void execute(ExecutionContext executionContext) {
-        execute(new ExampleGuestRoleAndPremissions(), executionContext);
-        execute(new ExampleRegularRoleAndPermissions(), executionContext);
+public class GuestUser_Has_ExampleGuestRole extends AbstractUserRoleFixtureScript {
+    public GuestUser_Has_ExampleGuestRole() {
+        super(GuestUser.USER_NAME, ExampleGuestRoleAndPremissions.ROLE_NAME);
     }
-
 }

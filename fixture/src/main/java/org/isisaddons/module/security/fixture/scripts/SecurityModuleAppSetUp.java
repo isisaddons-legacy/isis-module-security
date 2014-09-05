@@ -17,10 +17,10 @@
 package org.isisaddons.module.security.fixture.scripts;
 
 import org.isisaddons.module.security.fixture.dom.ExampleEntities;
-import org.isisaddons.module.security.fixture.scripts.exampleEntities.AllExampleEntities;
-import org.isisaddons.module.security.fixture.scripts.rolesandperms.*;
+import org.isisaddons.module.security.fixture.scripts.example.AllExampleEntities;
+import org.isisaddons.module.security.fixture.scripts.perms.*;
 import org.isisaddons.module.security.fixture.scripts.tenancy.AllTenancies;
-import org.isisaddons.module.security.fixture.scripts.userroles.*;
+import org.isisaddons.module.security.fixture.scripts.userrole.*;
 import org.isisaddons.module.security.fixture.scripts.users.AllUsers;
 import org.isisaddons.module.security.seed.SeedUsersAndRolesFixtureScript;
 import org.apache.isis.applib.fixturescripts.DiscoverableFixtureScript;

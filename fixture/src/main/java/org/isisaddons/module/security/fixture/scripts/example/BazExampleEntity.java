@@ -14,13 +14,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.fixture.scripts.userroles;
+package org.isisaddons.module.security.fixture.scripts.example;
 
-import org.isisaddons.module.security.fixture.scripts.users.JoeUser;
-import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityRegularUserRoleAndPermissions;
+public class BazExampleEntity extends AbstractExampleEntityFixtureScript {
 
-public class JoeUser_Has_IsisSecurityModuleRegularRole extends AbstractUserRoleFixtureScript {
-    public JoeUser_Has_IsisSecurityModuleRegularRole() {
-        super(JoeUser.USER_NAME, IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
+    @Override
+    protected void execute(ExecutionContext executionContext) {
+        create("Baz", executionContext);
     }
+
 }

@@ -14,28 +14,27 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.fixture.scripts.rolesandperms;
+package org.isisaddons.module.security.fixture.scripts.perms;
 
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
 import org.isisaddons.module.security.fixture.dom.ExampleEntity;
 import org.isisaddons.module.security.seed.scripts.AbstractRoleAndPermissionsFixtureScript;
 
-public class ExampleHideEntityDescriptionRoleAndPermissions extends AbstractRoleAndPermissionsFixtureScript {
+public class ExampleGuestRoleAndPremissions extends AbstractRoleAndPermissionsFixtureScript {
 
     public static final String ROLE_NAME = "example-guest";
 
-    public ExampleHideEntityDescriptionRoleAndPermissions() {
-        super(ROLE_NAME, "Hide access to ExampleEntity#description property");
+    public ExampleGuestRoleAndPremissions() {
+        super(ROLE_NAME, "Read only access to example dom");
     }
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        newMemberPermissions(
-                ApplicationPermissionRule.VETO,
+        newPackagePermissions(
+                ApplicationPermissionRule.ALLOW,
                 ApplicationPermissionMode.VIEWING,
-                ExampleEntity.class,
-                "description");
+                ExampleEntity.class.getPackage().getName());
     }
 
 }

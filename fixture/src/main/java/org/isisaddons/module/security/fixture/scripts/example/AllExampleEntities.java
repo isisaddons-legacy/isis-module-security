@@ -14,21 +14,24 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.fixture.scripts.exampleEntities;
+package org.isisaddons.module.security.fixture.scripts.example;
 
 import org.isisaddons.module.security.fixture.dom.ExampleEntities;
-import org.isisaddons.module.security.fixture.dom.ExampleEntity;
-import org.apache.isis.applib.fixturescripts.FixtureScript;
+import org.apache.isis.applib.fixturescripts.DiscoverableFixtureScript;
 
-public abstract class AbstractExampleEntityFixtureScript extends FixtureScript {
+public class AllExampleEntities extends DiscoverableFixtureScript {
 
-    protected ExampleEntity create(
-            final String name,
-            final ExecutionContext executionContext) {
-        final ExampleEntity entity = exampleEntities.create(name);
-        executionContext.add(this, name, entity);
-        return entity;
+    @Override
+    protected void execute(ExecutionContext executionContext) {
+
+        execute(new BipExampleEntity(), executionContext);
+        execute(new BarExampleEntity(), executionContext);
+        execute(new BazExampleEntity(), executionContext);
+        execute(new BopExampleEntity(), executionContext);
+
     }
+
+    // //////////////////////////////////////
 
     @javax.inject.Inject
     private ExampleEntities exampleEntities;
