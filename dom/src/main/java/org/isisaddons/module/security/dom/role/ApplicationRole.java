@@ -178,7 +178,9 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     }
 
     public List<String> choices2AddPackage() {
-        return Lists.newArrayList(Iterables.transform(applicationFeatures.allFeatures(ApplicationFeatureType.PACKAGE), ApplicationFeature.Functions.GET_FQN));
+        return Lists.newArrayList(
+                Iterables.transform(
+                        applicationFeatures.allFeatures(ApplicationFeatureType.PACKAGE), ApplicationFeature.Functions.GET_FQN));
     }
     //endregion
 

@@ -39,9 +39,13 @@ public class UserPermissionViewModelContributions  {
     @ActionSemantics(ActionSemantics.Of.SAFE)
     public List<UserPermissionViewModel> permissions(ApplicationUser user) {
         final Collection<ApplicationFeature> allMembers = applicationFeatures.allMembers();
+        return asViewModels(user, allMembers);
+    }
+
+    List<UserPermissionViewModel> asViewModels(ApplicationUser user, Collection<ApplicationFeature> features) {
         return Lists.newArrayList(
                 Iterables.transform(
-                        allMembers,
+                        features,
                         UserPermissionViewModel.Functions.asViewModel(user, container))
         );
     }

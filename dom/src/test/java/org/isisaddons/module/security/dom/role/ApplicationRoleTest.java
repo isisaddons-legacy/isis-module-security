@@ -20,7 +20,7 @@ import java.util.List;
 import com.danhaywood.java.testsupport.coverage.PojoTester;
 import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
 import com.google.common.collect.Lists;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.feature.*;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
@@ -33,9 +33,8 @@ import org.junit.Test;
 import org.apache.isis.core.unittestsupport.comparable.ComparableContractTest_compareTo;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
 public class ApplicationRoleTest {
@@ -47,11 +46,27 @@ public class ApplicationRoleTest {
 
     @Mock
     ApplicationPermissions mockApplicationPermissions;
+    @Mock
+    ApplicationFeatures mockApplicationFeatures;
+
+    final ApplicationFeature pkg1 = new ApplicationFeature();
+    final ApplicationFeature pkg2 = new ApplicationFeature();
+
+    final ApplicationFeature cls1 = new ApplicationFeature();
+    final ApplicationFeature cls2 = new ApplicationFeature();
+
 
     @Before
     public void setUp() throws Exception {
         applicationRole = new ApplicationRole();
         applicationRole.applicationPermissions = mockApplicationPermissions;
+        applicationRole.applicationFeatures = mockApplicationFeatures;
+
+        pkg1.setFeatureId(ApplicationFeatureId.newFeature(ApplicationFeatureType.PACKAGE, "com.mycompany"));
+        pkg2.setFeatureId(ApplicationFeatureId.newFeature(ApplicationFeatureType.PACKAGE, "com.mycompany.foo"));
+
+        cls1.setFeatureId(ApplicationFeatureId.newFeature(ApplicationFeatureType.CLASS, "com.mycompany.Bar"));
+        cls2.setFeatureId(ApplicationFeatureId.newFeature(ApplicationFeatureType.CLASS, "com.mycompany.Baz"));
     }
 
     public static class Title extends ApplicationRoleTest {
@@ -166,12 +181,10 @@ public class ApplicationRoleTest {
 
     public static class AddPackage extends ApplicationRoleTest {
 
-        public static class Action extends AddPackage {
+        public static class ActionImpl extends AddPackage {
 
             @Test
             public void happyCase() throws Exception {
-
-                applicationRole.applicationPermissions = mockApplicationPermissions;
 
                 context.checking(new Expectations() {{
                     oneOf(mockApplicationPermissions).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, ApplicationFeatureType.PACKAGE, "com.mycompany");
@@ -182,16 +195,43 @@ public class ApplicationRoleTest {
             }
         }
 
-    }
-
-    public static class AddClass extends ApplicationRoleTest {
-
-        public static class Action extends AddClass {
+        public static class Default0 extends AddPackage {
 
             @Test
             public void happyCase() throws Exception {
 
-                applicationRole.applicationPermissions = mockApplicationPermissions;
+                assertThat(applicationRole.default0AddPackage(), sameInstance(ApplicationPermissionRule.ALLOW));
+            }
+        }
+        public static class Default1 extends AddPackage {
+
+            @Test
+            public void happyCase() throws Exception {
+
+                assertThat(applicationRole.default1AddPackage(), sameInstance(ApplicationPermissionMode.CHANGING));
+            }
+        }
+
+        public static class Choices2 extends AddPackage {
+
+            @Test
+            public void happyCase() throws Exception {
+                context.checking(new Expectations() {{
+                    allowing(mockApplicationFeatures).allFeatures(ApplicationFeatureType.PACKAGE);
+                    will(returnValue(Lists.newArrayList(pkg1, pkg2)));
+                }});
+                final List<String> packageNames = applicationRole.choices2AddPackage();
+                assertThat(packageNames, containsInAnyOrder("com.mycompany", "com.mycompany.foo"));
+            }
+        }
+    }
+
+    public static class AddClass extends ApplicationRoleTest {
+
+        public static class ActionImpl extends AddClass {
+
+            @Test
+            public void happyCase() throws Exception {
 
                 context.checking(new Expectations() {{
                     oneOf(mockApplicationPermissions).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, ApplicationFeatureType.CLASS, "com.mycompany.Bar");
@@ -201,65 +241,177 @@ public class ApplicationRoleTest {
                 assertThat(role, sameInstance(applicationRole));
             }
         }
-    }
 
-    public static class AddAction extends ApplicationRoleTest {
-
-        public static class Action extends AddAction {
+        public static class Default0 extends AddClass {
 
             @Test
             public void happyCase() throws Exception {
 
+                assertThat(applicationRole.default0AddClass(), sameInstance(ApplicationPermissionRule.ALLOW));
+            }
+        }
+
+        public static class Default1 extends AddClass {
+
+            @Test
+            public void happyCase() throws Exception {
+
+                assertThat(applicationRole.default1AddClass(), sameInstance(ApplicationPermissionMode.CHANGING));
+            }
+        }
+
+        public static class Choices2 extends AddClass {
+
+            @Test
+            public void happyCase() throws Exception {
+
+                context.checking(new Expectations() {{
+                    allowing(mockApplicationFeatures).packageNamesContainingClasses(null);
+                    will(returnValue(Lists.newArrayList("com.mycompany", "com.mycompany.foo")));
+                }});
+                final List<String> packageNames = applicationRole.choices2AddClass();
+                assertThat(packageNames, containsInAnyOrder("com.mycompany", "com.mycompany.foo"));
+            }
+        }
+
+        public static class Choices3 extends AddClass {
+
+            @Test
+            public void happyCase() throws Exception {
+
+                context.checking(new Expectations() {{
+                    allowing(mockApplicationFeatures).classNamesContainedIn("com.mycompany", null);
+                    will(returnValue(Lists.newArrayList("Bar", "Baz")));
+                }});
+                final List<String> classNames =
+                        applicationRole.choices3AddClass(
+                                ApplicationPermissionRule.ALLOW,
+                                ApplicationPermissionMode.CHANGING,
+                                "com.mycompany");
+                assertThat(classNames, containsInAnyOrder("Bar", "Baz"));
+            }
+        }
+    }
+
+    public static class AddAction_or_AddProperty_or_AddCollection extends ApplicationRoleTest {
+
+        public static class ActionImpl extends AddAction_or_AddProperty_or_AddCollection {
+
+            @Before
+            public void setUp() throws Exception {
+                super.setUp();
                 applicationRole.applicationPermissions = mockApplicationPermissions;
 
                 context.checking(new Expectations() {{
                     oneOf(mockApplicationPermissions).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar", "foo");
                 }});
+            }
+
+            @Test
+            public void forAction() throws Exception {
 
                 final ApplicationRole role = applicationRole.addAction(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar", "foo");
                 assertThat(role, sameInstance(applicationRole));
             }
-        }
-
-    }
-
-    public static class AddProperty extends ApplicationRoleTest {
-        public static class Action extends AddProperty {
 
             @Test
-            public void happyCase() throws Exception {
-
-                applicationRole.applicationPermissions = mockApplicationPermissions;
-
-                context.checking(new Expectations() {{
-                    oneOf(mockApplicationPermissions).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar", "foo");
-                }});
+            public void forProperty() throws Exception {
 
                 final ApplicationRole role = applicationRole.addProperty(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar", "foo");
                 assertThat(role, sameInstance(applicationRole));
             }
 
-        }
-    }
-
-    public static class AddCollection extends ApplicationRoleTest {
-
-        public static class Action extends AddCollection {
-
             @Test
-            public void happyCase() throws Exception {
-
-                applicationRole.applicationPermissions = mockApplicationPermissions;
-
-                context.checking(new Expectations() {{
-                    oneOf(mockApplicationPermissions).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar", "foo");
-                }});
+            public void forCollection() throws Exception {
 
                 final ApplicationRole role = applicationRole.addCollection(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar", "foo");
                 assertThat(role, sameInstance(applicationRole));
             }
         }
 
+        public static class Default0 extends AddAction_or_AddProperty_or_AddCollection {
+
+            @Test
+            public void happyCase() throws Exception {
+
+                assertThat(applicationRole.default0AddAction(), sameInstance(ApplicationPermissionRule.ALLOW));
+                assertThat(applicationRole.default0AddProperty(), sameInstance(ApplicationPermissionRule.ALLOW));
+                assertThat(applicationRole.default0AddCollection(), sameInstance(ApplicationPermissionRule.ALLOW));
+            }
+        }
+        public static class Default1 extends AddAction_or_AddProperty_or_AddCollection {
+
+            @Test
+            public void happyCase() throws Exception {
+
+                assertThat(applicationRole.default1AddAction(), sameInstance(ApplicationPermissionMode.CHANGING));
+                assertThat(applicationRole.default1AddProperty(), sameInstance(ApplicationPermissionMode.CHANGING));
+                assertThat(applicationRole.default1AddCollection(), sameInstance(ApplicationPermissionMode.CHANGING));
+            }
+        }
+
+        public static class Choices2 extends AddAction_or_AddProperty_or_AddCollection {
+
+            @Test
+            public void happyCase() throws Exception {
+
+                context.checking(new Expectations() {{
+                    allowing(mockApplicationFeatures).packageNamesContainingClasses(ApplicationMemberType.ACTION);
+                    will(returnValue(Lists.newArrayList("com.mycompany", "com.mycompany.actions")));
+                    allowing(mockApplicationFeatures).packageNamesContainingClasses(ApplicationMemberType.PROPERTY);
+                    will(returnValue(Lists.newArrayList("com.mycompany", "com.mycompany.properties")));
+                    allowing(mockApplicationFeatures).packageNamesContainingClasses(ApplicationMemberType.COLLECTION);
+                    will(returnValue(Lists.newArrayList("com.mycompany", "com.mycompany.collections")));
+                }});
+
+                List<String> packageNames;
+                packageNames = applicationRole.choices2AddAction();
+                assertThat(packageNames, containsInAnyOrder("com.mycompany", "com.mycompany.actions"));
+                packageNames = applicationRole.choices2AddProperty();
+                assertThat(packageNames, containsInAnyOrder("com.mycompany", "com.mycompany.properties"));
+                packageNames = applicationRole.choices2AddCollection();
+                assertThat(packageNames, containsInAnyOrder("com.mycompany", "com.mycompany.collections"));
+            }
+        }
+
+
+        public static class Choices3 extends AddAction_or_AddProperty_or_AddCollection {
+
+            @Test
+            public void forAll() throws Exception {
+
+                context.checking(new Expectations() {{
+                    allowing(mockApplicationFeatures).classNamesContainedIn("com.mycompany", ApplicationMemberType.ACTION);
+                    will(returnValue(Lists.newArrayList("Bar", "Baz")));
+                    allowing(mockApplicationFeatures).classNamesContainedIn("com.mycompany", ApplicationMemberType.PROPERTY);
+                    will(returnValue(Lists.newArrayList("Fiz", "Foz")));
+                    allowing(mockApplicationFeatures).classNamesContainedIn("com.mycompany", ApplicationMemberType.COLLECTION);
+                    will(returnValue(Lists.newArrayList("Qiz", "Qoz")));
+                }});
+
+                List<String> classNames;
+
+                classNames = applicationRole.choices3AddAction(
+                        ApplicationPermissionRule.ALLOW,
+                        ApplicationPermissionMode.CHANGING,
+                        "com.mycompany");
+                assertThat(classNames, containsInAnyOrder("Bar", "Baz"));
+
+                classNames =
+                        applicationRole.choices3AddProperty(
+                                ApplicationPermissionRule.ALLOW,
+                                ApplicationPermissionMode.CHANGING,
+                                "com.mycompany");
+                assertThat(classNames, containsInAnyOrder("Fiz", "Foz"));
+
+                classNames =
+                        applicationRole.choices3AddCollection(
+                                ApplicationPermissionRule.ALLOW,
+                                ApplicationPermissionMode.CHANGING,
+                                "com.mycompany");
+                assertThat(classNames, containsInAnyOrder("Qiz", "Qoz"));
+            }
+        }
     }
 
     public static class CompareTo extends ComparableContractTest_compareTo<ApplicationRole> {

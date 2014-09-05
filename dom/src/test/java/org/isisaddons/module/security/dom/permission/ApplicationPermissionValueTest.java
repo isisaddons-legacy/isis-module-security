@@ -36,6 +36,28 @@ public class ApplicationPermissionValueTest {
     private static ApplicationFeatureId mComFooBar_bip = ApplicationFeatureId.newMember("com.foo.Bar", "bip");
     private static ApplicationFeatureId mComFooBar_bup = ApplicationFeatureId.newMember("com.foo.Bar", "bup");
 
+    public static class ValueTypeContractTest extends ValueTypeContractTestAbstract<ApplicationPermissionValue> {
+
+        @Override
+        protected List<ApplicationPermissionValue> getObjectsWithSameValue() {
+            return Arrays.asList(
+                    new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING),
+                    new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING)
+            );
+        }
+
+        @Override
+        protected List<ApplicationPermissionValue> getObjectsWithDifferentValue() {
+            return Arrays.asList(
+                    new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany2"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING),
+                    new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.VETO, ApplicationPermissionMode.CHANGING),
+                    new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.VIEWING)
+            );
+        }
+
+    }
+
+
     public static class Implies_and_Refutes extends ApplicationPermissionValueTest {
 
         public static class GivenMember extends Implies_and_Refutes {
@@ -273,6 +295,34 @@ public class ApplicationPermissionValueTest {
             }
         }
 
+        //region > helpers just to make tests easier to read
+
+
+        static ApplicationPermissionValue allowChanging(ApplicationFeatureId featureId) {
+            return new ApplicationPermissionValue(featureId, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING);
+        }
+
+        static ApplicationPermissionValue vetoChanging(ApplicationFeatureId featureId) {
+            return new ApplicationPermissionValue(featureId, ApplicationPermissionRule.VETO, ApplicationPermissionMode.CHANGING);
+        }
+
+        static ApplicationPermissionValue allowViewing(ApplicationFeatureId featureId) {
+            return new ApplicationPermissionValue(featureId, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.VIEWING);
+        }
+
+        static ApplicationPermissionValue vetoViewing(ApplicationFeatureId featureId) {
+            return new ApplicationPermissionValue(featureId, ApplicationPermissionRule.VETO, ApplicationPermissionMode.VIEWING);
+        }
+
+        static ApplicationPermissionMode changing() {
+            return ApplicationPermissionMode.CHANGING;
+        }
+
+        static ApplicationPermissionMode viewing() {
+            return ApplicationPermissionMode.VIEWING;
+        }
+        //endregion
+
     }
 
     public static class PrivateConstructors extends ApplicationPermissionValueTest {
@@ -283,59 +333,5 @@ public class ApplicationPermissionValueTest {
         }
 
     }
-
-
-
-    //region > helpers just to make tests easier to read
-
-
-    static ApplicationPermissionValue allowChanging(ApplicationFeatureId featureId) {
-        return new ApplicationPermissionValue(featureId, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING);
-    }
-
-    static ApplicationPermissionValue vetoChanging(ApplicationFeatureId featureId) {
-        return new ApplicationPermissionValue(featureId, ApplicationPermissionRule.VETO, ApplicationPermissionMode.CHANGING);
-    }
-
-    static ApplicationPermissionValue allowViewing(ApplicationFeatureId featureId) {
-        return new ApplicationPermissionValue(featureId, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.VIEWING);
-    }
-
-    static ApplicationPermissionValue vetoViewing(ApplicationFeatureId featureId) {
-        return new ApplicationPermissionValue(featureId, ApplicationPermissionRule.VETO, ApplicationPermissionMode.VIEWING);
-    }
-
-    static ApplicationPermissionMode changing() {
-        return ApplicationPermissionMode.CHANGING;
-    }
-
-    static ApplicationPermissionMode viewing() {
-        return ApplicationPermissionMode.VIEWING;
-    }
-    //endregion
-
-
-    public static class ValueTypeContractTest extends ValueTypeContractTestAbstract<ApplicationPermissionValue> {
-
-        @Override
-        protected List<ApplicationPermissionValue> getObjectsWithSameValue() {
-            return Arrays.asList(
-                    new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING),
-                    new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING)
-                    );
-        }
-
-        @Override
-        protected List<ApplicationPermissionValue> getObjectsWithDifferentValue() {
-            return Arrays.asList(
-                    new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany2"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING),
-                    new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.VETO, ApplicationPermissionMode.CHANGING),
-                    new ApplicationPermissionValue(ApplicationFeatureId.newPackage("com.mycompany"), ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.VIEWING)
-                    );
-        }
-
-    }
-
-
 
 }

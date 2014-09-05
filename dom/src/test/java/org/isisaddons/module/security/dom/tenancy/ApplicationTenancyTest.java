@@ -17,6 +17,6 @@ public class ApplicationTenancyTest {
             PojoTester.relaxed()
                     .exercise(new ApplicationTenancy());
         }
-
     }
+
 }

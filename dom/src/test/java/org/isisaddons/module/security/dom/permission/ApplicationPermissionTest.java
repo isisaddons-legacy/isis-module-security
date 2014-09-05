@@ -159,130 +159,148 @@ public class ApplicationPermissionTest {
 
     public static class Viewing extends ApplicationPermissionTest {
 
-        @Test
-        public void happyCase() throws Exception {
-            applicationPermission = new ApplicationPermission();
+        public static class ActionImpl extends Viewing {
 
-            applicationPermission.viewing();
-            assertThat(applicationPermission.getMode(), is(ApplicationPermissionMode.VIEWING));
-        }
-    }
+            @Test
+            public void happyCase() throws Exception {
+                applicationPermission = new ApplicationPermission();
 
-    public static class DisableViewing extends ApplicationPermissionTest {
-
-        @Before
-        public void setUp() throws Exception {
-            applicationPermission = new ApplicationPermission();
+                applicationPermission.viewing();
+                assertThat(applicationPermission.getMode(), is(ApplicationPermissionMode.VIEWING));
+            }
         }
 
-        @Test
-        public void whenChanging() throws Exception {
-            applicationPermission.setMode(ApplicationPermissionMode.CHANGING);
+        public static class Disable extends ApplicationPermissionTest {
 
-            assertThat(applicationPermission.disableViewing(), is(nullValue()));
-        }
-        @Test
-        public void whenViewing() throws Exception {
-            applicationPermission.setMode(ApplicationPermissionMode.VIEWING);
+            @Before
+            public void setUp() throws Exception {
+                applicationPermission = new ApplicationPermission();
+            }
 
-            assertThat(applicationPermission.disableViewing(), is(not(nullValue())));
+            @Test
+            public void whenChanging() throws Exception {
+                applicationPermission.setMode(ApplicationPermissionMode.CHANGING);
+
+                assertThat(applicationPermission.disableViewing(), is(nullValue()));
+            }
+            @Test
+            public void whenViewing() throws Exception {
+                applicationPermission.setMode(ApplicationPermissionMode.VIEWING);
+
+                assertThat(applicationPermission.disableViewing(), is(not(nullValue())));
+            }
         }
+
     }
 
     public static class Changing extends ApplicationPermissionTest {
 
-        @Test
-        public void happyCase() throws Exception {
-            applicationPermission = new ApplicationPermission();
+        public static class ActionImpl extends Changing {
 
-            applicationPermission.changing();
-            assertThat(applicationPermission.getMode(), is(ApplicationPermissionMode.CHANGING));
-        }
-    }
+            @Test
+            public void happyCase() throws Exception {
+                applicationPermission = new ApplicationPermission();
 
-    public static class DisableChanging extends ApplicationPermissionTest {
-
-        @Before
-        public void setUp() throws Exception {
-            applicationPermission = new ApplicationPermission();
+                applicationPermission.changing();
+                assertThat(applicationPermission.getMode(), is(ApplicationPermissionMode.CHANGING));
+            }
         }
 
-        @Test
-        public void whenChanging() throws Exception {
-            applicationPermission.setMode(ApplicationPermissionMode.CHANGING);
+        public static class Disable extends Changing {
 
-            assertThat(applicationPermission.disableChanging(), is(not(nullValue())));
-        }
-        @Test
-        public void whenViewing() throws Exception {
-            applicationPermission.setMode(ApplicationPermissionMode.VIEWING);
+            @Before
+            public void setUp() throws Exception {
+                applicationPermission = new ApplicationPermission();
+            }
 
-            assertThat(applicationPermission.disableChanging(), is(nullValue()));
+            @Test
+            public void whenChanging() throws Exception {
+                applicationPermission.setMode(ApplicationPermissionMode.CHANGING);
+
+                assertThat(applicationPermission.disableChanging(), is(not(nullValue())));
+            }
+            @Test
+            public void whenViewing() throws Exception {
+                applicationPermission.setMode(ApplicationPermissionMode.VIEWING);
+
+                assertThat(applicationPermission.disableChanging(), is(nullValue()));
+            }
         }
+
+
     }
 
     public static class Allow extends ApplicationPermissionTest {
 
-        @Test
-        public void happyCase() throws Exception {
-            applicationPermission = new ApplicationPermission();
+        public static class ActionImpl extends Allow {
 
-            applicationPermission.allow();
-            assertThat(applicationPermission.getRule(), is(ApplicationPermissionRule.ALLOW));
-        }
-    }
+            @Test
+            public void happyCase() throws Exception {
+                applicationPermission = new ApplicationPermission();
 
-    public static class DisableAllow extends ApplicationPermissionTest {
-
-        @Before
-        public void setUp() throws Exception {
-            applicationPermission = new ApplicationPermission();
+                applicationPermission.allow();
+                assertThat(applicationPermission.getRule(), is(ApplicationPermissionRule.ALLOW));
+            }
         }
 
-        @Test
-        public void whenAllow() throws Exception {
-            applicationPermission.setRule(ApplicationPermissionRule.ALLOW);
+        public static class Disable extends Allow  {
 
-            assertThat(applicationPermission.disableAllow(), is(not(nullValue())));
-        }
-        @Test
-        public void whenViewing() throws Exception {
-            applicationPermission.setRule(ApplicationPermissionRule.VETO);
+            @Before
+            public void setUp() throws Exception {
+                applicationPermission = new ApplicationPermission();
+            }
 
-            assertThat(applicationPermission.disableAllow(), is(nullValue()));
+            @Test
+            public void whenAllow() throws Exception {
+                applicationPermission.setRule(ApplicationPermissionRule.ALLOW);
+
+                assertThat(applicationPermission.disableAllow(), is(not(nullValue())));
+            }
+            @Test
+            public void whenViewing() throws Exception {
+                applicationPermission.setRule(ApplicationPermissionRule.VETO);
+
+                assertThat(applicationPermission.disableAllow(), is(nullValue()));
+            }
         }
+
+
     }
 
     public static class Veto extends ApplicationPermissionTest {
 
-        @Test
-        public void happyCase() throws Exception {
-            applicationPermission = new ApplicationPermission();
+        public static class ActionImpl extends Veto {
 
-            applicationPermission.veto();
-            assertThat(applicationPermission.getRule(), is(ApplicationPermissionRule.VETO));
-        }
-    }
+            @Test
+            public void happyCase() throws Exception {
+                applicationPermission = new ApplicationPermission();
 
-    public static class DisableVeto extends ApplicationPermissionTest {
-
-        @Before
-        public void setUp() throws Exception {
-            applicationPermission = new ApplicationPermission();
+                applicationPermission.veto();
+                assertThat(applicationPermission.getRule(), is(ApplicationPermissionRule.VETO));
+            }
         }
 
-        @Test
-        public void whenAllow() throws Exception {
-            applicationPermission.setRule(ApplicationPermissionRule.ALLOW);
+        public static class Disable extends Veto {
 
-            assertThat(applicationPermission.disableVeto(), is(nullValue()));
-        }
+            @Before
+            public void setUp() throws Exception {
+                applicationPermission = new ApplicationPermission();
+            }
 
-        @Test
-        public void whenVeto() throws Exception {
-            applicationPermission.setRule(ApplicationPermissionRule.VETO);
+            @Test
+            public void whenAllow() throws Exception {
+                applicationPermission.setRule(ApplicationPermissionRule.ALLOW);
 
-            assertThat(applicationPermission.disableVeto(), is(not(nullValue())));
+                assertThat(applicationPermission.disableVeto(), is(nullValue()));
+            }
+
+            @Test
+            public void whenVeto() throws Exception {
+                applicationPermission.setRule(ApplicationPermissionRule.VETO);
+
+                assertThat(applicationPermission.disableVeto(), is(not(nullValue())));
+            }
+
         }
 
     }
