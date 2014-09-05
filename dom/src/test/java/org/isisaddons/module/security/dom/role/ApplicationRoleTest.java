@@ -412,6 +412,43 @@ public class ApplicationRoleTest {
                 assertThat(classNames, containsInAnyOrder("Qiz", "Qoz"));
             }
         }
+
+        public static class Choices4 extends AddAction_or_AddProperty_or_AddCollection {
+
+            @Test
+            public void forAll() throws Exception {
+
+                context.checking(new Expectations() {{
+                    allowing(mockApplicationFeatures).memberNamesOf("com.mycompany", "Bar", ApplicationMemberType.ACTION);
+                    will(returnValue(Lists.newArrayList("foo", "far")));
+                    allowing(mockApplicationFeatures).memberNamesOf("com.mycompany", "Bar", ApplicationMemberType.PROPERTY);
+                    will(returnValue(Lists.newArrayList("boo", "bar")));
+                    allowing(mockApplicationFeatures).memberNamesOf("com.mycompany", "Bar", ApplicationMemberType.COLLECTION);
+                    will(returnValue(Lists.newArrayList("coo", "car")));
+                }});
+
+                List<String> classNames;
+
+                classNames = applicationRole.choices4AddAction(
+                        ApplicationPermissionRule.ALLOW,
+                        ApplicationPermissionMode.CHANGING,
+                        "com.mycompany", "Bar");
+                assertThat(classNames, containsInAnyOrder("foo", "far"));
+
+                classNames = applicationRole.choices4AddProperty(
+                        ApplicationPermissionRule.ALLOW,
+                        ApplicationPermissionMode.CHANGING,
+                        "com.mycompany", "Bar");
+                assertThat(classNames, containsInAnyOrder("boo", "bar"));
+
+                classNames = applicationRole.choices4AddCollection(
+                        ApplicationPermissionRule.ALLOW,
+                        ApplicationPermissionMode.CHANGING,
+                        "com.mycompany", "Bar");
+                assertThat(classNames, containsInAnyOrder("coo", "car"));
+            }
+        }
+
     }
 
     public static class CompareTo extends ComparableContractTest_compareTo<ApplicationRole> {
