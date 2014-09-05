@@ -260,6 +260,7 @@ language governing permissions and limitations under the License.
             <groupId>com.danhaywood.java</groupId>
             <artifactId>danhaywood-java-testsupport</artifactId>
             <version>${danhaywood-java-testsupport.version}</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
