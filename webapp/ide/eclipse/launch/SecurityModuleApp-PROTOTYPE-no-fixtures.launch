@@ -32,7 +32,7 @@ language governing permissions and limitations under the License.
   <booleanAttribute value="true" key="org.eclipse.jdt.debug.ui.INCLUDE_EXTERNAL_JARS"/>
   <stringAttribute value="org.eclipse.m2e.launchconfig.classpathProvider" key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER"/>
   <stringAttribute value="org.apache.isis.WebServer" key="org.eclipse.jdt.launching.MAIN_TYPE"/>
-  <stringAttribute value="--port 8080 --type SERVER" key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS"/>
+  <stringAttribute value="--port 8080 --type PROTOTYPE" key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS"/>
   <stringAttribute value="isis-module-security-webapp" key="org.eclipse.jdt.launching.PROJECT_ATTR"/>
   <stringAttribute value="org.eclipse.m2e.launchconfig.sourcepathProvider" key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER"/>
 </launchConfiguration>
