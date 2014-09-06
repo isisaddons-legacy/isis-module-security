@@ -271,15 +271,38 @@ note that "sven" now has access to additional features:
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/350-user-effective-permissions-updated.png)
 
-
-#### User permission ####
-
-Finally, the user permission not only shows whether a user has a permission to a feature, but also indicates the 
+The user permission not only shows whether a user has a permission to a feature, but also indicates the 
 role permission that is allowing/vetoing the ability to view or change the feature.
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/370-user-permission.png)
 
 Cool huh?
+
+#### Application features ####
+
+The application features that permissions to relate (packages, classes, actions, properties, collections) are built up 
+dynamically from the Isis metamodel. 
+
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/380-app-features.png)
+
+For example, from the list of classes:
+
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/390-app-classes.png)
+
+... can then drill down to a particular application class:
+
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/400-app-class.png)
+
+As a convenience (development aid) note that action semantics and max length/typical length of string properties are
+also available for inspection.
+
+From the application class it is possible to navigate up to the parent package:
+
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/410-app-package.png)
+
+... or indeed down into any individual class member, eg action:
+
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/420-app-action.png)
 
 
 ## How to configure/use ##
