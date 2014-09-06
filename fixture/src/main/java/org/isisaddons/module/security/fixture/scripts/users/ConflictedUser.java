@@ -14,19 +14,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.fixture.scripts.userrole;
+package org.isisaddons.module.security.fixture.scripts.users;
 
-import org.isisaddons.module.security.fixture.scripts.roles.ExampleRegularRoleAndPermissions;
-import org.isisaddons.module.security.fixture.scripts.users.DickUser;
+/**
+ * Intended to be assigned to roles ({@link org.isisaddons.module.security.fixture.scripts.roles.ExampleGuestRoleAndPremissions} and
+ * {@link org.isisaddons.module.security.fixture.scripts.roles.ExampleNoGuestRoleAndPremissions}) that conflict.
+ */
+public class ConflictedUser extends AbstractUserFixtureScript {
 
-public class DickUser_Has_ExampleRegularRole extends AbstractUserRoleFixtureScript {
-    public DickUser_Has_ExampleRegularRole() {
-        super(DickUser.USER_NAME, ExampleRegularRoleAndPermissions.ROLE_NAME);
-    }
+    public static final String USER_NAME = "conflicted";
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        super.execute(executionContext);
-
+        create(USER_NAME, executionContext);
     }
+
 }

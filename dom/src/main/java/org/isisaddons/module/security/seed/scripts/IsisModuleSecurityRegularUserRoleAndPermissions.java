@@ -60,6 +60,7 @@ public class IsisModuleSecurityRegularUserRoleAndPermissions extends AbstractRol
                 ApplicationPermissionRule.VETO,
                 ApplicationPermissionMode.VIEWING,
                 ApplicationUser.class,
+                "filterPermissions",
                 "resetPassword",
                 "updateTenancy",
                 "enable",

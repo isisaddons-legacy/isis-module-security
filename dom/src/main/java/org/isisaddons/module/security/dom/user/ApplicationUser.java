@@ -31,6 +31,7 @@ import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
+import org.isisaddons.module.security.dom.permission.PermissionsEvaluationService;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
@@ -383,21 +384,23 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name = "Status", sequence = "1")
-    public ApplicationUser enable() {
+    @Named("Enable")
+    public ApplicationUser unlock() {
         setStatus(ApplicationUserStatus.ENABLED);
         return this;
     }
-    public String disableEnable() {
+    public String disableUnlock() {
         return getStatus() == ApplicationUserStatus.ENABLED ? "Status is already set to ENABLE": null;
     }
 
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name = "Status", sequence = "2")
-    public ApplicationUser disable() {
+    @Named("Disable")
+    public ApplicationUser lock() {
         setStatus(ApplicationUserStatus.DISABLED);
         return this;
     }
-    public String disableDisable() {
+    public String disableLock() {
         final String adminUser = IsisModuleSecurityAdminUser.USER_NAME;
         if(this.getName().equals(adminUser)) {
             return "Cannot disable the '" + adminUser + "' user.";
@@ -654,11 +657,12 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
             return cachedPermissionSet;
         }
         final List<ApplicationPermission> permissions = applicationPermissions.findByUser(this);
-        final ApplicationPermissionValueSet permissionSet = new ApplicationPermissionValueSet(Iterables.transform(permissions, ApplicationPermission.Functions.AS_VALUE));
-        return cachedPermissionSet = permissionSet;
+        return cachedPermissionSet =
+                new ApplicationPermissionValueSet(
+                        Iterables.transform(permissions, ApplicationPermission.Functions.AS_VALUE),
+                        permissionsEvaluationService);
     }
     //endregion
-
 
     //region > isAdminUser (programmatic)
     @Programmatic
@@ -729,5 +733,14 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     PasswordEncryptionService passwordEncryptionService;
     @javax.inject.Inject
     DomainObjectContainer container;
+
+    /**
+     * Optional service, if configured then is used to evaluate permissions within
+     * {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet#evaluate(org.isisaddons.module.security.dom.feature.ApplicationFeatureId, org.isisaddons.module.security.dom.permission.ApplicationPermissionMode)},
+     * else will fallback to a {@link org.isisaddons.module.security.dom.permission.PermissionsEvaluationService#DEFAULT default}
+     * implementation.
+     */
+    @javax.inject.Inject
+    PermissionsEvaluationService permissionsEvaluationService;
     //endregion
 }

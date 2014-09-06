@@ -40,13 +40,13 @@ public class UserPermissionViewModelContributionsTest {
     public static class Permissions extends UserPermissionViewModelContributionsTest {
 
         private ApplicationUser asViewModelsUser;
-        private Collection<ApplicationFeature> asViewModelsArgFeatures;
+        private Iterable<ApplicationFeature> asViewModelsArgFeatures;
 
         @Before
         public void setUp() throws Exception {
             userPermissionViewModelContributions = new UserPermissionViewModelContributions() {
                 @Override
-                List<UserPermissionViewModel> asViewModels(ApplicationUser user, Collection<ApplicationFeature> features) {
+                List<UserPermissionViewModel> asViewModels(ApplicationUser user, Iterable<ApplicationFeature> features) {
                     asViewModelsUser = user;
                     asViewModelsArgFeatures = features;
                     return Lists.newArrayList();
@@ -66,7 +66,7 @@ public class UserPermissionViewModelContributionsTest {
             userPermissionViewModelContributions.permissions(applicationUser);
 
             assertThat(asViewModelsUser, is(applicationUser));
-            assertThat(asViewModelsArgFeatures, is(result));
+            assertThat(asViewModelsArgFeatures, is((Iterable<ApplicationFeature>)result));
         }
     }
 }

@@ -113,11 +113,11 @@ public class ApplicationPermissionValue implements Comparable<ApplicationPermiss
     //region > Comparators
     public static final class Comparators {
         private Comparators(){}
-        public static Comparator<ApplicationPermissionValue> evaluationPrecedence() {
+        public static Comparator<ApplicationPermissionValue> natural() {
             return new Comparator<ApplicationPermissionValue>() {
                 @Override
                 public int compare(ApplicationPermissionValue o1, ApplicationPermissionValue o2) {
-                    return 0;
+                    return o1.compareTo(o2);
                 }
             };
         }

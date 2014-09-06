@@ -17,6 +17,7 @@
 package org.isisaddons.module.security.dom.permission;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -72,30 +73,35 @@ public class ApplicationPermissionValueSet implements Serializable {
      */
     private final Multimap<ApplicationFeatureId, ApplicationPermissionValue> permissionsByFeature = TreeMultimap.create(
             Collections.reverseOrder(ApplicationFeatureId.Comparators.natural()),
-            ApplicationPermissionValue.Comparators.evaluationPrecedence());
+            ApplicationPermissionValue.Comparators.natural());
+    private final PermissionsEvaluationService permissionsEvaluationService;
 
 
     //endregion
 
     //region > constructor
-    public ApplicationPermissionValueSet(ApplicationPermissionValue... permissionValues) {
-        this(Lists.newArrayList(permissionValues));
+    ApplicationPermissionValueSet(ApplicationPermissionValue... permissionValues) {
+        this(Arrays.asList(permissionValues));
     }
-    public ApplicationPermissionValueSet(List<ApplicationPermissionValue> permissionValues) {
-        this.values = Collections.unmodifiableList(permissionValues);
+    public ApplicationPermissionValueSet(Iterable<ApplicationPermissionValue> permissionValues) {
+        this(permissionValues, null);
+    }
+    public ApplicationPermissionValueSet(Iterable<ApplicationPermissionValue> permissionValues, PermissionsEvaluationService permissionsEvaluationService) {
+        this.values = Collections.unmodifiableList(Lists.newArrayList(permissionValues));
         for (ApplicationPermissionValue permissionValue : permissionValues) {
             final ApplicationFeatureId featureId = permissionValue.getFeatureId();
             permissionsByFeature.put(featureId, permissionValue);
         }
-    }
-    public ApplicationPermissionValueSet(Iterable<ApplicationPermissionValue> permissionValues) {
-        this(Lists.newArrayList(permissionValues));
+        this.permissionsEvaluationService =
+                permissionsEvaluationService != null
+                        ? permissionsEvaluationService
+                        : PermissionsEvaluationService.DEFAULT;
     }
     //endregion
 
 
 
-    //region > grants
+    //region > grants, evaluate
 
     public static class Evaluation {
         private final ApplicationPermissionValue permissionValue;
@@ -115,25 +121,22 @@ public class ApplicationPermissionValueSet implements Serializable {
         }
     }
 
-    public Evaluation evaluate(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
+    public boolean grants(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
+        return evaluate(featureId, mode).isGranted();
+    }
+
+    public Evaluation evaluate(
+            final ApplicationFeatureId featureId,
+            final ApplicationPermissionMode mode) {
         final List<ApplicationFeatureId> pathIds = featureId.getPathIds();
         for (ApplicationFeatureId pathId : pathIds) {
             final Collection<ApplicationPermissionValue> permissionValues = permissionsByFeature.get(pathId);
-            // permission values are carefully ordered so that the ALLOWs come before the VETOs
-            for (ApplicationPermissionValue permissionValue : permissionValues) {
-                if(permissionValue.implies(featureId, mode)) {
-                    return new Evaluation(permissionValue, true);
-                }
-                if(permissionValue.refutes(featureId, mode)) {
-                    return new Evaluation(permissionValue, false);
-                }
+            final Evaluation evaluation = permissionsEvaluationService.evaluate(featureId, mode, permissionValues);
+            if(evaluation != null) {
+                return evaluation;
             }
         }
         return new Evaluation(null, false);
-    }
-
-    public boolean grants(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
-        return evaluate(featureId, mode).isGranted();
     }
 
     //endregion
@@ -163,5 +166,6 @@ public class ApplicationPermissionValueSet implements Serializable {
                 "values=" + values +
                 '}';
     }
+
     //endregion
 }

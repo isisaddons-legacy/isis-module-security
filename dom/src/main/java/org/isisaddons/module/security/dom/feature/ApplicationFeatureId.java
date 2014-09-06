@@ -324,6 +324,15 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
                 }
             };
         }
+
+        public static Predicate<ApplicationFeatureId> isClassRecursivelyWithin(final ApplicationFeatureId packageId) {
+            return new Predicate<ApplicationFeatureId>() {
+                @Override
+                public boolean apply(ApplicationFeatureId input) {
+                    return input.getParentIds().contains(packageId);
+                }
+            };
+        }
     }
     //endregion
 

@@ -217,8 +217,8 @@ public class ApplicationRoleTest {
             @Test
             public void happyCase() throws Exception {
                 context.checking(new Expectations() {{
-                    allowing(mockApplicationFeatures).allFeatures(ApplicationFeatureType.PACKAGE);
-                    will(returnValue(Lists.newArrayList(pkg1, pkg2)));
+                    allowing(mockApplicationFeatures).packageNames();
+                    will(returnValue(Lists.newArrayList("com.mycompany", "com.mycompany.foo")));
                 }});
                 final List<String> packageNames = applicationRole.choices2AddPackage();
                 assertThat(packageNames, containsInAnyOrder("com.mycompany", "com.mycompany.foo"));

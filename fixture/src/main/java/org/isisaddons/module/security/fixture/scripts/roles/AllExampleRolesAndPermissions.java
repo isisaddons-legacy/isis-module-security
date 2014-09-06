@@ -14,7 +14,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.fixture.scripts.perms;
+package org.isisaddons.module.security.fixture.scripts.roles;
 
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 

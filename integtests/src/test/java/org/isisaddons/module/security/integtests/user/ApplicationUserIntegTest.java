@@ -17,8 +17,8 @@
 package org.isisaddons.module.security.integtests.user;
 
 import javax.inject.Inject;
-import org.isisaddons.module.security.fixture.scripts.perms.AllExampleRolesAndPermissions;
-import org.isisaddons.module.security.fixture.scripts.perms.ExampleRegularRoleAndPermissions;
+import org.isisaddons.module.security.fixture.scripts.roles.AllExampleRolesAndPermissions;
+import org.isisaddons.module.security.fixture.scripts.roles.ExampleRegularRoleAndPermissions;
 import org.isisaddons.module.security.fixture.scripts.tenancy.AllTenancies;
 import org.isisaddons.module.security.fixture.scripts.tenancy.FranceTenancy;
 import org.isisaddons.module.security.fixture.scripts.tenancy.SwedenTenancy;

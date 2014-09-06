@@ -12,13 +12,13 @@ A key design objective of this module has been to limit the amount of permission
 * permissions are hierarchical: a class-level permission applies to all class members, while a package-level permission 
   applies to all classes of all subpackages
   
-* permissions can ALLOW or VETO access; thus a role can be granted access to most features, but excluded from selective others
+* permissions can _allow_ or _veto_ access; thus a role can be granted access to most features, but excluded from selective others
 
 * permissions are scoped: a member-level permission overrides a class-level permission, a class-level permission 
   overrides a package-level permission; the lower-level package permission overrides a higher-level one 
   (eg `com.mycompany.invoicing` overrides `com.mycompany`).
 
-* if there are conflicting permissions at the same scope, then the ALLOW takes precedence over the VETO.
+* if there are conflicting permissions at the same scope, then the _allow_ takes precedence over the __veto__.
   
 The module also provides an implementation of [Apache Shiro](http://shiro.apache.org)'s 
 [AuthorizingRealm](https://shiro.apache.org/static/1.2.2/apidocs/org/apache/shiro/realm/AuthorizingRealm.html).  This 
@@ -205,8 +205,6 @@ provides access to its parent (package) feature.
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/286-package-feature.png)
 
-
-
 #### Application users ####
 
 The security module can be defined either as a primary Shiro realm (for both authentication and authorization) or a 
@@ -307,7 +305,23 @@ From the application class it is possible to navigate up to the parent package:
 
 ## How to configure/use ##
 
-*TODO: this is incomplete.  It also needs to be extended to include Shiro configuration*
+
+*TODO: documentation is incomplete from here*
+
+to document:
+
+* pom.xml
+* shiro configuration (as primary realm, or as secondary realm)
+* MeService
+* PermissionsEvaluationService
+* PasswordEncryptionService
+
+also:
+* how the seed service works
+
+
+
+----
 
 You can either use this module "out-of-the-box", or you can fork this repo and extend to your own requirements. 
 
@@ -355,8 +369,7 @@ Only the `dom` project is released to Maven Central Repo.  The versions of the o
 
 ## API and Implementation ##
 
-*TODO: this is incomplete.  Need to document how to customise, eg MeService, PasswordEncryptionService and the menu services in order to 
-have full control over the UI.*
+*TODO: this is incomplete.  *
 
 ### XxxService ###
 
@@ -386,6 +399,10 @@ The module currently does not support:
   the edge case of permissions for a class in the root package is not supported.
 - users could possibly be extended to include user settings, refactored out from [isis-module-settings](https://github.com/isisaddons/isis-module-settings)
 - features could possibly be refactored out/merged with [isis-module-devutils](https://github.com/isisaddons/isis-module-devutils). 
+- hierarchical roles
+- tenancy applied to roles (so only apply permissions of a user's global roles or those of their tenancy; requires a
+  custom override of Isis' AuthorizationManagerStandard so can pass through the tenancy of the target object being
+  evaluated.
 
 
 ## Legal Stuff ##

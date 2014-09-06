@@ -14,26 +14,29 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.fixture.scripts.perms;
+package org.isisaddons.module.security.fixture.scripts.roles;
 
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
 import org.isisaddons.module.security.fixture.dom.ExampleEntity;
 import org.isisaddons.module.security.seed.scripts.AbstractRoleAndPermissionsFixtureScript;
 
-public class ExampleRegularRoleAndPermissions extends AbstractRoleAndPermissionsFixtureScript {
+/**
+ * Intended to conflict with {@link org.isisaddons.module.security.fixture.scripts.roles.ExampleGuestRoleAndPremissions}
+ */
+public class ExampleNoGuestRoleAndPremissions extends AbstractRoleAndPermissionsFixtureScript {
 
-    public static final String ROLE_NAME = "example-regular-role";
+    public static final String ROLE_NAME = "example-no-guest";
 
-    public ExampleRegularRoleAndPermissions() {
-        super(ROLE_NAME, "Read/write access to example dom");
+    public ExampleNoGuestRoleAndPremissions() {
+        super(ROLE_NAME, "No access to example dom");
     }
 
     @Override
     protected void execute(ExecutionContext executionContext) {
         newPackagePermissions(
-                ApplicationPermissionRule.ALLOW,
-                ApplicationPermissionMode.CHANGING,
+                ApplicationPermissionRule.VETO,
+                ApplicationPermissionMode.VIEWING,
                 ExampleEntity.class.getPackage().getName());
     }
 

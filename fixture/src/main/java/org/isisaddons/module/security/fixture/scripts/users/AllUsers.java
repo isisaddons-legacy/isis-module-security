@@ -25,6 +25,8 @@ public class AllUsers extends AbstractUserFixtureScript {
         execute(new GuestUser(), executionContext);
         execute(new JoeUser(), executionContext);
         execute(new SvenUser(), executionContext);
+
+        execute(new ConflictedUser(), executionContext);
     }
 
 }

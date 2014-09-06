@@ -425,11 +425,15 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     }
     //endregion
 
-    //region > packageNamesContainingClasses, classNamesContainedIn, memberNamesOf
-    /**
-     *
-     * @param memberType - additionally classes containing members of specified type (can be null).
-     */
+    //region > packageNames, packageNamesContainingClasses, classNamesContainedIn, memberNamesOf
+    @Programmatic
+    public List<String> packageNames() {
+        return Lists.newArrayList(
+                Iterables.transform(
+                        allFeatures(ApplicationFeatureType.PACKAGE), ApplicationFeature.Functions.GET_FQN));
+    }
+
+
     @Programmatic
     public List<String> packageNamesContainingClasses(ApplicationMemberType memberType) {
         final Collection<ApplicationFeature> packages = allFeatures(ApplicationFeatureType.PACKAGE);
@@ -455,6 +459,22 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
                         Iterables.filter(
                                 contents,
                                 ApplicationFeatureId.Predicates.isClassContaining(memberType, this)),
+                        ApplicationFeatureId.Functions.GET_CLASS_NAME));
+    }
+
+    @Programmatic
+    public List<String> classNamesRecursivelyContainedIn(String packageFqn) {
+        final ApplicationFeatureId packageId = ApplicationFeatureId.newPackage(packageFqn);
+        final ApplicationFeature pkg = findPackage(packageId);
+        if(pkg == null) {
+            return Collections.emptyList();
+        }
+        final Set<ApplicationFeatureId> classIds = this.classFeatures.keySet();
+        return Lists.newArrayList(
+                Iterables.transform(
+                        Iterables.filter(
+                                classIds,
+                                ApplicationFeatureId.Predicates.isClassRecursivelyWithin(packageId)),
                         ApplicationFeatureId.Functions.GET_CLASS_NAME));
     }
 
@@ -493,6 +513,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     public void setServicesInjector(ServicesInjector servicesInjector) {
         this.servicesInjector = servicesInjector;
     }
+
 
     //endregion
 

@@ -16,6 +16,9 @@
  */
 package org.isisaddons.module.security.fixture.scripts.userrole;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
@@ -25,18 +28,20 @@ import org.apache.isis.applib.fixturescripts.FixtureScript;
 public abstract class AbstractUserRoleFixtureScript extends FixtureScript {
 
     private final String userName;
-    private final String roleName;
+    private final List<String> roleNames;
 
     public AbstractUserRoleFixtureScript(
             final String userName,
-            final String roleName) {
+            final String... roleNames) {
         this.userName = userName;
-        this.roleName = roleName;
+        this.roleNames = Collections.unmodifiableList(Arrays.asList(roleNames));
     }
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        addUserToRole(userName, roleName, executionContext);
+        for (String roleName : roleNames) {
+            addUserToRole(userName, roleName, executionContext);
+        }
     }
 
     protected ApplicationUser addUserToRole(

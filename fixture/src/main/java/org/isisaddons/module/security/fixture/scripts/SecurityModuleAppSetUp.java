@@ -18,7 +18,7 @@ package org.isisaddons.module.security.fixture.scripts;
 
 import org.isisaddons.module.security.fixture.dom.ExampleEntities;
 import org.isisaddons.module.security.fixture.scripts.example.AllExampleEntities;
-import org.isisaddons.module.security.fixture.scripts.perms.*;
+import org.isisaddons.module.security.fixture.scripts.roles.*;
 import org.isisaddons.module.security.fixture.scripts.tenancy.AllTenancies;
 import org.isisaddons.module.security.fixture.scripts.userrole.*;
 import org.isisaddons.module.security.fixture.scripts.users.AllUsers;
@@ -35,15 +35,18 @@ public class SecurityModuleAppSetUp extends DiscoverableFixtureScript {
 
         execute(new AllExampleEntities(), executionContext);
 
-        execute(new AllExampleRolesAndPermissions(), executionContext);
-        execute(new AllUsers(), executionContext);
-        execute(new AllTenancies(), executionContext);
-
-        // perms (role/features)
+        // roles and perms
         execute(new ExampleGuestRoleAndPremissions(), executionContext);
+        execute(new ExampleNoGuestRoleAndPremissions(), executionContext);
         execute(new ExampleRegularRoleAndPermissions(), executionContext);
         execute(new ExampleFixtureScriptsRoleAndPermissions(), executionContext);
         execute(new ExampleHideEntityDescriptionRoleAndPermissions(), executionContext);
+
+        execute(new AllExampleRolesAndPermissions(), executionContext);
+
+        // users, tenancies
+        execute(new AllUsers(), executionContext);
+        execute(new AllTenancies(), executionContext);
 
         // user/role
         execute(new BobUser_Has_IsisSecurityAdminRole(), executionContext);
@@ -59,6 +62,8 @@ public class SecurityModuleAppSetUp extends DiscoverableFixtureScript {
         execute(new JoeUser_Has_IsisSecurityModuleRegularRole(), executionContext);
 
         execute(new SvenUser_Has_IsisSecurityAdminRole(), executionContext);
+
+        execute(new ConflictedUser_Has_ExampleConflictingRoles(), executionContext);
     }
 
     // //////////////////////////////////////

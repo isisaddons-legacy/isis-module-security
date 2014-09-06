@@ -16,17 +16,14 @@
  */
 package org.isisaddons.module.security.fixture.scripts.userrole;
 
-import org.isisaddons.module.security.fixture.scripts.roles.ExampleRegularRoleAndPermissions;
-import org.isisaddons.module.security.fixture.scripts.users.DickUser;
+import org.isisaddons.module.security.fixture.scripts.roles.ExampleGuestRoleAndPremissions;
+import org.isisaddons.module.security.fixture.scripts.roles.ExampleNoGuestRoleAndPremissions;
+import org.isisaddons.module.security.fixture.scripts.users.ConflictedUser;
 
-public class DickUser_Has_ExampleRegularRole extends AbstractUserRoleFixtureScript {
-    public DickUser_Has_ExampleRegularRole() {
-        super(DickUser.USER_NAME, ExampleRegularRoleAndPermissions.ROLE_NAME);
-    }
-
-    @Override
-    protected void execute(ExecutionContext executionContext) {
-        super.execute(executionContext);
-
+public class ConflictedUser_Has_ExampleConflictingRoles extends AbstractUserRoleFixtureScript {
+    public ConflictedUser_Has_ExampleConflictingRoles() {
+        super(ConflictedUser.USER_NAME,
+                ExampleGuestRoleAndPremissions.ROLE_NAME,
+                ExampleNoGuestRoleAndPremissions.ROLE_NAME);
     }
 }
