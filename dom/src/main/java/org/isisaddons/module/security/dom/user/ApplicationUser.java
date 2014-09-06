@@ -667,7 +667,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //region > isAdminUser (programmatic)
     @Programmatic
     public boolean isAdminUser() {
-        final ApplicationUser adminUser = applicationUsers.findUserByUsernameNoAutocreate(IsisModuleSecurityAdminUser.USER_NAME);
+        final ApplicationUser adminUser = applicationUsers.findUserByUsername(IsisModuleSecurityAdminUser.USER_NAME);
         return this == adminUser;
     }
     //endregion

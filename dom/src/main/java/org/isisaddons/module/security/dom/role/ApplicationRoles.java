@@ -39,14 +39,17 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
     }
 
     @MemberOrder(sequence = "20.2")
-    @ActionSemantics(Of.NON_IDEMPOTENT)
+    @ActionSemantics(Of.IDEMPOTENT)
     public ApplicationRole newRole(
             final @Named("Name") @TypicalLength(ApplicationRole.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationRole.MAX_LENGTH_NAME) String name,
             final @Named("Description") @Optional @TypicalLength(ApplicationRole.TYPICAL_LENGTH_DESCRIPTION) @MaxLength(JdoColumnLength.DESCRIPTION) String description) {
-        ApplicationRole role = newTransientInstance(ApplicationRole.class);
-        role.setName(name);
-        role.setDescription(description);
-        persist(role);
+        ApplicationRole role = findRoleByName(name);
+        if (role == null){
+            role = newTransientInstance(ApplicationRole.class);
+            role.setName(name);
+            role.setDescription(description);
+            persist(role);
+        }
         return role;
     }
 

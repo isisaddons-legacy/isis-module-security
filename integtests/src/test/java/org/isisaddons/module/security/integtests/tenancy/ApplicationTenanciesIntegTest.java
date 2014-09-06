@@ -69,14 +69,14 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
         @Test
         public void alreadyExists() throws Exception {
 
-            // then
-            expectedExceptions.expect(JDODataStoreException.class);
-
             // given
             applicationTenancies.newTenancy("uk");
 
             // when
             applicationTenancies.newTenancy("uk");
+            
+            //then
+            assertThat(applicationTenancies.allTenancies().size(), is(1));
         }
     }
 

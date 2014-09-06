@@ -16,23 +16,24 @@
  */
 package org.isisaddons.module.security.integtests.role;
 
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 import java.util.List;
+
 import javax.inject.Inject;
-import javax.jdo.JDODataStoreException;
-import org.isisaddons.module.security.dom.role.ApplicationRole;
-import org.isisaddons.module.security.dom.role.ApplicationRoles;
-import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
-import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
-import org.isisaddons.module.security.integtests.ThrowableMatchers;
-import org.junit.Assert;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.core.Is.is;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.role.ApplicationRoles;
+import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
+import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
 
 public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
 
@@ -55,28 +56,27 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
 
             // given
             final List<ApplicationRole> before = applicationRoles.allRoles();
-            Assert.assertThat(before.size(), is(0));
+            assertThat(before.size(), is(0));
 
             // when
             final ApplicationRole applicationRole = applicationRoles.newRole("fred", null);
-            Assert.assertThat(applicationRole.getName(), is("fred"));
+            assertThat(applicationRole.getName(), is("fred"));
 
             // then
             final List<ApplicationRole> after = applicationRoles.allRoles();
-            Assert.assertThat(after.size(), is(1));
+            assertThat(after.size(), is(1));
         }
 
         @Test
         public void alreadyExists() throws Exception {
-
-            // then
-            expectedExceptions.expect(ThrowableMatchers.causalChainContains(JDODataStoreException.class));
-
             // given
             applicationRoles.newRole("guest", null);
 
             // when
             applicationRoles.newRole("guest", null);
+            
+            // then
+            assertThat(applicationRoles.allRoles().size(), is(1));
         }
 
     }
@@ -99,8 +99,8 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
             final ApplicationRole guest = applicationRoles.findRoleByName("guest");
 
             // then
-            Assert.assertThat(guest, is(not(nullValue())));
-            Assert.assertThat(guest.getName(), is("guest"));
+            assertThat(guest, is(not(nullValue())));
+            assertThat(guest.getName(), is("guest"));
         }
 
         @Test
@@ -114,7 +114,7 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
             final ApplicationRole nonExistent = applicationRoles.findRoleByName("admin");
 
             // then
-            Assert.assertThat(nonExistent, is(nullValue()));
+            assertThat(nonExistent, is(nullValue()));
         }
     }
 
@@ -133,7 +133,7 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
             final List<ApplicationRole> after = applicationRoles.allRoles();
 
             // then
-            Assert.assertThat(after.size(), is(2));
+            assertThat(after.size(), is(2));
         }
     }
 

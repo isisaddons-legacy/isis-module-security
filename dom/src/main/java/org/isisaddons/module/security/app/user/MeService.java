@@ -35,7 +35,7 @@ public class MeService extends AbstractFactoryAndRepository {
     @ActionSemantics(Of.SAFE)
     public ApplicationUser me() {
         final String myName = getContainer().getUser().getName();
-        return applicationUsers.findUserByUsername(myName);
+        return applicationUsers.findOrCreateUserByUsername(myName);
     }
 
     //region  > services (injected)

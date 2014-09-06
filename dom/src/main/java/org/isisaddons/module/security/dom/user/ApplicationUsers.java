@@ -54,12 +54,12 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
      */
     @MemberOrder(sequence = "10.2")
     @ActionSemantics(Of.IDEMPOTENT)
-    public ApplicationUser findUserByUsername(
+    public ApplicationUser findOrCreateUserByUsername(
             final @Named("Username") @MaxLength(ApplicationUser.MAX_LENGTH_USERNAME) String username) {
         return queryResultsCache.execute(new Callable<ApplicationUser>() {
             @Override
             public ApplicationUser call() throws Exception {
-                ApplicationUser applicationUser = findUserByUsernameNoAutocreate(username);
+                ApplicationUser applicationUser = findUserByUsername(username);
                 if (applicationUser != null) {
                     return applicationUser;
                 }
@@ -73,7 +73,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
      * multiple lookups from <code>org.isisaddons.module.security.app.user.UserPermissionViewModel</code>.
      */
     @Programmatic
-    public ApplicationUser findUserByUsernameNoAutocreate(
+    public ApplicationUser findUserByUsername(
             final @Named("Username") String username) {
         return uniqueMatch(new QueryDefault<>(
                 ApplicationUser.class,
@@ -128,7 +128,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     //region > newUser (with password)
     @MemberOrder(sequence = "10.4")
-    @ActionSemantics(Of.NON_IDEMPOTENT)
+    @ActionSemantics(Of.IDEMPOTENT)
     @NotContributed
     @Named("New user")
     public ApplicationUser newUserWithPassword(
@@ -137,9 +137,12 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             final @Named("Repeat password") @Optional Password passwordRepeat,
             final @Named("Initial role") @Optional ApplicationRole initialRole,
             final @Named("Enabled?") @Optional Boolean enabled) {
-        ApplicationUser user = newTransientInstance(ApplicationUser.class);
-        user.setUsername(username);
-        user.setStatus(ApplicationUserStatus.parse(enabled));
+        ApplicationUser user = findUserByUsername(username);
+        if (user == null){
+            user = newTransientInstance(ApplicationUser.class);
+            user.setUsername(username);
+            user.setStatus(ApplicationUserStatus.parse(enabled));
+        }
         if(initialRole != null) {
             user.addRole(initialRole);
         }

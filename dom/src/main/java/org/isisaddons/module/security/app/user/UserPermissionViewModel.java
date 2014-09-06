@@ -177,7 +177,7 @@ public class UserPermissionViewModel implements ViewModel {
     @Hidden(where = Where.PARENTED_TABLES)
     @MemberOrder(name = "Permission", sequence = "1")
     public ApplicationUser getUser() {
-        return applicationUsers.findUserByUsername(getUsername());
+        return applicationUsers.findOrCreateUserByUsername(getUsername());
     }
 
     private String username;

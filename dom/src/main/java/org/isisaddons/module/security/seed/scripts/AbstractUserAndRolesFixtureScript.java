@@ -46,7 +46,7 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
     protected void execute(ExecutionContext executionContext) {
 
         // create user if does not exist, and assign to the role
-        ApplicationUser adminUser = applicationUsers.findUserByUsernameNoAutocreate(username);
+        ApplicationUser adminUser = applicationUsers.findUserByUsername(username);
         if(adminUser == null) {
             adminUser = applicationUsers.newUser(username, null , null);
             adminUser.setStatus(ApplicationUserStatus.ENABLED);

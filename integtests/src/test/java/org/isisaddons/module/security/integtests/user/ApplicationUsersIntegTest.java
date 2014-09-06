@@ -89,7 +89,7 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
             applicationUsers.newUser("mary", null, true);
 
             // when
-            final ApplicationUser fred = applicationUsers.findUserByUsername("fred");
+            final ApplicationUser fred = applicationUsers.findOrCreateUserByUsername("fred");
 
             // then
             assertThat(fred, is(not(nullValue())));
@@ -104,7 +104,7 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
             applicationUsers.newUser("mary", null, true);
 
             // when
-            final ApplicationUser autoCreated = applicationUsers.findUserByUsername("bill");
+            final ApplicationUser autoCreated = applicationUsers.findOrCreateUserByUsername("bill");
 
             // then
             assertThat(autoCreated, is(not(nullValue())));

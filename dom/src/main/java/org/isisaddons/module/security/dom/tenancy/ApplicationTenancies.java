@@ -38,12 +38,15 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     }
 
     @MemberOrder(sequence = "90.2")
-    @ActionSemantics(Of.NON_IDEMPOTENT)
+    @ActionSemantics(Of.IDEMPOTENT)
     public ApplicationTenancy newTenancy(
             final @Named("Name") @TypicalLength(ApplicationTenancy.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME) String name) {
-        ApplicationTenancy tenancy = newTransientInstance(ApplicationTenancy.class);
-        tenancy.setName(name);
-        persist(tenancy);
+        ApplicationTenancy tenancy = findTenancyByName(name);
+        if (tenancy == null){
+            tenancy = newTransientInstance(ApplicationTenancy.class);
+            tenancy.setName(name);
+            persist(tenancy);
+        }
         return tenancy;
     }
 

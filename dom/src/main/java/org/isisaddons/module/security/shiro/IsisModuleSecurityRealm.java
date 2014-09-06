@@ -120,10 +120,10 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
             private ApplicationUser lookupUser() {
                 if (isAutoCreateUsers()) {
-                    return applicationUsers.findUserByUsername(username);
+                    return applicationUsers.findOrCreateUserByUsername(username);
                 }
                 else {
-                    return applicationUsers.findUserByUsernameNoAutocreate(username);
+                    return applicationUsers.findUserByUsername(username);
                 }
             }
 

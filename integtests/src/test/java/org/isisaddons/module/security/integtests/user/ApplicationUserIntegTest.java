@@ -66,7 +66,7 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
 
     @Before
     public void setUp() throws Exception {
-        user = wrap(applicationUsers.findUserByUsername(SvenUser.USER_NAME));
+        user = wrap(applicationUsers.findOrCreateUserByUsername(SvenUser.USER_NAME));
         assertThat(unwrap(user).getRoles().size(), is(0));
 
         assertThat(user, is(not(nullValue())));
@@ -128,7 +128,7 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
                     new AllTenancies()
             );
             // necessary to lookup again because above fixtures will be installed in a new xactn
-            user = wrap(applicationUsers.findUserByUsername(SvenUser.USER_NAME));
+            user = wrap(applicationUsers.findOrCreateUserByUsername(SvenUser.USER_NAME));
 
             swedenTenancy = applicationTenancies.findTenancyByName(SwedenTenancy.TENANCY_NAME);
             franceTenancy = applicationTenancies.findTenancyByName(FranceTenancy.TENANCY_NAME);
@@ -215,7 +215,7 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
             );
 
             // necessary to lookup again because above fixtures will be installed in a new xactn
-            user = wrap(applicationUsers.findUserByUsername(SvenUser.USER_NAME));
+            user = wrap(applicationUsers.findOrCreateUserByUsername(SvenUser.USER_NAME));
 
             adminRole = applicationRoles.findRoleByName(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME);
             userRole = applicationRoles.findRoleByName(ExampleRegularRoleAndPermissions.ROLE_NAME);
