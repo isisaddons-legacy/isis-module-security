@@ -367,16 +367,19 @@ structured as follows:
 Only the `dom` project is released to Maven Central Repo.  The versions of the other modules are purposely left at 
 `0.0.1-SNAPSHOT` because they are not intended to be released.
 
+
 ## API and Implementation ##
 
 *TODO: this is incomplete.  *
 
-### XxxService ###
+### PasswordEncryptionService ###
 
-The `XxxService` defines the following API:
+The `PasswordEncryptionService` defines the following API:
 
 <pre>
-public interface XxxService {
+public interface PasswordEncryptionService {
+    public String encrypt(final String password);
+    public boolean matches(final String candidate, final String encrypted);
 }
 </pre>
 
@@ -390,6 +393,19 @@ To use the `PasswordEncryptionServiceUsingJbcrypt`
             <version>0.3m</version>
         </dependency>
 
+
+### PermissionsEvaluationService ###
+
+The `PermissionsEvaluationService` defines the following API:
+
+<pre>
+public interface PermissionsEvaluationService {
+    ApplicationPermissionValueSet.Evaluation evaluate(
+            final ApplicationFeatureId featureId,
+            final ApplicationPermissionMode mode,
+            final Collection<ApplicationPermissionValue> permissionValues);
+
+</pre>
 
 
 ## Future Directions/Possible Improvements ##
