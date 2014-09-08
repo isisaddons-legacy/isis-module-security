@@ -203,15 +203,15 @@ Update the `WEB-INF/isis.properties`:
 <pre>
     isis.services-installer=configuration-and-annotation
     isis.services.ServicesInstallerFromAnnotation.packagePrefix=
-                    ...,\
-                    org.isisaddons.module.security,\
-                    ...
+            ...,\
+            org.isisaddons.module.security,\
+            ...
 
     isis.services = ...,\
-                    org.isisaddons.module.security.dom.password.PasswordEncryptionServiceUsingJBcrypt,\
-                    org.isisaddons.module.security.app.user.MeService,\
-                    org.isisaddons.module.security.dom.permission.PermissionsEvaluationServiceAllowBeatsVeto,\
-                    ...
+            org.isisaddons.module.security.dom.password.PasswordEncryptionServiceUsingJBcrypt,\
+            org.isisaddons.module.security.app.user.MeService,\
+            org.isisaddons.module.security.dom.permission.PermissionsEvaluationServiceAllowBeatsVeto,\
+            ...
 </pre>
 
 where:
@@ -312,10 +312,9 @@ public interface PermissionsEvaluationService {
 
 It is _not_ necessary to register any implementation of this service in `isis.properties`; by default a strategy of
 allow-beats-veto is applied.  However this strategy can be explicitly specified by registering the (provided)
-`org.isisaddons.module.security.dom.permission.PermissionsEvaluationServiceAllowBeatsVeto` implementation, or 
-alternatively it can be reversed by registering 
-`org.isisaddons.module.security.dom.permission.PermissionsEvaluationServiceVetoBeatsAllow`.  Of course some other
- implementation may also be registered.
+`PermissionsEvaluationServiceAllowBeatsVeto` implementation, or alternatively it can be reversed by registering 
+`PermissionsEvaluationServiceVetoBeatsAllow`.  Of course some other implementation with a different algorithm may 
+instead be registered.
 
 
 ## Default Roles, Permissions and Users ###
