@@ -107,7 +107,7 @@ public abstract class AbstractRoleAndPermissionsFixtureScript extends FixtureScr
         for (String featureFqn : featureFqns) {
             // can't use role#addPackage because that does a check for existence of the package, which is
             // not guaranteed to exist yet (the SecurityFeatures#init() may not have run).
-            applicationPermissions.newPermissionNoCheck(
+            applicationPermissions.newPermission(
                     securityAdminRole,
                     rule,
                     mode,

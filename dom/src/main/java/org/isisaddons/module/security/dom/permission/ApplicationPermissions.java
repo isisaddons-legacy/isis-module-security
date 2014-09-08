@@ -19,18 +19,28 @@ package org.isisaddons.module.security.dom.permission;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+
 import javax.inject.Inject;
+
 import com.google.common.collect.Maps;
+
+import org.apache.isis.applib.DomainObjectContainer;
+import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.DomainService;
+import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.Named;
+import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.Prototype;
+import org.apache.isis.applib.query.QueryDefault;
+import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
+
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.annotation.*;
-import org.apache.isis.applib.query.QueryDefault;
-import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 
 @Named("Permissions")
 @DomainService(menuOrder = "90.3", repositoryFor = ApplicationPermission.class)
@@ -143,6 +153,10 @@ public class ApplicationPermissions {
         if(feature == null) {
             container.warnUser("No such " + featureType.name().toLowerCase() + ": " + featureFqn);
             return null;
+        }
+        ApplicationPermission permission = findByRoleAndRuleAndFeature(role, rule, featureType, featureFqn);
+        if (permission != null) {
+            return permission;
         }
         return newPermissionNoCheck(role, rule, mode, featureType, featureFqn);
     }
