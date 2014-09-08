@@ -305,29 +305,92 @@ From the application class it is possible to navigate up to the parent package:
 
 ## How to configure/use ##
 
-
-*TODO: documentation is incomplete from here*
-
-to document:
-
-* pom.xml
-* shiro configuration (as primary realm, or as secondary realm)
-* MeService
-* PermissionsEvaluationService
-* PasswordEncryptionService
-
-also:
-* how the seed service works
-
-
-
-----
-
 You can either use this module "out-of-the-box", or you can fork this repo and extend to your own requirements. 
 
-To use "out-of-the-box":
+### Out-of-the-box Configuration ###
 
-* update your classpath by adding this dependency in your dom project's `pom.xml`:
+#### Shiro configuration (shiro.ini) ####
+
+The module includes `org.isisaddons.module.security.shiro.IsisModuleSecurityRealm`, an implementation of Apache Shiro's
+ `org.apache.shiro.realm.AuthorizingRealm` class. As such, the module can be used to be used either as the single 
+ (primary) realm or as a secondary realm.  
+
+* if configured as the primary realm then module handles both authentication and authorization.  Authentication is 
+  performed against encrypted password.
+
+* if configured as the secondary realm then it primarily handles authorization.
+
+In either configuration the module can also prevent a user logging on if that user's account has been disabled. 
+
+For both cases, update your `WEB-INF/shiro.ini`'s `[main]` section:
+
+<pre>
+[main]
+
+isisModuleSecurityRealm=org.isisaddons.module.security.shiro.IsisModuleSecurityRealm
+
+authenticationStrategy=org.isisaddons.module.security.shiro.AuthenticationStrategyForIsisModuleSecurityRealm
+securityManager.authenticator.authenticationStrategy = $authenticationStrategy
+
+</pre>
+
+The, set up Shiro`s `securityManager.realms` property.  To use the module as the primary realm (with passwords visible
+and verified), add (again, in the `[main]` section):
+
+<pre>
+securityManager.realms = $isisModuleSecurityRealm
+</pre>
+
+Or, to use the module as the secondary realm (without password support), add:
+
+<pre>
+securityManager.realms = $someOtherRealm,$isisModuleSecurityRealm
+</pre>
+
+
+where `$someOtherRealm` refers to the definition of the realm to perform primary authentication (eg `$iniRealm`, or an
+`$ldapRealm` implementation.
+
+
+#### Isis domain services (isis.properties) ####
+
+Update the `WEB-INF/isis.properties`:
+
+<pre>
+    isis.services-installer=configuration-and-annotation
+    isis.services.ServicesInstallerFromAnnotation.packagePrefix=
+                    ...,\
+                    org.isisaddons.module.security,\
+                    ...
+
+    isis.services = ...,\
+                    org.isisaddons.module.security.dom.password.PasswordEncryptionServiceUsingJBcrypt,\
+                    org.isisaddons.module.security.app.user.MeService,\
+                    org.isisaddons.module.security.dom.permission.PermissionsEvaluationServiceAllowBeatsVeto,\
+                    ...
+</pre>
+
+where:
+
+* the `PasswordEncryptionServiceUsingJBcrypt` is an implementation of the `PasswordEncryptionService`.  This is 
+  mandatory if the module is configured as a primary realm.  If required, any other implementation can be suppled.
+
+* The `MeService` provides the ability for an end-user to lookup their own user account, if granted the 
+  `isis-module-security-regular-user` role.  This service is optional, no other functionality in the module depends
+  on this service.
+
+* The `PermissionsEvaluationServiceAllowBeatsVeto` is an implementation of the `PermissionsEvaluationService` that 
+  determines how to resolve conflicting permissions at the same scope.  This service is optional; if not present
+  then the module will default to an allow-beats-veto strategy.  An alternative implementation of
+  `PermissionsEvaluationServiceVetoBeatsAllow` is also available for use if required; or any other implementation
+   of this interface can be supplied.
+
+There is further discussion of the `PasswordEncryptionService` and `PermissionsEvaluationService` below.
+
+
+#### Classpath ####
+
+Finally, update your classpath by adding this dependency in your dom project's `pom.xml`:
 
 <pre>
     &lt;dependency&gt;
@@ -337,23 +400,20 @@ To use "out-of-the-box":
     &lt;/dependency&gt;
 </pre>
 
-* update your `WEB-INF/isis.properties`:
+If using the `PasswordEncryptionServiceUsingJBcrypt` service, also add a dependency on the underlying library:
 
 <pre>
-    isis.services-installer=configuration-and-annotation
-    isis.services.ServicesInstallerFromAnnotation.packagePrefix=
-                    ...,\
-                    org.isisaddons.module.xxx.xxx,\
-                    ...
-
-    isis.services = ...,\
-                    org.isisaddons.module.xxx.XxxContributions,\
-                    ...
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.mindrot&lt;/groupId&gt;
+        &lt;artifactId&gt;jbcrypt&lt;/artifactId&gt;
+        &lt;version&gt;0.3m&lt;/version&gt;
+    &lt;/dependency&gt;
 </pre>
 
-Notes:
-* Check for later releases by searching [Maven Central Repo](http://search.maven.org/#search|ga|1|isis-module-security-dom).
-* The `XxxContributions` service is optional but recommended; see below for more information.
+Check for later releases by searching [Maven Central Repo](http://search.maven.org/#search|ga|1|isis-module-security-dom).
+
+
+### Extending the Module ###
 
 If instead you want to extend this module's functionality, then we recommend that you fork this repo.  The repo is 
 structured as follows:
@@ -370,11 +430,16 @@ Only the `dom` project is released to Maven Central Repo.  The versions of the o
 
 ## API and Implementation ##
 
-*TODO: this is incomplete.  *
+The module defines a number of services and default implementations.  The behaviour of the module can be adjusted
+by implementing and registerng alternative implementations.
 
 ### PasswordEncryptionService ###
 
-The `PasswordEncryptionService` defines the following API:
+The `PasswordEncryptionService` (used only when the module is configured as a primary realm) is responsible for 
+performing a one-way encryption of password to encrypted form.  This encrypted version is then stored in the 
+`ApplicationUser` entity's `encryptedPassword` property.
+
+The service defines the following API:
 
 <pre>
 public interface PasswordEncryptionService {
@@ -383,29 +448,52 @@ public interface PasswordEncryptionService {
 }
 </pre>
 
-
-To use the `PasswordEncryptionServiceUsingJbcrypt`
-
-        <!-- include on classpath of your webapp if using the PasswordEncryptionServiceUsingJBcrypt -->
-        <dependency>
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>0.3m</version>
-        </dependency>
+The `PasswordEncryptionServiceUsingJbcrypt` provides an implementation of this service based on Blowfish algorithm.  It
+depends in turn on `org.mindrot:jbcrypt` library; see above for details of updating the classpath to reference this
+library.
 
 
 ### PermissionsEvaluationService ###
 
-The `PermissionsEvaluationService` defines the following API:
-
+The `PermissionsEvaluationService` is responsible for determining which of a number of possibly conflicting permissions
+apply to a target member.  It defines the following API:
+ 
 <pre>
 public interface PermissionsEvaluationService {
-    ApplicationPermissionValueSet.Evaluation evaluate(
-            final ApplicationFeatureId featureId,
-            final ApplicationPermissionMode mode,
-            final Collection<ApplicationPermissionValue> permissionValues);
-
+    public ApplicationPermissionValueSet.Evaluation evaluate(
+                final ApplicationFeatureId targetMemberId,
+                final ApplicationPermissionMode mode,
+                final Collection<ApplicationPermissionValue> permissionValues);
 </pre>
+
+It is _not_ necessary to register any implementation of this service in `isis.properties`; by default a strategy of
+allow-beats-veto is applied.  However this strategy can be explicitly specified by registering the (provided)
+`org.isisaddons.module.security.dom.permission.PermissionsEvaluationServiceAllowBeatsVeto` implementation, or 
+alternatively it can be reversed by registering 
+`org.isisaddons.module.security.dom.permission.PermissionsEvaluationServiceVetoBeatsAllow`.  Of course some other
+ implementation may also be registered.
+
+
+## Default Roles, Permissions and Users ###
+
+Whenever the application starts the security module checks for (and creates if missing) the following roles, permissions
+and users: 
+
+* `isis-module-security-admin` role
+    * _allow_ _changing_ of all classes (recursively) under the `org.isisaddons.module.security.app` package 
+    * _allow_ _changing_ of all classes (recursively) under the `org.isisaddons.module.security.dom` package 
+* `isis-module-security-regular-user` role
+    * _allow_ _changing_ (ie invocation) of the `org.isisaddons.module.security.app.user.MeService#me` action
+    * _allow_ _viewing_ of the `org.isisaddons.module.security.app.dom.ApplicationUser` class
+    * _allow_ _changing_ of the selected "self-service" actions of the `org.isisaddons.module.security.app.dom.ApplicationUser` class
+* `isis-module-security-fixture` role
+    * _allow_ _changing_ of `org.isisaddons.module.security.fixture` package (run example fixtures if prototyping) 
+* `admin` user
+    * granted `isis-module-security-admin` role
+* `isis-applib-fixtureresults` role
+    * _allow_ _changing_ of `org.apache.isis.applib.fixturescripts.FixtureResult` class
+
+This work is performed by the `SeedSecurityModuleService`.
 
 
 ## Future Directions/Possible Improvements ##

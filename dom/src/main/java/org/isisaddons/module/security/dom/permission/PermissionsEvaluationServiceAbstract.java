@@ -24,16 +24,16 @@ public abstract class PermissionsEvaluationServiceAbstract implements Permission
 
     @Override
     public ApplicationPermissionValueSet.Evaluation evaluate(
-            final ApplicationFeatureId featureId,
+            final ApplicationFeatureId targetMemberId,
             final ApplicationPermissionMode mode,
             final Collection<ApplicationPermissionValue> permissionValues) {
 
         final Iterable<ApplicationPermissionValue> ordered = ordered(permissionValues);
 
         for (ApplicationPermissionValue permissionValue : ordered) {
-            if(permissionValue.implies(featureId, mode)) {
+            if(permissionValue.implies(targetMemberId, mode)) {
                 return new ApplicationPermissionValueSet.Evaluation(permissionValue, true);
-            } else if(permissionValue.refutes(featureId, mode)) {
+            } else if(permissionValue.refutes(targetMemberId, mode)) {
                 return new ApplicationPermissionValueSet.Evaluation(permissionValue, false);
             }
         }

@@ -20,19 +20,22 @@ import java.util.Collection;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.apache.isis.applib.annotation.Programmatic;
 
+/**
+ * Strategy for determining which permission should apply when there are multiple that apply for a particular target
+ * feature Id, and which may conflict with each other.
+ */
 public interface PermissionsEvaluationService {
 
     PermissionsEvaluationService DEFAULT = new PermissionsEvaluationServiceAllowBeatsVeto ();
 
     /**
-     *
-     * @param featureId - the target (member) feature to be evaluated
+     * @param targetMemberId - the target (member) feature to be evaluated
      * @param mode - the mode required, ie {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode#VIEWING viewing} or {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionMode#CHANGING changing}.
      * @param permissionValues - permissions to evaluate, guaranteed to passed through in natural order, as per {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionValue.Comparators#natural()}.
      */
     @Programmatic
     ApplicationPermissionValueSet.Evaluation evaluate(
-            final ApplicationFeatureId featureId,
+            final ApplicationFeatureId targetMemberId,
             final ApplicationPermissionMode mode,
             final Collection<ApplicationPermissionValue> permissionValues);
 
