@@ -39,20 +39,12 @@ The following screenshots show an example app's usage of the module, which inclu
 provided by the module itself.  This example app's [domain](https://github.com/isisaddons/isis-module-security/tree/master/fixture/src/main/java/org/isisaddons/module/security/fixture/dom) 
 also has its own very simple `ExampleEntity` entity and corresponding repository.
 
-#### Application Menus ####
-
-The security module provides a number of menus: _Users_, _Roles_, _Features_, _Permissions_ and _User Tenancies_.
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/010-menus.png)
+For further screenshots, see the [screenshot tutorial](https://github.com/isisaddons/isis-module-security/wiki/Screenshot-Tutorial) on the wiki.
 
 #### Automatically Seeds Roles ####
 
 When the security module starts up, it will automatically seed a number of roles, corresponding permissions and a 
-default 'admin' user.
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/020-roles.png)
-
-The `isis-module-security-admin` role grants all permissions to all classes in the security module itself:
+default 'admin' user.  The `isis-module-security-admin` role grants all permissions to all classes in the security module itself:
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/030-role.png)
 
@@ -94,10 +86,6 @@ The list of packages is derived from Isis' own metamodel.
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/070-permission-package-from-isis-metamodel.png)
 
-#### Permission added ####
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/080-permission-added.png)
-
 #### Add permission for all members in a class ####
 
 Permissions defined at the class level take precedence to those defined at the package level.  For example, a user
@@ -105,10 +93,6 @@ might have _allow/viewing_ at a parent level, but have this escalated to _allow/
 class.  Conversely, the class-level permission might veto access.
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/090-role-add-permission-class.png)
-
-Select classes within package:
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/100-role-add-permission-class-in-package.png)
 
 #### Add permission to an individual action of a member ####
 
@@ -118,69 +102,6 @@ defined at either the class- or package-level.
 For example, to add a permission for an individual action:
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/110-role-add-permission-action.png)
-
-The package list is then filtered to those that contain classes that have actions:
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/120-role-add-action-filtered-packages.png)
-
-And then select the action:
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/130-role-add-permission-action.png)
-
-Similarly, to add a permission to a property; only those classes with properties are shown (so no domain services):
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/150-role-add-permission-property.png)
-
-And similarly, adding a collection; again the package list is filtered to those classes that actually have collections.
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/170-role-add-collection-permission.png)
-
-
-#### Using rules to fine-tune permissions ####
-
-A common approach to set up security is to define broad-brush _allow/viewing_ or _allow/changing_ permissions at the 
-package level, then fine-tune using targetted _veto/changing_ rule or even _veto/viewing_ permissions at the
-class- or member-level.
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/180-using-rules-and-modes-to-finetune.png)
-
-#### Permissions can also be removed ####
-
-As you would expect, permissions can be removed:
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/220-remove-permission.png)
-
-However, the system guards against the accidental removal of certain permissions from the `isis-module-security-admin`
-that might cause the security system from becoming inaccessible.
-
-To remove, specify the permission's rule, type and feature:
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/230-remove-permission-available.png)
-
-
-#### Add user to a role ####
-
-Once a roles' permissions are defined, users (discussed in more detail below) can be added to the role:
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/240-role-add-user.png)
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/250-role-add-user-autoComplete.png)
-
-It's also possible to add roles to a user (from the page representing the `ApplicationUser` object).
- 
- 
-#### Role permissions ####
-
-The role's permissions can be navigated to...
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/260-role-permission.png)
-
-... where each permission simply holds the role, rule, mode and feature.  The role, rule and mode can be changed but the
-feature cannot.  
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/270-permission.png)
-
-It _can_, however, be navigated to...
 
 #### Application feature for a class member ####
 
@@ -210,23 +131,12 @@ provides access to its parent (package) feature.
 The security module can be defined either as a primary Shiro realm (for both authentication and authorization) or a 
 secondary realm (for authorization only).
 
-If configured as a primary realm, then the user's must be created by the administrator.  
-
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/287-new-user.png)
-
-The minimum information held for users its just the `username`; this corresponds to the name used to log in to Isis
-via Shiro.  Optionally the administrator can specify the user's initial password, role and whether the user is disabled
-(that is, their account is locked):
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/287-new-user.png)
-
-#### User details ####
+If configured as a primary realm, then the users must be created by the administrator.    If configured as a secondary
+realm, then the user is created automatically, sychronized with the primary realm.
 
 Once the user is created, then additional information about that user can be captured, including their name and
 contact details.  This information is not otherwise used by the security module, but may be of use to other parts
-of the application.  The users' roles and effective permissions are also shown (more discussion on effective 
-permissions below).
+of the application.  The users' roles and effective permissions are also shown.
  
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/289-user-details.png)
 
@@ -235,72 +145,6 @@ as well as reset a users' password.
 
 If a user is disabled, then they may not log in.  This is useful for temporarily barring access to users without 
 having to change all their roles, for example if they leave the company or go on maternity leave.
-
-
-#### User tenancy ####
-
-Each user can have an associated tenancy, so for example an Italian user sees only Italian data.  
-(This anticipates support for multi-tenancy within Isis itself, not yet implemented as of 1.6.0).
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/320-user-update-tenancy.png)
-
-#### User permissions ####
-
-The effective permissions for each user are listed.  This evaluates the roles that the user is in, the permissions
-of those roles, including all scoping and _allow/veto_ rules.
-
-In the screenshot below, the user shown - by virtue of their membership of the `isis-module-security-regular-user` 
-role - has access to selected features of `ApplicationUser` (plus also for the `ExampleEntity` domain, as per 
-screenshots above):
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/325-user-permission.png)
-
-#### User role maintenance ####
-
-The user's roles can be maintained through the user entity as well as the role entity (above).  For example, remove 
-the `isis-module-security-admin` role can be added to "sven":
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/330-user-add-remove-roles.png)
-
-#### Effective permissions updated ####
-
-Whenever role membership is changed, the effective permissions for a user are re-evaluated.  In the screenshot below, 
-note that "sven" now has access to additional features:
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/350-user-effective-permissions-updated.png)
-
-The user permission not only shows whether a user has a permission to a feature, but also indicates the 
-role permission that is allowing/vetoing the ability to view or change the feature.
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/370-user-permission.png)
-
-Cool huh?
-
-#### Application features ####
-
-The application features that permissions to relate (packages, classes, actions, properties, collections) are built up 
-dynamically from the Isis metamodel. 
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/380-app-features.png)
-
-For example, from the list of classes:
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/390-app-classes.png)
-
-... can then drill down to a particular application class:
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/400-app-class.png)
-
-As a convenience (development aid) note that action semantics and max length/typical length of string properties are
-also available for inspection.
-
-From the application class it is possible to navigate up to the parent package:
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/410-app-package.png)
-
-... or indeed down into any individual class member, eg action:
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/420-app-action.png)
 
 
 ## How to configure/use ##
