@@ -102,7 +102,7 @@ language governing permissions and limitations under the License.
         <dependency>
             <groupId>org.isisaddons.module.security</groupId>
             <artifactId>isis-module-security-dom</artifactId>
-            <version>1.6.0</version>
+            <version>1.6.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
