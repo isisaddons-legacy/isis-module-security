@@ -13,7 +13,7 @@ fi
 echo ""
 echo "sanity check (mvn clean install -o)"
 echo ""
-echo mvn clean install -o >/dev/null
+mvn clean install -o >/dev/null
 if [ $? != 0 ]; then
     echo "... failed" >&2
     exit 1
@@ -23,7 +23,7 @@ fi
 echo ""
 echo "bumping version to $RELEASE_VERSION"
 echo ""
-echo sh ./bumpver.sh $RELEASE_VERSION
+sh ./bumpver.sh $RELEASE_VERSION
 if [ $? != 0 ]; then
     echo "... failed" >&2
     exit 1
@@ -33,7 +33,7 @@ fi
 echo ""
 echo "double-check (mvn clean install -o)"
 echo ""
-echo mvn clean install -o >/dev/null
+mvn clean install -o >/dev/null
 if [ $? != 0 ]; then
     echo "... failed" >&2
     exit 1
@@ -44,7 +44,7 @@ echo ""
 echo "releasing 'dom' module (mvn clean deploy -P release)"
 echo ""
 pushd dom >/dev/null
-echo mvn clean deploy -P release -Dpgp.secretkey=keyring:id=$KEYID -Dpgp.passphrase="literal:$PASSPHRASE"
+mvn clean deploy -P release -Dpgp.secretkey=keyring:id=$KEYID -Dpgp.passphrase="literal:$PASSPHRASE"
 if [ $? != 0 ]; then
     echo "... failed" >&2
     exit 1
@@ -56,7 +56,7 @@ popd >/dev/null
 echo ""
 echo "bumping version to $SNAPSHOT_VERSION"
 echo ""
-echo sh ./bumpver.sh $SNAPSHOT_VERSION
+sh ./bumpver.sh $SNAPSHOT_VERSION
 if [ $? != 0 ]; then
     echo "... failed" >&2
     exit 1
