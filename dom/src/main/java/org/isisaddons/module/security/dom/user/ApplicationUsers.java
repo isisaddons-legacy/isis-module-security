@@ -18,18 +18,13 @@ package org.isisaddons.module.security.dom.user;
 
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import javax.inject.Inject;
-
-import org.apache.shiro.authc.AuthenticationException;
-
 import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityRegularUserRoleAndPermissions;
 import org.isisaddons.module.security.shiro.IsisModuleSecurityRealm;
 import org.isisaddons.module.security.shiro.ShiroUtils;
-
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
@@ -158,7 +153,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
         persist(user);
         return user;
     }
-    public String validateLocalNewUser(
+    public String validateNewLocalUser(
             final String username,
             final Password password,
             final Password passwordRepeat,
@@ -193,26 +188,10 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     //region > isPasswordsFeatureEnabled, isPasswordsFeatureDisabled
 
-    @Programmatic
-    public boolean isPasswordsFeatureDisabled(ApplicationUser applicationUser) {
-        return !isPasswordsFeatureEnabled(applicationUser);
-    }
-
-    public boolean isPasswordsFeatureEnabled(ApplicationUser applicationUser) {
-        return applicationUser.getAccountType() == AccountType.LOCAL && passwordEncryptionService != null;
-    }
-
-    private AccountType defaultAccountType() {
-        return hasDelegateAuthenticationRealm() ? AccountType.DELEGATED : AccountType.LOCAL;
-    }
-
-    private boolean hasDelegateAuthenticationRealm() {
-        return !hasNoDelegateAuthenticationRealm();
-    }
 
     private boolean hasNoDelegateAuthenticationRealm() {
         IsisModuleSecurityRealm imsr = ShiroUtils.getIsisModuleSecurityRealm();
-        return imsr == null || imsr.getDelegateAuthenticationRealm() == null;
+        return imsr == null || !imsr.hasDelegateAuthenticationRealm();
     }
 
     //endregion

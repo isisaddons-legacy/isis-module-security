@@ -18,20 +18,16 @@ package org.isisaddons.module.security.seed.scripts;
 
 import java.util.Collections;
 import java.util.List;
-
 import javax.inject.Inject;
-
 import com.google.common.collect.Lists;
-
 import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
 import org.isisaddons.module.security.dom.user.AccountType;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUserStatus;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
-
 import org.apache.isis.applib.fixturescripts.FixtureScript;
+import org.apache.isis.applib.value.Password;
 
 public class AbstractUserAndRolesFixtureScript extends FixtureScript {
 
@@ -57,11 +53,14 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
         // create user if does not exist, and assign to the role
         ApplicationUser appUser = applicationUsers.findUserByUsername(username);
         if(appUser == null) {
-            appUser = applicationUsers.newDelegateUser(username, null , null);
-            appUser.setStatus(ApplicationUserStatus.ENABLED);
-
-            if( accountType == AccountType.LOCAL && passwordEncryptionService != null && password != null) {
-                appUser.updatePassword(password);
+            final boolean enabled = true;
+            switch (accountType) {
+                case DELEGATED:
+                    appUser = applicationUsers.newDelegateUser(username, null , enabled);
+                    break;
+                case LOCAL:
+                    final Password pwd = new Password(password);
+                    appUser = applicationUsers.newLocalUser(username, pwd, pwd, null, enabled);
             }
 
             for (String roleName : roleNames) {

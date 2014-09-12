@@ -41,17 +41,6 @@ public final class ShiroUtils {
         return (RealmSecurityManager) securityManager;
     }
 
-    public static boolean isPrimaryRealm() {
-        final RealmSecurityManager securityManager = getSecurityManager();
-        final Collection<Realm> realms = securityManager.getRealms();
-        if (realms.isEmpty()) {
-            return false;
-        }
-
-        final Realm firstRealm = realms.iterator().next();
-        return IsisModuleSecurityRealm.class.isAssignableFrom(firstRealm.getClass());
-    }
-
     public static IsisModuleSecurityRealm getIsisModuleSecurityRealm() {
         final RealmSecurityManager securityManager = getSecurityManager();
         final Collection<Realm> realms = securityManager.getRealms();

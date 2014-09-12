@@ -367,7 +367,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
     //endregion
 
-    //region > accountType (property)
+    //region > accountType (property), updateAccountType
 
     private AccountType accountType;
 
@@ -380,6 +380,30 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     public void setAccountType(AccountType accountType) {
         this.accountType = accountType;
+    }
+
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @MemberOrder(name = "Account Type", sequence = "1")
+    public ApplicationUser updateAccountType(
+            final AccountType accountType) {
+        setAccountType(accountType);
+        return this;
+    }
+    public String disableUpdateAccountType(final AccountType accountType) {
+        return isAdminUser()
+                ? "Cannot change account type for admin user"
+                : null;
+    }
+    public AccountType default0UpdateAccountType() {
+        return getAccountType();
+    }
+
+    private boolean isDelegateAccountOrPasswordEncryptionNotAvailable() {
+        return !isLocalAccountWithPasswordEncryptionAvailable();
+    }
+
+    private boolean isLocalAccountWithPasswordEncryptionAvailable() {
+        return getAccountType() == AccountType.LOCAL && passwordEncryptionService != null;
     }
 
     //endregion
@@ -418,12 +442,12 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         return this;
     }
     public String disableLock() {
-        final String adminUser = IsisModuleSecurityAdminUser.USER_NAME;
-        if(this.getName().equals(adminUser)) {
-            return "Cannot disable the '" + adminUser + "' user.";
+        if(isAdminUser()) {
+            return "Cannot disable the '" + IsisModuleSecurityAdminUser.USER_NAME + "' user.";
         }
         return getStatus() == ApplicationUserStatus.DISABLED ? "Status is already set to DISABLE": null;
     }
+
     //endregion
 
     //region > encryptedPassword (hidden property)
@@ -440,7 +464,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
 
     public boolean hideEncryptedPassword() {
-        return applicationUsers.isPasswordsFeatureDisabled(this);
+        return isDelegateAccountOrPasswordEncryptionNotAvailable();
     }
     //endregion
 
@@ -455,7 +479,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
 
     public boolean hideHasPassword() {
-        return applicationUsers.isPasswordsFeatureDisabled(this);
+        return isDelegateAccountOrPasswordEncryptionNotAvailable();
     }
 
     //endregion
@@ -476,7 +500,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
             final Password existingPassword,
             final Password newPassword,
             final Password newPasswordRepeat) {
-        return applicationUsers.isPasswordsFeatureDisabled(this);
+        return isDelegateAccountOrPasswordEncryptionNotAvailable();
     }
 
     public String disableUpdatePassword(
@@ -498,7 +522,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
             final Password existingPassword,
             final Password newPassword,
             final Password newPasswordRepeat) {
-        if(applicationUsers.isPasswordsFeatureDisabled(this)) {
+        if(isDelegateAccountOrPasswordEncryptionNotAvailable()) {
             return null;
         }
 
@@ -518,7 +542,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @Programmatic
     public void updatePassword(String password) {
         // in case called programmatically
-        if(applicationUsers.isPasswordsFeatureDisabled(this)) {
+        if(isDelegateAccountOrPasswordEncryptionNotAvailable()) {
             return;
         }
         final String encryptedPassword = passwordEncryptionService.encrypt(password);
@@ -541,13 +565,13 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     public boolean hideResetPassword(
             final Password newPassword,
             final Password newPasswordRepeat) {
-        return applicationUsers.isPasswordsFeatureDisabled(this);
+        return isDelegateAccountOrPasswordEncryptionNotAvailable();
     }
 
     public String validateResetPassword(
             final Password newPassword,
             final Password newPasswordRepeat) {
-        if(applicationUsers.isPasswordsFeatureDisabled(this)) {
+        if(isDelegateAccountOrPasswordEncryptionNotAvailable()) {
             return null;
         }
         if (!match(newPassword, newPasswordRepeat)) {
@@ -659,6 +683,9 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     public String validateDelete(final Boolean areYouSure) {
         return not(areYouSure) ? "Please confirm this action": null;
     }
+    public String disableDelete(final Boolean areYouSure) {
+        return isAdminUser()? "Cannot delete the admin user": null;
+    }
 
     static boolean not(Boolean areYouSure) {
         return areYouSure == null || !areYouSure;
@@ -685,9 +712,9 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //region > isAdminUser (programmatic)
     @Programmatic
     public boolean isAdminUser() {
-        final ApplicationUser adminUser = applicationUsers.findUserByUsername(IsisModuleSecurityAdminUser.USER_NAME);
-        return this == adminUser;
+        return IsisModuleSecurityAdminUser.USER_NAME.equals(getName());
     }
+
     //endregion
 
     //region > helpers

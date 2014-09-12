@@ -17,28 +17,21 @@
 package org.isisaddons.module.security.shiro;
 
 import javax.inject.Inject;
-
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.CredentialsException;
-import org.apache.shiro.authc.DisabledAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
-
+import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
+import org.isisaddons.module.security.dom.user.AccountType;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.core.runtime.system.context.IsisContext;
 import org.apache.isis.core.runtime.system.internal.InitialisationSession;
 import org.apache.isis.core.runtime.system.persistence.PersistenceSession;
 import org.apache.isis.core.runtime.system.transaction.IsisTransactionManager;
 import org.apache.isis.core.runtime.system.transaction.TransactionalClosureWithReturn;
 import org.apache.isis.core.runtime.system.transaction.TransactionalClosureWithReturnAbstract;
-
-import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
-import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
 
 public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
@@ -55,13 +48,6 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
     }
     //endregion
 
-    private AuthenticatingRealm delegateAuthenticationRealm;
-    public AuthenticatingRealm getDelegateAuthenticationRealm() {
-        return delegateAuthenticationRealm;
-    }
-    public void setDelegateAuthenticationRealm(AuthenticatingRealm delegateRealm) {
-        this.delegateAuthenticationRealm = delegateRealm;
-    }
 
     //region > doGetAuthenticationInfo, doGetAuthorizationInfo (Shiro API)
 
@@ -74,60 +60,54 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        
-        AuthenticationInfo delegateAccount;
-        AuthenticationException delegateEx;
-        try {
-            delegateAccount = hasDelegateRealm() ? delegateAuthenticationRealm.getAuthenticationInfo(token) : null;
-            delegateEx = null;
-        } catch(AuthenticationException ex) {
-            delegateAccount = null;
-            delegateEx = ex;
+
+        if (!(token instanceof UsernamePasswordToken)) {
+            throw new AuthenticationException();
         }
 
-        
-        String username;
-        char[] password;
-        if(delegateAccount != null) {
-            username = delegateAccount.getPrincipals().oneByType(String.class);
-            password = null; // unused
-        } else {
-            if (!(token instanceof UsernamePasswordToken)) {
-                throw new AuthenticationException();
-            }
-            
-            final UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken) token;
-            username = usernamePasswordToken.getUsername();
-            password = usernamePasswordToken.getPassword();
-        }
-        
-        final PrincipalForApplicationUser principal = lookupPrincipal(username);
+        final UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken) token;
+        String username = usernamePasswordToken.getUsername();
+        char[] password = usernamePasswordToken.getPassword();
+
+        // lookup from database, for roles/perms, but also
+        // determine how to authenticate (delegate or local), whether disabled
+        final PrincipalForApplicationUser principal = lookupPrincipal(username, hasDelegateAuthenticationRealm());
         if(principal == null) {
-            // could occur if 'autoCreateUser' is disabled.
+            // if no delegate authentication
             throw new CredentialsException("Unknown user/password combination");
         }
 
-        if(delegateAccount == null) {
-            if(isCheckPasswords()) {
-                final CheckPasswordResult result = checkPassword(password, principal.getEncryptedPassword());
-                switch (result) {
-                    case OK:
-                        break;
-                    case BAD_PASSWORD:
-                        throw new CredentialsException("Unknown user/password combination");
-                    case NO_PASSWORD_ENCRYPTION_SERVICE_CONFIGURED:
-                        throw new AuthenticationException();
-                    default:
-                        throw new AuthenticationException();
-                }
-            }
-        }
-        
         if (principal.isDisabled()) {
-            // if secondary realm, then doesn't prevent login but results in ZERO permissions.
+            // this is the default if delegated account and automatically created
             throw new DisabledAccountException();
         }
-        
+
+        if(principal.getAccountType() == AccountType.DELEGATED) {
+            AuthenticationInfo delegateAccount = null;
+            if (hasDelegateAuthenticationRealm()) {
+                try {
+                    delegateAccount = delegateAuthenticationRealm.getAuthenticationInfo(token);
+                } catch (AuthenticationException ex) {
+                    // fall through
+                }
+            }
+            if(delegateAccount == null) {
+                throw new CredentialsException("Unknown user/password combination");
+            }
+        } else {
+            final CheckPasswordResult result = checkPassword(password, principal.getEncryptedPassword());
+            switch (result) {
+                case OK:
+                    break;
+                case BAD_PASSWORD:
+                    throw new CredentialsException("Unknown user/password combination");
+                case NO_PASSWORD_ENCRYPTION_SERVICE_CONFIGURED:
+                    throw new AuthenticationException();
+                default:
+                    throw new AuthenticationException();
+            }
+        }
+
         final Object credentials = token.getCredentials();
         final String realmName = getName();
         return new AuthInfoForApplicationUser(principal, realmName, credentials);
@@ -149,8 +129,9 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
     /**
      * @param username
+     * @param autoCreateUser
      */
-    private PrincipalForApplicationUser lookupPrincipal(final String username) {
+    private PrincipalForApplicationUser lookupPrincipal(final String username, final boolean autoCreateUser) {
         return execute(new TransactionalClosureWithReturnAbstract<PrincipalForApplicationUser>() {
             @Override
             public PrincipalForApplicationUser execute() {
@@ -159,7 +140,7 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
             }
 
             private ApplicationUser lookupUser() {
-                if (isAutoCreateUsers()) {
+                if (autoCreateUser) {
                     return applicationUsers.findOrCreateUserByUsername(username);
                 }
                 else {
@@ -201,6 +182,23 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
     //endregion
 
+    //region > delegateRealm
+
+
+    private AuthenticatingRealm delegateAuthenticationRealm;
+    public AuthenticatingRealm getDelegateAuthenticationRealm() {
+        return delegateAuthenticationRealm;
+    }
+    public void setDelegateAuthenticationRealm(AuthenticatingRealm delegateRealm) {
+        this.delegateAuthenticationRealm = delegateRealm;
+    }
+
+    public boolean hasDelegateAuthenticationRealm() {
+        return delegateAuthenticationRealm != null;
+    }
+
+    //endregion
+
     //region > execute (Isis integration)
 
     <V> V execute(final TransactionalClosureWithReturn<V> closure) {
@@ -218,35 +216,6 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
         final PersistenceSession persistenceSession = getPersistenceSession();
         final IsisTransactionManager transactionManager = getTransactionManager(persistenceSession);
         return transactionManager.executeWithinTransaction(closure);
-    }
-
-    //endregion
-
-    //region > autoCreateUsers, checkPasswords, isPrimaryRealm
-
-    
-    /**
-     * Whether to auto-create users when looking up.
-     *
-     * <p>
-     *     Default implementation returns <code>true</code> if this realm is <b>NOT</b> the {@link #isPrimaryRealm() primary realm},
-     *     for example if configured as a secondary realm with another realm (eg LDAP) performing the authentication.
-     * </p>
-     * <p>
-     *     NOTE: This method has <code>public</code> visibility so that it can be easily overridden if required.
-     * </p>
-     */
-    public boolean isAutoCreateUsers() {
-        return !isPrimaryRealm() || hasDelegateRealm();
-    }
-
-
-    public boolean isPrimaryRealm() {
-        return ShiroUtils.isPrimaryRealm();
-    }
-    
-    private boolean hasDelegateRealm() {
-        return delegateAuthenticationRealm != null;
     }
 
     //endregion

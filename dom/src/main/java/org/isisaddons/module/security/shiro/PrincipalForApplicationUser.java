@@ -26,6 +26,7 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.user.AccountType;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUserStatus;
 
@@ -50,25 +51,29 @@ class PrincipalForApplicationUser implements AuthorizationInfo {
         }
         final String username = applicationUser.getName();
         final String encryptedPassword = applicationUser.getEncryptedPassword();
+        final AccountType accountType = applicationUser.getAccountType();
         final Set<String> roles = Sets.newTreeSet(Lists.newArrayList(Iterables.transform(applicationUser.getRoles(), ApplicationRole.Functions.GET_NAME)));
         final ApplicationPermissionValueSet permissionSet = applicationUser.getPermissionSet();
-        return new PrincipalForApplicationUser(username, encryptedPassword, roles, applicationUser.getStatus(), permissionSet);
+        return new PrincipalForApplicationUser(username, encryptedPassword, accountType, applicationUser.getStatus(), roles, permissionSet);
     }
 
-    private final Set<String> roles;
-    private final ApplicationUserStatus status;
     private final String username;
+    private final Set<String> roles;
     private final String encryptedPassword;
+    private final ApplicationUserStatus status;
+    private final AccountType accountType;
     private final ApplicationPermissionValueSet permissionSet;
 
     PrincipalForApplicationUser(
             final String username,
             final String encryptedPassword,
-            final Set<String> roles,
+            final AccountType accountType,
             final ApplicationUserStatus status,
+            final Set<String> roles,
             final ApplicationPermissionValueSet applicationPermissionValueSet) {
         this.username = username;
         this.encryptedPassword = encryptedPassword;
+        this.accountType = accountType;
         this.roles = roles;
         this.status = status;
         this.permissionSet = applicationPermissionValueSet;
@@ -119,4 +124,7 @@ class PrincipalForApplicationUser implements AuthorizationInfo {
         return permissionSet;
     }
 
+    public AccountType getAccountType() {
+        return accountType;
+    }
 }

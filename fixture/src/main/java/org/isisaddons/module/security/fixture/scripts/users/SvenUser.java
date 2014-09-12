@@ -16,13 +16,15 @@
  */
 package org.isisaddons.module.security.fixture.scripts.users;
 
+import org.isisaddons.module.security.dom.user.AccountType;
+
 public class SvenUser extends AbstractUserFixtureScript {
 
     public static final String USER_NAME = "sven";
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        create(USER_NAME, accountType, executionContext);
+        create(USER_NAME, AccountType.LOCAL, executionContext);
     }
 
 }

@@ -91,3 +91,8 @@ patches
 .example-app-for-security .collectionContentsAsAjaxTablePanel table.contents tbody td {
     text-transform: none;
 }
+
+
+.example-app-for-security .entityActions .cssMenuPanel a.ApplicationUser-delete {
+    background-color: rgb(237, 107, 107);
+}
