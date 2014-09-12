@@ -16,16 +16,18 @@
  */
 package org.isisaddons.module.security.fixture.scripts.users;
 
+import org.isisaddons.module.security.dom.user.AccountType;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
+
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 
 public abstract class AbstractUserFixtureScript extends FixtureScript {
 
     protected ApplicationUser create(
             final String name,
-            final ExecutionContext executionContext) {
-        final ApplicationUser entity = applicationUsers.newUser(name, null, null);
+            AccountType accountType, final ExecutionContext executionContext) {
+        final ApplicationUser entity = applicationUsers.newDelegateUser(name, null, null);
         executionContext.add(this, name, entity);
         return entity;
     }

@@ -16,6 +16,8 @@
  */
 package org.isisaddons.module.security.fixture.scripts.users;
 
+import org.isisaddons.module.security.dom.user.AccountType;
+
 /**
  * Intended to be assigned to roles ({@link org.isisaddons.module.security.fixture.scripts.roles.ExampleGuestRoleAndPremissions} and
  * {@link org.isisaddons.module.security.fixture.scripts.roles.ExampleNoGuestRoleAndPremissions}) that conflict.
@@ -26,7 +28,7 @@ public class ConflictedUser extends AbstractUserFixtureScript {
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        create(USER_NAME, executionContext);
+        create(USER_NAME, AccountType.LOCAL, executionContext);
     }
 
 }

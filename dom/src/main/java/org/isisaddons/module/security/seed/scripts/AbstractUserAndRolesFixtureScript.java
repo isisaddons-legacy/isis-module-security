@@ -18,27 +18,36 @@ package org.isisaddons.module.security.seed.scripts;
 
 import java.util.Collections;
 import java.util.List;
+
 import javax.inject.Inject;
+
 import com.google.common.collect.Lists;
+
+import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
+import org.isisaddons.module.security.dom.user.AccountType;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUserStatus;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
+
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 
 public class AbstractUserAndRolesFixtureScript extends FixtureScript {
 
     private final String username;
     private final String password;
+    private final AccountType accountType;
     private final List<String> roleNames;
 
     public AbstractUserAndRolesFixtureScript(
             final String username,
             final String password,
+            final AccountType accountType, 
             final List<String> roleNames) {
         this.username = username;
         this.password = password;
+        this.accountType = accountType;
         this.roleNames = Collections.unmodifiableList(Lists.newArrayList(roleNames));
     }
 
@@ -46,18 +55,18 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
     protected void execute(ExecutionContext executionContext) {
 
         // create user if does not exist, and assign to the role
-        ApplicationUser adminUser = applicationUsers.findUserByUsername(username);
-        if(adminUser == null) {
-            adminUser = applicationUsers.newUser(username, null , null);
-            adminUser.setStatus(ApplicationUserStatus.ENABLED);
+        ApplicationUser appUser = applicationUsers.findUserByUsername(username);
+        if(appUser == null) {
+            appUser = applicationUsers.newDelegateUser(username, null , null);
+            appUser.setStatus(ApplicationUserStatus.ENABLED);
 
-            if(applicationUsers.isPasswordsFeatureEnabled() && password != null) {
-                adminUser.updatePassword(password);
+            if( accountType == AccountType.LOCAL && passwordEncryptionService != null && password != null) {
+                appUser.updatePassword(password);
             }
 
             for (String roleName : roleNames) {
                 ApplicationRole securityAdminRole = applicationRoles.findRoleByName(roleName);
-                adminUser.addRole(securityAdminRole);
+                appUser.addRole(securityAdminRole);
             }
         }
     }
@@ -67,6 +76,8 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
     ApplicationUsers applicationUsers;
     @Inject
     ApplicationRoles applicationRoles;
+    @Inject
+    PasswordEncryptionService passwordEncryptionService;
     //endregion
 
 }

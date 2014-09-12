@@ -52,4 +52,16 @@ public final class ShiroUtils {
         return IsisModuleSecurityRealm.class.isAssignableFrom(firstRealm.getClass());
     }
 
+    public static IsisModuleSecurityRealm getIsisModuleSecurityRealm() {
+        final RealmSecurityManager securityManager = getSecurityManager();
+        final Collection<Realm> realms = securityManager.getRealms();
+        for (Realm realm : realms) {
+            if(realm instanceof IsisModuleSecurityRealm) {
+                IsisModuleSecurityRealm imsr = (IsisModuleSecurityRealm) realm;
+                return imsr;
+            }
+        }
+        return null;
+    }
+    
 }

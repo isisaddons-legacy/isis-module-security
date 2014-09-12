@@ -367,13 +367,30 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
     //endregion
 
+    //region > accountType (property)
+
+    private AccountType accountType;
+
+    @javax.jdo.annotations.Column(allowsNull="false")
+    @Disabled
+    @MemberOrder(name="Status", sequence = "3")
+    public AccountType getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(AccountType accountType) {
+        this.accountType = accountType;
+    }
+
+    //endregion
+
     //region > status (property), visible (action), usable (action)
 
     private ApplicationUserStatus status;
 
     @javax.jdo.annotations.Column(allowsNull="false")
     @Disabled
-    @MemberOrder(name="Status", sequence = "3")
+    @MemberOrder(name="Status", sequence = "4")
     public ApplicationUserStatus getStatus() {
         return status;
     }
@@ -423,9 +440,10 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
 
     public boolean hideEncryptedPassword() {
-        return applicationUsers.isPasswordsFeatureDisabled();
+        return applicationUsers.isPasswordsFeatureDisabled(this);
     }
     //endregion
+
 
     //region > hasPassword (derived property)
 
@@ -437,7 +455,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
 
     public boolean hideHasPassword() {
-        return applicationUsers.isPasswordsFeatureDisabled();
+        return applicationUsers.isPasswordsFeatureDisabled(this);
     }
 
     //endregion
@@ -458,7 +476,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
             final Password existingPassword,
             final Password newPassword,
             final Password newPasswordRepeat) {
-        return applicationUsers.isPasswordsFeatureDisabled();
+        return applicationUsers.isPasswordsFeatureDisabled(this);
     }
 
     public String disableUpdatePassword(
@@ -480,7 +498,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
             final Password existingPassword,
             final Password newPassword,
             final Password newPasswordRepeat) {
-        if(applicationUsers.isPasswordsFeatureDisabled()) {
+        if(applicationUsers.isPasswordsFeatureDisabled(this)) {
             return null;
         }
 
@@ -500,7 +518,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @Programmatic
     public void updatePassword(String password) {
         // in case called programmatically
-        if(applicationUsers.isPasswordsFeatureDisabled()) {
+        if(applicationUsers.isPasswordsFeatureDisabled(this)) {
             return;
         }
         final String encryptedPassword = passwordEncryptionService.encrypt(password);
@@ -523,13 +541,13 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     public boolean hideResetPassword(
             final Password newPassword,
             final Password newPasswordRepeat) {
-        return applicationUsers.isPasswordsFeatureDisabled();
+        return applicationUsers.isPasswordsFeatureDisabled(this);
     }
 
     public String validateResetPassword(
             final Password newPassword,
             final Password newPasswordRepeat) {
-        if(applicationUsers.isPasswordsFeatureDisabled()) {
+        if(applicationUsers.isPasswordsFeatureDisabled(this)) {
             return null;
         }
         if (!match(newPassword, newPasswordRepeat)) {

@@ -22,7 +22,7 @@ public class SvenUser extends AbstractUserFixtureScript {
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        create(USER_NAME, executionContext);
+        create(USER_NAME, accountType, executionContext);
     }
 
 }

@@ -14,17 +14,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.fixture.scripts.users;
+package org.isisaddons.module.security.dom.user;
 
-import org.isisaddons.module.security.dom.user.AccountType;
+import org.apache.isis.core.commons.lang.StringExtensions;
 
-public class DickUser extends AbstractUserFixtureScript {
+import org.isisaddons.module.security.shiro.IsisModuleSecurityRealm;
 
-    public static final String USER_NAME = "dick";
+/**
+ * Whether the user's account is local enabled (user/password) or 
+ * delegated (eg LDAP), as per {@link IsisModuleSecurityRealm#setDelegateAuthenticationRealm(org.apache.shiro.realm.AuthenticatingRealm)}.
+ */
+public enum AccountType {
+    LOCAL,
+    DELEGATED;
 
     @Override
-    protected void execute(ExecutionContext executionContext) {
-        create(USER_NAME, AccountType.LOCAL, executionContext);
+    public String toString() {
+        return StringExtensions.capitalize(name());
     }
 
 }

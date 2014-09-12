@@ -18,13 +18,18 @@ package org.isisaddons.module.security.dom.user;
 
 import java.util.List;
 import java.util.concurrent.Callable;
+
 import javax.inject.Inject;
+
 import org.apache.shiro.authc.AuthenticationException;
+
 import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityRegularUserRoleAndPermissions;
+import org.isisaddons.module.security.shiro.IsisModuleSecurityRealm;
 import org.isisaddons.module.security.shiro.ShiroUtils;
+
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
@@ -63,7 +68,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
                 if (applicationUser != null) {
                     return applicationUser;
                 }
-                return newUser(username, null, null);
+                return newDelegateUser(username, null, null);
             }
         }, ApplicationUsers.class, "findUserByUsername", username );
     }
@@ -99,13 +104,14 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     @MemberOrder(sequence = "10.4")
     @ActionSemantics(Of.NON_IDEMPOTENT)
     @NotContributed
-    public ApplicationUser newUser(
+    public ApplicationUser newDelegateUser(
             final @Named("Name") @MaxLength(ApplicationUser.MAX_LENGTH_USERNAME) String username,
             final @Named("Initial role") @Optional ApplicationRole initialRole,
             final @Named("Enabled?") @Optional Boolean enabled) {
         ApplicationUser user = newTransientInstance(ApplicationUser.class);
         user.setUsername(username);
         user.setStatus(ApplicationUserStatus.parse(enabled));
+        user.setAccountType(AccountType.DELEGATED);
         if(initialRole != null) {
             user.addRole(initialRole);
         }
@@ -113,14 +119,14 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
         return user;
     }
 
-    public boolean hideNewUser(
+    public boolean hideNewDelegateUser(
             final String username,
             final ApplicationRole initialRole,
             final Boolean enabled) {
-        return isPasswordsFeatureEnabled();
+        return hasNoDelegateAuthenticationRealm();
     }
 
-    public ApplicationRole default1NewUser() {
+    public ApplicationRole default1NewDelegateUser() {
         return applicationRoles.findRoleByName(IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
     }
 
@@ -130,8 +136,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     @MemberOrder(sequence = "10.4")
     @ActionSemantics(Of.IDEMPOTENT)
     @NotContributed
-    @Named("New user")
-    public ApplicationUser newUserWithPassword(
+    public ApplicationUser newLocalUser(
             final @Named("Name") @MaxLength(ApplicationUser.MAX_LENGTH_USERNAME) String username,
             final @Named("Password") @Optional Password password,
             final @Named("Repeat password") @Optional Password passwordRepeat,
@@ -142,6 +147,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             user = newTransientInstance(ApplicationUser.class);
             user.setUsername(username);
             user.setStatus(ApplicationUserStatus.parse(enabled));
+            user.setAccountType(AccountType.LOCAL);
         }
         if(initialRole != null) {
             user.addRole(initialRole);
@@ -152,15 +158,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
         persist(user);
         return user;
     }
-    public boolean hideNewUserWithPassword(
-            final String username,
-            final Password password,
-            final Password password2,
-            final ApplicationRole initialRole,
-            final Boolean enabled) {
-        return isPasswordsFeatureDisabled();
-    }
-    public String validateNewUserWithPassword(
+    public String validateLocalNewUser(
             final String username,
             final Password password,
             final Password passwordRepeat,
@@ -170,7 +168,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
         return user.validateResetPassword(password, passwordRepeat);
     }
 
-    public ApplicationRole default3NewUserWithPassword() {
+    public ApplicationRole default3NewLocalUser() {
         return applicationRoles.findRoleByName(IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
     }
     //endregion
@@ -196,19 +194,25 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     //region > isPasswordsFeatureEnabled, isPasswordsFeatureDisabled
 
     @Programmatic
-    public boolean isPasswordsFeatureEnabled() {
-        boolean primaryRealm;
-        try {
-            primaryRealm = ShiroUtils.isPrimaryRealm();
-        } catch(AuthenticationException ex) {
-            // to handle being called from FixtureScripts when there may be no security context.
-            primaryRealm = true;
-        }
-        return passwordEncryptionService != null && primaryRealm;
+    public boolean isPasswordsFeatureDisabled(ApplicationUser applicationUser) {
+        return !isPasswordsFeatureEnabled(applicationUser);
     }
-    @Programmatic
-    public boolean isPasswordsFeatureDisabled() {
-        return !isPasswordsFeatureEnabled();
+
+    public boolean isPasswordsFeatureEnabled(ApplicationUser applicationUser) {
+        return applicationUser.getAccountType() == AccountType.LOCAL && passwordEncryptionService != null;
+    }
+
+    private AccountType defaultAccountType() {
+        return hasDelegateAuthenticationRealm() ? AccountType.DELEGATED : AccountType.LOCAL;
+    }
+
+    private boolean hasDelegateAuthenticationRealm() {
+        return !hasNoDelegateAuthenticationRealm();
+    }
+
+    private boolean hasNoDelegateAuthenticationRealm() {
+        IsisModuleSecurityRealm imsr = ShiroUtils.getIsisModuleSecurityRealm();
+        return imsr == null || imsr.getDelegateAuthenticationRealm() == null;
     }
 
     //endregion

@@ -119,36 +119,4 @@ class PrincipalForApplicationUser implements AuthorizationInfo {
         return permissionSet;
     }
 
-
-//    //region > equals, hashCode, compareTo
-//
-//    /**
-//     * Implemented because otherwise each successive login (seems to) adds the new Principal to the set of
-//     * principals (per {@link org.apache.shiro.subject.PrincipalCollection}).
-//     */
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//
-//        PrincipalForApplicationUser that = (PrincipalForApplicationUser) o;
-//
-//        if (username != null ? !username.equals(that.username) : that.username != null) return false;
-//
-//        return true;
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return username != null ? username.hashCode() : 0;
-//    }
-//
-//    @Override
-//    public int compareTo(PrincipalForApplicationUser o) {
-//        return Ordering.natural().compare(getUsername(), o != null? o.getUsername(): null);
-//    }
-//    //endregion
-
-
-
 }
