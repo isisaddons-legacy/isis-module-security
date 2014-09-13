@@ -7,7 +7,7 @@ and *permission*s.  Users have roles, roles have permissions, and permissions ar
 These features are derived from the Isis metamodel and can be scoped at either a _package_, _class_ or individual _class member_.
 Permissions themselves can either _allow_ or _veto_ the ability to _view_ or _change_ any application feature.
 
-A key design objective of this module has been to limit the amount of permissioning data required.  To this objective:
+A key design objective of this module has been to limit the amount of permissioning data required.  To support this objective:
 
 * permissions are hierarchical: a class-level permission applies to all class members, while a package-level permission 
   applies to all classes of all subpackages
@@ -22,9 +22,17 @@ A key design objective of this module has been to limit the amount of permission
   
 The module also provides an implementation of [Apache Shiro](http://shiro.apache.org)'s 
 [AuthorizingRealm](https://shiro.apache.org/static/1.2.2/apidocs/org/apache/shiro/realm/AuthorizingRealm.html).  This 
-allows the users/permissions to be used for Isis' authentication and/or authorization.  If using for authentication,
-passwords are encrypted using a `PasswordEncryptionService`.  The module provides a default implementation based on
-[jBCrypt](http://www.mindrot.org/projects/jBCrypt/), but other implementations can be plugged-in if required.
+allows the users/permissions to be used for Isis' authentication and/or authorization.
+
+Authentication is optional; each user is either _local_ or _delegated_:
+
+* users with a _delegated_ account type are authenticated through a (configured) _delegated authentication realm_ (for 
+  example LDAP).  Any other implementation of Shiro's `AuthenticatingRealm` can be used.
+ 
+* users with a _local_ account type are authenticated through a `PasswordEncryptionService`.
+
+The module provides a default implementation based on [jBCrypt](http://www.mindrot.org/projects/jBCrypt/), but other 
+implementations can be plugged-in if required.
   
 ## Domain Model ##
 
@@ -43,12 +51,14 @@ For further screenshots, see the [screenshot tutorial](https://github.com/isisad
 
 #### Automatically Seeds Roles ####
 
-When the security module starts up, it will automatically seed a number of roles, corresponding permissions and a 
-default 'admin' user.  The `isis-module-security-admin` role grants all permissions to all classes in the security module itself:
+When the security module starts up, it will automatically (idempotently) seed a number of roles, corresponding permissions and a 
+default `isis-module-security-admin` user.  The corresponding (similarly named) `isis-module-security-admin` role 
+grants all permissions to all classes in the security module itself:
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/030-role.png)
 
-The `isis-module-security-regular-user` role grants selected permissions to the `ApplicationUser` class:
+The `isis-module-security-regular-user` role grants selected permissions to viewing/changing members of the 
+`ApplicationUser` class (so that a user with this role can view/update their own record):
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/035-role-regular-user.png)
 
@@ -128,11 +138,14 @@ provides access to its parent (package) feature.
 
 #### Application users ####
 
-The security module can be defined either as a primary Shiro realm (for both authentication and authorization) or a 
-secondary realm (for authorization only).
+Application users can have either a _local_ or a _delegated_ account type.  Local users are authenticated and authorized
+through the module's Shiro realm implementation.  Optionally a delegate authentication realm can be configured; if so 
+then delegated users can be created and their credentials will be authenticated by the delegate authentication realm.
 
-If configured as a primary realm, then the users must be created by the administrator.    If configured as a secondary
-realm, then the user is created automatically, sychronized with the primary realm.
+If configured _without_ a delegate realm, then the users must be created by the administrator.    If configured _with_
+a delegate realm, then the user will be created automatically if that user attempts to log on.  However, for safety 
+their `ApplicationUser` accounts are created in a disabled state and with no roles, so the administrator is still required
+to update them.
 
 Once the user is created, then additional information about that user can be captured, including their name and
 contact details.  This information is not otherwise used by the security module, but may be of use to other parts
@@ -156,17 +169,21 @@ You can either use this module "out-of-the-box", or you can fork this repo and e
 #### Shiro configuration (shiro.ini) ####
 
 The module includes `org.isisaddons.module.security.shiro.IsisModuleSecurityRealm`, an implementation of Apache Shiro's
- `org.apache.shiro.realm.AuthorizingRealm` class. As such, the module can be used to be used either as the single 
- (primary) realm or as a secondary realm.  
+`org.apache.shiro.realm.AuthorizingRealm` class.  This realm is intended to be configured as the single realm for Shiro,
+but it can optionally have a delegateAuthenticationRealm injected into it.
 
-* if configured as the primary realm then module handles both authentication and authorization.  Authentication is 
-  performed against encrypted password.
+* if configured without a delegate realm then `IsisModuleSecurityRealm` deals only with _local_ users and performs
+  both authentication and authorization for them.  Authentication is performed against encrypted password.  Users with
+  _delegate_ account type will be unable to log in.
 
-* if configured as the secondary realm then it primarily handles authorization.
+* if configured with a delegate realm then `IsisModuleSecurityRealm` deals with both _delegated_ and _local_ users.
+  Authentication of _delegated_ users is performed by the delegate authentication realm, while _local_ users continue
+  to be authenticated in the same way as before, against their encrypted password.  Authorization is performed the
+  same way for either account type, by reference to their user roles and those roles' permissions.
 
-In either configuration the module can also prevent a user logging on if that user's account has been disabled. 
+For both _local_ and _delegated_ users the realm will prevent a disabled user from logging in. 
 
-For both cases, update your `WEB-INF/shiro.ini`'s `[main]` section:
+To configure, update your `WEB-INF/shiro.ini`'s `[main]` section:
 
 <pre>
 [main]
@@ -176,24 +193,18 @@ isisModuleSecurityRealm=org.isisaddons.module.security.shiro.IsisModuleSecurityR
 authenticationStrategy=org.isisaddons.module.security.shiro.AuthenticationStrategyForIsisModuleSecurityRealm
 securityManager.authenticator.authenticationStrategy = $authenticationStrategy
 
-</pre>
-
-The, set up Shiro`s `securityManager.realms` property.  To use the module as the primary realm (with passwords visible
-and verified), add (again, in the `[main]` section):
-
-<pre>
 securityManager.realms = $isisModuleSecurityRealm
 </pre>
 
-Or, to use the module as the secondary realm (without password support), add:
+If a delegate authentication realm is used, then define it and inject (again, in the `[main]` section):
 
 <pre>
-securityManager.realms = $someOtherRealm,$isisModuleSecurityRealm
+someOtherRealm=...
+
+isisModuleSecurityRealm.delegateAuthenticationRealm=$someOtherRealm
 </pre>
 
-
-where `$someOtherRealm` refers to the definition of the realm to perform primary authentication (eg `$iniRealm`, or an
-`$ldapRealm` implementation.
+where `$someOtherRealm` defines some other realm to perform authentication.
 
 
 #### Isis domain services (isis.properties) ####
@@ -479,10 +490,10 @@ and then push changes.
 [ApplicationUser|username{bg:green}]0..*->0..1[ApplicationTenancy|name{bg:blue}]
 [ApplicationUser]1-0..*>[ApplicationRole|name{bg:yellow}]
 [ApplicationRole]1-0..*>[ApplicationPermission]
+[ApplicationUser]->[AccountType|LOCAL;DELEGATED]
 [ApplicationFeature|fullyQualifiedName{bg:green}]-memberType>0..1[ApplicationMemberType|PROPERTY;COLLECTION;ACTION]
 [ApplicationFeature]->type[ApplicationFeatureType|PACKAGE;CLASS;MEMBER]
 [ApplicationPermission{bg:pink}]++->[ApplicationFeature]
 [ApplicationPermission]->[ApplicationPermissionMode|VIEWING;CHANGING]
-[ApplicationPermission]->[ApplicationPermissionRule|ALLOW;VETO]
-</pre>
+[ApplicationPermission]->[ApplicationPermissionRule|ALLOW;VETO]</pre>
 

@@ -93,6 +93,7 @@ patches
 }
 
 
-.example-app-for-security .entityActions .cssMenuPanel a.ApplicationUser-delete {
+.example-app-for-security .entityActions .cssMenuPanel a.ApplicationUser-delete,
+.example-app-for-security .entityActions .cssMenuPanel a.ApplicationRole-delete {
     background-color: rgb(237, 107, 107);
 }

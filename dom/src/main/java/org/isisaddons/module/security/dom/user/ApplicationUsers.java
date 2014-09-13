@@ -110,7 +110,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
         if(initialRole != null) {
             user.addRole(initialRole);
         }
-        persist(user);
+        persistIfNotAlready(user);
         return user;
     }
 
@@ -150,7 +150,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
         if(password != null) {
             user.updatePassword(password.getPassword());
         }
-        persist(user);
+        persistIfNotAlready(user);
         return user;
     }
     public String validateNewLocalUser(
