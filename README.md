@@ -228,7 +228,8 @@ Update the `WEB-INF/isis.properties`:
 where:
 
 * the `PasswordEncryptionServiceUsingJBcrypt` is an implementation of the `PasswordEncryptionService`.  This is 
-  mandatory if the module is configured as a primary realm.  If required, any other implementation can be suppled.
+  mandatory (local users, including the default `isis-module-security=admin` administrator user) must be authenticated 
+  using the password service.  If required, any other implementation can be supplied.
 
 * The `MeService` provides the ability for an end-user to lookup their own user account, if granted the 
   `isis-module-security-regular-user` role.  This service is optional, no other functionality in the module depends
@@ -290,7 +291,7 @@ by implementing and registerng alternative implementations.
 
 ### PasswordEncryptionService ###
 
-The `PasswordEncryptionService` (used only when the module is configured as a primary realm) is responsible for 
+The `PasswordEncryptionService` (responsible for authenticating _local_ user accounts) is responsible for 
 performing a one-way encryption of password to encrypted form.  This encrypted version is then stored in the 
 `ApplicationUser` entity's `encryptedPassword` property.
 
