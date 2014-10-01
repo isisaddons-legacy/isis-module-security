@@ -154,10 +154,6 @@ public class ApplicationPermissions {
             container.warnUser("No such " + featureType.name().toLowerCase() + ": " + featureFqn);
             return null;
         }
-        ApplicationPermission permission = findByRoleAndRuleAndFeature(role, rule, featureType, featureFqn);
-        if (permission != null) {
-            return permission;
-        }
         return newPermissionNoCheck(role, rule, mode, featureType, featureFqn);
     }
 
@@ -168,7 +164,11 @@ public class ApplicationPermissions {
             final ApplicationPermissionMode mode,
             final ApplicationFeatureType featureType,
             final String featureFqn) {
-        final ApplicationPermission permission = container.newTransientInstance(ApplicationPermission.class);
+        ApplicationPermission permission = findByRoleAndRuleAndFeature(role, rule, featureType, featureFqn);
+        if (permission != null) {
+            return permission;
+        }
+        permission = container.newTransientInstance(ApplicationPermission.class);
         permission.setRole(role);
         permission.setRule(rule);
         permission.setMode(mode);
