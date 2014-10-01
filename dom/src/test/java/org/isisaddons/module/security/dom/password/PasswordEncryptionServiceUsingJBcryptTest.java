@@ -23,7 +23,6 @@ public class PasswordEncryptionServiceUsingJBcryptTest extends PasswordEncryptio
     @Override
     protected PasswordEncryptionService newPasswordEncryptionService() {
         final PasswordEncryptionServiceUsingJBcrypt service = new PasswordEncryptionServiceUsingJBcrypt();
-        service.init();
         return service;
     }
 
