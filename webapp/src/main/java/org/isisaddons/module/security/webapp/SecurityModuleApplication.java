@@ -98,7 +98,9 @@ public class SecurityModuleApplication extends IsisWicketApplication {
         WebRequest request = super.newWebRequest(servletRequest, filterPath);
         return request;
     }
-    
+
+    private static final String APP_NAME = "Security Module Example App";
+
     @Override
     protected Module newIsisWicketModule() {
         final Module isisDefaults = super.newIsisWicketModule();
@@ -106,11 +108,11 @@ public class SecurityModuleApplication extends IsisWicketApplication {
         final Module simpleOverrides = new AbstractModule() {
             @Override
             protected void configure() {
-                bind(String.class).annotatedWith(Names.named("applicationName")).toInstance("Example App for Security");
+                bind(String.class).annotatedWith(Names.named("applicationName")).toInstance(APP_NAME);
                 bind(String.class).annotatedWith(Names.named("applicationCss")).toInstance("css/application.css");
                 bind(String.class).annotatedWith(Names.named("applicationJs")).toInstance("scripts/application.js");
-                bind(String.class).annotatedWith(Names.named("welcomeMessage")).toInstance(readLines("welcome.html"));
-                bind(String.class).annotatedWith(Names.named("aboutMessage")).toInstance("Example App for Security");
+                bind(String.class).annotatedWith(Names.named("welcomeMessage")).toInstance(readLines(getClass(), "welcome.html"));
+                bind(String.class).annotatedWith(Names.named("aboutMessage")).toInstance(APP_NAME);
                 bind(InputStream.class).annotatedWith(Names.named("metaInfManifest")).toProvider(Providers.of(getServletContext().getResourceAsStream("/META-INF/MANIFEST.MF")));
             }
         };
@@ -118,13 +120,13 @@ public class SecurityModuleApplication extends IsisWicketApplication {
         return Modules.override(isisDefaults).with(simpleOverrides);
     }
 
-    private static String readLines(final String resourceName) {
+    private static String readLines(final Class<?> contextClass, final String resourceName) {
         try {
-            List<String> readLines = Resources.readLines(Resources.getResource(SecurityModuleApplication.class, resourceName), Charset.defaultCharset());
+            List<String> readLines = Resources.readLines(Resources.getResource(contextClass, resourceName), Charset.defaultCharset());
             final String aboutText = Joiner.on("\n").join(readLines);
             return aboutText;
         } catch (IOException e) {
-            return "This is Quick Start";
+            return APP_NAME;
         }
     }
 

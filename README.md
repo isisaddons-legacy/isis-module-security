@@ -363,6 +363,12 @@ The module currently does not support:
   custom override of Isis' AuthorizationManagerStandard so can pass through the tenancy of the target object being
   evaluated.
 
+  
+## Change Log ##
+
+* `1.6.1` - support for account types and delegated authentication realm
+* `1.6.0` - first release
+
 
 ## Legal Stuff ##
  
