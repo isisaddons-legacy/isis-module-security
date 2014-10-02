@@ -32,6 +32,7 @@ language governing permissions and limitations under the License.
 	<properties>
         <isis.version>1.6.0</isis.version>
         <isis-viewer-wicket.version>1.6.0</isis-viewer-wicket.version>
+        <isis-module-security.version>1.6.2-SNAPSHOT</isis-module-security.version>
 
         <jbcrypt.version>0.3m</jbcrypt.version>
 
@@ -322,7 +323,7 @@ language governing permissions and limitations under the License.
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>isis-module-security-dom</artifactId>
-                <version>1.6.2-SNAPSHOT</version>
+                <version>${isis-module-security.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>

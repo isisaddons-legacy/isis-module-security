@@ -252,7 +252,7 @@ Finally, update your classpath by adding this dependency in your dom project's `
     &lt;dependency&gt;
         &lt;groupId&gt;org.isisaddons.module.security&lt;/groupId&gt;
         &lt;artifactId&gt;isis-module-security-dom&lt;/artifactId&gt;
-        &lt;version&gt;1.6.1&lt;/version&gt;
+        &lt;version&gt;1.6.2&lt;/version&gt;
     &lt;/dependency&gt;
 </pre>
 
@@ -366,6 +366,7 @@ The module currently does not support:
   
 ## Change Log ##
 
+* `1.6.2` - made more resilient so can be called by an application's own 'security seed' service
 * `1.6.1` - support for account types and delegated authentication realm
 * `1.6.0` - first release
 
