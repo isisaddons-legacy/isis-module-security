@@ -189,8 +189,8 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
         if (feature == null) {
             return null;
         }
-        final Class<? extends ApplicationFeatureViewModel> cls = viewModelClassFor(parentId, applicationFeatures);
-        return container.newViewModelInstance(cls, parentId.asEncodedString());
+        final Class<?> cls = viewModelClassFor(parentId, applicationFeatures);
+        return (ApplicationFeatureViewModel) container.newViewModelInstance(cls, parentId.asEncodedString());
 
     }
     //endregion
