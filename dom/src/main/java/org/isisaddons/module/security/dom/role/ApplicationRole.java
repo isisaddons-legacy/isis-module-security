@@ -488,7 +488,10 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     public List<ApplicationRole> delete(
             final @Named("Are you sure?") @Optional Boolean areYouSure) {
         getUsers().clear();
-        getPermissions().clear();
+        final List<ApplicationPermission> permissions = getPermissions();
+        for (ApplicationPermission permission : permissions) {
+            permission.delete(areYouSure);
+        }
         container.flush();
         container.removeIfNotAlready(this);
         container.flush();

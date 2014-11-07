@@ -342,6 +342,24 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     //endregion
 
+
+    //region > delete (action)
+    @MemberOrder(sequence = "1")
+    public ApplicationRole delete(
+            final @Named("Are you sure?") @Optional Boolean areYouSure) {
+        final ApplicationRole owningRole = getRole();
+        container.removeIfNotAlready(this);
+        return owningRole;
+    }
+    public String validateDelete(final Boolean areYouSure) {
+        return not(areYouSure) ? "Please confirm this action": null;
+    }
+
+    static boolean not(Boolean areYouSure) {
+        return areYouSure == null || !areYouSure;
+    }
+    //endregion
+    
     //region > equals, hashCode, compareTo, toString
     private final static String propertyNames = "role, featureType, featureFqn, mode";
 
