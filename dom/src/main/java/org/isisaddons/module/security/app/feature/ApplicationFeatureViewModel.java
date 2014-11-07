@@ -45,6 +45,10 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
             final ApplicationFeatures applicationFeatures,
             final DomainObjectContainer container) {
         Class<? extends ApplicationFeatureViewModel> cls = viewModelClassFor(featureId, applicationFeatures);
+        if(cls == null) {
+            // TODO: not sure why, yet...
+            return null;
+        }
         return container.newViewModelInstance(cls, featureId.asEncodedString());
     }
 
@@ -56,6 +60,10 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
                 return ApplicationClass.class;
             case MEMBER:
             final ApplicationFeature feature = applicationFeatures.findFeature(featureId);
+                if(feature == null) {
+                    // TODO: not sure why, yet...
+                    return null;
+                }
                 switch(feature.getMemberType()) {
                     case PROPERTY:
                         return ApplicationClassProperty.class;
