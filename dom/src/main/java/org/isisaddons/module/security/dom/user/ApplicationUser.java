@@ -425,7 +425,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name = "Status", sequence = "1")
-    @Named("Enable")
+    @Named("Enable") // symmetry with lock (disable)
     public ApplicationUser unlock() {
         setStatus(ApplicationUserStatus.ENABLED);
         return this;
@@ -436,7 +436,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name = "Status", sequence = "2")
-    @Named("Disable")
+    @Named("Disable") // method cannot be called 'disable' as that would clash with Isis' naming conventions
     public ApplicationUser lock() {
         setStatus(ApplicationUserStatus.DISABLED);
         return this;

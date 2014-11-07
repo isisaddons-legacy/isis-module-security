@@ -63,8 +63,8 @@ public class IsisModuleSecurityRegularUserRoleAndPermissions extends AbstractRol
                 "filterPermissions",
                 "resetPassword",
                 "updateTenancy",
-                "enable",
-                "disable",
+                "lock", // renamed as 'enable' in the UI
+                "unlock", // renamed as 'disable' in the UI
                 "addRole",
                 "removeRole");
         newMemberPermissions(
