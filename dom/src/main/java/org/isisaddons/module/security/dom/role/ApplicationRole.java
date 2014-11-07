@@ -160,6 +160,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
+    @CssClassFa("fa fa-plus-square")
     @MemberOrder(name = "Permissions", sequence = "1")
     public ApplicationRole addPackage(
             final @Named("Rule") ApplicationPermissionRule rule,
@@ -190,6 +191,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
      */
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(name = "Permissions", sequence = "2")
+    @CssClassFa("fa fa-plus-square")
     public ApplicationRole addClass(
             final @Named("Rule") ApplicationPermissionRule rule,
             final @Named("Mode") ApplicationPermissionMode mode,
@@ -235,6 +237,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
      */
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(name = "Permissions", sequence = "3")
+    @CssClassFa("fa fa-plus-square")
     public ApplicationRole addAction(
             final @Named("Rule") ApplicationPermissionRule rule,
             final @Named("Mode") ApplicationPermissionMode mode,
@@ -283,6 +286,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
      */
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(name = "Permissions", sequence = "4")
+    @CssClassFa("fa fa-plus-square")
     public ApplicationRole addProperty(
             final @Named("Rule") ApplicationPermissionRule rule,
             final @Named("Mode") ApplicationPermissionMode mode,
@@ -339,6 +343,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
      */
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(name = "Permissions", sequence = "5")
+    @CssClassFa("fa fa-plus-square")
     public ApplicationRole addCollection(
             final @Named("Rule") ApplicationPermissionRule rule,
             final @Named("Mode") ApplicationPermissionMode mode,
@@ -381,6 +386,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //region > removePermission (action)
     @MemberOrder(name = "Permissions", sequence = "9")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @CssClassFa("fa fa-minus-square")
     public ApplicationRole removePermission(
             final @Named("Rule") ApplicationPermissionRule rule,
             final @Named("Type") ApplicationFeatureType type,
@@ -449,6 +455,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @Named("Add")
     @MemberOrder(name="Users", sequence = "1")
+    @CssClassFa("fa fa-plus-square")
     public ApplicationRole addUser(final ApplicationUser applicationUser) {
         applicationUser.addRole(this);
         // no need to add to users set, since will be done by JDO/DN.
@@ -465,6 +472,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @Named("Remove")
     @MemberOrder(name="Users", sequence = "2")
+    @CssClassFa("fa fa-minus-square")
     public ApplicationRole removeUser(final ApplicationUser applicationUser) {
         applicationUser.removeRole(this);
         // no need to remove from users set, since will be done by JDO/DN.
@@ -485,6 +493,8 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //region > delete (action)
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(sequence = "1")
+    @CssClassFa("fa fa-trash")
+    @CssClass("btn btn-danger")
     public List<ApplicationRole> delete(
             final @Named("Are you sure?") @Optional Boolean areYouSure) {
         getUsers().clear();

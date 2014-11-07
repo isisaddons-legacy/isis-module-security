@@ -49,7 +49,7 @@ public class UserPermissionViewModelContributions  {
 
     //region > filterPermissions (action)
 
-    @MemberOrder(sequence = "1")
+    @MemberOrder(sequence = "1", name="permissions")
     @NotInServiceMenu
     @ActionSemantics(ActionSemantics.Of.SAFE)
     public List<UserPermissionViewModel> filterPermissions(

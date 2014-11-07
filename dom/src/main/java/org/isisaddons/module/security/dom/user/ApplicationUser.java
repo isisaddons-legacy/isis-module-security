@@ -626,6 +626,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @MemberOrder(name="roles", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @Named("Add")
+    @CssClassFa("fa fa-plus-square")
     public ApplicationUser addRole(final ApplicationRole role) {
         addToRoles(role);
         return this;
@@ -647,6 +648,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @MemberOrder(name="roles", sequence = "2")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @Named("Remove")
+    @CssClassFa("fa fa-minus-square")
     public ApplicationUser removeRole(final ApplicationRole role) {
         removeFromRoles(role);
         return this;
@@ -673,6 +675,8 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //region > delete (action)
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(sequence = "1")
+    @CssClassFa("fa fa-trash")
+    @CssClass("btn btn-danger")
     public List<ApplicationUser> delete(
             final @Named("Are you sure?") @Optional Boolean areYouSure) {
         container.removeIfNotAlready(this);

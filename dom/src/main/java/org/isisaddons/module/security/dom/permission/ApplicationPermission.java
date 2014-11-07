@@ -345,6 +345,8 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     //region > delete (action)
     @MemberOrder(sequence = "1")
+    @CssClassFa("fa fa-trash")
+    @CssClass("btn btn-danger")
     public ApplicationRole delete(
             final @Named("Are you sure?") @Optional Boolean areYouSure) {
         final ApplicationRole owningRole = getRole();

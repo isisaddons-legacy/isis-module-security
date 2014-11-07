@@ -123,6 +123,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @Named("Add")
     @MemberOrder(name="Users", sequence = "1")
+    @CssClassFa("fa fa-plus-square")
     public ApplicationTenancy addUser(final ApplicationUser applicationUser) {
         applicationUser.setTenancy(this);
         // no need to add to users set, since will be done by JDO/DN.
@@ -139,6 +140,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @Named("Remove")
     @MemberOrder(name="Users", sequence = "2")
+    @CssClassFa("fa fa-minus-square")
     public ApplicationTenancy removeUser(final ApplicationUser applicationUser) {
         applicationUser.setTenancy(null);
         // no need to add to users set, since will be done by JDO/DN.
@@ -156,6 +158,8 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     //region > delete (action)
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(sequence = "1")
+    @CssClassFa("fa fa-trash")
+    @CssClass("btn btn-danger")
     public List<ApplicationTenancy> delete(
             final @Named("Are you sure?") @Optional Boolean areYouSure) {
         for (ApplicationUser user : getUsers()) {
