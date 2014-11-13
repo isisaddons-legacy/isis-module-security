@@ -17,16 +17,10 @@
 package org.isisaddons.module.security.seed;
 
 import javax.inject.Inject;
-
-import org.apache.isis.applib.fixturescripts.FixtureScript;
-
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
-import org.isisaddons.module.security.seed.scripts.IsisApplibFixtureResultsRoleAndPermissions;
-import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
-import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminUser;
-import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityFixtureRoleAndPermissions;
-import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityRegularUserRoleAndPermissions;
+import org.isisaddons.module.security.seed.scripts.*;
+import org.apache.isis.applib.fixturescripts.FixtureScript;
 
 /**
  * This fixture script will be run automatically on start-up by virtue of the fact that the
@@ -40,15 +34,15 @@ public class SeedUsersAndRolesFixtureScript extends FixtureScript {
     protected void execute(ExecutionContext executionContext) {
 
         // security module
-        execute(new IsisModuleSecurityAdminRoleAndPermissions(), executionContext);
+        executeChild(new IsisModuleSecurityAdminRoleAndPermissions(), executionContext);
 
-        execute(new IsisModuleSecurityFixtureRoleAndPermissions(), executionContext);
-        execute(new IsisModuleSecurityRegularUserRoleAndPermissions(), executionContext);
+        executeChild(new IsisModuleSecurityFixtureRoleAndPermissions(), executionContext);
+        executeChild(new IsisModuleSecurityRegularUserRoleAndPermissions(), executionContext);
 
-        execute(new IsisModuleSecurityAdminUser(), executionContext);
+        executeChild(new IsisModuleSecurityAdminUser(), executionContext);
 
         // isis applib
-        execute(new IsisApplibFixtureResultsRoleAndPermissions(), executionContext);
+        executeChild(new IsisApplibFixtureResultsRoleAndPermissions(), executionContext);
     }
 
     //region > injected

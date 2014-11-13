@@ -24,10 +24,10 @@ public class AllExampleEntities extends DiscoverableFixtureScript {
     @Override
     protected void execute(ExecutionContext executionContext) {
 
-        execute(new BipExampleEntity(), executionContext);
-        execute(new BarExampleEntity(), executionContext);
-        execute(new BazExampleEntity(), executionContext);
-        execute(new BopExampleEntity(), executionContext);
+        executeChild(new BipExampleEntity(), executionContext);
+        executeChild(new BarExampleEntity(), executionContext);
+        executeChild(new BazExampleEntity(), executionContext);
+        executeChild(new BopExampleEntity(), executionContext);
 
     }
 

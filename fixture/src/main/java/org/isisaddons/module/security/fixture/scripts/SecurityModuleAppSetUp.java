@@ -30,40 +30,40 @@ public class SecurityModuleAppSetUp extends DiscoverableFixtureScript {
     @Override
     protected void execute(ExecutionContext executionContext) {
 
-        execute(new SecurityModuleAppTearDown(), executionContext);
-        execute(new SeedUsersAndRolesFixtureScript(), executionContext);
+        executeChild(new SecurityModuleAppTearDown(), executionContext);
+        executeChild(new SeedUsersAndRolesFixtureScript(), executionContext);
 
-        execute(new AllExampleEntities(), executionContext);
+        executeChild(new AllExampleEntities(), executionContext);
 
         // roles and perms
-        execute(new ExampleGuestRoleAndPremissions(), executionContext);
-        execute(new ExampleNoGuestRoleAndPremissions(), executionContext);
-        execute(new ExampleRegularRoleAndPermissions(), executionContext);
-        execute(new ExampleFixtureScriptsRoleAndPermissions(), executionContext);
-        execute(new ExampleHideEntityDescriptionRoleAndPermissions(), executionContext);
+        executeChild(new ExampleGuestRoleAndPremissions(), executionContext);
+        executeChild(new ExampleNoGuestRoleAndPremissions(), executionContext);
+        executeChild(new ExampleRegularRoleAndPermissions(), executionContext);
+        executeChild(new ExampleFixtureScriptsRoleAndPermissions(), executionContext);
+        executeChild(new ExampleHideEntityDescriptionRoleAndPermissions(), executionContext);
 
-        execute(new AllExampleRolesAndPermissions(), executionContext);
+        executeChild(new AllExampleRolesAndPermissions(), executionContext);
 
         // users, tenancies
-        execute(new AllUsers(), executionContext);
-        execute(new AllTenancies(), executionContext);
+        executeChild(new AllUsers(), executionContext);
+        executeChild(new AllTenancies(), executionContext);
 
         // user/role
-        execute(new BobUser_Has_IsisSecurityAdminRole(), executionContext);
-        execute(new BobUser_Has_ExampleHideEntityDescriptionRole(), executionContext);
+        executeChild(new BobUser_Has_IsisSecurityAdminRole(), executionContext);
+        executeChild(new BobUser_Has_ExampleHideEntityDescriptionRole(), executionContext);
 
-        execute(new DickUser_Has_ExampleRegularRole(), executionContext);
-        execute(new DickUser_Has_IsisSecurityModuleRegularRole(), executionContext);
+        executeChild(new DickUser_Has_ExampleRegularRole(), executionContext);
+        executeChild(new DickUser_Has_IsisSecurityModuleRegularRole(), executionContext);
 
-        execute(new GuestUser_Has_ExampleGuestRole(), executionContext);
-        execute(new GuestUser_Has_IsisSecurityModuleRegularRole(), executionContext);
+        executeChild(new GuestUser_Has_ExampleGuestRole(), executionContext);
+        executeChild(new GuestUser_Has_IsisSecurityModuleRegularRole(), executionContext);
 
-        execute(new JoeUser_Has_ExampleGuestRole(), executionContext);
-        execute(new JoeUser_Has_IsisSecurityModuleRegularRole(), executionContext);
+        executeChild(new JoeUser_Has_ExampleGuestRole(), executionContext);
+        executeChild(new JoeUser_Has_IsisSecurityModuleRegularRole(), executionContext);
 
-        execute(new SvenUser_Has_IsisSecurityAdminRole(), executionContext);
+        executeChild(new SvenUser_Has_IsisSecurityAdminRole(), executionContext);
 
-        execute(new ConflictedUser_Has_ExampleConflictingRoles(), executionContext);
+        executeChild(new ConflictedUser_Has_ExampleConflictingRoles(), executionContext);
     }
 
     // //////////////////////////////////////
