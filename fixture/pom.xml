@@ -14,7 +14,8 @@ software distributed under the License is distributed on an
 either express or implied. See the License for the specific
 language governing permissions and limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -26,7 +27,7 @@ language governing permissions and limitations under the License.
     <artifactId>isis-module-security-fixture</artifactId>
     <name>Isis Addons Security Module Fixtures</name>
 
-	<build>
+    <build>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -41,13 +42,13 @@ language governing permissions and limitations under the License.
                 </excludes>
             </resource>
         </resources>
-		<plugins>
+        <plugins>
             <plugin>
                 <groupId>org.datanucleus</groupId>
                 <artifactId>datanucleus-maven-plugin</artifactId>
                 <version>${datanucleus-maven-plugin.version}</version>
                 <configuration>
-                	<fork>false</fork>
+                    <fork>false</fork>
                     <log4jConfiguration>${basedir}/log4j.properties</log4jConfiguration>
                     <verbose>true</verbose>
                     <props>${basedir}/datanucleus.properties</props>
@@ -71,21 +72,21 @@ language governing permissions and limitations under the License.
                     <version>1.0.0</version>
                     <configuration>
                         <lifecycleMappingMetadata>
-                        <pluginExecutions>
-                            <pluginExecution>
-                                <pluginExecutionFilter>
-                                    <groupId>org.datanucleus</groupId>
-                                    <artifactId>datanucleus-maven-plugin</artifactId>
-                                    <versionRange>[3.2.0-release,)</versionRange>
-                                    <goals>
-                                        <goal>enhance</goal>
-                                    </goals>
-                                </pluginExecutionFilter>
-                                <action>
-                                    <ignore></ignore>
-                                </action>
-                            </pluginExecution>
-                        </pluginExecutions>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.datanucleus</groupId>
+                                        <artifactId>datanucleus-maven-plugin</artifactId>
+                                        <versionRange>[3.2.0-release,)</versionRange>
+                                        <goals>
+                                            <goal>enhance</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
                         </lifecycleMappingMetadata>
                     </configuration>
                 </plugin>
@@ -102,7 +103,6 @@ language governing permissions and limitations under the License.
         <dependency>
             <groupId>org.isisaddons.module.security</groupId>
             <artifactId>isis-module-security-dom</artifactId>
-            <version>1.7.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -118,5 +118,5 @@ language governing permissions and limitations under the License.
             <scope>test</scope>
         </dependency>
 
-	</dependencies>
+    </dependencies>
 </project>

@@ -19,7 +19,7 @@ language governing permissions and limitations under the License.
 
     <groupId>org.isisaddons.module.security</groupId>
     <artifactId>isis-module-security-dom</artifactId>
-    <version>1.7.1-SNAPSHOT</version>
+    <version>1.8.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
@@ -274,6 +274,24 @@ language governing permissions and limitations under the License.
     </distributionManagement>
 
     <profiles>
+        <profile>
+            <id>cloudbees-snapshots</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>snapshots-repo</id>
+                    <url>http://repository-estatio.forge.cloudbees.com/snapshot/</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
         <!-- http://central.sonatype.org/pages/apache-maven.html -->
         <profile> 
             <id>release</id>
