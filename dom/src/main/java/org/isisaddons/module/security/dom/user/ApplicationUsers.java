@@ -18,6 +18,7 @@ package org.isisaddons.module.security.dom.user;
 
 import java.util.List;
 import java.util.concurrent.Callable;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
@@ -26,9 +27,19 @@ import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityRegularUser
 import org.isisaddons.module.security.shiro.IsisModuleSecurityRealm;
 import org.isisaddons.module.security.shiro.ShiroUtils;
 import org.apache.isis.applib.AbstractFactoryAndRepository;
-import org.apache.isis.applib.annotation.*;
+import org.apache.isis.applib.Identifier;
+import org.apache.isis.applib.annotation.ActionInteraction;
+import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
+import org.apache.isis.applib.annotation.DomainService;
+import org.apache.isis.applib.annotation.MaxLength;
+import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.Named;
+import org.apache.isis.applib.annotation.NotContributed;
+import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.query.QueryDefault;
+import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 import org.apache.isis.applib.value.Password;
 
@@ -42,7 +53,25 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     }
     //endregion
 
+    //region > init
+
+    @Programmatic
+    @PostConstruct
+    public void init() {
+        if(applicationUserFactory == null) {
+            applicationUserFactory = new ApplicationUserFactory.Default(getContainer());
+        }
+    }
+
+    //endregion
+
     //region > findUserByName
+
+    public static class FindOrCreateUserByUsernameEvent extends ActionInteractionEvent<ApplicationUsers> {
+        public FindOrCreateUserByUsernameEvent(ApplicationUsers source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
 
     /**
      * Uses the {@link org.apache.isis.applib.services.queryresultscache.QueryResultsCache} in order to support
@@ -52,6 +81,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
      *     If the user does not exist, it will be automatically created.
      * </p>
      */
+    @ActionInteraction(FindOrCreateUserByUsernameEvent.class)
     @MemberOrder(sequence = "10.2")
     @ActionSemantics(Of.IDEMPOTENT)
     public ApplicationUser findOrCreateUserByUsername(
@@ -83,6 +113,13 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     //region > findUsersByName
 
+    public static class FindUsersByNameEvent extends ActionInteractionEvent<ApplicationUsers> {
+        public FindUsersByNameEvent(ApplicationUsers source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(FindUsersByNameEvent.class)
     @MemberOrder(sequence = "10.3")
     @ActionSemantics(Of.SAFE)
     public List<ApplicationUser> findUsersByName(
@@ -96,6 +133,13 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     //region > newUser (no password)
 
+    public static class NewDelegateUserEvent extends ActionInteractionEvent<ApplicationUsers> {
+        public NewDelegateUserEvent(ApplicationUsers source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(NewDelegateUserEvent.class)
     @MemberOrder(sequence = "10.4")
     @ActionSemantics(Of.NON_IDEMPOTENT)
     @NotContributed
@@ -103,7 +147,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             final @Named("Name") @MaxLength(ApplicationUser.MAX_LENGTH_USERNAME) String username,
             final @Named("Initial role") @Optional ApplicationRole initialRole,
             final @Named("Enabled?") @Optional Boolean enabled) {
-        ApplicationUser user = newTransientInstance(ApplicationUser.class);
+        ApplicationUser user = applicationUserFactory.newApplicationUser();
         user.setUsername(username);
         user.setStatus(ApplicationUserStatus.parse(enabled));
         user.setAccountType(AccountType.DELEGATED);
@@ -127,7 +171,15 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     //endregion
 
-    //region > newUser (with password)
+    //region > newLocalUser (action)
+
+    public static class NewLocalUserEvent extends ActionInteractionEvent<ApplicationUsers> {
+        public NewLocalUserEvent(ApplicationUsers source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(NewLocalUserEvent.class)
     @MemberOrder(sequence = "10.4")
     @ActionSemantics(Of.IDEMPOTENT)
     @NotContributed
@@ -139,7 +191,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             final @Named("Enabled?") @Optional Boolean enabled) {
         ApplicationUser user = findUserByUsername(username);
         if (user == null){
-            user = newTransientInstance(ApplicationUser.class);
+            user = applicationUserFactory.newApplicationUser();
             user.setUsername(username);
             user.setStatus(ApplicationUserStatus.parse(enabled));
             user.setAccountType(AccountType.LOCAL);
@@ -159,7 +211,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             final Password passwordRepeat,
             final ApplicationRole initialRole,
             final Boolean enabled) {
-        ApplicationUser user = newTransientInstance(ApplicationUser.class);
+        ApplicationUser user = applicationUserFactory.newApplicationUser();
         return user.validateResetPassword(password, passwordRepeat);
     }
 
@@ -170,6 +222,13 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     //region > allUsers
 
+    public static class AllUsersEvent extends ActionInteractionEvent<ApplicationUsers> {
+        public AllUsersEvent(ApplicationUsers source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(AllUsersEvent.class)
     @MemberOrder(sequence = "10.9")
     @ActionSemantics(Of.SAFE)
     public List<ApplicationUser> allUsers() {
@@ -186,8 +245,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     }
     //endregion
 
-    //region > isPasswordsFeatureEnabled, isPasswordsFeatureDisabled
-
+    //region > helpers: isPasswordsFeatureEnabled, isPasswordsFeatureDisabled
 
     private boolean hasNoDelegateAuthenticationRealm() {
         IsisModuleSecurityRealm imsr = ShiroUtils.getIsisModuleSecurityRealm();
@@ -203,6 +261,14 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     PasswordEncryptionService passwordEncryptionService;
     @Inject
     ApplicationRoles applicationRoles;
+
+    /**
+     * Will only be injected to if the programmer has supplied an implementation.  Otherwise
+     * this class will install a default implementation in {@link #postConstruct()}.
+     */
+    @Inject
+    ApplicationUserFactory applicationUserFactory;
+
     //endregion
 
 }

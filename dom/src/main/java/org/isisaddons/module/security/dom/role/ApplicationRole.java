@@ -38,7 +38,24 @@ import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.annotation.*;
+import org.apache.isis.applib.Identifier;
+import org.apache.isis.applib.annotation.ActionInteraction;
+import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.Bookmarkable;
+import org.apache.isis.applib.annotation.Bounded;
+import org.apache.isis.applib.annotation.CssClass;
+import org.apache.isis.applib.annotation.CssClassFa;
+import org.apache.isis.applib.annotation.Disabled;
+import org.apache.isis.applib.annotation.MaxLength;
+import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.Named;
+import org.apache.isis.applib.annotation.ObjectType;
+import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.Render;
+import org.apache.isis.applib.annotation.SortedBy;
+import org.apache.isis.applib.annotation.TypicalLength;
+import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.util.ObjectContracts;
 import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 
@@ -86,7 +103,14 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     }
     //endregion
 
-    //region > name (property,)
+    //region > name (property)
+
+    public static class UpdateNameEvent extends ActionInteractionEvent<ApplicationRole> {
+        public UpdateNameEvent(ApplicationRole source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
     private String name;
 
     @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_NAME)
@@ -100,6 +124,8 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     public void setName(final String name) {
         this.name = name;
     }
+
+    @ActionInteraction(UpdateNameEvent.class)
     @MemberOrder(name="name", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationRole updateName(
@@ -115,6 +141,12 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > description (property)
+    public static class UpdateDescriptionEvent extends ActionInteractionEvent<ApplicationRole> {
+        public UpdateDescriptionEvent(ApplicationRole source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
     private String description;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = JdoColumnLength.DESCRIPTION)
@@ -128,6 +160,8 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     public void setDescription(final String description) {
         this.description = description;
     }
+
+    @ActionInteraction(UpdateDescriptionEvent.class)
     @MemberOrder(name="description", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationRole updateDescription(
@@ -154,11 +188,18 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > addPackage (action)
 
+    public static class AddPackageEvent extends ActionInteractionEvent<ApplicationRole> {
+        public AddPackageEvent(ApplicationRole source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#PACKAGE package}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
+    @ActionInteraction(AddPackageEvent.class)
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @CssClassFa("fa fa-plus-square")
     @MemberOrder(name = "Permissions", sequence = "1")
@@ -184,11 +225,18 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > addClass (action)
+    public static class AddClassEvent extends ActionInteractionEvent<ApplicationRole> {
+        public AddClassEvent(ApplicationRole source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
+    @ActionInteraction(AddClassEvent.class)
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(name = "Permissions", sequence = "2")
     @CssClassFa("fa fa-plus-square")
@@ -229,12 +277,18 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > addAction (action)
+    public static class AddActionEvent extends ActionInteractionEvent<ApplicationRole> {
+        public AddActionEvent(ApplicationRole source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
      * {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#ACTION action}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
+    @ActionInteraction(AddActionEvent.class)
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(name = "Permissions", sequence = "3")
     @CssClassFa("fa fa-plus-square")
@@ -278,12 +332,18 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > addProperty (action)
+    public static class AddPropertyEvent extends ActionInteractionEvent<ApplicationRole> {
+        public AddPropertyEvent(ApplicationRole source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
      * {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#PROPERTY property}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
+    @ActionInteraction(AddPropertyEvent.class)
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(name = "Permissions", sequence = "4")
     @CssClassFa("fa fa-plus-square")
@@ -335,12 +395,19 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > addCollection (action)
+    public static class AddCollectionEvent extends ActionInteractionEvent<ApplicationRole> {
+        public AddCollectionEvent(ApplicationRole source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
      * {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#COLLECTION collection}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
      * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
      */
+    @ActionInteraction(AddCollectionEvent.class)
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(name = "Permissions", sequence = "5")
     @CssClassFa("fa fa-plus-square")
@@ -384,6 +451,13 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > removePermission (action)
+    public static class RemovePermissionEvent extends ActionInteractionEvent<ApplicationRole> {
+        public RemovePermissionEvent(ApplicationRole source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(RemovePermissionEvent.class)
     @MemberOrder(name = "Permissions", sequence = "9")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @CssClassFa("fa fa-minus-square")
@@ -452,6 +526,20 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > addUser (action), removeUser (action)
+
+    public static class AddUserEvent extends ActionInteractionEvent<ApplicationRole> {
+        public AddUserEvent(ApplicationRole source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    public static class RemoveUserEvent extends ActionInteractionEvent<ApplicationRole> {
+        public RemoveUserEvent(ApplicationRole source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(AddUserEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @Named("Add")
     @MemberOrder(name="Users", sequence = "1")
@@ -469,6 +557,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
         return list;
     }
 
+    @ActionInteraction(RemoveUserEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @Named("Remove")
     @MemberOrder(name="Users", sequence = "2")
@@ -491,6 +580,13 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > delete (action)
+    public static class DeleteEvent extends ActionInteractionEvent<ApplicationRole> {
+        public DeleteEvent(ApplicationRole source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(DeleteEvent.class)
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(sequence = "1")
     @CssClassFa("fa fa-trash")

@@ -23,10 +23,30 @@ import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
-import org.isisaddons.module.security.dom.feature.*;
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
+import org.isisaddons.module.security.dom.feature.ApplicationMemberType;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.annotation.*;
+import org.apache.isis.applib.Identifier;
+import org.apache.isis.applib.annotation.ActionInteraction;
+import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.BookmarkPolicy;
+import org.apache.isis.applib.annotation.Bookmarkable;
+import org.apache.isis.applib.annotation.CssClass;
+import org.apache.isis.applib.annotation.CssClassFa;
+import org.apache.isis.applib.annotation.Disabled;
+import org.apache.isis.applib.annotation.Hidden;
+import org.apache.isis.applib.annotation.MemberGroupLayout;
+import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.Named;
+import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.TypicalLength;
+import org.apache.isis.applib.annotation.Where;
+import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.util.ObjectContracts;
 
 /**
@@ -152,6 +172,12 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     //region > role (property), updateRole (action)
 
+    public static class UpdateRoleEvent extends ActionInteractionEvent<ApplicationPermission> {
+        public UpdateRoleEvent(ApplicationPermission source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
     private ApplicationRole role;
 
     @javax.jdo.annotations.Column(name = "roleId", allowsNull="false")
@@ -166,6 +192,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
         this.role = role;
     }
 
+    @ActionInteraction(UpdateRoleEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name="Role", sequence = "1")
     public ApplicationPermission updateRole(final ApplicationRole applicationRole) {
@@ -181,6 +208,18 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     //region > rule (property), allow (action), veto (action)
 
+    public static class AllowEvent extends ActionInteractionEvent<ApplicationPermission> {
+        public AllowEvent(ApplicationPermission source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    public static class VetoEvent extends ActionInteractionEvent<ApplicationPermission> {
+        public VetoEvent(ApplicationPermission source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
     private ApplicationPermissionRule rule;
 
     @javax.jdo.annotations.Column(allowsNull="false")
@@ -194,6 +233,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
         this.rule = rule;
     }
 
+    @ActionInteraction(AllowEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name = "Rule", sequence = "1")
     public ApplicationPermission allow() {
@@ -204,6 +244,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
         return getRule() == ApplicationPermissionRule.ALLOW? "Rule is already set to ALLOW": null;
     }
 
+    @ActionInteraction(VetoEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name = "Rule", sequence = "1")
     public ApplicationPermission veto() {
@@ -216,7 +257,19 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     //endregion
 
-    //region > mode (property), visible (action), usable (action)
+    //region > mode (property), viewing(action), changing (action)
+
+    public static class ViewingEvent extends ActionInteractionEvent<ApplicationPermission> {
+        public ViewingEvent(ApplicationPermission source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    public static class ChangingEvent extends ActionInteractionEvent<ApplicationPermission> {
+        public ChangingEvent(ApplicationPermission source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
 
     private ApplicationPermissionMode mode;
 
@@ -231,6 +284,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
         this.mode = mode;
     }
 
+    @ActionInteraction(ViewingEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name = "Mode", sequence = "1")
     public ApplicationPermission viewing() {
@@ -241,6 +295,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
         return getMode() == ApplicationPermissionMode.VIEWING ? "Mode is already set to VIEWING": null;
     }
 
+    @ActionInteraction(ChangingEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name = "Mode", sequence = "2")
     public ApplicationPermission changing() {
@@ -342,8 +397,14 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     //endregion
 
-
     //region > delete (action)
+    public static class DeleteEvent extends ActionInteractionEvent<ApplicationPermission> {
+        public DeleteEvent(ApplicationPermission source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(DeleteEvent.class)
     @MemberOrder(sequence = "1")
     @CssClassFa("fa fa-trash")
     @CssClass("btn btn-danger")

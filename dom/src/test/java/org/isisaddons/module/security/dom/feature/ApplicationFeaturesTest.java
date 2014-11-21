@@ -69,6 +69,8 @@ public class ApplicationFeaturesTest {
         applicationFeatures = new ApplicationFeatures();
         applicationFeatures.container = mockContainer;
         applicationFeatures.setServicesInjector(mockServicesInjector);
+        applicationFeatures.applicationFeatureFactory = new ApplicationFeatureFactory.Default(mockContainer);
+
 
         mockActThatIsHidden = context.mock(ObjectAction.class, "mockActThatIsHidden");
     }

@@ -19,17 +19,32 @@ package org.isisaddons.module.security.app.user;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.AbstractFactoryAndRepository;
+import org.apache.isis.applib.Identifier;
+import org.apache.isis.applib.annotation.ActionInteraction;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
 import org.apache.isis.applib.annotation.DescribedAs;
 import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 
 public class MeService extends AbstractFactoryAndRepository {
+
+    //region > iconName
 
     public String iconName() {
         return "applicationUser";
     }
+    //endregion
 
+    //region > me (action)
+
+    public static class MeEvent extends ActionInteractionEvent<MeService> {
+        public MeEvent(MeService source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(MeEvent.class)
     @MemberOrder(name = "Users", sequence = "1")
     @DescribedAs("Looks up ApplicationUser entity corresponding to your user account")
     @ActionSemantics(Of.SAFE)
@@ -37,6 +52,8 @@ public class MeService extends AbstractFactoryAndRepository {
         final String myName = getContainer().getUser().getName();
         return applicationUsers.findOrCreateUserByUsername(myName);
     }
+
+    //endregion
 
     //region  > services (injected)
     @javax.inject.Inject

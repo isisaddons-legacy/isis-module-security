@@ -52,7 +52,9 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
         return container.newViewModelInstance(cls, featureId.asEncodedString());
     }
 
-    private static Class<? extends ApplicationFeatureViewModel> viewModelClassFor(ApplicationFeatureId featureId, ApplicationFeatures applicationFeatures) {
+    private static Class<? extends ApplicationFeatureViewModel> viewModelClassFor(
+            final ApplicationFeatureId featureId,
+            final ApplicationFeatures applicationFeatures) {
         switch (featureId.getType()) {
             case PACKAGE:
                 return ApplicationPackage.class;

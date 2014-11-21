@@ -17,19 +17,55 @@
 package org.isisaddons.module.security.dom.tenancy;
 
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import org.apache.isis.applib.AbstractFactoryAndRepository;
-import org.apache.isis.applib.annotation.*;
+import org.apache.isis.applib.Identifier;
+import org.apache.isis.applib.annotation.ActionInteraction;
+import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
+import org.apache.isis.applib.annotation.DomainService;
+import org.apache.isis.applib.annotation.MaxLength;
+import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.Named;
+import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.TypicalLength;
 import org.apache.isis.applib.query.QueryDefault;
+import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 
 @Named("User Tenancies")
 @DomainService(menuOrder = "90.5", repositoryFor = ApplicationTenancy.class)
 public class ApplicationTenancies extends AbstractFactoryAndRepository {
 
+    //region > iconName
+
     public String iconName() {
         return "applicationTenancy";
     }
 
+    //endregion
+
+    //region > init
+
+    @Programmatic
+    @PostConstruct
+    public void init() {
+        if(applicationTenancyFactory == null) {
+            applicationTenancyFactory = new ApplicationTenancyFactory.Default(getContainer());
+        }
+    }
+
+    //endregion
+
+    //region > findTenancyByName
+
+    public static class FindTenancyByNameEvent extends ActionInteractionEvent<ApplicationTenancies> {
+        public FindTenancyByNameEvent(ApplicationTenancies source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(FindTenancyByNameEvent.class)
     @MemberOrder(sequence = "90.1")
     @ActionSemantics(Of.SAFE)
     public ApplicationTenancy findTenancyByName(
@@ -37,23 +73,56 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
         return uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByName", "name", name));
     }
 
+    //endregion
+
+    //region > newTenancy
+
+    public static class NewTenancyEvent extends ActionInteractionEvent<ApplicationTenancies> {
+        public NewTenancyEvent(ApplicationTenancies source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(NewTenancyEvent.class)
     @MemberOrder(sequence = "90.2")
     @ActionSemantics(Of.IDEMPOTENT)
     public ApplicationTenancy newTenancy(
             final @Named("Name") @TypicalLength(ApplicationTenancy.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME) String name) {
         ApplicationTenancy tenancy = findTenancyByName(name);
         if (tenancy == null){
-            tenancy = newTransientInstance(ApplicationTenancy.class);
+            tenancy = applicationTenancyFactory.newApplicationTenancy();
             tenancy.setName(name);
             persist(tenancy);
         }
         return tenancy;
     }
 
+    //endregion
+
+    //region > allTenancies
+
+    public static class AllTenanciesEvent extends ActionInteractionEvent<ApplicationTenancies> {
+        public AllTenanciesEvent(ApplicationTenancies source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(AllTenanciesEvent.class)
     @MemberOrder(sequence = "90.3")
     @ActionSemantics(Of.SAFE)
     public List<ApplicationTenancy> allTenancies() {
         return allInstances(ApplicationTenancy.class);
     }
+
+    //endregion
+
+    //region > injected
+    /**
+     * Will only be injected to if the programmer has supplied an implementation.  Otherwise
+     * this class will install a default implementation in {@link #postConstruct()}.
+     */
+    @Inject
+    ApplicationTenancyFactory applicationTenancyFactory;
+    //endregion
 
 }

@@ -22,16 +22,37 @@ import com.google.common.collect.Lists;
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.annotation.*;
+import org.apache.isis.applib.Identifier;
+import org.apache.isis.applib.annotation.ActionInteraction;
+import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.DomainService;
+import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.Named;
+import org.apache.isis.applib.annotation.Paged;
+import org.apache.isis.applib.annotation.Prototype;
+import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 
 @Named("Features")
 @DomainService(menuOrder = "90.4")
 public class ApplicationFeatureViewModels  {
 
+    //region > iconName
+
     public String iconName() {
         return "applicationFeature";
     }
 
+    //endregion
+
+    //region > allPackages
+
+    public static class AllPackagesEvent extends ActionInteractionEvent<ApplicationFeatureViewModels> {
+        public AllPackagesEvent(ApplicationFeatureViewModels source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(AllPackagesEvent.class)
     @Paged(100)
     @MemberOrder(sequence = "10")
     @ActionSemantics(ActionSemantics.Of.SAFE)
@@ -39,7 +60,17 @@ public class ApplicationFeatureViewModels  {
     public List<ApplicationPackage> allPackages() {
         return asViewModels(applicationFeatures.allPackages(), ApplicationPackage.class);
     }
+    //endregion
 
+    //region > allClasses
+
+    public static class AllClassesEvent extends ActionInteractionEvent<ApplicationFeatureViewModels> {
+        public AllClassesEvent(ApplicationFeatureViewModels source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(AllClassesEvent.class)
     @Paged(100)
     @MemberOrder(sequence = "20")
     @ActionSemantics(ActionSemantics.Of.SAFE)
@@ -47,7 +78,17 @@ public class ApplicationFeatureViewModels  {
     public List<ApplicationClass> allClasses() {
         return asViewModels(applicationFeatures.allClasses(), ApplicationClass.class);
     }
+    //endregion
 
+    //region > allActions
+
+    public static class AllActionsEvent extends ActionInteractionEvent<ApplicationFeatureViewModels> {
+        public AllActionsEvent(ApplicationFeatureViewModels source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(AllActionsEvent.class)
     @Paged(100)
     @MemberOrder(sequence = "40")
     @ActionSemantics(ActionSemantics.Of.SAFE)
@@ -55,14 +96,34 @@ public class ApplicationFeatureViewModels  {
     public List<ApplicationClassAction> allActions() {
         return asViewModels(applicationFeatures.allActions(), ApplicationClassAction.class);
     }
+    //endregion
 
+    //region > allProperties
+
+    public static class AllPropertiesEvent extends ActionInteractionEvent<ApplicationFeatureViewModels> {
+        public AllPropertiesEvent(ApplicationFeatureViewModels source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(AllPropertiesEvent.class)
     @MemberOrder(sequence = "50")
     @ActionSemantics(ActionSemantics.Of.SAFE)
     @Prototype
     public List<ApplicationClassProperty> allProperties() {
         return asViewModels(applicationFeatures.allProperties(), ApplicationClassProperty.class);
     }
+    //endregion
 
+    //region > allCollections
+
+    public static class AllCollectionsEvent extends ActionInteractionEvent<ApplicationFeatureViewModels> {
+        public AllCollectionsEvent(ApplicationFeatureViewModels source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(AllCollectionsEvent.class)
     @Paged(100)
     @MemberOrder(sequence = "60")
     @ActionSemantics(ActionSemantics.Of.SAFE)
@@ -70,6 +131,9 @@ public class ApplicationFeatureViewModels  {
     public List<ApplicationClassCollection> allCollections() {
         return asViewModels(applicationFeatures.allCollections(), ApplicationClassCollection.class);
     }
+    //endregion
+
+    //region > helpers
 
 
     private <T extends ApplicationFeatureViewModel> List<T> asViewModels(Iterable<ApplicationFeature> features, Class<T> cls) {
@@ -79,6 +143,8 @@ public class ApplicationFeatureViewModels  {
                         ApplicationFeatureViewModel.Functions.<T>asViewModel(applicationFeatures, container)
                 ));
     }
+
+    //endregion
 
     //region > injected services
     @javax.inject.Inject

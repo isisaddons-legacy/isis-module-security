@@ -38,9 +38,11 @@ import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminUser;
 import org.apache.isis.applib.DomainObjectContainer;
+import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.*;
 import org.apache.isis.applib.security.RoleMemento;
 import org.apache.isis.applib.security.UserMemento;
+import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.util.ObjectContracts;
 import org.apache.isis.applib.value.Password;
 
@@ -129,6 +131,13 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //endregion
 
     //region > username (property)
+
+    public static class UpdateUsernameEvent extends ActionInteractionEvent<ApplicationUser> {
+        public UpdateUsernameEvent(ApplicationUser source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
     private String username;
 
     @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_USERNAME)
@@ -143,6 +152,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         this.username = username;
     }
 
+    @ActionInteraction(UpdateUsernameEvent.class)
     @MemberOrder(name="username", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updateUsername(
@@ -206,6 +216,13 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     //region > updateName (action)
 
+    public static class UpdateNameEvent extends ActionInteractionEvent<ApplicationUser> {
+        public UpdateNameEvent(ApplicationUser source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(UpdateNameEvent.class)
     @MemberOrder(name="knownAs", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updateName(
@@ -247,6 +264,13 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //endregion
 
     //region > emailAddress (property)
+
+    public static class UpdateEmailAddressEvent extends ActionInteractionEvent<ApplicationUser> {
+        public UpdateEmailAddressEvent(ApplicationUser source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
     private String emailAddress;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_EMAIL_ADDRESS)
@@ -260,6 +284,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         this.emailAddress = emailAddress;
     }
 
+    @ActionInteraction(UpdateEmailAddressEvent.class)
     @MemberOrder(name="emailAddress", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updateEmailAddress(
@@ -278,6 +303,13 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //endregion
 
     //region > phoneNumber (property)
+
+    public static class UpdatePhoneNumberEvent extends ActionInteractionEvent<ApplicationUser> {
+        public UpdatePhoneNumberEvent(ApplicationUser source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
     private String phoneNumber;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_PHONE_NUMBER)
@@ -291,6 +323,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         this.phoneNumber = phoneNumber;
     }
 
+    @ActionInteraction(UpdatePhoneNumberEvent.class)
     @MemberOrder(name="phoneNumber", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updatePhoneNumber(
@@ -309,6 +342,14 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //endregion
 
     //region > faxNumber (property)
+
+    public static class UpdateFaxNumberEvent extends ActionInteractionEvent<ApplicationUser> {
+        public UpdateFaxNumberEvent(ApplicationUser source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+
     private String faxNumber;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_PHONE_NUMBER)
@@ -323,6 +364,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         this.faxNumber = faxNumber;
     }
 
+    @ActionInteraction(UpdateFaxNumberEvent.class)
     @MemberOrder(name="faxNumber", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updateFaxNumber(
@@ -342,6 +384,13 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //endregion
 
     //region > tenancy (property)
+
+    public static class UpdateTenancyEvent extends ActionInteractionEvent<ApplicationUser> {
+        public UpdateTenancyEvent(ApplicationUser source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
     private ApplicationTenancy tenancy;
 
     @javax.jdo.annotations.Column(name = "tenancyId", allowsNull="true")
@@ -355,6 +404,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         this.tenancy = tenancy;
     }
 
+    @ActionInteraction(UpdateTenancyEvent.class)
     @MemberOrder(name="tenancy", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updateTenancy(final @Optional ApplicationTenancy tenancy) {
@@ -369,6 +419,12 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     //region > accountType (property), updateAccountType
 
+    public static class UpdateAccountTypeEvent extends ActionInteractionEvent<ApplicationUser> {
+        public UpdateAccountTypeEvent(ApplicationUser source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
     private AccountType accountType;
 
     @javax.jdo.annotations.Column(allowsNull="false")
@@ -382,6 +438,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         this.accountType = accountType;
     }
 
+    @ActionInteraction(UpdateAccountTypeEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name = "Account Type", sequence = "1")
     public ApplicationUser updateAccountType(
@@ -410,6 +467,18 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     //region > status (property), visible (action), usable (action)
 
+    public static class UnlockEvent extends ActionInteractionEvent<ApplicationUser> {
+        public UnlockEvent(ApplicationUser source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    public static class LockEvent extends ActionInteractionEvent<ApplicationUser> {
+        public LockEvent(ApplicationUser source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
     private ApplicationUserStatus status;
 
     @javax.jdo.annotations.Column(allowsNull="false")
@@ -423,6 +492,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         this.status = status;
     }
 
+    @ActionInteraction(UnlockEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name = "Status", sequence = "1")
     @Named("Enable") // symmetry with lock (disable)
@@ -434,6 +504,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         return getStatus() == ApplicationUserStatus.ENABLED ? "Status is already set to ENABLE": null;
     }
 
+    @ActionInteraction(LockEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name = "Status", sequence = "2")
     @Named("Disable") // method cannot be called 'disable' as that would clash with Isis' naming conventions
@@ -486,6 +557,13 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     //region > updatePassword (action)
 
+    public static class UpdatePasswordEvent extends ActionInteractionEvent<ApplicationUser> {
+        public UpdatePasswordEvent(ApplicationUser source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(UpdatePasswordEvent.class)
     @MemberOrder(name="hasPassword", sequence = "10")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updatePassword(
@@ -553,6 +631,13 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     //region > resetPassword (action)
 
+    public static class ResetPasswordEvent extends ActionInteractionEvent<ApplicationUser> {
+        public ResetPasswordEvent(ApplicationUser source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(ResetPasswordEvent.class)
     @MemberOrder(name="hasPassword", sequence = "20")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser resetPassword(
@@ -623,6 +708,14 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //endregion
 
     //region > addRole (action)
+
+    public static class AddRoleEvent extends ActionInteractionEvent<ApplicationUser> {
+        public AddRoleEvent(ApplicationUser source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(AddRoleEvent.class)
     @MemberOrder(name="roles", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @Named("Add")
@@ -645,6 +738,14 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //endregion
 
     //region > removeRole (action)
+
+    public static class RemoveRoleEvent extends ActionInteractionEvent<ApplicationUser> {
+        public RemoveRoleEvent(ApplicationUser source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(RemoveRoleEvent.class)
     @MemberOrder(name="roles", sequence = "2")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @Named("Remove")
@@ -673,6 +774,14 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //endregion
 
     //region > delete (action)
+
+    public static class DeleteEvent extends ActionInteractionEvent<ApplicationUser> {
+        public DeleteEvent(ApplicationUser source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(DeleteEvent.class)
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(sequence = "1")
     @CssClassFa("fa fa-trash")

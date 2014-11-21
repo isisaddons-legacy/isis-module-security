@@ -28,7 +28,9 @@ import com.google.common.collect.Lists;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.DomainObjectContainer;
+import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.*;
+import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.util.ObjectContracts;
 
 @javax.jdo.annotations.PersistenceCapable(
@@ -66,6 +68,13 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     public static final int TYPICAL_LENGTH_NAME = 20;
 
     //region > name (property, title)
+
+    public static class UpdateNameEvent extends ActionInteractionEvent<ApplicationTenancy> {
+        public UpdateNameEvent(ApplicationTenancy source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
     private String name;
 
     @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_NAME)
@@ -81,6 +90,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
         this.name = name;
     }
 
+    @ActionInteraction(UpdateNameEvent.class)
     @MemberOrder(name="name", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationTenancy updateName(
@@ -120,6 +130,20 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     //endregion
 
     //region > addUser (action), removeUser (action)
+
+    public static class AddUserEvent extends ActionInteractionEvent<ApplicationTenancy> {
+        public AddUserEvent(ApplicationTenancy source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    public static class RemoveUserEvent extends ActionInteractionEvent<ApplicationTenancy> {
+        public RemoveUserEvent(ApplicationTenancy source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(AddUserEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @Named("Add")
     @MemberOrder(name="Users", sequence = "1")
@@ -137,6 +161,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
         return list;
     }
 
+    @ActionInteraction(RemoveUserEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @Named("Remove")
     @MemberOrder(name="Users", sequence = "2")
@@ -156,6 +181,13 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     //endregion
 
     //region > delete (action)
+    public static class DeleteEvent extends ActionInteractionEvent<ApplicationTenancy> {
+        public DeleteEvent(ApplicationTenancy source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(DeleteEvent.class)
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(sequence = "1")
     @CssClassFa("fa fa-trash")

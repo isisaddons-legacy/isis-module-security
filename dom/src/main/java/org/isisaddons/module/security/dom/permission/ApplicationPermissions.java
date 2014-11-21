@@ -19,12 +19,18 @@ package org.isisaddons.module.security.dom.permission;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-
 import com.google.common.collect.Maps;
-
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.apache.isis.applib.DomainObjectContainer;
+import org.apache.isis.applib.Identifier;
+import org.apache.isis.applib.annotation.ActionInteraction;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MemberOrder;
@@ -33,23 +39,32 @@ import org.apache.isis.applib.annotation.Optional;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.Prototype;
 import org.apache.isis.applib.query.QueryDefault;
+import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
-
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
-import org.isisaddons.module.security.dom.role.ApplicationRole;
-import org.isisaddons.module.security.dom.user.ApplicationUser;
 
 @Named("Permissions")
 @DomainService(menuOrder = "90.3", repositoryFor = ApplicationPermission.class)
 public class ApplicationPermissions {
 
+    //region > iconName
+
     public String iconName() {
         return "applicationPermission";
     }
 
+    //endregion
+
+    //region > init
+
+    @Programmatic
+    @PostConstruct
+    public void init() {
+        if(applicationPermissionFactory == null) {
+            applicationPermissionFactory = new ApplicationPermissionFactory.Default(container);
+        }
+    }
+
+    //endregion
 
     //region > findByRole (programmatic)
     @Programmatic
@@ -75,7 +90,6 @@ public class ApplicationPermissions {
                         "username", username));
     }
     //endregion
-
 
     //region > findByUserAndPermissionValue (programmatic)
     /**
@@ -168,7 +182,7 @@ public class ApplicationPermissions {
         if (permission != null) {
             return permission;
         }
-        permission = container.newTransientInstance(ApplicationPermission.class);
+        permission = applicationPermissionFactory.newApplicationPermission();
         permission.setRole(role);
         permission.setRule(rule);
         permission.setMode(mode);
@@ -209,6 +223,13 @@ public class ApplicationPermissions {
     //endregion
 
     //region > allPermission (action)
+    public static class AllPermissionsEvent extends ActionInteractionEvent<ApplicationPermissions> {
+        public AllPermissionsEvent(ApplicationPermissions source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(AllPermissionsEvent.class)
     @Prototype
     @ActionSemantics(ActionSemantics.Of.SAFE)
     @MemberOrder(sequence = "60.9")
@@ -224,5 +245,12 @@ public class ApplicationPermissions {
     ApplicationFeatures applicationFeatures;
     @Inject
     QueryResultsCache queryResultsCache;
+
+    /**
+     * Will only be injected to if the programmer has supplied an implementation.  Otherwise
+     * this class will install a default implementation in {@link #postConstruct()}.
+     */
+    @Inject
+    ApplicationPermissionFactory applicationPermissionFactory;
     //endregion
 }
