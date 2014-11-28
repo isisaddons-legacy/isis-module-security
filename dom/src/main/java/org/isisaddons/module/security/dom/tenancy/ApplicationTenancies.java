@@ -33,7 +33,7 @@ import org.apache.isis.applib.annotation.TypicalLength;
 import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 
-@Named("User Tenancies")
+@Named("Security")
 @DomainService(menuOrder = "90.5", repositoryFor = ApplicationTenancy.class)
 public class ApplicationTenancies extends AbstractFactoryAndRepository {
 

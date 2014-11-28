@@ -32,7 +32,7 @@ import org.apache.isis.applib.annotation.Paged;
 import org.apache.isis.applib.annotation.Prototype;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 
-@Named("Features")
+@Named("Security")
 @DomainService(menuOrder = "90.4")
 public class ApplicationFeatureViewModels  {
 

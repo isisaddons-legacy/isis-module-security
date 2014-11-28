@@ -35,7 +35,7 @@ import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 
-@Named("Roles")
+@Named("Security")
 @DomainService(menuOrder = "90.2", repositoryFor = ApplicationRole.class)
 public class ApplicationRoles extends AbstractFactoryAndRepository {
 

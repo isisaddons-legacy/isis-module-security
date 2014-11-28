@@ -45,7 +45,7 @@ public class MeService extends AbstractFactoryAndRepository {
     }
 
     @ActionInteraction(MeEvent.class)
-    @MemberOrder(name = "Users", sequence = "1")
+    @MemberOrder(name = "Security", sequence = "1")
     @DescribedAs("Looks up ApplicationUser entity corresponding to your user account")
     @ActionSemantics(Of.SAFE)
     public ApplicationUser me() {

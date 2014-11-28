@@ -42,7 +42,7 @@ import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 
-@Named("Permissions")
+@Named("Security")
 @DomainService(menuOrder = "90.3", repositoryFor = ApplicationPermission.class)
 public class ApplicationPermissions {
 
