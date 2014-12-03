@@ -239,7 +239,6 @@ Update the `WEB-INF/isis.properties`:
 
     isis.services = ...,\
             org.isisaddons.module.security.dom.password.PasswordEncryptionServiceUsingJBcrypt,\
-            org.isisaddons.module.security.app.user.MeService,\
             org.isisaddons.module.security.dom.permission.PermissionsEvaluationServiceAllowBeatsVeto,\
             ...
 </pre>
@@ -250,11 +249,7 @@ where:
   mandatory (local users, including the default `isis-module-security=admin` administrator user) must be authenticated 
   using the password service.  If required, any other implementation can be supplied.
 
-* The `MeService` provides the ability for an end-user to lookup their own user account, if granted the 
-  `isis-module-security-regular-user` role.  This service is optional, no other functionality in the module depends
-  on this service.
-
-* The `PermissionsEvaluationServiceAllowBeatsVeto` is an implementation of the `PermissionsEvaluationService` that 
+* The `PermissionsEvaluationServiceAllowBeatsVeto` is an implementation of the `PermissionsEvaluationService` that
   determines how to resolve conflicting permissions at the same scope.  This service is optional; if not present
   then the module will default to an allow-beats-veto strategy.  An alternative implementation of
   `PermissionsEvaluationServiceVetoBeatsAllow` is also available for use if required; or any other implementation
@@ -421,6 +416,7 @@ The module currently does not support:
   
 ## Change Log ##
 
+* `1.8.0` (snapshot) - released against Isis 1.8.0, support to make easier to extend (pluggable factories and events for all actions). MeService on TERTIARY menuBar.
 * `1.7.0` - released against Isis 1.7.0
 * `1.6.2` - made more resilient so can be called by an application's own 'security seed' service
 * `1.6.1` - support for account types and delegated authentication realm
