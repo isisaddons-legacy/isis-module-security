@@ -21,9 +21,9 @@ import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionInteraction;
+import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
-import org.apache.isis.applib.annotation.DescribedAs;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
@@ -48,7 +48,7 @@ public class MeService extends AbstractFactoryAndRepository {
 
     @ActionInteraction(MeEvent.class)
     @MemberOrder(name = "Security", sequence = "100")
-    @DescribedAs("Looks up ApplicationUser entity corresponding to your user account")
+    @ActionLayout(describedAs = "Looks up ApplicationUser entity corresponding to your user account")
     @ActionSemantics(Of.SAFE)
     public ApplicationUser me() {
         final String myName = getContainer().getUser().getName();

@@ -35,10 +35,9 @@ public class UserPermissionViewModelContributions  {
     //region > Permissions (derived collection)
 
     @MemberOrder(sequence = "30")
-    @Render(Render.Type.EAGERLY)
-    @Paged(50)
     @NotInServiceMenu
-    @NotContributed(NotContributed.As.ACTION) // ie contributed as property
+    @NotContributed(NotContributed.As.ACTION) // ie contributed as collection
+    @CollectionLayout(paged=50, render = CollectionLayout.RenderType.EAGERLY) // when contributed
     @ActionSemantics(ActionSemantics.Of.SAFE)
     public List<UserPermissionViewModel> permissions(ApplicationUser user) {
         final Collection<ApplicationFeature> allMembers = applicationFeatures.allMembers();
@@ -54,8 +53,8 @@ public class UserPermissionViewModelContributions  {
     @ActionSemantics(ActionSemantics.Of.SAFE)
     public List<UserPermissionViewModel> filterPermissions(
             final ApplicationUser user,
-            final @Named("Package") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_PKG_FQN) String packageFqn,
-            final @Optional @Named("Class") @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_CLS_NAME) String className) {
+            final @ParameterLayout(named="Package", typicalLength=ApplicationFeature.TYPICAL_LENGTH_PKG_FQN) String packageFqn,
+            final @Optional @ParameterLayout(named="Class",  typicalLength=ApplicationFeature.TYPICAL_LENGTH_CLS_NAME) String className) {
         final Collection<ApplicationFeature> allMembers = applicationFeatures.allMembers();
         final Iterable<ApplicationFeature> filtered = Iterables.filter(allMembers, within(packageFqn, className));
         return asViewModels(user, filtered);

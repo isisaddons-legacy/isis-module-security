@@ -24,16 +24,18 @@ import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionInteraction;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
+import org.apache.isis.applib.annotation.ClassLayout;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MaxLength;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Named;
+import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.TypicalLength;
 import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 
-@Named("Security")
+@ClassLayout(named="Security")
 @DomainService(menuOrder = "90.5", repositoryFor = ApplicationTenancy.class)
 public class ApplicationTenancies extends AbstractFactoryAndRepository {
 
@@ -69,7 +71,7 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     @MemberOrder(sequence = "90.1")
     @ActionSemantics(Of.SAFE)
     public ApplicationTenancy findTenancyByName(
-            final @Named("Name") @TypicalLength(ApplicationTenancy.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME) String name) {
+            final @ParameterLayout(named="Name", typicalLength=ApplicationTenancy.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME) String name) {
         return uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByName", "name", name));
     }
 
@@ -87,7 +89,7 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     @MemberOrder(sequence = "90.2")
     @ActionSemantics(Of.IDEMPOTENT)
     public ApplicationTenancy newTenancy(
-            final @Named("Name") @TypicalLength(ApplicationTenancy.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME) String name) {
+            final @ParameterLayout(named="Name", typicalLength=ApplicationTenancy.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME) String name) {
         ApplicationTenancy tenancy = findTenancyByName(name);
         if (tenancy == null){
             tenancy = applicationTenancyFactory.newApplicationTenancy();

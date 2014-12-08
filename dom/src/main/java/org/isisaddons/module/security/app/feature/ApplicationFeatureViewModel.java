@@ -21,12 +21,20 @@ import java.util.SortedSet;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.isisaddons.module.security.dom.feature.*;
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.ViewModel;
-import org.apache.isis.applib.annotation.*;
+import org.apache.isis.applib.annotation.CollectionLayout;
+import org.apache.isis.applib.annotation.MemberGroupLayout;
+import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.PropertyLayout;
+import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.util.ObjectContracts;
 
 /**
@@ -148,7 +156,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     //endregion
 
     //region > type, packageName, className, memberName (properties)
-    @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_PKG_FQN)
+    @PropertyLayout(typicalLength=ApplicationFeature.TYPICAL_LENGTH_PKG_FQN)
     @MemberOrder(name="Id", sequence = "2.2")
     public String getPackageName() {
         return getFeatureId().getPackageName();
@@ -158,7 +166,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
      * For packages, will be null. Is in this class (rather than subclasses) so is shown in
      * {@link ApplicationPackage#getContents() package contents}.
      */
-    @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_CLS_NAME)
+    @PropertyLayout(typicalLength=ApplicationFeature.TYPICAL_LENGTH_CLS_NAME)
     @MemberOrder(name="Id", sequence = "2.3")
     public String getClassName() {
         return getFeatureId().getClassName();
@@ -170,7 +178,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     /**
      * For packages and class names, will be null.
      */
-    @TypicalLength(ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME)
+    @PropertyLayout(typicalLength=ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME)
     @MemberOrder(name="Id", sequence = "2.4")
     public String getMemberName() {
         return getFeatureId().getMemberName();
@@ -185,7 +193,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     //region > parent (property)
 
-    @Hidden(where=Where.ALL_TABLES)
+    @PropertyLayout(hidden=Where.ALL_TABLES)
     @MemberOrder(name = "Parent", sequence = "2.6")
     public ApplicationFeatureViewModel getParent() {
         final ApplicationFeatureId parentId;
@@ -222,7 +230,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     //region > permissions (collection)
     @MemberOrder(sequence = "10")
-    @Render(Render.Type.EAGERLY)
+    @CollectionLayout(render= CollectionLayout.RenderType.EAGERLY)
     public List<ApplicationPermission> getPermissions() {
         return applicationPermissions.findByFeature(getFeatureId());
     }

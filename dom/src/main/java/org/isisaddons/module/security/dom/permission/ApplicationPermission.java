@@ -32,19 +32,17 @@ import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionInteraction;
+import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.BookmarkPolicy;
 import org.apache.isis.applib.annotation.Bookmarkable;
-import org.apache.isis.applib.annotation.CssClass;
-import org.apache.isis.applib.annotation.CssClassFa;
 import org.apache.isis.applib.annotation.Disabled;
-import org.apache.isis.applib.annotation.Hidden;
 import org.apache.isis.applib.annotation.MemberGroupLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.Named;
 import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
-import org.apache.isis.applib.annotation.TypicalLength;
+import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.util.ObjectContracts;
@@ -182,7 +180,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     @javax.jdo.annotations.Column(name = "roleId", allowsNull="false")
     @Disabled
-    @Hidden(where = Where.REFERENCES_PARENT)
+    @PropertyLayout(hidden=Where.REFERENCES_PARENT)
     @MemberOrder(name="Role", sequence = "1")
     public ApplicationRole getRole() {
         return role;
@@ -331,7 +329,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
      */
     @Disabled
     @MemberOrder(name="Feature", sequence = "5")
-    @TypicalLength(ApplicationPermission.TYPICAL_LENGTH_TYPE)
+    @PropertyLayout(typicalLength=ApplicationPermission.TYPICAL_LENGTH_TYPE)
     public String getType() {
         Enum<?> e = getFeatureType() != ApplicationFeatureType.MEMBER ? getFeatureType() : getMemberType();
         return e != null ? e.name(): null;
@@ -406,10 +404,12 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     @ActionInteraction(DeleteEvent.class)
     @MemberOrder(sequence = "1")
-    @CssClassFa("fa fa-trash")
-    @CssClass("btn btn-danger")
+    @ActionLayout(
+        cssClassFa = "fa fa-trash",
+        cssClass = "btn btn-danger"
+    )
     public ApplicationRole delete(
-            final @Named("Are you sure?") @Optional Boolean areYouSure) {
+            final @ParameterLayout(named="Are you sure?") @Optional Boolean areYouSure) {
         final ApplicationRole owningRole = getRole();
         container.removeIfNotAlready(this);
         return owningRole;

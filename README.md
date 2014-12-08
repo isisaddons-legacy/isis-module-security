@@ -246,7 +246,7 @@ Update the `WEB-INF/isis.properties`:
 where:
 
 * the `PasswordEncryptionServiceUsingJBcrypt` is an implementation of the `PasswordEncryptionService`.  This is 
-  mandatory (local users, including the default `isis-module-security=admin` administrator user) must be authenticated 
+  mandatory; local users (including the default `isis-module-security-admin` administrator user) must be authenticated
   using the password service.  If required, any other implementation can be supplied.
 
 * The `PermissionsEvaluationServiceAllowBeatsVeto` is an implementation of the `PermissionsEvaluationService` that

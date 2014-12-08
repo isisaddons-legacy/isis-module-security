@@ -53,7 +53,7 @@ public class SecurityModuleAppFixturesService extends FixtureScripts {
 
 
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
-    @Prototype
+    @ActionLayout(prototype = true)
     @MemberOrder(sequence="20")
     public Object installFixturesAndReturnFirstRole() {
         final List<FixtureResult> fixtureResultList = findFixtureScriptFor(SecurityModuleAppSetUp.class).run(null);

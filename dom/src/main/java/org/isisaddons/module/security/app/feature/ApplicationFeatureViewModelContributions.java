@@ -16,32 +16,29 @@
  */
 package org.isisaddons.module.security.app.feature;
 
-import org.isisaddons.module.security.app.user.MeService;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.DomainService;
-import org.apache.isis.applib.annotation.Hidden;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.NotContributed;
 import org.apache.isis.applib.annotation.NotInServiceMenu;
+import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.Where;
-import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 
 @DomainService
 public class ApplicationFeatureViewModelContributions {
 
     //region > feature
 
-    @Hidden(where=Where.REFERENCES_PARENT)
-    @MemberOrder(name="Feature", sequence = "4")
+    @ActionSemantics(ActionSemantics.Of.SAFE)
     @NotInServiceMenu
     @NotContributed(NotContributed.As.ACTION) // ie contributed as property
-    @ActionSemantics(ActionSemantics.Of.SAFE)
+    @PropertyLayout(hidden=Where.REFERENCES_PARENT) // when contributed
+    @MemberOrder(name="Feature", sequence = "4")
     public ApplicationFeatureViewModel feature(ApplicationPermission permission) {
         if(permission.getFeatureType() == null) {
             return null;

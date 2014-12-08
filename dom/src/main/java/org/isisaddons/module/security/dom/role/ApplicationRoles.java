@@ -24,18 +24,19 @@ import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionInteraction;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
+import org.apache.isis.applib.annotation.ClassLayout;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MaxLength;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.Named;
 import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.TypicalLength;
 import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 
-@Named("Security")
+@ClassLayout(named="Security")
 @DomainService(menuOrder = "90.2", repositoryFor = ApplicationRole.class)
 public class ApplicationRoles extends AbstractFactoryAndRepository {
 
@@ -71,7 +72,7 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
     @MemberOrder(sequence = "20.1")
     @ActionSemantics(Of.SAFE)
     public ApplicationRole findRoleByName(
-            final @Named("Name") @TypicalLength(ApplicationRole.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationRole.MAX_LENGTH_NAME) String name) {
+            final @ParameterLayout(named="Name", typicalLength=ApplicationRole.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationRole.MAX_LENGTH_NAME) String name) {
         return uniqueMatch(new QueryDefault<>(ApplicationRole.class, "findByName", "name", name));
     }
 
@@ -89,8 +90,8 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
     @MemberOrder(sequence = "20.2")
     @ActionSemantics(Of.IDEMPOTENT)
     public ApplicationRole newRole(
-            final @Named("Name") @TypicalLength(ApplicationRole.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationRole.MAX_LENGTH_NAME) String name,
-            final @Named("Description") @Optional @TypicalLength(ApplicationRole.TYPICAL_LENGTH_DESCRIPTION) @MaxLength(JdoColumnLength.DESCRIPTION) String description) {
+            final @ParameterLayout(named="Name", typicalLength=ApplicationRole.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationRole.MAX_LENGTH_NAME) String name,
+            final @ParameterLayout(named="Description", typicalLength=ApplicationRole.TYPICAL_LENGTH_DESCRIPTION) @Optional @MaxLength(JdoColumnLength.DESCRIPTION) String description) {
         ApplicationRole role = findRoleByName(name);
         if (role == null){
             role = applicationRoleFactory.newApplicationRole();

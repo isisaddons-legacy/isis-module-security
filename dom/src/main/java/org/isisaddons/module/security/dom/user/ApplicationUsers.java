@@ -31,19 +31,20 @@ import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionInteraction;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
+import org.apache.isis.applib.annotation.ClassLayout;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MaxLength;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.Named;
 import org.apache.isis.applib.annotation.NotContributed;
 import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 import org.apache.isis.applib.value.Password;
 
-@Named("Security")
+@ClassLayout(named="Security")
 @DomainService(menuOrder = "90.1", repositoryFor = ApplicationUser.class)
 public class ApplicationUsers extends AbstractFactoryAndRepository {
 
@@ -85,7 +86,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     @MemberOrder(sequence = "10.2")
     @ActionSemantics(Of.IDEMPOTENT)
     public ApplicationUser findOrCreateUserByUsername(
-            final @Named("Username") @MaxLength(ApplicationUser.MAX_LENGTH_USERNAME) String username) {
+            final @ParameterLayout(named="Username") @MaxLength(ApplicationUser.MAX_LENGTH_USERNAME) String username) {
         return queryResultsCache.execute(new Callable<ApplicationUser>() {
             @Override
             public ApplicationUser call() throws Exception {
@@ -104,7 +105,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
      */
     @Programmatic
     public ApplicationUser findUserByUsername(
-            final @Named("Username") String username) {
+            final @ParameterLayout(named="Username") String username) {
         return uniqueMatch(new QueryDefault<>(
                 ApplicationUser.class,
                 "findByUsername", "username", username));
@@ -123,7 +124,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     @MemberOrder(sequence = "10.3")
     @ActionSemantics(Of.SAFE)
     public List<ApplicationUser> findUsersByName(
-            final @Named("Name") String name) {
+            final @ParameterLayout(named="Name") String name) {
         final String nameRegex = "(?i).*" + name + ".*";
         return allMatches(new QueryDefault<>(
                 ApplicationUser.class,
@@ -144,9 +145,9 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     @ActionSemantics(Of.NON_IDEMPOTENT)
     @NotContributed
     public ApplicationUser newDelegateUser(
-            final @Named("Name") @MaxLength(ApplicationUser.MAX_LENGTH_USERNAME) String username,
-            final @Named("Initial role") @Optional ApplicationRole initialRole,
-            final @Named("Enabled?") @Optional Boolean enabled) {
+            final @ParameterLayout(named="Name") @MaxLength(ApplicationUser.MAX_LENGTH_USERNAME) String username,
+            final @ParameterLayout(named="Initial role") @Optional ApplicationRole initialRole,
+            final @ParameterLayout(named="Enabled?") @Optional Boolean enabled) {
         ApplicationUser user = applicationUserFactory.newApplicationUser();
         user.setUsername(username);
         user.setStatus(ApplicationUserStatus.parse(enabled));
@@ -184,11 +185,11 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     @ActionSemantics(Of.IDEMPOTENT)
     @NotContributed
     public ApplicationUser newLocalUser(
-            final @Named("Name") @MaxLength(ApplicationUser.MAX_LENGTH_USERNAME) String username,
-            final @Named("Password") @Optional Password password,
-            final @Named("Repeat password") @Optional Password passwordRepeat,
-            final @Named("Initial role") @Optional ApplicationRole initialRole,
-            final @Named("Enabled?") @Optional Boolean enabled) {
+            final @ParameterLayout(named="Name") @MaxLength(ApplicationUser.MAX_LENGTH_USERNAME) String username,
+            final @ParameterLayout(named="Password") @Optional Password password,
+            final @ParameterLayout(named="Repeat password") @Optional Password passwordRepeat,
+            final @ParameterLayout(named="Initial role") @Optional ApplicationRole initialRole,
+            final @ParameterLayout(named="Enabled?") @Optional Boolean enabled) {
         ApplicationUser user = findUserByUsername(username);
         if (user == null){
             user = applicationUserFactory.newApplicationUser();

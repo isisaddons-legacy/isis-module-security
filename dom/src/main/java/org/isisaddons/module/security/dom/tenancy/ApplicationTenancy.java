@@ -29,7 +29,20 @@ import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
-import org.apache.isis.applib.annotation.*;
+import org.apache.isis.applib.annotation.ActionInteraction;
+import org.apache.isis.applib.annotation.ActionLayout;
+import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.Bookmarkable;
+import org.apache.isis.applib.annotation.Bounded;
+import org.apache.isis.applib.annotation.CollectionLayout;
+import org.apache.isis.applib.annotation.Disabled;
+import org.apache.isis.applib.annotation.MaxLength;
+import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.ObjectType;
+import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.ParameterLayout;
+import org.apache.isis.applib.annotation.PropertyLayout;
+import org.apache.isis.applib.annotation.Title;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.util.ObjectContracts;
 
@@ -78,7 +91,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     private String name;
 
     @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_NAME)
-    @TypicalLength(TYPICAL_LENGTH_NAME)
+    @PropertyLayout(typicalLength=TYPICAL_LENGTH_NAME)
     @Title
     @Disabled
     @MemberOrder(sequence = "1")
@@ -94,7 +107,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     @MemberOrder(name="name", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationTenancy updateName(
-            final @Named("Name") @TypicalLength(TYPICAL_LENGTH_NAME) @MaxLength(MAX_LENGTH_NAME) String name) {
+            final @ParameterLayout(named="Name", typicalLength=TYPICAL_LENGTH_NAME) @MaxLength(MAX_LENGTH_NAME) String name) {
         setName(name);
         return this;
     }
@@ -109,7 +122,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     private SortedSet<ApplicationUser> users = new TreeSet<>();
 
     @MemberOrder(sequence = "10")
-    @Render(Render.Type.EAGERLY)
+    @CollectionLayout(render= CollectionLayout.RenderType.EAGERLY)
     @Disabled
     public SortedSet<ApplicationUser> getUsers() {
         return users;
@@ -145,9 +158,8 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     @ActionInteraction(AddUserEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
-    @Named("Add")
     @MemberOrder(name="Users", sequence = "1")
-    @CssClassFa("fa fa-plus-square")
+    @ActionLayout(named="Add",cssClassFa = "fa fa-plus-square")
     public ApplicationTenancy addUser(final ApplicationUser applicationUser) {
         applicationUser.setTenancy(this);
         // no need to add to users set, since will be done by JDO/DN.
@@ -163,9 +175,8 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     @ActionInteraction(RemoveUserEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
-    @Named("Remove")
     @MemberOrder(name="Users", sequence = "2")
-    @CssClassFa("fa fa-minus-square")
+    @ActionLayout(named="Remove",cssClassFa = "fa fa-minus-square")
     public ApplicationTenancy removeUser(final ApplicationUser applicationUser) {
         applicationUser.setTenancy(null);
         // no need to add to users set, since will be done by JDO/DN.
@@ -190,10 +201,12 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     @ActionInteraction(DeleteEvent.class)
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(sequence = "1")
-    @CssClassFa("fa fa-trash")
-    @CssClass("btn btn-danger")
+    @ActionLayout(
+        cssClassFa = "fa fa-trash",
+        cssClass = "btn btn-danger"
+    )
     public List<ApplicationTenancy> delete(
-            final @Named("Are you sure?") @Optional Boolean areYouSure) {
+            final @ParameterLayout(named="Are you sure?") @Optional Boolean areYouSure) {
         for (ApplicationUser user : getUsers()) {
             user.updateTenancy(null);
         }

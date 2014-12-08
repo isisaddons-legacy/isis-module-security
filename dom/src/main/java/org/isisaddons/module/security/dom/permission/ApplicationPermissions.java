@@ -31,10 +31,11 @@ import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionInteraction;
+import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.ClassLayout;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.Named;
 import org.apache.isis.applib.annotation.Optional;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.Prototype;
@@ -42,7 +43,7 @@ import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 
-@Named("Security")
+@ClassLayout(named="Security")
 @DomainService(menuOrder = "90.3", repositoryFor = ApplicationPermission.class)
 public class ApplicationPermissions {
 
@@ -230,7 +231,7 @@ public class ApplicationPermissions {
     }
 
     @ActionInteraction(AllPermissionsEvent.class)
-    @Prototype
+    @ActionLayout(prototype = true)
     @ActionSemantics(ActionSemantics.Of.SAFE)
     @MemberOrder(sequence = "60.9")
     public List<ApplicationPermission> allPermissions() {

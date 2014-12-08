@@ -24,15 +24,14 @@ import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionInteraction;
+import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.ClassLayout;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.Named;
-import org.apache.isis.applib.annotation.Paged;
-import org.apache.isis.applib.annotation.Prototype;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 
-@Named("Security")
+@ClassLayout(named="Security")
 @DomainService(menuOrder = "90.4")
 public class ApplicationFeatureViewModels  {
 
@@ -53,10 +52,9 @@ public class ApplicationFeatureViewModels  {
     }
 
     @ActionInteraction(AllPackagesEvent.class)
-    @Paged(100)
+    @ActionLayout(prototype = true)
     @MemberOrder(sequence = "10")
     @ActionSemantics(ActionSemantics.Of.SAFE)
-    @Prototype
     public List<ApplicationPackage> allPackages() {
         return asViewModels(applicationFeatures.allPackages(), ApplicationPackage.class);
     }
@@ -71,10 +69,9 @@ public class ApplicationFeatureViewModels  {
     }
 
     @ActionInteraction(AllClassesEvent.class)
-    @Paged(100)
     @MemberOrder(sequence = "20")
     @ActionSemantics(ActionSemantics.Of.SAFE)
-    @Prototype
+    @ActionLayout(prototype = true)
     public List<ApplicationClass> allClasses() {
         return asViewModels(applicationFeatures.allClasses(), ApplicationClass.class);
     }
@@ -89,10 +86,9 @@ public class ApplicationFeatureViewModels  {
     }
 
     @ActionInteraction(AllActionsEvent.class)
-    @Paged(100)
     @MemberOrder(sequence = "40")
     @ActionSemantics(ActionSemantics.Of.SAFE)
-    @Prototype
+    @ActionLayout(prototype = true)
     public List<ApplicationClassAction> allActions() {
         return asViewModels(applicationFeatures.allActions(), ApplicationClassAction.class);
     }
@@ -107,9 +103,9 @@ public class ApplicationFeatureViewModels  {
     }
 
     @ActionInteraction(AllPropertiesEvent.class)
-    @MemberOrder(sequence = "50")
     @ActionSemantics(ActionSemantics.Of.SAFE)
-    @Prototype
+    @ActionLayout(prototype = true)
+    @MemberOrder(sequence = "50")
     public List<ApplicationClassProperty> allProperties() {
         return asViewModels(applicationFeatures.allProperties(), ApplicationClassProperty.class);
     }
@@ -124,10 +120,9 @@ public class ApplicationFeatureViewModels  {
     }
 
     @ActionInteraction(AllCollectionsEvent.class)
-    @Paged(100)
-    @MemberOrder(sequence = "60")
     @ActionSemantics(ActionSemantics.Of.SAFE)
-    @Prototype
+    @ActionLayout(prototype = true)
+    @MemberOrder(sequence = "60")
     public List<ApplicationClassCollection> allCollections() {
         return asViewModels(applicationFeatures.allCollections(), ApplicationClassCollection.class);
     }

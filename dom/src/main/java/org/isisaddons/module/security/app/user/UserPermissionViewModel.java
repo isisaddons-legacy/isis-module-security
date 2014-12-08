@@ -174,7 +174,7 @@ public class UserPermissionViewModel implements ViewModel {
 
     //region > user (derived property, hidden in parented tables)
 
-    @Hidden(where = Where.PARENTED_TABLES)
+    @PropertyLayout(hidden=Where.PARENTED_TABLES)
     @MemberOrder(name = "Permission", sequence = "1")
     public ApplicationUser getUser() {
         return applicationUsers.findOrCreateUserByUsername(getUsername());
@@ -192,7 +192,7 @@ public class UserPermissionViewModel implements ViewModel {
     private boolean viewingGranted;
     private boolean changingGranted;
 
-    @TypicalLength(UserPermissionViewModel.TYPICAL_LENGTH_VERB)
+    @PropertyLayout(typicalLength=UserPermissionViewModel.TYPICAL_LENGTH_VERB)
     @MemberOrder(name="Permission", sequence = "2")
     public String getVerb() {
         return changingGranted
@@ -207,7 +207,7 @@ public class UserPermissionViewModel implements ViewModel {
 
     @javax.jdo.annotations.NotPersistent
     @Disabled
-    @Hidden(where=Where.REFERENCES_PARENT)
+    @PropertyLayout(hidden=Where.REFERENCES_PARENT)
     @MemberOrder(name = "Permission",sequence = "4")
     public ApplicationFeatureViewModel getFeature() {
         if(getFeatureId() == null) {
@@ -236,7 +236,7 @@ public class UserPermissionViewModel implements ViewModel {
 
     @javax.jdo.annotations.NotPersistent
     @Disabled
-    @Hidden(where=Where.REFERENCES_PARENT)
+    @PropertyLayout(hidden=Where.REFERENCES_PARENT)
     @MemberOrder(name="Cause", sequence = "2.1")
     public ApplicationPermission getViewingPermission() {
         if(getViewingPermissionValue() == null) {
@@ -263,7 +263,7 @@ public class UserPermissionViewModel implements ViewModel {
 
     @javax.jdo.annotations.NotPersistent
     @Disabled
-    @Hidden(where=Where.REFERENCES_PARENT)
+    @PropertyLayout(hidden=Where.REFERENCES_PARENT)
     @MemberOrder(name="Cause", sequence = "2.2")
     public ApplicationPermission getChangingPermission() {
         if(getChangingPermissionValue() == null) {

@@ -17,8 +17,10 @@
 package org.isisaddons.module.security.app.feature;
 
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.apache.isis.applib.annotation.ClassLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 
+@ClassLayout(paged=100)
 public class ApplicationClassCollection extends ApplicationClassMember {
 
     //region > constructors

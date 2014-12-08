@@ -39,7 +39,22 @@ import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAn
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminUser;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
-import org.apache.isis.applib.annotation.*;
+import org.apache.isis.applib.annotation.ActionInteraction;
+import org.apache.isis.applib.annotation.ActionLayout;
+import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.AutoComplete;
+import org.apache.isis.applib.annotation.Bookmarkable;
+import org.apache.isis.applib.annotation.CollectionLayout;
+import org.apache.isis.applib.annotation.Disabled;
+import org.apache.isis.applib.annotation.MaxLength;
+import org.apache.isis.applib.annotation.MemberGroupLayout;
+import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.ObjectType;
+import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.ParameterLayout;
+import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.PropertyLayout;
+import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.security.RoleMemento;
 import org.apache.isis.applib.security.UserMemento;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
@@ -109,7 +124,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     //region > name (derived property)
     @javax.jdo.annotations.NotPersistent
-    @Hidden(where=Where.OBJECT_FORMS)
+    @PropertyLayout(hidden=Where.OBJECT_FORMS)
     @Disabled
     @MemberOrder(name="Id", sequence = "1")
     public String getName() {
@@ -141,7 +156,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     private String username;
 
     @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_USERNAME)
-    @Hidden(where=Where.PARENTED_TABLES)
+    @PropertyLayout(hidden=Where.PARENTED_TABLES)
     @Disabled
     @MemberOrder(name="Id", sequence = "1")
     public String getUsername() {
@@ -156,7 +171,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @MemberOrder(name="username", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updateUsername(
-            final @Named("Username") @MaxLength(MAX_LENGTH_USERNAME) String username) {
+            final @ParameterLayout(named="Username") @MaxLength(MAX_LENGTH_USERNAME) String username) {
         setUsername(username);
         return this;
     }
@@ -170,7 +185,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     private String familyName;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_FAMILY_NAME)
-    @Hidden(where=Where.ALL_TABLES)
+    @PropertyLayout(hidden=Where.ALL_TABLES)
     @Disabled
     @MemberOrder(name="Name",sequence = "2.1")
     public String getFamilyName() {
@@ -186,7 +201,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     private String givenName;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_GIVEN_NAME)
-    @Hidden(where=Where.ALL_TABLES)
+    @PropertyLayout(hidden=Where.ALL_TABLES)
     @Disabled
     @MemberOrder(name="Name", sequence = "2.2")
     public String getGivenName() {
@@ -202,7 +217,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     private String knownAs;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_KNOWN_AS)
-    @Hidden(where=Where.ALL_TABLES)
+    @PropertyLayout(hidden=Where.ALL_TABLES)
     @Disabled
     @MemberOrder(name="Name",sequence = "2.3")
     public String getKnownAs() {
@@ -226,9 +241,9 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @MemberOrder(name="knownAs", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updateName(
-            final @Named("Family Name") @Optional @MaxLength(MAX_LENGTH_FAMILY_NAME) String familyName,
-            final @Named("Given Name") @Optional @MaxLength(MAX_LENGTH_GIVEN_NAME) String givenName,
-            final @Named("Known As") @Optional @MaxLength(MAX_LENGTH_KNOWN_AS) String knownAs
+            final @ParameterLayout(named="Family Name") @Optional @MaxLength(MAX_LENGTH_FAMILY_NAME) String familyName,
+            final @ParameterLayout(named="Given Name") @Optional @MaxLength(MAX_LENGTH_GIVEN_NAME) String givenName,
+            final @ParameterLayout(named="Known As") @Optional @MaxLength(MAX_LENGTH_KNOWN_AS) String knownAs
     ) {
         setFamilyName(familyName);
         setGivenName(givenName);
@@ -288,7 +303,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @MemberOrder(name="emailAddress", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updateEmailAddress(
-            final @Named("Email") @MaxLength(MAX_LENGTH_EMAIL_ADDRESS) String emailAddress) {
+            final @ParameterLayout(named="Email") @MaxLength(MAX_LENGTH_EMAIL_ADDRESS) String emailAddress) {
         setEmailAddress(emailAddress);
         return this;
     }
@@ -327,7 +342,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @MemberOrder(name="phoneNumber", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updatePhoneNumber(
-            final @Named("Phone") @Optional @MaxLength(MAX_LENGTH_PHONE_NUMBER) String phoneNumber) {
+            final @ParameterLayout(named="Phone") @Optional @MaxLength(MAX_LENGTH_PHONE_NUMBER) String phoneNumber) {
         setPhoneNumber(phoneNumber);
         return this;
     }
@@ -353,7 +368,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     private String faxNumber;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_PHONE_NUMBER)
-    @Hidden(where=Where.PARENTED_TABLES)
+    @PropertyLayout(hidden=Where.PARENTED_TABLES)
     @Disabled
     @MemberOrder(name="Contact Details", sequence = "3.3")
     public String getFaxNumber() {
@@ -368,7 +383,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @MemberOrder(name="faxNumber", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updateFaxNumber(
-            final @Named("Fax") @Optional @MaxLength(MAX_LENGTH_PHONE_NUMBER) String faxNumber) {
+            final @ParameterLayout(named="Fax") @Optional @MaxLength(MAX_LENGTH_PHONE_NUMBER) String faxNumber) {
         setFaxNumber(faxNumber);
         return this;
     }
@@ -495,7 +510,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @ActionInteraction(UnlockEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name = "Status", sequence = "1")
-    @Named("Enable") // symmetry with lock (disable)
+    @ActionLayout(named="Enable") // symmetry with lock (disable)
     public ApplicationUser unlock() {
         setStatus(ApplicationUserStatus.ENABLED);
         return this;
@@ -507,7 +522,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @ActionInteraction(LockEvent.class)
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     @MemberOrder(name = "Status", sequence = "2")
-    @Named("Disable") // method cannot be called 'disable' as that would clash with Isis' naming conventions
+    @ActionLayout(named="Disable") // method cannot be called 'disable' as that would clash with Isis' naming conventions
     public ApplicationUser lock() {
         setStatus(ApplicationUserStatus.DISABLED);
         return this;
@@ -525,7 +540,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     private String encryptedPassword;
 
     @javax.jdo.annotations.Column(allowsNull="true")
-    @Hidden
+    @PropertyLayout(hidden=Where.EVERYWHERE)
     public String getEncryptedPassword() {
         return encryptedPassword;
     }
@@ -567,9 +582,9 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @MemberOrder(name="hasPassword", sequence = "10")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser updatePassword(
-            final @Named("Existing password") Password existingPassword,
-            final @Named("New password") Password newPassword,
-            final @Named("Re-enter password") Password newPasswordRepeat) {
+            final @ParameterLayout(named="Existing password") Password existingPassword,
+            final @ParameterLayout(named="New password") Password newPassword,
+            final @ParameterLayout(named="Re-enter password") Password newPasswordRepeat) {
         updatePassword(newPassword.getPassword());
         return this;
     }
@@ -641,8 +656,8 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @MemberOrder(name="hasPassword", sequence = "20")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationUser resetPassword(
-            final @Named("New password") Password newPassword,
-            final @Named("Repeat password") Password newPasswordRepeat) {
+            final @ParameterLayout(named="New password") Password newPassword,
+            final @ParameterLayout(named="Repeat password") Password newPasswordRepeat) {
         updatePassword(newPassword.getPassword());
         return this;
     }
@@ -685,7 +700,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     private SortedSet<ApplicationRole> roles = new TreeSet<>();
 
     @MemberOrder(sequence = "20")
-    @Render(Render.Type.EAGERLY)
+    @CollectionLayout(render= CollectionLayout.RenderType.EAGERLY)
     @Disabled
     public SortedSet<ApplicationRole> getRoles() {
         return roles;
@@ -718,8 +733,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @ActionInteraction(AddRoleEvent.class)
     @MemberOrder(name="roles", sequence = "1")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
-    @Named("Add")
-    @CssClassFa("fa fa-plus-square")
+    @ActionLayout(named="Add",cssClassFa = "fa fa-plus-square")
     public ApplicationUser addRole(final ApplicationRole role) {
         addToRoles(role);
         return this;
@@ -746,10 +760,9 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
 
     @ActionInteraction(RemoveRoleEvent.class)
-    @MemberOrder(name="roles", sequence = "2")
     @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
-    @Named("Remove")
-    @CssClassFa("fa fa-minus-square")
+    @ActionLayout(named="Remove",cssClassFa = "fa fa-minus-square")
+    @MemberOrder(name="roles", sequence = "2")
     public ApplicationUser removeRole(final ApplicationRole role) {
         removeFromRoles(role);
         return this;
@@ -784,10 +797,12 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     @ActionInteraction(DeleteEvent.class)
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
     @MemberOrder(sequence = "1")
-    @CssClassFa("fa fa-trash")
-    @CssClass("btn btn-danger")
+    @ActionLayout(
+        cssClassFa = "fa fa-trash",
+        cssClass = "btn btn-danger"
+    )
     public List<ApplicationUser> delete(
-            final @Named("Are you sure?") @Optional Boolean areYouSure) {
+            final @ParameterLayout(named="Are you sure?") @Optional Boolean areYouSure) {
         container.removeIfNotAlready(this);
         container.flush();
         return applicationUsers.allUsers();
