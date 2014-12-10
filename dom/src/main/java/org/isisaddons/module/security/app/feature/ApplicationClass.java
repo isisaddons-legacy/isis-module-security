@@ -21,11 +21,11 @@ import java.util.SortedSet;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.apache.isis.applib.annotation.BookmarkPolicy;
 import org.apache.isis.applib.annotation.Bookmarkable;
-import org.apache.isis.applib.annotation.ClassLayout;
+import org.apache.isis.applib.annotation.DomainObjectLayout;
 import org.apache.isis.applib.annotation.CollectionLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 
-@ClassLayout(paged=100)
+@DomainObjectLayout(paged=100)
 @Bookmarkable(BookmarkPolicy.AS_ROOT)
 public class ApplicationClass extends ApplicationFeatureViewModel {
 

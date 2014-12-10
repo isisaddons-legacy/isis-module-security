@@ -17,11 +17,11 @@
 package org.isisaddons.module.security.app.feature;
 
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.apache.isis.applib.annotation.ClassLayout;
+import org.apache.isis.applib.annotation.DomainObjectLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Optional;
 
-@ClassLayout(paged=100)
+@DomainObjectLayout(paged=100)
 public class ApplicationClassProperty extends ApplicationClassMember {
 
     //region > constructors

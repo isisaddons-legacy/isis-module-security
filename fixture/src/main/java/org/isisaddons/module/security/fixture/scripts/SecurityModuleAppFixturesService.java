@@ -26,8 +26,8 @@ import org.apache.isis.applib.fixturescripts.FixtureScripts;
 /**
  * Enables fixtures to be installed from the application.
  */
-@DomainService(menuOrder = "99")
-@Named("Prototyping")
+@DomainService()
+@DomainServiceLayout(named="Prototyping", menuOrder = "99")
 public class SecurityModuleAppFixturesService extends FixtureScripts {
 
     public SecurityModuleAppFixturesService() {

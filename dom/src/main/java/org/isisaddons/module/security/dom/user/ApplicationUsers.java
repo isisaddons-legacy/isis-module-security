@@ -31,8 +31,8 @@ import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionInteraction;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
-import org.apache.isis.applib.annotation.ClassLayout;
 import org.apache.isis.applib.annotation.DomainService;
+import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MaxLength;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.NotContributed;
@@ -44,8 +44,8 @@ import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 import org.apache.isis.applib.value.Password;
 
-@ClassLayout(named="Security")
-@DomainService(menuOrder = "90.1", repositoryFor = ApplicationUser.class)
+@DomainServiceLayout(named="Security", menuOrder = "90.1")
+@DomainService(repositoryFor = ApplicationUser.class)
 public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     //region > identification

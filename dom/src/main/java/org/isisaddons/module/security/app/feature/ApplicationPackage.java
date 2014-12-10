@@ -20,11 +20,11 @@ import java.util.List;
 import java.util.SortedSet;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
-import org.apache.isis.applib.annotation.ClassLayout;
+import org.apache.isis.applib.annotation.DomainObjectLayout;
 import org.apache.isis.applib.annotation.CollectionLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 
-@ClassLayout(paged=100)
+@DomainObjectLayout(paged=100)
 public class ApplicationPackage extends ApplicationFeatureViewModel {
 
     //region > constructors

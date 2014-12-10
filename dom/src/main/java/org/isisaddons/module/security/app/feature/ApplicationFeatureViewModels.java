@@ -26,13 +26,13 @@ import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionInteraction;
 import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.ActionSemantics;
-import org.apache.isis.applib.annotation.ClassLayout;
 import org.apache.isis.applib.annotation.DomainService;
+import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 
-@ClassLayout(named="Security")
-@DomainService(menuOrder = "90.4")
+@DomainService()
+@DomainServiceLayout(named="Security", menuOrder = "90.4")
 public class ApplicationFeatureViewModels  {
 
     //region > iconName

@@ -24,20 +24,19 @@ import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionInteraction;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.ActionSemantics.Of;
-import org.apache.isis.applib.annotation.ClassLayout;
 import org.apache.isis.applib.annotation.DomainService;
+import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MaxLength;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Optional;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
-import org.apache.isis.applib.annotation.TypicalLength;
 import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 
-@ClassLayout(named="Security")
-@DomainService(menuOrder = "90.2", repositoryFor = ApplicationRole.class)
+@DomainServiceLayout(named="Security", menuOrder = "90.2")
+@DomainService(repositoryFor = ApplicationRole.class)
 public class ApplicationRoles extends AbstractFactoryAndRepository {
 
     //region > iconName

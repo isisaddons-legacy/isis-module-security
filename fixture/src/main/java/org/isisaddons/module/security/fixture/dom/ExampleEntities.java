@@ -55,7 +55,7 @@ public class ExampleEntities {
     
     @MemberOrder(sequence = "2")
     public ExampleEntity create(
-            final @Named("Name") @MaxLength(ExampleEntity.MAX_LENGTH_NAME) String name) {
+            final @ParameterLayout(named="Name") @MaxLength(ExampleEntity.MAX_LENGTH_NAME) String name) {
         final ExampleEntity obj = container.newTransientInstance(ExampleEntity.class);
         obj.setName(name);
         container.persistIfNotAlready(obj);
