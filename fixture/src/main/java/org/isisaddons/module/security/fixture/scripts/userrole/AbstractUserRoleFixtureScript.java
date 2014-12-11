@@ -53,7 +53,7 @@ public abstract class AbstractUserRoleFixtureScript extends FixtureScript {
         if(applicationRole != null) {
             user.addRole(applicationRole);
         }
-        executionContext.add(this, roleName, applicationRole);
+        executionContext.addResult(this, roleName, applicationRole);
         return user;
     }
 

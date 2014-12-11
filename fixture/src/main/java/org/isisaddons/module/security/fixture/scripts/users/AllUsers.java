@@ -20,13 +20,13 @@ public class AllUsers extends AbstractUserFixtureScript {
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        executeChild(new BobUser(), executionContext);
-        executeChild(new DickUser(), executionContext);
-        executeChild(new GuestUser(), executionContext);
-        executeChild(new JoeUser(), executionContext);
-        executeChild(new SvenUser(), executionContext);
+        executionContext.executeChild(this, new BobUser());
+        executionContext.executeChild(this, new DickUser());
+        executionContext.executeChild(this, new GuestUser());
+        executionContext.executeChild(this, new JoeUser());
+        executionContext.executeChild(this, new SvenUser());
 
-        executeChild(new ConflictedUser(), executionContext);
+        executionContext.executeChild(this, new ConflictedUser());
     }
 
 }

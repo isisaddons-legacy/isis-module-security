@@ -26,7 +26,7 @@ public abstract class AbstractExampleEntityFixtureScript extends FixtureScript {
             final String name,
             final ExecutionContext executionContext) {
         final ExampleEntity entity = exampleEntities.create(name);
-        executionContext.add(this, name, entity);
+        executionContext.addResult(this, name, entity);
         return entity;
     }
 

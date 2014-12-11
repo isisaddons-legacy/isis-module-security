@@ -34,15 +34,15 @@ public class SeedUsersAndRolesFixtureScript extends FixtureScript {
     protected void execute(ExecutionContext executionContext) {
 
         // security module
-        executeChild(new IsisModuleSecurityAdminRoleAndPermissions(), executionContext);
+        executionContext.executeChild(this, new IsisModuleSecurityAdminRoleAndPermissions());
 
-        executeChild(new IsisModuleSecurityFixtureRoleAndPermissions(), executionContext);
-        executeChild(new IsisModuleSecurityRegularUserRoleAndPermissions(), executionContext);
+        executionContext.executeChild(this, new IsisModuleSecurityFixtureRoleAndPermissions());
+        executionContext.executeChild(this, new IsisModuleSecurityRegularUserRoleAndPermissions());
 
-        executeChild(new IsisModuleSecurityAdminUser(), executionContext);
+        executionContext.executeChild(this, new IsisModuleSecurityAdminUser());
 
         // isis applib
-        executeChild(new IsisApplibFixtureResultsRoleAndPermissions(), executionContext);
+        executionContext.executeChild(this, new IsisApplibFixtureResultsRoleAndPermissions());
     }
 
     //region > injected

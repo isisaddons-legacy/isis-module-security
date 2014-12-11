@@ -22,8 +22,8 @@ public class AllExampleRolesAndPermissions extends FixtureScript {
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        executeChild(new ExampleGuestRoleAndPremissions(), executionContext);
-        executeChild(new ExampleRegularRoleAndPermissions(), executionContext);
+        executionContext.executeChild(this, new ExampleGuestRoleAndPremissions());
+        executionContext.executeChild(this, new ExampleRegularRoleAndPermissions());
     }
 
 }

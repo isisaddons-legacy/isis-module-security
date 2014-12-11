@@ -30,40 +30,40 @@ public class SecurityModuleAppSetUp extends DiscoverableFixtureScript {
     @Override
     protected void execute(ExecutionContext executionContext) {
 
-        executeChild(new SecurityModuleAppTearDown(), executionContext);
-        executeChild(new SeedUsersAndRolesFixtureScript(), executionContext);
+        executionContext.executeChild(this, new SecurityModuleAppTearDown());
+        executionContext.executeChild(this, new SeedUsersAndRolesFixtureScript());
 
-        executeChild(new AllExampleEntities(), executionContext);
+        executionContext.executeChild(this, new AllExampleEntities());
 
         // roles and perms
-        executeChild(new ExampleGuestRoleAndPremissions(), executionContext);
-        executeChild(new ExampleNoGuestRoleAndPremissions(), executionContext);
-        executeChild(new ExampleRegularRoleAndPermissions(), executionContext);
-        executeChild(new ExampleFixtureScriptsRoleAndPermissions(), executionContext);
-        executeChild(new ExampleHideEntityDescriptionRoleAndPermissions(), executionContext);
+        executionContext.executeChild(this, new ExampleGuestRoleAndPremissions());
+        executionContext.executeChild(this, new ExampleNoGuestRoleAndPremissions());
+        executionContext.executeChild(this, new ExampleRegularRoleAndPermissions());
+        executionContext.executeChild(this, new ExampleFixtureScriptsRoleAndPermissions());
+        executionContext.executeChild(this, new ExampleHideEntityDescriptionRoleAndPermissions());
 
-        executeChild(new AllExampleRolesAndPermissions(), executionContext);
+        executionContext.executeChild(this, new AllExampleRolesAndPermissions());
 
         // users, tenancies
-        executeChild(new AllUsers(), executionContext);
-        executeChild(new AllTenancies(), executionContext);
+        executionContext.executeChild(this, new AllUsers());
+        executionContext.executeChild(this, new AllTenancies());
 
         // user/role
-        executeChild(new BobUser_Has_IsisSecurityAdminRole(), executionContext);
-        executeChild(new BobUser_Has_ExampleHideEntityDescriptionRole(), executionContext);
+        executionContext.executeChild(this, new BobUser_Has_IsisSecurityAdminRole());
+        executionContext.executeChild(this, new BobUser_Has_ExampleHideEntityDescriptionRole());
 
-        executeChild(new DickUser_Has_ExampleRegularRole(), executionContext);
-        executeChild(new DickUser_Has_IsisSecurityModuleRegularRole(), executionContext);
+        executionContext.executeChild(this, new DickUser_Has_ExampleRegularRole());
+        executionContext.executeChild(this, new DickUser_Has_IsisSecurityModuleRegularRole());
 
-        executeChild(new GuestUser_Has_ExampleGuestRole(), executionContext);
-        executeChild(new GuestUser_Has_IsisSecurityModuleRegularRole(), executionContext);
+        executionContext.executeChild(this, new GuestUser_Has_ExampleGuestRole());
+        executionContext.executeChild(this, new GuestUser_Has_IsisSecurityModuleRegularRole());
 
-        executeChild(new JoeUser_Has_ExampleGuestRole(), executionContext);
-        executeChild(new JoeUser_Has_IsisSecurityModuleRegularRole(), executionContext);
+        executionContext.executeChild(this, new JoeUser_Has_ExampleGuestRole());
+        executionContext.executeChild(this, new JoeUser_Has_IsisSecurityModuleRegularRole());
 
-        executeChild(new SvenUser_Has_IsisSecurityAdminRole(), executionContext);
+        executionContext.executeChild(this, new SvenUser_Has_IsisSecurityAdminRole());
 
-        executeChild(new ConflictedUser_Has_ExampleConflictingRoles(), executionContext);
+        executionContext.executeChild(this, new ConflictedUser_Has_ExampleConflictingRoles());
     }
 
     // //////////////////////////////////////

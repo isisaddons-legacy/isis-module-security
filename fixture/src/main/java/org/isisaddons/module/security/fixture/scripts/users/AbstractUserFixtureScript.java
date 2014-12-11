@@ -16,23 +16,85 @@
  */
 package org.isisaddons.module.security.fixture.scripts.users;
 
+import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.user.AccountType;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
-
+import org.isisaddons.module.security.fixture.scripts.Util;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
+import org.apache.isis.applib.value.Password;
 
 public abstract class AbstractUserFixtureScript extends FixtureScript {
 
+    private ApplicationRole initialRole;
+
+    /**
+     * The initial role for the user to have, if any.
+     *
+     * <p>
+     *     Defaults to <code>null</code>, meaning none.
+     * </p>
+     */
+    public ApplicationRole getInitialRole() {
+        return initialRole;
+    }
+    public void setInitialRole(ApplicationRole initialRole) {
+        this.initialRole = initialRole;
+    }
+
+    private Boolean enabled;
+
+    /**
+     * Whether the user should be enabled or not.
+     *
+     * <p>
+     *     Defaults to <code>null</code>, which is interpreted as disabled.
+     * </p>
+     */
+    public Boolean getEnabled() {
+        return enabled;
+    }
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+
+    private String password;
+
+    /**
+     * The password to set up for a {@link org.isisaddons.module.security.dom.user.AccountType#LOCAL local} user only.
+     * Is ignored if setting up a delegate user.
+     *
+     * <p>
+     *     Defaults to '12345678a'
+     * </p>
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     protected ApplicationUser create(
             final String name,
-            AccountType accountType, final ExecutionContext executionContext) {
-        final ApplicationUser entity = applicationUsers.newDelegateUser(name, null, null);
-        executionContext.add(this, name, entity);
-        return entity;
+            final AccountType accountType,
+            final ExecutionContext executionContext) {
+
+        final ApplicationUser applicationUser;
+        if(accountType == AccountType.DELEGATED) {
+            applicationUser = applicationUsers.newDelegateUser(name, null, null);
+        } else {
+            final String passwordStr = Util.coalesce(executionContext.getParameter("password"), getPassword(), "12345678a");
+            final Password password = new Password(passwordStr);
+            applicationUser = applicationUsers.newLocalUser(name, password, password, null, null);
+
+        }
+        executionContext.addResult(this, name, applicationUser);
+        return applicationUser;
     }
 
     @javax.inject.Inject
     private ApplicationUsers applicationUsers;
-
 }
