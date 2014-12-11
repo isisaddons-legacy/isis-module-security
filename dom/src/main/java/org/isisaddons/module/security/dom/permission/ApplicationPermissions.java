@@ -42,8 +42,12 @@ import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 
-@DomainServiceLayout(menuOrder = "90.3", named="Security")
 @DomainService(repositoryFor = ApplicationPermission.class)
+@DomainServiceLayout(
+        named="Security",
+        menuBar = DomainServiceLayout.MenuBar.SECONDARY,
+        menuOrder = "100.30"
+)
 public class ApplicationPermissions {
 
     //region > iconName

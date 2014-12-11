@@ -44,7 +44,11 @@ import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 import org.apache.isis.applib.value.Password;
 
-@DomainServiceLayout(named="Security", menuOrder = "90.1")
+@DomainServiceLayout(
+        named="Security",
+        menuBar = DomainServiceLayout.MenuBar.SECONDARY,
+        menuOrder = "100.10"
+)
 @DomainService(repositoryFor = ApplicationUser.class)
 public class ApplicationUsers extends AbstractFactoryAndRepository {
 

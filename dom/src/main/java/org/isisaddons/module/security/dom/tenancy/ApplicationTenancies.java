@@ -33,8 +33,12 @@ import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 
-@DomainServiceLayout(named="Security", menuOrder = "90.5")
 @DomainService(repositoryFor = ApplicationTenancy.class)
+@DomainServiceLayout(
+        named="Security",
+        menuBar = DomainServiceLayout.MenuBar.SECONDARY,
+        menuOrder = "100.50"
+)
 public class ApplicationTenancies extends AbstractFactoryAndRepository {
 
     //region > iconName

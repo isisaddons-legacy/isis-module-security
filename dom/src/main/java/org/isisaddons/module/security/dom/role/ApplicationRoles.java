@@ -35,8 +35,12 @@ import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 
-@DomainServiceLayout(named="Security", menuOrder = "90.2")
 @DomainService(repositoryFor = ApplicationRole.class)
+@DomainServiceLayout(
+        named="Security",
+        menuBar = DomainServiceLayout.MenuBar.SECONDARY,
+        menuOrder = "100.20"
+)
 public class ApplicationRoles extends AbstractFactoryAndRepository {
 
     //region > iconName

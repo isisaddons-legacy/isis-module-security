@@ -32,7 +32,11 @@ import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 
 @DomainService()
-@DomainServiceLayout(named="Security", menuOrder = "90.4")
+@DomainServiceLayout(
+        named="Security",
+        menuBar = DomainServiceLayout.MenuBar.SECONDARY,
+        menuOrder = "100.40"
+)
 public class ApplicationFeatureViewModels  {
 
     //region > iconName
