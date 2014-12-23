@@ -164,7 +164,7 @@ If a user is disabled, then they may not log in.  This is useful for temporarily
 having to change all their roles, for example if they leave the company or go on maternity leave.
 
 
-#### Application Tenancy ####
+#### Application Tenancy (1.8.0-SNAPSHOT) ####
 
 Both application users and domain objects can be associated with an `ApplicationTenancy`.  For application user's this
 is a property of the object, for domain object's this is performed by implementing the `WithApplicationTenancy` interface:
@@ -176,7 +176,7 @@ is a property of the object, for domain object's this is performed by implementi
 The application can then be configured so that access to domain objects can be restricted based on the respective
 tenancies of the user accessing the object and of the object itself.  The table below summarizes the rules:
 
-<table border="1">
+<table>
     <tr>
         <th>object's tenancy</th><th>user's tenancy</th><th>access</th>
     </tr>
@@ -342,7 +342,7 @@ where:
 
 There is further discussion of the `PasswordEncryptionService` and `PermissionsEvaluationService` below.
 
-#### Tenancy checking (isis.properties) ####
+#### Tenancy checking (isis.properties, 1.8.0-SNAPSHOT) ####
 
 To enable tenancy checking (as described above, to restrict a user's access to tenanted objects), add the following
 in `WEB-INF/isis.properties`:
