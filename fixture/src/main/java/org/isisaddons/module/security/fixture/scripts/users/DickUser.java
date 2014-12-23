@@ -24,7 +24,7 @@ public class DickUser extends AbstractUserFixtureScript {
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        create(USER_NAME, AccountType.LOCAL, executionContext);
+        create(USER_NAME, AccountType.LOCAL, null, executionContext);
     }
 
 }

@@ -14,13 +14,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.fixture.scripts.example;
+package org.isisaddons.module.security.fixture.scripts.example.tenanted;
 
-public class BazExampleEntity extends AbstractExampleEntityFixtureScript {
+public class NullTenantedEntity extends AbstractTenantedEntityFixtureScript {
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        create("Baz", executionContext);
+        create("Null tenanted", null, executionContext);
     }
 
 }

@@ -16,11 +16,29 @@
  */
 package org.isisaddons.module.security.fixture.scripts;
 
-import org.isisaddons.module.security.fixture.dom.ExampleEntities;
+import org.isisaddons.module.security.fixture.dom.example.nontenanted.NonTenantedEntities;
 import org.isisaddons.module.security.fixture.scripts.example.AllExampleEntities;
-import org.isisaddons.module.security.fixture.scripts.roles.*;
+import org.isisaddons.module.security.fixture.scripts.roles.AllExampleRolesAndPermissions;
+import org.isisaddons.module.security.fixture.scripts.roles.ExampleFixtureScriptsRoleAndPermissions;
+import org.isisaddons.module.security.fixture.scripts.roles.ExampleGuestRoleAndPermissions;
+import org.isisaddons.module.security.fixture.scripts.roles.ExampleHideNonTenantedEntityDescriptionRoleAndPermissions;
+import org.isisaddons.module.security.fixture.scripts.roles.ExampleNoGuestRoleAndPremissions;
+import org.isisaddons.module.security.fixture.scripts.roles.ExampleRegularRoleAndPermissions;
 import org.isisaddons.module.security.fixture.scripts.tenancy.AllTenancies;
-import org.isisaddons.module.security.fixture.scripts.userrole.*;
+import org.isisaddons.module.security.fixture.scripts.userrole.BertTenantedUser_Has_ExampleRegularRole;
+import org.isisaddons.module.security.fixture.scripts.userrole.BertTenantedUser_Has_IsisSecurityModuleRegularRole;
+import org.isisaddons.module.security.fixture.scripts.userrole.BillNonTenantedUser_Has_ExampleRegularRole;
+import org.isisaddons.module.security.fixture.scripts.userrole.BillNonTenantedUser_Has_IsisSecurityModuleRegularRole;
+import org.isisaddons.module.security.fixture.scripts.userrole.BobUser_Has_ExampleHideEntityDescriptionRole;
+import org.isisaddons.module.security.fixture.scripts.userrole.BobUser_Has_IsisSecurityAdminRole;
+import org.isisaddons.module.security.fixture.scripts.userrole.ConflictedUser_Has_ExampleConflictingRoles;
+import org.isisaddons.module.security.fixture.scripts.userrole.DickUser_Has_ExampleRegularRole;
+import org.isisaddons.module.security.fixture.scripts.userrole.DickUser_Has_IsisSecurityModuleRegularRole;
+import org.isisaddons.module.security.fixture.scripts.userrole.GuestUser_Has_ExampleGuestRole;
+import org.isisaddons.module.security.fixture.scripts.userrole.GuestUser_Has_IsisSecurityModuleRegularRole;
+import org.isisaddons.module.security.fixture.scripts.userrole.JoeUser_Has_ExampleGuestRole;
+import org.isisaddons.module.security.fixture.scripts.userrole.JoeUser_Has_IsisSecurityModuleRegularRole;
+import org.isisaddons.module.security.fixture.scripts.userrole.SvenUser_Has_IsisSecurityAdminRole;
 import org.isisaddons.module.security.fixture.scripts.users.AllUsers;
 import org.isisaddons.module.security.seed.SeedUsersAndRolesFixtureScript;
 import org.apache.isis.applib.fixturescripts.DiscoverableFixtureScript;
@@ -33,20 +51,18 @@ public class SecurityModuleAppSetUp extends DiscoverableFixtureScript {
         executionContext.executeChild(this, new SecurityModuleAppTearDown());
         executionContext.executeChild(this, new SeedUsersAndRolesFixtureScript());
 
-        executionContext.executeChild(this, new AllExampleEntities());
-
         // roles and perms
-        executionContext.executeChild(this, new ExampleGuestRoleAndPremissions());
+        executionContext.executeChild(this, new ExampleGuestRoleAndPermissions());
         executionContext.executeChild(this, new ExampleNoGuestRoleAndPremissions());
         executionContext.executeChild(this, new ExampleRegularRoleAndPermissions());
         executionContext.executeChild(this, new ExampleFixtureScriptsRoleAndPermissions());
-        executionContext.executeChild(this, new ExampleHideEntityDescriptionRoleAndPermissions());
+        executionContext.executeChild(this, new ExampleHideNonTenantedEntityDescriptionRoleAndPermissions());
 
         executionContext.executeChild(this, new AllExampleRolesAndPermissions());
 
         // users, tenancies
-        executionContext.executeChild(this, new AllUsers());
         executionContext.executeChild(this, new AllTenancies());
+        executionContext.executeChild(this, new AllUsers());
 
         // user/role
         executionContext.executeChild(this, new BobUser_Has_IsisSecurityAdminRole());
@@ -64,11 +80,20 @@ public class SecurityModuleAppSetUp extends DiscoverableFixtureScript {
         executionContext.executeChild(this, new SvenUser_Has_IsisSecurityAdminRole());
 
         executionContext.executeChild(this, new ConflictedUser_Has_ExampleConflictingRoles());
+
+        executionContext.executeChild(this, new BertTenantedUser_Has_ExampleRegularRole());
+        executionContext.executeChild(this, new BertTenantedUser_Has_IsisSecurityModuleRegularRole());
+        executionContext.executeChild(this, new BillNonTenantedUser_Has_ExampleRegularRole());
+        executionContext.executeChild(this, new BillNonTenantedUser_Has_IsisSecurityModuleRegularRole());
+
+        //  example entities
+        executionContext.executeChild(this, new AllExampleEntities());
+
     }
 
     // //////////////////////////////////////
 
     @javax.inject.Inject
-    private ExampleEntities exampleEntities;
+    private NonTenantedEntities exampleNonTenantedEntities;
 
 }

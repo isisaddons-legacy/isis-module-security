@@ -33,6 +33,9 @@ public class SeedUsersAndRolesFixtureScript extends FixtureScript {
     @Override
     protected void execute(ExecutionContext executionContext) {
 
+        // global tenancy
+        executionContext.executeChild(this, new GlobalTenancy());
+
         // security module
         executionContext.executeChild(this, new IsisModuleSecurityAdminRoleAndPermissions());
 

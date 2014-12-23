@@ -29,7 +29,8 @@ public class SecurityModuleAppTearDown extends FixtureScript {
         isisJdoSupport.executeUpdate("delete from \"IsisSecurityApplicationUser\"");
         isisJdoSupport.executeUpdate("delete from \"IsisSecurityApplicationTenancy\"");
 
-        isisJdoSupport.executeUpdate("delete from \"ExampleEntity\"");
+        isisJdoSupport.executeUpdate("delete from \"NonTenantedEntity\"");
+        isisJdoSupport.executeUpdate("delete from \"TenantedEntity\"");
     }
 
 

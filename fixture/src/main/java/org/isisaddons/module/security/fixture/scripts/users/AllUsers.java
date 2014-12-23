@@ -27,6 +27,9 @@ public class AllUsers extends AbstractUserFixtureScript {
         executionContext.executeChild(this, new SvenUser());
 
         executionContext.executeChild(this, new ConflictedUser());
+
+        executionContext.executeChild(this, new BillNonTenantedUser());
+        executionContext.executeChild(this, new BertTenantedUser());
     }
 
 }

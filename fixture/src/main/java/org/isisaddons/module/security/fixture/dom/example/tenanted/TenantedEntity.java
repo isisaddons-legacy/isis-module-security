@@ -14,11 +14,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.fixture.dom;
+package org.isisaddons.module.security.fixture.dom.example.tenanted;
 
+import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.VersionStrategy;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
 import org.apache.isis.applib.annotation.MemberGroupLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Title;
@@ -32,14 +35,14 @@ import org.apache.isis.applib.annotation.Title;
         column = "version")
 @javax.jdo.annotations.Uniques({
         @javax.jdo.annotations.Unique(
-                name = "ExampleEntity_name_UNQ", members = { "name" })
+                name = "TenantedEntity_name_UNQ", members = { "name" })
 })
 @MemberGroupLayout(columnSpans = {4,4,4,12},
         left = {"General"},
         middle = {},
         right = {}
 )
-public class ExampleEntity {
+public class TenantedEntity implements WithApplicationTenancy {
 
     public static final int MAX_LENGTH_NAME = 30;
     public static final int MAX_LENGTH_DESCRIPTION = 254;
@@ -76,4 +79,18 @@ public class ExampleEntity {
     //endregion
 
 
+    //region > applicationTenancy (property)
+    private ApplicationTenancy applicationTenancy;
+
+    @Column(allowsNull = "true")
+    @MemberOrder(sequence = "3")
+    public ApplicationTenancy getApplicationTenancy() {
+        return applicationTenancy;
+    }
+
+    public void setApplicationTenancy(final ApplicationTenancy applicationTenancy) {
+        this.applicationTenancy = applicationTenancy;
+    }
+    //endregion
+    
 }

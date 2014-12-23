@@ -16,13 +16,20 @@
  */
 package org.isisaddons.module.security.fixture.scripts.tenancy;
 
+import org.isisaddons.module.security.seed.scripts.GlobalTenancy;
+
 public class FranceTenancy extends AbstractTenancyFixtureScript {
 
-    public static final String TENANCY_NAME = "france";
+    public static final String TENANCY_NAME = "France";
+    public static final String TENANCY_PATH = "/fr";
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        create(TENANCY_NAME, executionContext);
+
+        // prereqs
+        executionContext.executeChild(this, new GlobalTenancy());
+
+        create(TENANCY_NAME, TENANCY_PATH, GlobalTenancy.TENANCY_PATH, executionContext);
     }
 
 }

@@ -18,7 +18,6 @@ package org.isisaddons.module.security.integtests.tenancy;
 
 import java.util.List;
 import javax.inject.Inject;
-import javax.jdo.JDODataStoreException;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancies;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
@@ -39,14 +38,17 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    @Before
-    public void setUpData() throws Exception {
-        scenarioExecution().install(new SecurityModuleAppTearDown());
-    }
-
     @Inject
     ApplicationTenancies applicationTenancies;
 
+    ApplicationTenancy globalTenancy;
+
+    @Before
+    public void setUpData() throws Exception {
+        scenarioExecution().install(new SecurityModuleAppTearDown());
+
+        globalTenancy = applicationTenancies.findTenancyByPath("/");
+    }
 
     public static class NewTenancy extends ApplicationTenanciesIntegTest {
 
@@ -58,7 +60,7 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
             assertThat(before.size(), is(0));
 
             // when
-            final ApplicationTenancy applicationTenancy = applicationTenancies.newTenancy("uk");
+            final ApplicationTenancy applicationTenancy = applicationTenancies.newTenancy("uk", "/uk", globalTenancy);
             assertThat(applicationTenancy.getName(), is("uk"));
 
             // then
@@ -70,10 +72,10 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
         public void alreadyExists() throws Exception {
 
             // given
-            applicationTenancies.newTenancy("uk");
+            applicationTenancies.newTenancy("UK", "/uk", globalTenancy);
 
             // when
-            applicationTenancies.newTenancy("uk");
+            applicationTenancies.newTenancy("UK", "/uk", globalTenancy);
             
             //then
             assertThat(applicationTenancies.allTenancies().size(), is(1));
@@ -86,9 +88,9 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
         public void happyCase() throws Exception {
 
             // given
-            applicationTenancies.newTenancy("portugal");
-            applicationTenancies.newTenancy("uk");
-            applicationTenancies.newTenancy("zambia");
+            applicationTenancies.newTenancy("portugal", "/po", globalTenancy);
+            applicationTenancies.newTenancy("uk", "/uk", globalTenancy);
+            applicationTenancies.newTenancy("zambia", "/za", globalTenancy);
 
             // when
             final ApplicationTenancy uk = applicationTenancies.findTenancyByName("uk");
@@ -102,8 +104,8 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
         public void whenDoesntMatch() throws Exception {
 
             // given
-            applicationTenancies.newTenancy("portugal");
-            applicationTenancies.newTenancy("uk");
+            applicationTenancies.newTenancy("portugal", "/po", globalTenancy);
+            applicationTenancies.newTenancy("uk", "/uk", globalTenancy);
 
             // when
             final ApplicationTenancy nonExistent = applicationTenancies.findTenancyByName("france");
@@ -120,8 +122,8 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
         public void happyCase() throws Exception {
 
             // given
-            applicationTenancies.newTenancy("uk");
-            applicationTenancies.newTenancy("portugal");
+            applicationTenancies.newTenancy("portugal", "/po", globalTenancy);
+            applicationTenancies.newTenancy("uk", "/uk", globalTenancy);
 
             // when
             final List<ApplicationTenancy> after = applicationTenancies.allTenancies();

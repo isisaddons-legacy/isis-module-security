@@ -28,6 +28,8 @@ import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MaxLength;
 import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.NotContributed;
+import org.apache.isis.applib.annotation.Optional;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.query.QueryDefault;
@@ -73,11 +75,39 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     @MemberOrder(sequence = "90.1")
     @ActionSemantics(Of.SAFE)
     public ApplicationTenancy findTenancyByName(
-            final @ParameterLayout(named="Name", typicalLength=ApplicationTenancy.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME) String name) {
+            final
+            @ParameterLayout(named="Name", typicalLength=ApplicationTenancy.TYPICAL_LENGTH_NAME)
+            @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME)
+            String name) {
         return uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByName", "name", name));
     }
 
     //endregion
+
+    //region > findTenancyByPath
+
+    public static class FindTenancyByPathEvent extends ActionInteractionEvent<ApplicationTenancies> {
+        public FindTenancyByPathEvent(ApplicationTenancies source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(FindTenancyByPathEvent.class)
+    @MemberOrder(sequence = "90.2")
+    @ActionSemantics(Of.SAFE)
+    public ApplicationTenancy findTenancyByPath(
+            final
+            @ParameterLayout(named="Name", typicalLength=ApplicationTenancy.TYPICAL_LENGTH_NAME)
+            @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME)
+            String path) {
+        if(path == null) {
+            return null;
+        }
+        return uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByPath", "path", path));
+    }
+
+    //endregion
+
 
     //region > newTenancy
 
@@ -87,15 +117,29 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
         }
     }
 
+    @NotContributed
     @ActionInteraction(NewTenancyEvent.class)
-    @MemberOrder(sequence = "90.2")
+    @MemberOrder(sequence = "90.3")
     @ActionSemantics(Of.IDEMPOTENT)
     public ApplicationTenancy newTenancy(
-            final @ParameterLayout(named="Name", typicalLength=ApplicationTenancy.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME) String name) {
+            final
+            @ParameterLayout(named = "Name", typicalLength = ApplicationTenancy.TYPICAL_LENGTH_NAME)
+            @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME)
+            String name,
+            final
+            @ParameterLayout(named = "Path")
+            @MaxLength(ApplicationTenancy.MAX_LENGTH_PATH)
+            String path,
+            final
+            @ParameterLayout(named = "Parent")
+            @Optional
+            ApplicationTenancy parent) {
         ApplicationTenancy tenancy = findTenancyByName(name);
         if (tenancy == null){
             tenancy = applicationTenancyFactory.newApplicationTenancy();
             tenancy.setName(name);
+            tenancy.setPath(path);
+            tenancy.setParent(parent);
             persist(tenancy);
         }
         return tenancy;
@@ -112,7 +156,7 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     }
 
     @ActionInteraction(AllTenanciesEvent.class)
-    @MemberOrder(sequence = "90.3")
+    @MemberOrder(sequence = "90.4")
     @ActionSemantics(Of.SAFE)
     public List<ApplicationTenancy> allTenancies() {
         return allInstances(ApplicationTenancy.class);
@@ -123,7 +167,7 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     //region > injected
     /**
      * Will only be injected to if the programmer has supplied an implementation.  Otherwise
-     * this class will install a default implementation in {@link #postConstruct()}.
+     * this class will install a default implementation in {@link #init()}.
      */
     @Inject
     ApplicationTenancyFactory applicationTenancyFactory;

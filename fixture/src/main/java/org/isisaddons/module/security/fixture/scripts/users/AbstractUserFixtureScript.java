@@ -17,6 +17,8 @@
 package org.isisaddons.module.security.fixture.scripts.users;
 
 import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancies;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.dom.user.AccountType;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
@@ -80,6 +82,7 @@ public abstract class AbstractUserFixtureScript extends FixtureScript {
     protected ApplicationUser create(
             final String name,
             final AccountType accountType,
+            final String tenancyPath,
             final ExecutionContext executionContext) {
 
         final ApplicationUser applicationUser;
@@ -89,12 +92,18 @@ public abstract class AbstractUserFixtureScript extends FixtureScript {
             final String passwordStr = Util.coalesce(executionContext.getParameter("password"), getPassword(), "12345678a");
             final Password password = new Password(passwordStr);
             applicationUser = applicationUsers.newLocalUser(name, password, password, null, null);
-
         }
+
+        final ApplicationTenancy applicationTenancy = applicationTenancies.findTenancyByPath(tenancyPath);
+        applicationUser.setTenancy(applicationTenancy);
+
         executionContext.addResult(this, name, applicationUser);
         return applicationUser;
     }
 
     @javax.inject.Inject
     private ApplicationUsers applicationUsers;
+
+    @javax.inject.Inject
+    private ApplicationTenancies applicationTenancies;
 }

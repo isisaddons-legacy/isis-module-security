@@ -21,19 +21,36 @@ import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.apache.isis.applib.DomainObjectContainer;
+import org.apache.isis.applib.Identifier;
+import org.apache.isis.applib.annotation.ActionInteraction;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.NotContributed;
 import org.apache.isis.applib.annotation.NotInServiceMenu;
+import org.apache.isis.applib.annotation.PropertyInteraction;
 import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.Where;
+import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
+import org.apache.isis.applib.services.eventbus.PropertyInteractionEvent;
 
 @DomainService
 public class ApplicationFeatureViewModelContributions {
 
     //region > feature
+    public static class FeatureEvent extends ActionInteractionEvent<ApplicationFeatureViewModelContributions> {
+        public FeatureEvent(ApplicationFeatureViewModelContributions source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+    public static class FeatureEventContributed extends PropertyInteractionEvent<ApplicationPermission, ApplicationFeatureViewModel> {
+        public FeatureEventContributed(ApplicationPermission source, Identifier identifier, ApplicationFeatureViewModel oldValue, ApplicationFeatureViewModel newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
 
+    @ActionInteraction(FeatureEvent.class)
+    @PropertyInteraction(FeatureEventContributed.class)
     @ActionSemantics(ActionSemantics.Of.SAFE)
     @NotInServiceMenu
     @NotContributed(NotContributed.As.ACTION) // ie contributed as property

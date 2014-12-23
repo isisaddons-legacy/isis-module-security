@@ -1,6 +1,7 @@
 package org.isisaddons.module.security.dom.tenancy;
 
 import com.danhaywood.java.testsupport.coverage.PojoTester;
+import org.isisaddons.module.security.dom.FixtureDatumFactories;
 import org.junit.Rule;
 import org.junit.Test;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
@@ -15,6 +16,7 @@ public class ApplicationTenancyTest {
         @Test
         public void exercise() throws Exception {
             PojoTester.relaxed()
+                    .withFixture(FixtureDatumFactories.tenancies())
                     .exercise(new ApplicationTenancy());
         }
     }

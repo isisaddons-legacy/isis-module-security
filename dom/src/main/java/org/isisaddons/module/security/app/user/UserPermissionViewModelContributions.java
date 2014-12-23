@@ -27,13 +27,38 @@ import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.annotation.*;
+import org.apache.isis.applib.Identifier;
+import org.apache.isis.applib.annotation.ActionInteraction;
+import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.CollectionInteraction;
+import org.apache.isis.applib.annotation.CollectionLayout;
+import org.apache.isis.applib.annotation.DomainService;
+import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.NotContributed;
+import org.apache.isis.applib.annotation.NotInServiceMenu;
+import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.ParameterLayout;
+import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
+import org.apache.isis.applib.services.eventbus.CollectionInteractionEvent;
 
 @DomainService
 public class UserPermissionViewModelContributions  {
 
     //region > Permissions (derived collection)
 
+    public static class PermissionsEvent extends ActionInteractionEvent<UserPermissionViewModelContributions> {
+        public PermissionsEvent(UserPermissionViewModelContributions source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+    public static class PermissionsEventContributed extends CollectionInteractionEvent<ApplicationUser, UserPermissionViewModel> {
+        public PermissionsEventContributed(ApplicationUser source, Identifier identifier, Of of, UserPermissionViewModel value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    @ActionInteraction(PermissionsEvent.class)
+    @CollectionInteraction(PermissionsEventContributed.class)
     @MemberOrder(sequence = "30")
     @NotInServiceMenu
     @NotContributed(NotContributed.As.ACTION) // ie contributed as collection
@@ -48,6 +73,18 @@ public class UserPermissionViewModelContributions  {
 
     //region > filterPermissions (action)
 
+    public static class FilterPermissionsEvent extends ActionInteractionEvent<UserPermissionViewModelContributions> {
+        public FilterPermissionsEvent(UserPermissionViewModelContributions source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+    public static class FilterPermissionsEventContributed extends CollectionInteractionEvent<ApplicationUser, UserPermissionViewModel> {
+        public FilterPermissionsEventContributed(ApplicationUser source, Identifier identifier, Of of, UserPermissionViewModel value) {
+            super(source, identifier, of, value);
+        }
+    }
+    @ActionInteraction(FilterPermissionsEvent.class)
+    @CollectionInteraction(FilterPermissionsEventContributed.class)
     @MemberOrder(sequence = "1", name="permissions")
     @NotInServiceMenu
     @ActionSemantics(ActionSemantics.Of.SAFE)

@@ -18,14 +18,14 @@ package org.isisaddons.module.security.fixture.scripts.roles;
 
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
-import org.isisaddons.module.security.fixture.dom.ExampleEntity;
+import org.isisaddons.module.security.fixture.dom.example.nontenanted.NonTenantedEntity;
 import org.isisaddons.module.security.seed.scripts.AbstractRoleAndPermissionsFixtureScript;
 
-public class ExampleHideEntityDescriptionRoleAndPermissions extends AbstractRoleAndPermissionsFixtureScript {
+public class ExampleHideNonTenantedEntityDescriptionRoleAndPermissions extends AbstractRoleAndPermissionsFixtureScript {
 
-    public static final String ROLE_NAME = "example-hide-entity-description";
+    public static final String ROLE_NAME = "example-hide-nontenantedentity-description";
 
-    public ExampleHideEntityDescriptionRoleAndPermissions() {
+    public ExampleHideNonTenantedEntityDescriptionRoleAndPermissions() {
         super(ROLE_NAME, "Hide access to ExampleEntity#description property");
     }
 
@@ -34,7 +34,7 @@ public class ExampleHideEntityDescriptionRoleAndPermissions extends AbstractRole
         newMemberPermissions(
                 ApplicationPermissionRule.VETO,
                 ApplicationPermissionMode.VIEWING,
-                ExampleEntity.class,
+                NonTenantedEntity.class,
                 "description");
     }
 

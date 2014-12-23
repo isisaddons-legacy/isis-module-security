@@ -18,14 +18,15 @@ package org.isisaddons.module.security.fixture.scripts.roles;
 
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
-import org.isisaddons.module.security.fixture.dom.ExampleEntity;
+import org.isisaddons.module.security.fixture.dom.example.nontenanted.NonTenantedEntity;
+import org.isisaddons.module.security.fixture.dom.example.tenanted.TenantedEntity;
 import org.isisaddons.module.security.seed.scripts.AbstractRoleAndPermissionsFixtureScript;
 
-public class ExampleGuestRoleAndPremissions extends AbstractRoleAndPermissionsFixtureScript {
+public class ExampleGuestRoleAndPermissions extends AbstractRoleAndPermissionsFixtureScript {
 
     public static final String ROLE_NAME = "example-guest";
 
-    public ExampleGuestRoleAndPremissions() {
+    public ExampleGuestRoleAndPermissions() {
         super(ROLE_NAME, "Read only access to example dom");
     }
 
@@ -34,7 +35,9 @@ public class ExampleGuestRoleAndPremissions extends AbstractRoleAndPermissionsFi
         newPackagePermissions(
                 ApplicationPermissionRule.ALLOW,
                 ApplicationPermissionMode.VIEWING,
-                ExampleEntity.class.getPackage().getName());
+                NonTenantedEntity.class.getPackage().getName(),
+                TenantedEntity.class.getPackage().getName()
+                );
     }
 
 }

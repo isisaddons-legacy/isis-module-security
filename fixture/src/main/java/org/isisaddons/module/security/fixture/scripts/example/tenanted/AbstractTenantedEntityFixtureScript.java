@@ -14,23 +14,30 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.fixture.scripts.example;
+package org.isisaddons.module.security.fixture.scripts.example.tenanted;
 
-import org.isisaddons.module.security.fixture.dom.ExampleEntities;
-import org.isisaddons.module.security.fixture.dom.ExampleEntity;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancies;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.fixture.dom.example.tenanted.TenantedEntities;
+import org.isisaddons.module.security.fixture.dom.example.tenanted.TenantedEntity;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 
-public abstract class AbstractExampleEntityFixtureScript extends FixtureScript {
+public abstract class AbstractTenantedEntityFixtureScript extends FixtureScript {
 
-    protected ExampleEntity create(
+    protected TenantedEntity create(
             final String name,
+            final String tenancyPath,
             final ExecutionContext executionContext) {
-        final ExampleEntity entity = exampleEntities.create(name);
+        final ApplicationTenancy tenancy = applicationTenancies.findTenancyByPath(tenancyPath);
+        final TenantedEntity entity = exampleTenantedEntities.create(name, tenancy);
         executionContext.addResult(this, name, entity);
         return entity;
     }
 
     @javax.inject.Inject
-    private ExampleEntities exampleEntities;
+    private TenantedEntities exampleTenantedEntities;
+
+    @javax.inject.Inject
+    private ApplicationTenancies applicationTenancies;
 
 }

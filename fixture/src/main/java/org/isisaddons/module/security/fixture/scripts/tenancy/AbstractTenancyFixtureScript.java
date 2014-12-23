@@ -24,8 +24,12 @@ public abstract class AbstractTenancyFixtureScript extends FixtureScript {
 
     protected ApplicationTenancy create(
             final String name,
+            final String path,
+            final String parentPath,
             final ExecutionContext executionContext) {
-        final ApplicationTenancy tenancy = applicationTenancies.newTenancy(name);
+
+        final ApplicationTenancy parent = parentPath != null? applicationTenancies.findTenancyByPath(parentPath): null;
+        final ApplicationTenancy tenancy = applicationTenancies.newTenancy(name, path, parent);
         executionContext.addResult(this, name, tenancy);
         return tenancy;
     }

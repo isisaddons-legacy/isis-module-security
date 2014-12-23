@@ -101,7 +101,6 @@ import org.apache.isis.applib.value.Password;
 public class ApplicationUser implements Comparable<ApplicationUser> {
 
     //region > constants
-
     public static final int MAX_LENGTH_USERNAME = 30;
     public static final int MAX_LENGTH_FAMILY_NAME = 50;
     public static final int MAX_LENGTH_GIVEN_NAME = 50;

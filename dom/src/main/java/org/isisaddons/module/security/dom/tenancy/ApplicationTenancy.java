@@ -36,6 +36,7 @@ import org.apache.isis.applib.annotation.Bookmarkable;
 import org.apache.isis.applib.annotation.Bounded;
 import org.apache.isis.applib.annotation.CollectionLayout;
 import org.apache.isis.applib.annotation.Disabled;
+import org.apache.isis.applib.annotation.Hidden;
 import org.apache.isis.applib.annotation.MaxLength;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.ObjectType;
@@ -43,11 +44,12 @@ import org.apache.isis.applib.annotation.Optional;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.Title;
+import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.util.ObjectContracts;
 
 @javax.jdo.annotations.PersistenceCapable(
-        identityType = IdentityType.DATASTORE, table = "IsisSecurityApplicationTenancy")
+        identityType = IdentityType.APPLICATION, table = "IsisSecurityApplicationTenancy")
 @javax.jdo.annotations.Inheritance(
         strategy = InheritanceStrategy.NEW_TABLE)
 @javax.jdo.annotations.DatastoreIdentity(
@@ -60,6 +62,11 @@ import org.apache.isis.applib.util.ObjectContracts;
                 name = "IsisSecurityApplicationTenancy_name_UNQ", members = { "name" })
 })
 @javax.jdo.annotations.Queries( {
+        @javax.jdo.annotations.Query(
+                name = "findByPath", language = "JDOQL",
+                value = "SELECT "
+                        + "FROM org.isisaddons.module.security.dom.tenancy.ApplicationTenancy "
+                        + "WHERE path == :path"),
         @javax.jdo.annotations.Query(
                 name = "findByName", language = "JDOQL",
                 value = "SELECT "
@@ -77,6 +84,7 @@ import org.apache.isis.applib.util.ObjectContracts;
 @Bookmarkable
 public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
+    public static final int MAX_LENGTH_PATH = 12;
     public static final int MAX_LENGTH_NAME = 40;
     public static final int TYPICAL_LENGTH_NAME = 20;
 
@@ -115,6 +123,22 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     public String default0UpdateName() {
         return getName();
     }
+    //endregion
+
+    //region > path
+    private String path;
+
+    @javax.jdo.annotations.PrimaryKey
+    @javax.jdo.annotations.Column(length = MAX_LENGTH_PATH, allowsNull = "false")
+    @Disabled
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     //endregion
 
     //region > users (collection)
@@ -190,6 +214,111 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     }
 
     //endregion
+
+    //region > parent (property), updateParent (action)
+    private ApplicationTenancy parent;
+
+    @javax.jdo.annotations.Column(name = "parentPath", allowsNull = "true")
+    @Hidden(where = Where.PARENTED_TABLES)
+    @Disabled
+    public ApplicationTenancy getParent() {
+        return parent;
+    }
+
+    public void setParent(ApplicationTenancy parent) {
+        this.parent = parent;
+    }
+
+    public static class UpdateParentEvent extends ActionInteractionEvent<ApplicationTenancy> {
+        public UpdateParentEvent(ApplicationTenancy source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(UpdateParentEvent.class)
+    @MemberOrder(name="parent", sequence = "1")
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    public ApplicationTenancy updateParent(final @Optional ApplicationTenancy tenancy) {
+        // no need to add to children set, since will be done by JDO/DN.
+        setParent(tenancy);
+        return this;
+    }
+
+    public ApplicationTenancy default0UpdateParent() {
+        return getParent();
+    }
+    //endregion
+
+
+    //region > children
+    @javax.jdo.annotations.Persistent(mappedBy = "parent")
+    private SortedSet<ApplicationTenancy> children = new TreeSet<ApplicationTenancy>();
+
+    @CollectionLayout(
+            render = CollectionLayout.RenderType.EAGERLY
+    )
+    @Disabled
+    public SortedSet<ApplicationTenancy> getChildren() {
+        return children;
+    }
+
+    public void setChildren(SortedSet<ApplicationTenancy> children) {
+        this.children = children;
+    }
+
+    // necessary for integration tests
+    public void addToChildren(final ApplicationTenancy applicationTenancy) {
+        getChildren().add(applicationTenancy);
+    }
+    // necessary for integration tests
+    public void removeFromChildren(final ApplicationTenancy applicationTenancy) {
+        getChildren().remove(applicationTenancy);
+    }
+    //endregion
+
+    //region > addChild (action), removeChild (action)
+
+    public static class AddChildEvent extends ActionInteractionEvent<ApplicationTenancy> {
+        public AddChildEvent(ApplicationTenancy source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    public static class RemoveChildEvent extends ActionInteractionEvent<ApplicationTenancy> {
+        public RemoveChildEvent(ApplicationTenancy source, Identifier identifier, Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @ActionInteraction(AddChildEvent.class)
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @MemberOrder(name="Children", sequence = "1")
+    @ActionLayout(named="Add",cssClassFa = "fa fa-plus-square")
+    public ApplicationTenancy addChild(final ApplicationTenancy applicationTenancy) {
+        applicationTenancy.setParent(this);
+        // no need to add to children set, since will be done by JDO/DN.
+        return this;
+    }
+
+    @ActionInteraction(RemoveChildEvent.class)
+    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @MemberOrder(name="Children", sequence = "2")
+    @ActionLayout(named="Remove",cssClassFa = "fa fa-minus-square")
+    public ApplicationTenancy removeChild(final ApplicationTenancy applicationTenancy) {
+        applicationTenancy.setParent(null);
+        // no need to remove from children set, since will be done by JDO/DN.
+        return this;
+    }
+    public Collection<ApplicationTenancy> choices0RemoveChild() {
+        return getChildren();
+    }
+    public String disableRemoveChild(final ApplicationTenancy applicationTenancy) {
+        return choices0RemoveChild().isEmpty()? "No children to remove": null;
+    }
+
+    //endregion
+
+
 
     //region > delete (action)
     public static class DeleteEvent extends ActionInteractionEvent<ApplicationTenancy> {

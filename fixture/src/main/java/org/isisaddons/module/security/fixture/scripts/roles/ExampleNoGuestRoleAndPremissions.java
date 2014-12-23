@@ -18,11 +18,11 @@ package org.isisaddons.module.security.fixture.scripts.roles;
 
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
-import org.isisaddons.module.security.fixture.dom.ExampleEntity;
+import org.isisaddons.module.security.fixture.dom.example.nontenanted.NonTenantedEntity;
 import org.isisaddons.module.security.seed.scripts.AbstractRoleAndPermissionsFixtureScript;
 
 /**
- * Intended to conflict with {@link org.isisaddons.module.security.fixture.scripts.roles.ExampleGuestRoleAndPremissions}
+ * Intended to conflict with {@link ExampleGuestRoleAndPermissions}
  */
 public class ExampleNoGuestRoleAndPremissions extends AbstractRoleAndPermissionsFixtureScript {
 
@@ -37,7 +37,7 @@ public class ExampleNoGuestRoleAndPremissions extends AbstractRoleAndPermissions
         newPackagePermissions(
                 ApplicationPermissionRule.VETO,
                 ApplicationPermissionMode.VIEWING,
-                ExampleEntity.class.getPackage().getName());
+                NonTenantedEntity.class.getPackage().getName());
     }
 
 }

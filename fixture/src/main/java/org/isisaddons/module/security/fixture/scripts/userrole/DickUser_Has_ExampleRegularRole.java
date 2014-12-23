@@ -24,9 +24,4 @@ public class DickUser_Has_ExampleRegularRole extends AbstractUserRoleFixtureScri
         super(DickUser.USER_NAME, ExampleRegularRoleAndPermissions.ROLE_NAME);
     }
 
-    @Override
-    protected void execute(ExecutionContext executionContext) {
-        super.execute(executionContext);
-
-    }
 }

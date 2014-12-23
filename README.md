@@ -49,6 +49,10 @@ also has its own very simple `ExampleEntity` entity and corresponding repository
 
 For further screenshots, see the [screenshot tutorial](https://github.com/isisaddons/isis-module-security/wiki/Screenshot-Tutorial) on the wiki.
 
+>
+> Note: these screenshots show the security module running on Apache Isis 1.7.0.   In 1.8.0-SNAPSHOT, the UI provided by Apache Isis has been substantially enhanced.
+>
+
 #### Automatically Seeds Roles ####
 
 When the security module starts up, it will automatically (idempotently) seed a number of roles, corresponding permissions and a 
@@ -160,6 +164,87 @@ If a user is disabled, then they may not log in.  This is useful for temporarily
 having to change all their roles, for example if they leave the company or go on maternity leave.
 
 
+#### Application Tenancy ####
+
+Both application users and domain objects can be associated with an `ApplicationTenancy`.  For application user's this
+is a property of the object, for domain object's this is performed by implementing the `WithApplicationTenancy` interface:
+
+    public interface WithApplicationTenancy {
+        ApplicationTenancy getApplicationTenancy();
+    }
+
+The application can then be configured so that access to domain objects can be restricted based on the respective
+tenancies of the user accessing the object and of the object itself.  The table below summarizes the rules:
+
+<table border="1">
+    <tr>
+        <th>object's tenancy</th><th>user's tenancy</th><th>access</th>
+    </tr>
+    <tr>
+        <td>null</td><td>null</td><td>editable</td>
+    </tr>
+    <tr>
+        <td>null</td><td>non-null</td><td>editable</td>
+    </tr>
+    <tr>
+        <td>/</td><td>/</td><td>editable</td>
+    </tr>
+    <tr>
+        <td>/</td><td>/it</td><td>visible</td>
+    </tr>
+    <tr>
+        <td>/</td><td>/it/car</td><td>visible</td>
+    </tr>
+    <tr>
+        <td>/</td><td>/it/igl</td><td>visible</td>
+    </tr>
+    <tr>
+        <td>/</td><td>/fr</td><td>visible</td>
+    </tr>
+    <tr>
+        <td>/</td><td>null</td><td>not visible</td>
+    </tr>
+    <tr>
+        <td>/it</td><td>/</td><td>editable</td>
+    </tr>
+    <tr>
+        <td>/it</td><td>/it</td><td>editable</td>
+    </tr>
+    <tr>
+        <td>/it</td><td>/it/car</td><td>visible</td>
+    </tr>
+    <tr>
+        <td>/it</td><td>/it/igl</td><td>visible</td>
+    </tr>
+    <tr>
+        <td>/it</td><td>/fr</td><td>not visible</td>
+    </tr>
+    <tr>
+        <td>/it</td><td>null</td><td>not visible</td>
+    </tr>
+    <tr>
+        <td>/it/car</td><td>/</td><td>editable</td>
+    </tr>
+    <tr>
+        <td>/it/car</td><td>/it</td><td>editable</td>
+    </tr>
+    <tr>
+        <td>/it/car</td><td>/it/car</td><td>editable</td>
+    </tr>
+    <tr>
+        <td>/it/car</td><td>/it/igl</td><td>not visible</td>
+    </tr>
+    <tr>
+        <td>/it/car</td><td>/fr</td><td>not visible</td>
+    </tr>
+    <tr>
+        <td>/it/car</td><td>null</td><td>not visible</td>
+    </tr>
+</table>
+
+To enable this requires a single configuration property to be set, see below.
+
+
 ## How to run the Demo App ##
 
 The prerequisite software is:
@@ -256,6 +341,15 @@ where:
    of this interface can be supplied.
 
 There is further discussion of the `PasswordEncryptionService` and `PermissionsEvaluationService` below.
+
+#### Tenancy checking (isis.properties) ####
+
+To enable tenancy checking (as described above, to restrict a user's access to tenanted objects), add the following
+in `WEB-INF/isis.properties`:
+
+<pre>
+    isis.reflector.facets.include=org.isisaddons.module.security.facets.TenantedAuthorizationFacetFactory
+</pre>
 
 
 #### Classpath ####
@@ -416,7 +510,7 @@ The module currently does not support:
   
 ## Change Log ##
 
-* `1.8.0` (snapshot) - released against Isis 1.8.0, support to make easier to extend (pluggable factories and events for all actions). MeService on TERTIARY menuBar.
+* `1.8.0` (snapshot) - released against Isis 1.8.0.  ApplicationTenancy extended to support hierarchical tenancies, with path as primary key (nb: breaking change), support to make easier to extend (pluggable factories and events for all actions). MeService on TERTIARY menuBar.
 * `1.7.0` - released against Isis 1.7.0
 * `1.6.2` - made more resilient so can be called by an application's own 'security seed' service
 * `1.6.1` - support for account types and delegated authentication realm
@@ -507,7 +601,8 @@ According to Sonatype's guide, it takes about 10 minutes to sync, but up to 2 ho
 ## Appendix: yuml.me DSL
 
 <pre>
-[ApplicationUser|username{bg:green}]0..*->0..1[ApplicationTenancy|name{bg:blue}]
+[ApplicationTenancy|name;path{bg:blue}]<0..*children-parent0..1>[[ApplicationTenancy]
+[ApplicationUser|username{bg:green}]0..*->0..1[ApplicationTenancy]
 [ApplicationUser]1-0..*>[ApplicationRole|name{bg:yellow}]
 [ApplicationRole]1-0..*>[ApplicationPermission]
 [ApplicationUser]->[AccountType|LOCAL;DELEGATED]
@@ -515,5 +610,6 @@ According to Sonatype's guide, it takes about 10 minutes to sync, but up to 2 ho
 [ApplicationFeature]->type[ApplicationFeatureType|PACKAGE;CLASS;MEMBER]
 [ApplicationPermission{bg:pink}]++->[ApplicationFeature]
 [ApplicationPermission]->[ApplicationPermissionMode|VIEWING;CHANGING]
-[ApplicationPermission]->[ApplicationPermissionRule|ALLOW;VETO]</pre>
+[ApplicationPermission]->[ApplicationPermissionRule|ALLOW;VETO]
+</pre>
 

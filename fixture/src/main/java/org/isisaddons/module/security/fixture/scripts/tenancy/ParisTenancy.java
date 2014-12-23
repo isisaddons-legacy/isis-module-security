@@ -14,13 +14,20 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.fixture.scripts.example;
+package org.isisaddons.module.security.fixture.scripts.tenancy;
 
-public class BopExampleEntity extends AbstractExampleEntityFixtureScript {
+public class ParisTenancy extends AbstractTenancyFixtureScript {
+
+    public static final String TENANCY_NAME = "Paris (France)";
+    public static final String TENANCY_PATH = "/fr/par";
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        create("Bop", executionContext);
+
+        // prereqs
+        executionContext.executeChild(this, new FranceTenancy());
+
+        create(TENANCY_NAME, TENANCY_PATH, FranceTenancy.TENANCY_PATH, executionContext);
     }
 
 }
