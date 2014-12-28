@@ -269,7 +269,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     /**
      * Will only be injected to if the programmer has supplied an implementation.  Otherwise
-     * this class will install a default implementation in {@link #postConstruct()}.
+     * this class will install a default implementation in {@link #init()}.
      */
     @Inject
     ApplicationUserFactory applicationUserFactory;

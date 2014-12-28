@@ -21,6 +21,7 @@ package org.isisaddons.module.security.facets;
 
 import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
+import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 import org.apache.isis.core.metamodel.facetapi.FacetHolder;
 import org.apache.isis.core.metamodel.facetapi.FacetUtil;
 import org.apache.isis.core.metamodel.facetapi.FeatureType;
@@ -59,11 +60,15 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
 
     private TenantedAuthorizationFacetDefault createFacet(final FacetHolder holder) {
         final ApplicationUsers applicationUsers = getApplicationUsers();
-        return new TenantedAuthorizationFacetDefault(applicationUsers, holder);
+        final QueryResultsCache queryResultsCache = getQueryResultsCache();
+        return new TenantedAuthorizationFacetDefault(applicationUsers, queryResultsCache, holder);
     }
 
     private ApplicationUsers getApplicationUsers() {
         return servicesInjector.lookupService(ApplicationUsers.class);
+    }
+    private QueryResultsCache getQueryResultsCache() {
+        return servicesInjector.lookupService(QueryResultsCache.class);
     }
 
 

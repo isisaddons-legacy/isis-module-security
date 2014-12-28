@@ -19,12 +19,14 @@
 
 package org.isisaddons.module.security.facets;
 
+import java.util.concurrent.Callable;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.events.UsabilityEvent;
 import org.apache.isis.applib.events.VisibilityEvent;
+import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 import org.apache.isis.core.metamodel.facetapi.Facet;
 import org.apache.isis.core.metamodel.facetapi.FacetAbstract;
 import org.apache.isis.core.metamodel.facetapi.FacetHolder;
@@ -33,16 +35,20 @@ import org.apache.isis.core.metamodel.interactions.VisibilityContext;
 
 public class TenantedAuthorizationFacetDefault extends FacetAbstract implements TenantedAuthorizationFacet {
 
-
     public static Class<? extends Facet> type() {
         return TenantedAuthorizationFacet.class;
     }
 
     private final ApplicationUsers applicationUsers;
+    private final QueryResultsCache queryResultsCache;
 
-    public TenantedAuthorizationFacetDefault(final ApplicationUsers applicationUsers, final FacetHolder holder) {
+    public TenantedAuthorizationFacetDefault(
+            final ApplicationUsers applicationUsers,
+            final QueryResultsCache queryResultsCache,
+            final FacetHolder holder) {
         super(type(), holder, Derivation.NOT_DERIVED);
         this.applicationUsers = applicationUsers;
+        this.queryResultsCache = queryResultsCache;
     }
 
     @Override
@@ -60,7 +66,8 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
         }
 
         final String userName = ic.getSession().getUserName();
-        final ApplicationUser applicationUser = applicationUsers.findUserByUsername(userName);
+
+        final ApplicationUser applicationUser = getApplicationUser(userName);
         if(applicationUser == null) {
             // not expected, but best to be safe...
             return "Could not location application user for " + userName;
@@ -98,7 +105,7 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
         }
 
         final String userName = ic.getSession().getUserName();
-        final ApplicationUser applicationUser = applicationUsers.findUserByUsername(userName);
+        final ApplicationUser applicationUser = getApplicationUser(userName);
         if(applicationUser == null) {
             // not expected, but best to be safe...
             return "Could not location application user for " + userName;
@@ -119,5 +126,15 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
 
         return String.format("User with tenancy '%s' is not permitted to edit object with tenancy '%s'", userTenancyPath, objectTenancyPath);
     }
+
+    protected ApplicationUser getApplicationUser(final String userName) {
+        return queryResultsCache.execute(new Callable<ApplicationUser>() {
+            @Override
+            public ApplicationUser call() throws Exception {
+                return applicationUsers.findUserByUsername(userName);
+            }
+        }, TenantedAuthorizationFacetDefault.class, "getApplicationUser", userName);
+    }
+
 
 }

@@ -29,7 +29,7 @@ language governing permissions and limitations under the License.
         <maven>3.0.4</maven>
     </prerequisites>
 
-	<properties>
+    <properties>
         <isis.version>1.8.0-SNAPSHOT</isis.version>
         <isis-viewer-wicket.version>1.8.0-SNAPSHOT</isis-viewer-wicket.version>
 
@@ -43,7 +43,7 @@ language governing permissions and limitations under the License.
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-	</properties>
+    </properties>
     
     <repositories>
         <repository>
@@ -338,7 +338,15 @@ language governing permissions and limitations under the License.
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
+
+
+
+    <modules>
+        <module>dom</module>
+        <module>fixture</module>
+        <module>integtests</module>
+        <module>webapp</module>
+    </modules>
 
     <profiles>
         <profile>
@@ -372,10 +380,4 @@ language governing permissions and limitations under the License.
         </profile>
     </profiles>
 
-  <modules>
-    <module>dom</module>
-    <module>fixture</module>
-    <module>integtests</module>
-    <module>webapp</module>
-  </modules>
 </project>
