@@ -114,6 +114,18 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
                 ApplicationUser.class,
                 "findByUsername", "username", username));
     }
+
+    /**
+     * Uses the {@link org.apache.isis.applib.services.queryresultscache.QueryResultsCache} in order to support
+     * multiple lookups from <code>org.isisaddons.module.security.app.user.UserPermissionViewModel</code>.
+     */
+    @Programmatic
+    public ApplicationUser findUserByEmail(
+        final @ParameterLayout(named="Email") String emailAddress) {
+        return uniqueMatch(new QueryDefault<>(
+            ApplicationUser.class,
+            "findByEmailAddress", "emailAddress", emailAddress));
+    }
     //endregion
 
     //region > findUsersByName

@@ -81,6 +81,11 @@ import org.apache.isis.applib.value.Password;
                         + "FROM org.isisaddons.module.security.dom.user.ApplicationUser "
                         + "WHERE username == :username"),
         @javax.jdo.annotations.Query(
+            name = "findByEmailAddress", language = "JDOQL",
+            value = "SELECT "
+                    + "FROM org.isisaddons.module.security.dom.user.ApplicationUser "
+                    + "WHERE emailAddress == :emailAddress"),
+        @javax.jdo.annotations.Query(
                 name = "findByName", language = "JDOQL",
                 value = "SELECT "
                         + "FROM org.isisaddons.module.security.dom.user.ApplicationUser "
