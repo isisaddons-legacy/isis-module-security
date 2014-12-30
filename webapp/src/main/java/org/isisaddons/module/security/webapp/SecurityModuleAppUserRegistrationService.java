@@ -47,6 +47,12 @@ public class SecurityModuleAppUserRegistrationService implements UserRegistratio
         return applicationUsers.findUserByEmail(emailAddress) != null;
     }
 
+    @Override
+    public void updatePasswordByEmail(String emailAddress, String password) {
+        ApplicationUser user = applicationUsers.findUserByEmail(emailAddress);
+        user.updatePassword(password);
+    }
+
     @Inject
     private ApplicationUsers applicationUsers;
 
