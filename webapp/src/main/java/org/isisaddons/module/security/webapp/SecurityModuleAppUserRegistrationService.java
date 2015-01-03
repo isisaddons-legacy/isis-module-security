@@ -30,6 +30,11 @@ import org.apache.isis.applib.value.Password;
 public class SecurityModuleAppUserRegistrationService implements UserRegistrationService {
 
     @Override
+    public boolean usernameExists(String username) {
+        return applicationUsers.findUserByUsername(username) != null;
+    }
+
+    @Override
     public void registerUser(
         final String username,
         final String passwordStr,
@@ -38,8 +43,7 @@ public class SecurityModuleAppUserRegistrationService implements UserRegistratio
         final Password password = new Password(passwordStr);
         ApplicationRole initialRole = applicationRoles.findRoleByName(ExampleRegularRoleAndPermissions.ROLE_NAME);
         Boolean enabled = true;
-        ApplicationUser applicationUser = applicationUsers.newLocalUser(username, password, password, initialRole, enabled);
-        applicationUser.setEmailAddress(emailAddress);
+        applicationUsers.newLocalUser(username, password, password, initialRole, enabled, emailAddress);
     }
 
     @Override
@@ -48,9 +52,14 @@ public class SecurityModuleAppUserRegistrationService implements UserRegistratio
     }
 
     @Override
-    public void updatePasswordByEmail(String emailAddress, String password) {
+    public boolean updatePasswordByEmail(String emailAddress, String password) {
+        boolean passwordUpdated = false;
         ApplicationUser user = applicationUsers.findUserByEmail(emailAddress);
-        user.updatePassword(password);
+        if (user != null) {
+            user.updatePassword(password);
+            passwordUpdated = true;
+        }
+        return passwordUpdated;
     }
 
     @Inject

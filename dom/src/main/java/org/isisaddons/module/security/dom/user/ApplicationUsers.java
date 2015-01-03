@@ -205,7 +205,8 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             final @ParameterLayout(named="Password") @Optional Password password,
             final @ParameterLayout(named="Repeat password") @Optional Password passwordRepeat,
             final @ParameterLayout(named="Initial role") @Optional ApplicationRole initialRole,
-            final @ParameterLayout(named="Enabled?") @Optional Boolean enabled) {
+            final @ParameterLayout(named="Enabled?") @Optional Boolean enabled,
+            final @ParameterLayout(named="Email Address") @Optional String emailAddress) {
         ApplicationUser user = findUserByUsername(username);
         if (user == null){
             user = applicationUserFactory.newApplicationUser();
@@ -219,15 +220,20 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
         if(password != null) {
             user.updatePassword(password.getPassword());
         }
+        if(emailAddress != null) {
+            user.updateEmailAddress(emailAddress);
+        }
         persistIfNotAlready(user);
         return user;
     }
+
     public String validateNewLocalUser(
             final String username,
             final Password password,
             final Password passwordRepeat,
             final ApplicationRole initialRole,
-            final Boolean enabled) {
+            final Boolean enabled,
+            final String emailAddress) {
         ApplicationUser user = applicationUserFactory.newApplicationUser();
         return user.validateResetPassword(password, passwordRepeat);
     }

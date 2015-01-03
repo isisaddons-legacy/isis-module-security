@@ -85,13 +85,23 @@ public abstract class AbstractUserFixtureScript extends FixtureScript {
             final String tenancyPath,
             final ExecutionContext executionContext) {
 
+        return create(name, null, accountType, tenancyPath, executionContext);
+    }
+
+    protected ApplicationUser create(
+        final String name,
+        final String emailAddress,
+        final AccountType accountType,
+        final String tenancyPath,
+        final ExecutionContext executionContext) {
+
         final ApplicationUser applicationUser;
         if(accountType == AccountType.DELEGATED) {
             applicationUser = applicationUsers.newDelegateUser(name, null, null);
         } else {
             final String passwordStr = Util.coalesce(executionContext.getParameter("password"), getPassword(), "12345678a");
             final Password password = new Password(passwordStr);
-            applicationUser = applicationUsers.newLocalUser(name, password, password, null, null);
+            applicationUser = applicationUsers.newLocalUser(name, password, password, null, null, emailAddress);
         }
 
         final ApplicationTenancy applicationTenancy = applicationTenancies.findTenancyByPath(tenancyPath);

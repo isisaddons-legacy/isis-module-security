@@ -35,6 +35,7 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
 
     private final String username;
     private final String password;
+    private final String emailAddress;
     private final String tenancyPath;
     private final AccountType accountType;
     private final List<String> roleNames;
@@ -44,17 +45,19 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
             final String password,
             final AccountType accountType, 
             final List<String> roleNames) {
-        this(username, password, null, accountType, roleNames);
+        this(username, password, null, null, accountType, roleNames);
     }
 
     public AbstractUserAndRolesFixtureScript(
             final String username,
             final String password,
+            final String emailAddress,
             final String tenancyPath,
             final AccountType accountType,
             final List<String> roleNames) {
         this.username = username;
         this.password = password;
+        this.emailAddress = emailAddress;
         this.tenancyPath = tenancyPath;
         this.accountType = accountType;
         this.roleNames = Collections.unmodifiableList(Lists.newArrayList(roleNames));
@@ -73,7 +76,7 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
                     break;
                 case LOCAL:
                     final Password pwd = new Password(password);
-                    applicationUser = applicationUsers.newLocalUser(username, pwd, pwd, null, enabled);
+                    applicationUser = applicationUsers.newLocalUser(username, pwd, pwd, null, enabled, emailAddress);
             }
 
             // update tenancy (repository checks for null)

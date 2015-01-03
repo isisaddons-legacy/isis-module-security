@@ -14,19 +14,22 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.seed.scripts;
+package org.isisaddons.module.security.webapp;
 
 import java.util.Arrays;
-
 import org.isisaddons.module.security.dom.user.AccountType;
+import org.isisaddons.module.security.seed.scripts.AbstractUserAndRolesFixtureScript;
+import org.isisaddons.module.security.seed.scripts.GlobalTenancy;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
 
-public class IsisModuleSecurityAdminUser extends AbstractUserAndRolesFixtureScript {
+public class IsisModuleSecuritySvenUser extends AbstractUserAndRolesFixtureScript {
 
-    public static final String USER_NAME = "isis-module-security-admin";
+    public static final String USER_NAME = "sven";
     public static final String PASSWORD = "pass";
+    public static final String EMAIL_ADDRESS = "sven@example.com";
 
-    public IsisModuleSecurityAdminUser() {
-        super(USER_NAME, PASSWORD, null,
+    public IsisModuleSecuritySvenUser() {
+        super(USER_NAME, PASSWORD, EMAIL_ADDRESS,
                 GlobalTenancy.TENANCY_PATH, AccountType.LOCAL,
                 Arrays.asList(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME));
     }
