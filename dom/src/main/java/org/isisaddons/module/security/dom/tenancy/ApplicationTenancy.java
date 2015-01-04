@@ -348,6 +348,10 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
         return not(areYouSure) ? "Please confirm this action": null;
     }
 
+    public Boolean default0Delete() {
+        return Boolean.FALSE;
+    }
+
     static boolean not(Boolean areYouSure) {
         return areYouSure == null || !areYouSure;
     }
