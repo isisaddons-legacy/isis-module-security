@@ -497,17 +497,14 @@ This work is performed by the `SeedSecurityModuleService`.
 
 ## Future Directions/Possible Improvements ##
 
-The module currently does not support:
-- setting permissions on the root package.  Instead, must specify for `org` or `com` top-level package.  This means that
-  the edge case of permissions for a class in the root package is not supported.
+Limitations in current implementation:
+- It is not possible to set permissions on the root package.  The workaround is to specify for `org` or `com` top-level package instead.
+
+Ideas for future features:
 - users could possibly be extended to include user settings, refactored out from [isis-module-settings](https://github.com/isisaddons/isis-module-settings)
 - features could possibly be refactored out/merged with [isis-module-devutils](https://github.com/isisaddons/isis-module-devutils). 
 - hierarchical roles
-- tenancy applied to roles (so only apply permissions of a user's global roles or those of their tenancy; requires a
-  custom override of Isis' AuthorizationManagerStandard so can pass through the tenancy of the target object being
-  evaluated.
 
-  
 ## Change Log ##
 
 * `1.8.0` (snapshot) - released against Isis 1.8.0.  ApplicationTenancy extended to support hierarchical tenancies, with path as primary key (nb: breaking change), support to make easier to extend (pluggable factories and events for all actions). MeService on TERTIARY menuBar.
