@@ -24,11 +24,11 @@ import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionInteraction;
-import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.Prototype;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 
 @DomainService()
@@ -56,7 +56,7 @@ public class ApplicationFeatureViewModels  {
     }
 
     @ActionInteraction(AllPackagesEvent.class)
-    @ActionLayout(prototype = true)
+    @Prototype
     @MemberOrder(sequence = "10")
     @ActionSemantics(ActionSemantics.Of.SAFE)
     public List<ApplicationPackage> allPackages() {
@@ -75,7 +75,7 @@ public class ApplicationFeatureViewModels  {
     @ActionInteraction(AllClassesEvent.class)
     @MemberOrder(sequence = "20")
     @ActionSemantics(ActionSemantics.Of.SAFE)
-    @ActionLayout(prototype = true)
+    @Prototype
     public List<ApplicationClass> allClasses() {
         return asViewModels(applicationFeatures.allClasses(), ApplicationClass.class);
     }
@@ -92,7 +92,7 @@ public class ApplicationFeatureViewModels  {
     @ActionInteraction(AllActionsEvent.class)
     @MemberOrder(sequence = "40")
     @ActionSemantics(ActionSemantics.Of.SAFE)
-    @ActionLayout(prototype = true)
+    @Prototype
     public List<ApplicationClassAction> allActions() {
         return asViewModels(applicationFeatures.allActions(), ApplicationClassAction.class);
     }
@@ -108,7 +108,7 @@ public class ApplicationFeatureViewModels  {
 
     @ActionInteraction(AllPropertiesEvent.class)
     @ActionSemantics(ActionSemantics.Of.SAFE)
-    @ActionLayout(prototype = true)
+    @Prototype
     @MemberOrder(sequence = "50")
     public List<ApplicationClassProperty> allProperties() {
         return asViewModels(applicationFeatures.allProperties(), ApplicationClassProperty.class);
@@ -125,7 +125,7 @@ public class ApplicationFeatureViewModels  {
 
     @ActionInteraction(AllCollectionsEvent.class)
     @ActionSemantics(ActionSemantics.Of.SAFE)
-    @ActionLayout(prototype = true)
+    @Prototype
     @MemberOrder(sequence = "60")
     public List<ApplicationClassCollection> allCollections() {
         return asViewModels(applicationFeatures.allCollections(), ApplicationClassCollection.class);

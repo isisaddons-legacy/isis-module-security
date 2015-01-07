@@ -38,6 +38,7 @@ import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Optional;
 import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.Prototype;
 import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
@@ -234,7 +235,7 @@ public class ApplicationPermissions {
     }
 
     @ActionInteraction(AllPermissionsEvent.class)
-    @ActionLayout(prototype = true)
+    @Prototype
     @ActionSemantics(ActionSemantics.Of.SAFE)
     @MemberOrder(sequence = "60.9")
     public List<ApplicationPermission> allPermissions() {
