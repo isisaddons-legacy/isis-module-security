@@ -14,17 +14,15 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.isisaddons.module.security.webapp;
+package org.isisaddons.module.security.userreg;
 
 import javax.inject.Inject;
-import org.isisaddons.module.security.dom.role.ApplicationRole;
-import org.isisaddons.module.security.dom.role.ApplicationRoles;
-import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
-import org.isisaddons.module.security.fixture.scripts.roles.ExampleRegularRoleAndPermissions;
+
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.services.userreg.UserRegistrationService;
 import org.apache.isis.applib.value.Password;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUsers;
 
 @DomainService
 public class SecurityModuleAppUserRegistrationService implements UserRegistrationService {
@@ -41,9 +39,8 @@ public class SecurityModuleAppUserRegistrationService implements UserRegistratio
         final String emailAddress) {
 
         final Password password = new Password(passwordStr);
-        ApplicationRole initialRole = applicationRoles.findRoleByName(ExampleRegularRoleAndPermissions.ROLE_NAME);
         Boolean enabled = true;
-        applicationUsers.newLocalUser(username, password, password, initialRole, enabled, emailAddress);
+        applicationUsers.newLocalUser(username, password, password, /*initialRole*/ null, enabled, emailAddress);
     }
 
     @Override
@@ -64,8 +61,4 @@ public class SecurityModuleAppUserRegistrationService implements UserRegistratio
 
     @Inject
     private ApplicationUsers applicationUsers;
-
-    @Inject
-    private ApplicationRoles applicationRoles;
-
 }
