@@ -139,9 +139,9 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
             } else {
                 buf.append(getGivenName());
             }
-            buf.append(" ")
+            buf.append(' ')
                     .append(getFamilyName())
-                    .append(" (").append(getUsername()).append(")");
+                    .append(" (").append(getUsername()).append(')');
         } else {
             buf.append(getUsername());
         }
