@@ -102,7 +102,7 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
                 case BAD_PASSWORD:
                     throw new CredentialsException("Unknown user/password combination");
                 case NO_PASSWORD_ENCRYPTION_SERVICE_CONFIGURED:
-                    throw new AuthenticationException();
+                    throw new AuthenticationException("No password encryption service is installed");
                 default:
                     throw new AuthenticationException();
             }
