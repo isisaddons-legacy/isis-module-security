@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.services.userreg.UserRegistrationService;
 import org.apache.isis.applib.value.Password;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 
@@ -39,8 +40,9 @@ public class SecurityModuleAppUserRegistrationService implements UserRegistratio
         final String emailAddress) {
 
         final Password password = new Password(passwordStr);
+        ApplicationRole initialRole = getInitialRole();
         Boolean enabled = true;
-        applicationUsers.newLocalUser(username, password, password, /*initialRole*/ null, enabled, emailAddress);
+        applicationUsers.newLocalUser(username, password, password, initialRole, enabled, emailAddress);
     }
 
     @Override
@@ -57,6 +59,10 @@ public class SecurityModuleAppUserRegistrationService implements UserRegistratio
             passwordUpdated = true;
         }
         return passwordUpdated;
+    }
+
+    protected ApplicationRole getInitialRole() {
+        return null;
     }
 
     @Inject
