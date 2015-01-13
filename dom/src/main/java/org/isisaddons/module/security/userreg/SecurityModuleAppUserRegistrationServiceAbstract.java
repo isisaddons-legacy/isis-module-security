@@ -18,15 +18,17 @@ package org.isisaddons.module.security.userreg;
 
 import javax.inject.Inject;
 
-import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.services.userreg.UserRegistrationService;
 import org.apache.isis.applib.value.Password;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 
-@DomainService
-public class SecurityModuleAppUserRegistrationService implements UserRegistrationService {
+/**
+ * An abstract implementation of {@link org.apache.isis.applib.services.userreg.UserRegistrationService}
+ * with a single abstract method for the initial role of newly created local users
+ */
+public abstract class SecurityModuleAppUserRegistrationServiceAbstract implements UserRegistrationService {
 
     @Override
     public boolean usernameExists(String username) {
@@ -61,9 +63,10 @@ public class SecurityModuleAppUserRegistrationService implements UserRegistratio
         return passwordUpdated;
     }
 
-    protected ApplicationRole getInitialRole() {
-        return null;
-    }
+    /**
+     * @return The role to use for newly created local users
+     */
+    protected abstract ApplicationRole getInitialRole();
 
     @Inject
     private ApplicationUsers applicationUsers;

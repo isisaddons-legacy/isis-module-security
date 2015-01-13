@@ -4,7 +4,7 @@ import org.apache.isis.applib.annotation.DomainService;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
 import org.isisaddons.module.security.fixture.scripts.roles.ExampleFixtureScriptsRoleAndPermissions;
-import org.isisaddons.module.security.userreg.SecurityModuleAppUserRegistrationService;
+import org.isisaddons.module.security.userreg.SecurityModuleAppUserRegistrationServiceAbstract;
 
 import javax.inject.Inject;
 
@@ -14,7 +14,7 @@ import javax.inject.Inject;
  * as initial role
  */
 @DomainService
-public class AppUserRegistrationService extends SecurityModuleAppUserRegistrationService {
+public class AppUserRegistrationService extends SecurityModuleAppUserRegistrationServiceAbstract {
 
     @Override
     protected ApplicationRole getInitialRole() {
