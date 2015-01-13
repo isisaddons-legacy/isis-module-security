@@ -84,8 +84,8 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
             applicationUser.setTenancy(applicationTenancy);
 
             for (String roleName : roleNames) {
-                ApplicationRole securityAdminRole = applicationRoles.findRoleByName(roleName);
-                applicationUser.addRole(securityAdminRole);
+                ApplicationRole securityRole = applicationRoles.findRoleByName(roleName);
+                applicationUser.addRole(securityRole);
             }
         }
     }

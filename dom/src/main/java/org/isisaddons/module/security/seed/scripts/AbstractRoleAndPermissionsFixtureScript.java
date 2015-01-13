@@ -100,15 +100,15 @@ public abstract class AbstractRoleAndPermissionsFixtureScript extends FixtureScr
             return;
         }
 
-        ApplicationRole securityAdminRole = applicationRoles.findRoleByName(roleName);
-        if(securityAdminRole == null) {
-            securityAdminRole = applicationRoles.newRole(roleName, roleDescription);
+        ApplicationRole securityRole = applicationRoles.findRoleByName(roleName);
+        if(securityRole == null) {
+            securityRole = applicationRoles.newRole(roleName, roleDescription);
         }
         for (String featureFqn : featureFqns) {
             // can't use role#addPackage because that does a check for existence of the package, which is
             // not guaranteed to exist yet (the SecurityFeatures#init() may not have run).
             applicationPermissions.newPermissionNoCheck(
-                    securityAdminRole,
+                    securityRole,
                     rule,
                     mode,
                     featureType, featureFqn);
