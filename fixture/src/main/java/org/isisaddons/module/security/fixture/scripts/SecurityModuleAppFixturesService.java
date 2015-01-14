@@ -36,7 +36,7 @@ import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
  * Enables fixtures to be installed from the application.
  */
 @DomainService()
-@DomainServiceLayout(named="Prototyping", menuOrder = "99")
+@DomainServiceLayout(named="Prototyping", menuOrder = "99", menuBar = DomainServiceLayout.MenuBar.SECONDARY)
 public class SecurityModuleAppFixturesService extends FixtureScripts {
 
     //region > constructor

@@ -16,13 +16,13 @@
  */
 package org.isisaddons.module.security.userreg;
 
+import java.util.Set;
 import javax.inject.Inject;
-
-import org.apache.isis.applib.services.userreg.UserRegistrationService;
-import org.apache.isis.applib.value.Password;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
+import org.apache.isis.applib.services.userreg.UserRegistrationService;
+import org.apache.isis.applib.value.Password;
 
 /**
  * An abstract implementation of {@link org.apache.isis.applib.services.userreg.UserRegistrationService}
@@ -31,7 +31,7 @@ import org.isisaddons.module.security.dom.user.ApplicationUsers;
 public abstract class SecurityModuleAppUserRegistrationServiceAbstract implements UserRegistrationService {
 
     @Override
-    public boolean usernameExists(String username) {
+    public boolean usernameExists(final String username) {
         return applicationUsers.findUserByUsername(username) != null;
     }
 
@@ -42,20 +42,28 @@ public abstract class SecurityModuleAppUserRegistrationServiceAbstract implement
         final String emailAddress) {
 
         final Password password = new Password(passwordStr);
-        ApplicationRole initialRole = getInitialRole();
-        Boolean enabled = true;
-        applicationUsers.newLocalUser(username, password, password, initialRole, enabled, emailAddress);
+        final ApplicationRole initialRole = getInitialRole();
+        final Boolean enabled = true;
+        final ApplicationUser applicationUser = applicationUsers.newLocalUser(username, password, password, initialRole, enabled, emailAddress);
+
+        final Set<ApplicationRole> additionalRoles = getAdditionalInitialRoles();
+        if(additionalRoles != null) {
+            for (final ApplicationRole additionalRole : additionalRoles) {
+                applicationUser.addRole(additionalRole);
+            }
+        }
+
     }
 
     @Override
-    public boolean emailExists(String emailAddress) {
+    public boolean emailExists(final String emailAddress) {
         return applicationUsers.findUserByEmail(emailAddress) != null;
     }
 
     @Override
-    public boolean updatePasswordByEmail(String emailAddress, String password) {
+    public boolean updatePasswordByEmail(final String emailAddress, final String password) {
         boolean passwordUpdated = false;
-        ApplicationUser user = applicationUsers.findUserByEmail(emailAddress);
+        final ApplicationUser user = applicationUsers.findUserByEmail(emailAddress);
         if (user != null) {
             user.updatePassword(password);
             passwordUpdated = true;
@@ -67,6 +75,11 @@ public abstract class SecurityModuleAppUserRegistrationServiceAbstract implement
      * @return The role to use for newly created local users
      */
     protected abstract ApplicationRole getInitialRole();
+
+    /**
+     * @return Additional roles for newly created local users
+     */
+    protected abstract Set<ApplicationRole> getAdditionalInitialRoles();
 
     @Inject
     private ApplicationUsers applicationUsers;
