@@ -66,7 +66,7 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     //region > findTenancyByName
 
     public static class FindTenancyByNameEvent extends ActionInteractionEvent<ApplicationTenancies> {
-        public FindTenancyByNameEvent(ApplicationTenancies source, Identifier identifier, Object... args) {
+        public FindTenancyByNameEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -75,10 +75,9 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     @MemberOrder(sequence = "90.1")
     @ActionSemantics(Of.SAFE)
     public ApplicationTenancy findTenancyByName(
-            final
             @ParameterLayout(named="Name", typicalLength=ApplicationTenancy.TYPICAL_LENGTH_NAME)
             @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME)
-            String name) {
+            final String name) {
         return uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByName", "name", name));
     }
 
@@ -87,7 +86,7 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     //region > findTenancyByPath
 
     public static class FindTenancyByPathEvent extends ActionInteractionEvent<ApplicationTenancies> {
-        public FindTenancyByPathEvent(ApplicationTenancies source, Identifier identifier, Object... args) {
+        public FindTenancyByPathEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -96,10 +95,9 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     @MemberOrder(sequence = "90.2")
     @ActionSemantics(Of.SAFE)
     public ApplicationTenancy findTenancyByPath(
-            final
             @ParameterLayout(named="Name", typicalLength=ApplicationTenancy.TYPICAL_LENGTH_NAME)
             @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME)
-            String path) {
+            final String path) {
         if(path == null) {
             return null;
         }
@@ -112,7 +110,7 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     //region > newTenancy
 
     public static class NewTenancyEvent extends ActionInteractionEvent<ApplicationTenancies> {
-        public NewTenancyEvent(ApplicationTenancies source, Identifier identifier, Object... args) {
+        public NewTenancyEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -122,18 +120,15 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     @MemberOrder(sequence = "90.3")
     @ActionSemantics(Of.IDEMPOTENT)
     public ApplicationTenancy newTenancy(
-            final
             @ParameterLayout(named = "Name", typicalLength = ApplicationTenancy.TYPICAL_LENGTH_NAME)
             @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME)
-            String name,
-            final
+            final String name,
             @ParameterLayout(named = "Path")
             @MaxLength(ApplicationTenancy.MAX_LENGTH_PATH)
-            String path,
-            final
+            final String path,
             @ParameterLayout(named = "Parent")
             @Optional
-            ApplicationTenancy parent) {
+            final ApplicationTenancy parent) {
         ApplicationTenancy tenancy = findTenancyByName(name);
         if (tenancy == null){
             tenancy = applicationTenancyFactory.newApplicationTenancy();
@@ -150,7 +145,7 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     //region > allTenancies
 
     public static class AllTenanciesEvent extends ActionInteractionEvent<ApplicationTenancies> {
-        public AllTenanciesEvent(ApplicationTenancies source, Identifier identifier, Object... args) {
+        public AllTenanciesEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
