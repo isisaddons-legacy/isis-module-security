@@ -359,9 +359,15 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > compareTo
 
+
+    @Override
+    public String toString() {
+        return ObjectContracts.toString(this, "path,name");
+    }
+
     @Override
     public int compareTo(final ApplicationTenancy o) {
-        return ObjectContracts.compare(this, o, "name");
+        return ObjectContracts.compare(this, o, "path");
     }
     //endregion
 
