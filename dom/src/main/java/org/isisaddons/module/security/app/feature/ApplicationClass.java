@@ -21,9 +21,10 @@ import java.util.SortedSet;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.apache.isis.applib.annotation.BookmarkPolicy;
 import org.apache.isis.applib.annotation.Bookmarkable;
-import org.apache.isis.applib.annotation.DomainObjectLayout;
 import org.apache.isis.applib.annotation.CollectionLayout;
+import org.apache.isis.applib.annotation.DomainObjectLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.Render;
 
 @DomainObjectLayout(paged=100)
 @Bookmarkable(BookmarkPolicy.AS_ROOT)
@@ -41,7 +42,7 @@ public class ApplicationClass extends ApplicationFeatureViewModel {
 
     //region > actions (collection)
     @MemberOrder(sequence = "20.1")
-    @CollectionLayout(render= CollectionLayout.RenderType.EAGERLY)
+    @Render(Render.Type.EAGERLY)
     public List<ApplicationClassAction> getActions() {
         final SortedSet<ApplicationFeatureId> members = getFeature().getActions();
         return asViewModels(members);
@@ -50,7 +51,7 @@ public class ApplicationClass extends ApplicationFeatureViewModel {
 
     //region > properties (collection)
     @MemberOrder(sequence = "20.2")
-    @CollectionLayout(render= CollectionLayout.RenderType.EAGERLY)
+    @Render(Render.Type.EAGERLY)
     public List<ApplicationClassProperty> getProperties() {
         final SortedSet<ApplicationFeatureId> members = getFeature().getProperties();
         return asViewModels(members);
@@ -59,7 +60,7 @@ public class ApplicationClass extends ApplicationFeatureViewModel {
 
     //region > collections (collection)
     @MemberOrder(sequence = "20.3")
-    @CollectionLayout(render= CollectionLayout.RenderType.EAGERLY)
+    @Render(Render.Type.EAGERLY)
     public List<ApplicationClassCollection> getCollections() {
         final SortedSet<ApplicationFeatureId> members = getFeature().getCollections();
         return asViewModels(members);

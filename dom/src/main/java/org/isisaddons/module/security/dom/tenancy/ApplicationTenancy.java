@@ -34,7 +34,6 @@ import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.Bookmarkable;
 import org.apache.isis.applib.annotation.Bounded;
-import org.apache.isis.applib.annotation.CollectionLayout;
 import org.apache.isis.applib.annotation.Disabled;
 import org.apache.isis.applib.annotation.Hidden;
 import org.apache.isis.applib.annotation.MaxLength;
@@ -43,6 +42,7 @@ import org.apache.isis.applib.annotation.ObjectType;
 import org.apache.isis.applib.annotation.Optional;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.PropertyLayout;
+import org.apache.isis.applib.annotation.Render;
 import org.apache.isis.applib.annotation.Title;
 import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
@@ -146,7 +146,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     private SortedSet<ApplicationUser> users = new TreeSet<>();
 
     @MemberOrder(sequence = "10")
-    @CollectionLayout(render= CollectionLayout.RenderType.EAGERLY)
+    @Render(Render.Type.EAGERLY)
     @Disabled
     public SortedSet<ApplicationUser> getUsers() {
         return users;
@@ -254,9 +254,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     @javax.jdo.annotations.Persistent(mappedBy = "parent")
     private SortedSet<ApplicationTenancy> children = new TreeSet<ApplicationTenancy>();
 
-    @CollectionLayout(
-            render = CollectionLayout.RenderType.EAGERLY
-    )
+    @Render(Render.Type.EAGERLY)
     @Disabled
     public SortedSet<ApplicationTenancy> getChildren() {
         return children;

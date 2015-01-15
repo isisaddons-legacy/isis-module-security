@@ -38,6 +38,7 @@ import org.apache.isis.applib.annotation.NotContributed;
 import org.apache.isis.applib.annotation.NotInServiceMenu;
 import org.apache.isis.applib.annotation.Optional;
 import org.apache.isis.applib.annotation.ParameterLayout;
+import org.apache.isis.applib.annotation.Render;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.services.eventbus.CollectionInteractionEvent;
 
@@ -62,7 +63,8 @@ public class UserPermissionViewModelContributions  {
     @MemberOrder(sequence = "30")
     @NotInServiceMenu
     @NotContributed(NotContributed.As.ACTION) // ie contributed as collection
-    @CollectionLayout(paged=50, render = CollectionLayout.RenderType.EAGERLY) // when contributed
+    @Render(Render.Type.EAGERLY)
+    @CollectionLayout(paged=50) // when contributed
     @ActionSemantics(ActionSemantics.Of.SAFE)
     public List<UserPermissionViewModel> permissions(ApplicationUser user) {
         final Collection<ApplicationFeature> allMembers = applicationFeatures.allMembers();

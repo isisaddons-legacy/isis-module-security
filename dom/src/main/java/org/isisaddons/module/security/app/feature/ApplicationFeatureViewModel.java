@@ -29,11 +29,11 @@ import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.ViewModel;
-import org.apache.isis.applib.annotation.CollectionLayout;
 import org.apache.isis.applib.annotation.MemberGroupLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.PropertyLayout;
+import org.apache.isis.applib.annotation.Render;
 import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.util.ObjectContracts;
 
@@ -230,7 +230,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     //region > permissions (collection)
     @MemberOrder(sequence = "10")
-    @CollectionLayout(render= CollectionLayout.RenderType.EAGERLY)
+    @Render(Render.Type.EAGERLY)
     public List<ApplicationPermission> getPermissions() {
         return applicationPermissions.findByFeature(getFeatureId());
     }

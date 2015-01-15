@@ -54,6 +54,7 @@ import org.apache.isis.applib.annotation.Optional;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.PropertyLayout;
+import org.apache.isis.applib.annotation.Render;
 import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.security.RoleMemento;
 import org.apache.isis.applib.security.UserMemento;
@@ -704,7 +705,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     private SortedSet<ApplicationRole> roles = new TreeSet<>();
 
     @MemberOrder(sequence = "20")
-    @CollectionLayout(render= CollectionLayout.RenderType.EAGERLY)
+    @Render(Render.Type.EAGERLY)
     @Disabled
     public SortedSet<ApplicationRole> getRoles() {
         return roles;

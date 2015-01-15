@@ -53,6 +53,7 @@ import org.apache.isis.applib.annotation.Optional;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.PropertyLayout;
+import org.apache.isis.applib.annotation.Render;
 import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.util.ObjectContracts;
 import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
@@ -104,7 +105,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //region > name (property)
 
     public static class UpdateNameEvent extends ActionInteractionEvent<ApplicationRole> {
-        public UpdateNameEvent(ApplicationRole source, Identifier identifier, Object... args) {
+        public UpdateNameEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -140,7 +141,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > description (property)
     public static class UpdateDescriptionEvent extends ActionInteractionEvent<ApplicationRole> {
-        public UpdateDescriptionEvent(ApplicationRole source, Identifier identifier, Object... args) {
+        public UpdateDescriptionEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -176,7 +177,8 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > permissions (derived collection)
     @MemberOrder(sequence = "10")
-    @CollectionLayout(render= CollectionLayout.RenderType.EAGERLY, sortedBy = ApplicationPermission.DefaultComparator.class)
+    @Render(Render.Type.EAGERLY)
+    @CollectionLayout(sortedBy = ApplicationPermission.DefaultComparator.class)
     public List<ApplicationPermission> getPermissions() {
         return applicationPermissions.findByRole(this);
     }
@@ -185,7 +187,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //region > addPackage (action)
 
     public static class AddPackageEvent extends ActionInteractionEvent<ApplicationRole> {
-        public AddPackageEvent(ApplicationRole source, Identifier identifier, Object... args) {
+        public AddPackageEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -222,7 +224,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > addClass (action)
     public static class AddClassEvent extends ActionInteractionEvent<ApplicationRole> {
-        public AddClassEvent(ApplicationRole source, Identifier identifier, Object... args) {
+        public AddClassEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -274,7 +276,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > addAction (action)
     public static class AddActionEvent extends ActionInteractionEvent<ApplicationRole> {
-        public AddActionEvent(ApplicationRole source, Identifier identifier, Object... args) {
+        public AddActionEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -329,7 +331,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > addProperty (action)
     public static class AddPropertyEvent extends ActionInteractionEvent<ApplicationRole> {
-        public AddPropertyEvent(ApplicationRole source, Identifier identifier, Object... args) {
+        public AddPropertyEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -392,7 +394,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > addCollection (action)
     public static class AddCollectionEvent extends ActionInteractionEvent<ApplicationRole> {
-        public AddCollectionEvent(ApplicationRole source, Identifier identifier, Object... args) {
+        public AddCollectionEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -448,7 +450,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > removePermission (action)
     public static class RemovePermissionEvent extends ActionInteractionEvent<ApplicationRole> {
-        public RemovePermissionEvent(ApplicationRole source, Identifier identifier, Object... args) {
+        public RemovePermissionEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -501,7 +503,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     private SortedSet<ApplicationUser> users = new TreeSet<>();
 
     @MemberOrder(sequence = "20")
-    @CollectionLayout(render= CollectionLayout.RenderType.EAGERLY)
+    @Render(Render.Type.EAGERLY)
     @Disabled
     public SortedSet<ApplicationUser> getUsers() {
         return users;
@@ -524,13 +526,13 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //region > addUser (action), removeUser (action)
 
     public static class AddUserEvent extends ActionInteractionEvent<ApplicationRole> {
-        public AddUserEvent(ApplicationRole source, Identifier identifier, Object... args) {
+        public AddUserEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
     public static class RemoveUserEvent extends ActionInteractionEvent<ApplicationRole> {
-        public RemoveUserEvent(ApplicationRole source, Identifier identifier, Object... args) {
+        public RemoveUserEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -578,7 +580,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > delete (action)
     public static class DeleteEvent extends ActionInteractionEvent<ApplicationRole> {
-        public DeleteEvent(ApplicationRole source, Identifier identifier, Object... args) {
+        public DeleteEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -594,7 +596,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             final @ParameterLayout(named="Are you sure?") @Optional Boolean areYouSure) {
         getUsers().clear();
         final List<ApplicationPermission> permissions = getPermissions();
-        for (ApplicationPermission permission : permissions) {
+        for (final ApplicationPermission permission : permissions) {
             permission.delete(areYouSure);
         }
         container.flush();
@@ -611,7 +613,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
         return not(areYouSure) ? "Please confirm this action": null;
     }
 
-    static boolean not(Boolean areYouSure) {
+    static boolean not(final Boolean areYouSure) {
         return areYouSure == null || !areYouSure;
     }
     //endregion
@@ -631,7 +633,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
         public static Function<ApplicationRole, String> GET_NAME = new Function<ApplicationRole, String>() {
             @Override
-            public String apply(ApplicationRole input) {
+            public String apply(final ApplicationRole input) {
                 return input.getName();
             }
         };

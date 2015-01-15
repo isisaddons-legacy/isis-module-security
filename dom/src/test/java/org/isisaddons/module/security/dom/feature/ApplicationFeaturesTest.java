@@ -22,21 +22,34 @@ import org.hamcrest.Matchers;
 import org.jmock.Expectations;
 import org.jmock.Sequence;
 import org.jmock.auto.Mock;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.When;
+import org.apache.isis.applib.annotation.Where;
+import org.apache.isis.core.metamodel.adapter.ObjectAdapter;
 import org.apache.isis.core.metamodel.facets.all.hide.HiddenFacet;
-import org.apache.isis.core.metamodel.facets.members.hidden.HiddenFacetNever;
+import org.apache.isis.core.metamodel.facets.members.hidden.HiddenFacetAbstract;
 import org.apache.isis.core.metamodel.facets.objpropparam.typicallen.TypicalLengthFacet;
 import org.apache.isis.core.metamodel.facets.properties.typicallen.annotation.TypicalLengthFacetOnPropertyAnnotation;
 import org.apache.isis.core.metamodel.facets.properties.validating.maxlenannot.MaxLengthFacetOnPropertyAnnotation;
 import org.apache.isis.core.metamodel.facets.propparam.maxlen.MaxLengthFacet;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjector;
 import org.apache.isis.core.metamodel.spec.ObjectSpecification;
-import org.apache.isis.core.metamodel.spec.feature.*;
+import org.apache.isis.core.metamodel.spec.feature.Contributed;
+import org.apache.isis.core.metamodel.spec.feature.ObjectAction;
+import org.apache.isis.core.metamodel.spec.feature.ObjectAssociation;
+import org.apache.isis.core.metamodel.spec.feature.OneToManyAssociation;
+import org.apache.isis.core.metamodel.spec.feature.OneToOneAssociation;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -101,7 +114,12 @@ public class ApplicationFeaturesTest {
                 will(returnValue(collections));
 
                 allowing(mockSpec).getFacet(HiddenFacet.class);
-                will(returnValue(new HiddenFacetNever(mockSpec)));
+                will(returnValue(new HiddenFacetAbstract(When.ALWAYS, Where.EVERYWHERE, mockSpec) {
+                    @Override
+                    protected String hiddenReason(final ObjectAdapter target, final Where whereContext) {
+                        return null;
+                    }
+                }));
 
                 allowing(mockSpec).getCorrespondingClass();
                 will(returnValue(Bar.class));

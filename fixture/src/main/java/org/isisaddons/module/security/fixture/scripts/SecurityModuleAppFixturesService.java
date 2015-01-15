@@ -20,13 +20,13 @@ import java.util.List;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionInteraction;
-import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Optional;
 import org.apache.isis.applib.annotation.ParameterLayout;
+import org.apache.isis.applib.annotation.Prototype;
 import org.apache.isis.applib.fixturescripts.FixtureResult;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 import org.apache.isis.applib.fixturescripts.FixtureScripts;
@@ -90,7 +90,7 @@ public class SecurityModuleAppFixturesService extends FixtureScripts {
 
     @ActionInteraction(InstallFixturesAndReturnFirstRoleEvent.class)
     @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
-    @ActionLayout(prototype = true)
+    @Prototype
     @MemberOrder(sequence="20")
     public Object installFixturesAndReturnFirstRole() {
         final List<FixtureResult> fixtureResultList = findFixtureScriptFor(SecurityModuleAppSetUp.class).run(null);

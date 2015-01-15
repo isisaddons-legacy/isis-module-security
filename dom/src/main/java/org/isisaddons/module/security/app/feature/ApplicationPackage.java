@@ -21,8 +21,8 @@ import java.util.SortedSet;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
 import org.apache.isis.applib.annotation.DomainObjectLayout;
-import org.apache.isis.applib.annotation.CollectionLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.Render;
 
 @DomainObjectLayout(paged=100)
 public class ApplicationPackage extends ApplicationFeatureViewModel {
@@ -39,7 +39,7 @@ public class ApplicationPackage extends ApplicationFeatureViewModel {
 
     //region > contents (collection, for packages only)
     @MemberOrder(sequence = "4")
-    @CollectionLayout(render= CollectionLayout.RenderType.EAGERLY)
+    @Render(Render.Type.EAGERLY)
     public List<ApplicationFeatureViewModel> getContents() {
         final SortedSet<ApplicationFeatureId> contents = getFeature().getContents();
         return asViewModels(contents);
