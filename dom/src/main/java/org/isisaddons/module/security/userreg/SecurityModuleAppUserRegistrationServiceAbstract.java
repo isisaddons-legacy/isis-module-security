@@ -18,6 +18,8 @@ package org.isisaddons.module.security.userreg;
 
 import java.util.Set;
 import javax.inject.Inject;
+
+import org.apache.isis.applib.services.userreg.UserDetails;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
@@ -37,13 +39,13 @@ public abstract class SecurityModuleAppUserRegistrationServiceAbstract implement
 
     @Override
     public void registerUser(
-        final String username,
-        final String passwordStr,
-        final String emailAddress) {
+        final UserDetails userDetails) {
 
-        final Password password = new Password(passwordStr);
+        final Password password = new Password(userDetails.getPassword());
         final ApplicationRole initialRole = getInitialRole();
         final Boolean enabled = true;
+        String username = userDetails.getUsername();
+        String emailAddress = userDetails.getEmailAddress();
         final ApplicationUser applicationUser = applicationUsers.newLocalUser(username, password, password, initialRole, enabled, emailAddress);
 
         final Set<ApplicationRole> additionalRoles = getAdditionalInitialRoles();
