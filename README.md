@@ -20,7 +20,12 @@ A key design objective of this module has been to limit the amount of permission
 
 * if there are conflicting permissions at the same scope, then the _allow_ takes precedence over the __veto__.
   
-The module also provides an implementation of [Apache Shiro](http://shiro.apache.org)'s 
+The module also supports multi-tenancy.  Each user can be associated with a particular tenancy, and Isis can then be configured
+such that they cannot access data in other tenancies.  Moreover, tenancies can be hierarchical; users can (assuming they have
+been granted permission) edit data in "their" tenancy or sub-tenancies, and can view data in parent tenancies (for example,
+global reference data/standing data).
+
+The module also provides an implementation of [Apache Shiro](http://shiro.apache.org)'s
 [AuthorizingRealm](https://shiro.apache.org/static/1.2.2/apidocs/org/apache/shiro/realm/AuthorizingRealm.html).  This 
 allows the users/permissions to be used for Isis' authentication and/or authorization.
 
@@ -49,15 +54,15 @@ also has its own very simple `ExampleEntity` entity and corresponding repository
 
 For further screenshots, see the [screenshot tutorial](https://github.com/isisaddons/isis-module-security/wiki/Screenshot-Tutorial) on the wiki.
 
->
-> Note: these screenshots show the security module running on Apache Isis 1.7.0.   In 1.8.0-SNAPSHOT, the UI provided by Apache Isis has been substantially enhanced.
->
-
 #### Automatically Seeds Roles ####
 
 When the security module starts up, it will automatically (idempotently) seed a number of roles, corresponding permissions and a 
-default `isis-module-security-admin` user.  The corresponding (similarly named) `isis-module-security-admin` role 
-grants all permissions to all classes in the security module itself:
+default `isis-module-security-admin` user.   This user has access to the security menu:
+
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/010-role.png)
+
+One of the roles granted to the `isis-module-security-admin` user is the corresponding (similarly named)
+`isis-module-security-admin` role.  It is this that grants all permissions to all classes in the security module itself:
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/030-role.png)
 
@@ -66,11 +71,21 @@ The `isis-module-security-regular-user` role grants selected permissions to view
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/035-role-regular-user.png)
 
-#### Add permission for all features in a package ####
 
-Permissions created at the package level apply to all classes in all packages and subpackages (that is, recursively).
+#### Add permission at different scopes ####
 
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/040-role-add-permission-package.png)
+Permissions can be created at different scopes or levels (highlighted in the above screenshot).
+
+Permissions created at the *package level* apply to all classes in all packages and subpackages (that is, recursively).
+
+Permissions defined at the *class level* take precedence to those defined at the package level.
+
+For example, a user might have _allow/viewing_ at a parent level, but have this escalated to _allow/changing_ for a
+particular class.  Conversely, the class-level permission might veto access.
+
+Permissions can also be defined the *member level*: action, property or collection.  These override permissions
+defined at either the class- or package-level.
+
 
 #### Permissions can ALLOW or VETO access ####
 
@@ -96,60 +111,18 @@ An _allow/changing_ permission naturally enough implies _allow/viewing_, while c
 
 #### Specify package ####
 
-The list of packages is derived from Isis' own metamodel.
+The list of packages (or classes, or class members) is derived from Isis' own metamodel.
 
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/070-permission-package-from-isis-metamodel.png)
 
-#### Add permission for all members in a class ####
-
-Permissions defined at the class level take precedence to those defined at the package level.  For example, a user
-might have _allow/viewing_ at a parent level, but have this escalated to _allow/changing_ for a particular
-class.  Conversely, the class-level permission might veto access.
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/090-role-add-permission-class.png)
-
-#### Add permission to an individual action of a member ####
-
-Permissions can also be defined at the member level: action, property or collection.  These override permissions 
-defined at either the class- or package-level.
-
-For example, to add a permission for an individual action:
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/110-role-add-permission-action.png)
-
-#### Application feature for a class member ####
-
-Class members (action, property or collection) lists the permissions defined against that member:
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/280-feature.png)
-
-It provides access in turn to the parent (class) feature... 
-
-#### Application feature for a class ####
-
-The class feature lists associated permissions (if any), also the child properties, collections and actions:
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/283-class-feature.png)
-
-It also provides access to its parent (package) feature ...
-
-#### Application feature for a package ####
-
-The package feature lists its associated permissions (if any), its contents (class or package features) and also 
-provides access to its parent (package) feature.
-
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/286-package-feature.png)
 
 #### Application users ####
 
-Application users can have either a _local_ or a _delegated_ account type.  Local users are authenticated and authorized
-through the module's Shiro realm implementation.  Optionally a delegate authentication realm can be configured; if so 
-then delegated users can be created and their credentials will be authenticated by the delegate authentication realm.
+Application users can have either a _local_ or a _delegated_ account type.
 
-If configured _without_ a delegate realm, then the users must be created by the administrator.    If configured _with_
-a delegate realm, then the user will be created automatically if that user attempts to log on.  However, for safety 
-their `ApplicationUser` accounts are created in a disabled state and with no roles, so the administrator is still required
-to update them.
+* Local users are authenticated and authorized through the module's Shiro realm implementation.  The users are created explicitly by the administrator.
+
+* Optionally a delegate authentication realm can be configured; if so then delegated users can be created and their credentials will be authenticated by the delegate authentication realm.  Users are created _automatically_ when that user attempts to log in.  However, for safety their `ApplicationUser` accounts are created in a disabled state and with no roles, so the administrator is still required to update them.
 
 Once the user is created, then additional information about that user can be captured, including their name and
 contact details.  This information is not otherwise used by the security module, but may be of use to other parts
@@ -487,7 +460,7 @@ and users:
     * _allow_ _changing_ of the selected "self-service" actions of the `org.isisaddons.module.security.app.dom.ApplicationUser` class
 * `isis-module-security-fixture` role
     * _allow_ _changing_ of `org.isisaddons.module.security.fixture` package (run example fixtures if prototyping) 
-* `admin` user
+* `isis-module-security-admin` user
     * granted `isis-module-security-admin` role
 * `isis-applib-fixtureresults` role
     * _allow_ _changing_ of `org.apache.isis.applib.fixturescripts.FixtureResult` class
@@ -501,13 +474,14 @@ Limitations in current implementation:
 - It is not possible to set permissions on the root package.  The workaround is to specify for `org` or `com` top-level package instead.
 
 Ideas for future features:
+- enhance the auto-creation of delegated user accounts, so that an initial role can be assigned and the user left as enabled
 - users could possibly be extended to include user settings, refactored out from [isis-module-settings](https://github.com/isisaddons/isis-module-settings)
 - features could possibly be refactored out/merged with [isis-module-devutils](https://github.com/isisaddons/isis-module-devutils). 
 - hierarchical roles
 
 ## Change Log ##
 
-* `1.8.0` (snapshot) - released against Isis 1.8.0.  ApplicationTenancy extended to support hierarchical tenancies, with path as primary key (nb: breaking change), support to make easier to extend (pluggable factories and events for all actions). MeService on TERTIARY menuBar.
+* `1.8.0` (snapshot) - released against Isis 1.8.0.  `ApplicationTenancy` extended to support hierarchical tenancies, with path as primary key (nb: breaking change), support to make easier to extend (pluggable factories and events for all actions). MeService on TERTIARY menuBar.
 * `1.7.0` - released against Isis 1.7.0
 * `1.6.2` - made more resilient so can be called by an application's own 'security seed' service
 * `1.6.1` - support for account types and delegated authentication realm
@@ -518,7 +492,7 @@ Ideas for future features:
  
 #### License ####
 
-    Copyright 2014 Dan Haywood
+    Copyright 2014-2015 Dan Haywood
 
     Licensed under the Apache License, Version 2.0 (the
     "License"); you may not use this file except in compliance
