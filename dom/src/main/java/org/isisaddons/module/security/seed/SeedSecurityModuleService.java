@@ -19,12 +19,13 @@ package org.isisaddons.module.security.seed;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import org.apache.isis.applib.annotation.DomainService;
-import org.apache.isis.applib.annotation.Hidden;
+import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.fixturescripts.FixtureScripts;
 
-@Hidden
-@DomainService
+@DomainService(
+        nature = NatureOfService.DOMAIN
+)
 public class SeedSecurityModuleService {
 
     // //////////////////////////////////////

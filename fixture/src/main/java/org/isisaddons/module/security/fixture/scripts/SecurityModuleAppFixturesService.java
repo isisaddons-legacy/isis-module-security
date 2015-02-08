@@ -18,25 +18,28 @@ package org.isisaddons.module.security.fixture.scripts;
 
 import java.util.List;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
-import org.apache.isis.applib.Identifier;
-import org.apache.isis.applib.annotation.ActionInteraction;
-import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.Optionality;
+import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
-import org.apache.isis.applib.annotation.Prototype;
+import org.apache.isis.applib.annotation.RestrictTo;
+import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.fixturescripts.FixtureResult;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 import org.apache.isis.applib.fixturescripts.FixtureScripts;
-import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 
 /**
  * Enables fixtures to be installed from the application.
  */
 @DomainService()
-@DomainServiceLayout(named="Prototyping", menuOrder = "99", menuBar = DomainServiceLayout.MenuBar.SECONDARY)
+@DomainServiceLayout(
+        named="Prototyping",
+        menuOrder = "99",
+        menuBar = DomainServiceLayout.MenuBar.SECONDARY
+)
 public class SecurityModuleAppFixturesService extends FixtureScripts {
 
     //region > constructor
@@ -46,23 +49,16 @@ public class SecurityModuleAppFixturesService extends FixtureScripts {
     //endregion
 
     //region > runFixtureScript
-    public static class RunFixtureScriptEvent extends ActionInteractionEvent<SecurityModuleAppFixturesService> {
-        public RunFixtureScriptEvent(SecurityModuleAppFixturesService source, Identifier identifier, Object... args) {
-            super(source, identifier, args);
-        }
-    }
-
-    @ActionInteraction(RunFixtureScriptEvent.class)
     @Override
     public List<FixtureResult> runFixtureScript(
             final FixtureScript fixtureScript,
-            final @ParameterLayout(
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(
                 named = "Parameters",
                 describedAs = "Script-specific parameters (if any).  The format depends on the script implementation (eg key=value, CSV, JSON, XML etc)",
                 multiLine = 10
             )
-            @Optional
-            String parameters) {
+            final String parameters) {
         return super.runFixtureScript(fixtureScript, parameters);
     }
 
@@ -82,15 +78,10 @@ public class SecurityModuleAppFixturesService extends FixtureScripts {
     //endregion
 
     //region > installFixturesAndReturnFirstRole
-    public static class InstallFixturesAndReturnFirstRoleEvent extends ActionInteractionEvent<SecurityModuleAppFixturesService> {
-        public InstallFixturesAndReturnFirstRoleEvent(SecurityModuleAppFixturesService source, Identifier identifier, Object... args) {
-            super(source, identifier, args);
-        }
-    }
-
-    @ActionInteraction(InstallFixturesAndReturnFirstRoleEvent.class)
-    @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
-    @Prototype
+    @Action(
+            semantics = SemanticsOf.NON_IDEMPOTENT,
+            restrictTo = RestrictTo.PROTOTYPING
+    )
     @MemberOrder(sequence="20")
     public Object installFixturesAndReturnFirstRole() {
         final List<FixtureResult> fixtureResultList = findFixtureScriptFor(SecurityModuleAppSetUp.class).run(null);

@@ -18,10 +18,22 @@ package org.isisaddons.module.security.fixture.dom.example.nontenanted;
 
 import java.util.List;
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.annotation.*;
-import org.apache.isis.applib.annotation.ActionSemantics.Of;
+import org.apache.isis.applib.annotation.Action;
+import org.apache.isis.applib.annotation.ActionLayout;
+import org.apache.isis.applib.annotation.BookmarkPolicy;
+import org.apache.isis.applib.annotation.DomainService;
+import org.apache.isis.applib.annotation.DomainServiceLayout;
+import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.NatureOfService;
+import org.apache.isis.applib.annotation.Parameter;
+import org.apache.isis.applib.annotation.ParameterLayout;
+import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.SemanticsOf;
 
-@DomainService(repositoryFor = NonTenantedEntity.class)
+@DomainService(
+        nature = NatureOfService.VIEW_MENU_ONLY,
+        repositoryFor = NonTenantedEntity.class
+)
 @DomainServiceLayout(menuOrder = "10")
 public class NonTenantedEntities {
 
@@ -42,8 +54,12 @@ public class NonTenantedEntities {
     //region > listAll (action)
     // //////////////////////////////////////
 
-    @Bookmarkable
-    @ActionSemantics(Of.SAFE)
+    @Action(
+            semantics = SemanticsOf.SAFE
+    )
+    @ActionLayout(
+            bookmarking = BookmarkPolicy.AS_ROOT
+    )
     @MemberOrder(sequence = "1")
     public List<NonTenantedEntity> listAll() {
         return container.allInstances(NonTenantedEntity.class);
@@ -56,7 +72,9 @@ public class NonTenantedEntities {
     
     @MemberOrder(sequence = "2")
     public NonTenantedEntity create(
-            final @ParameterLayout(named="Name") @MaxLength(NonTenantedEntity.MAX_LENGTH_NAME) String name) {
+            @Parameter(maxLength = NonTenantedEntity.MAX_LENGTH_NAME)
+            @ParameterLayout(named="Name")
+            final String name) {
         final NonTenantedEntity obj = container.newTransientInstance(NonTenantedEntity.class);
         obj.setName(name);
         container.persistIfNotAlready(obj);

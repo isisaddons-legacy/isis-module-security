@@ -20,18 +20,22 @@ import java.util.List;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.fixture.dom.example.nontenanted.NonTenantedEntity;
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.annotation.ActionSemantics;
-import org.apache.isis.applib.annotation.ActionSemantics.Of;
-import org.apache.isis.applib.annotation.Bookmarkable;
+import org.apache.isis.applib.annotation.Action;
+import org.apache.isis.applib.annotation.ActionLayout;
+import org.apache.isis.applib.annotation.BookmarkPolicy;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
-import org.apache.isis.applib.annotation.MaxLength;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.NotContributed;
+import org.apache.isis.applib.annotation.NatureOfService;
+import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.SemanticsOf;
 
-@DomainService(repositoryFor = TenantedEntity.class)
+@DomainService(
+        nature = NatureOfService.VIEW_MENU_ONLY,
+        repositoryFor = TenantedEntity.class
+)
 @DomainServiceLayout(menuOrder = "20")
 public class TenantedEntities {
 
@@ -52,8 +56,12 @@ public class TenantedEntities {
     //region > listAll (action)
     // //////////////////////////////////////
 
-    @Bookmarkable
-    @ActionSemantics(Of.SAFE)
+    @Action(
+            semantics = SemanticsOf.SAFE
+    )
+    @ActionLayout(
+            bookmarking = BookmarkPolicy.AS_ROOT
+    )
     @MemberOrder(sequence = "1")
     public List<TenantedEntity> listAll() {
         return container.allInstances(TenantedEntity.class);
@@ -64,13 +72,11 @@ public class TenantedEntities {
     //region > create (action)
     // //////////////////////////////////////
 
-    @NotContributed
     @MemberOrder(sequence = "2")
     public TenantedEntity create(
-            final
-            @ParameterLayout(named = "Name")
-            @MaxLength(NonTenantedEntity.MAX_LENGTH_NAME)
-            String name,
+            @Parameter(maxLength = NonTenantedEntity.MAX_LENGTH_NAME)
+            @ParameterLayout(named="Name")
+            final String name,
             final ApplicationTenancy tenancy) {
         final TenantedEntity obj = container.newTransientInstance(TenantedEntity.class);
         obj.setName(name);
