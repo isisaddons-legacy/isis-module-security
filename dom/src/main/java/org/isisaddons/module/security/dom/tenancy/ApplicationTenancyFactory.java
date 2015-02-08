@@ -23,17 +23,17 @@ import org.apache.isis.applib.DomainObjectContainer;
  * Optional hook so that alternative implementations of {@link org.isisaddons.module.security.dom.tenancy.ApplicationTenancy}.
  *
  * <p>
- *     To use, simply implement the interface and annotate that implementation with {@link org.apache.isis.applib.annotation.DomainService},
+ *     To use, implement the interface and annotate that implementation with {@link org.apache.isis.applib.annotation.DomainService},
  *     for example:
  * </p>
  * <pre>
- *     @DomainService
+ *     &#64;DomainService
  *     public class MyApplicationTenancyFactory implements ApplicationTenancyFactory {
  *         public ApplicationTenancy newApplicationTenancy() {
  *             return container.newTransientInstance(MyApplicationTenancy.class);
  *         }
  *
- *         @Inject
+ *         &#64;Inject
  *         DomainObjectContainer container;
  *     }
  * </pre>

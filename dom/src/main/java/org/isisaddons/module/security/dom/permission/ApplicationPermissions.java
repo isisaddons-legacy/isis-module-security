@@ -22,6 +22,7 @@ import java.util.concurrent.Callable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import com.google.common.collect.Maps;
+import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
@@ -30,17 +31,14 @@ import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
-import org.apache.isis.applib.annotation.ActionInteraction;
-import org.apache.isis.applib.annotation.ActionLayout;
-import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.Optional;
 import org.apache.isis.applib.annotation.Programmatic;
-import org.apache.isis.applib.annotation.Prototype;
+import org.apache.isis.applib.annotation.RestrictTo;
+import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.query.QueryDefault;
-import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 
 @DomainService(repositoryFor = ApplicationPermission.class)
@@ -50,6 +48,42 @@ import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
         menuOrder = "100.30"
 )
 public class ApplicationPermissions {
+
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationPermissions, T> {
+        public PropertyDomainEvent(final ApplicationPermissions source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public PropertyDomainEvent(final ApplicationPermissions source, final Identifier identifier, final T oldValue, final T newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationPermissions, T> {
+        public CollectionDomainEvent(final ApplicationPermissions source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public CollectionDomainEvent(final ApplicationPermissions source, final Identifier identifier, final Of of, final T value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationPermissions> {
+        public ActionDomainEvent(final ApplicationPermissions source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ActionDomainEvent(final ApplicationPermissions source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
+
+        public ActionDomainEvent(final ApplicationPermissions source, final Identifier identifier, final List<Object> arguments) {
+            super(source, identifier, arguments);
+        }
+    }
+
+    // //////////////////////////////////////
 
     //region > iconName
 
@@ -88,7 +122,7 @@ public class ApplicationPermissions {
         return findByUser(username);
     }
 
-    private List<ApplicationPermission> findByUser(String username) {
+    private List<ApplicationPermission> findByUser(final String username) {
         return container.allMatches(
                 new QueryDefault<>(
                         ApplicationPermission.class, "findByUser",
@@ -102,7 +136,7 @@ public class ApplicationPermissions {
      * multiple lookups from <code>org.isisaddons.module.security.app.user.UserPermissionViewModel</code>.
      */
     @Programmatic
-    public ApplicationPermission findByUserAndPermissionValue(final String username, ApplicationPermissionValue permissionValue) {
+    public ApplicationPermission findByUserAndPermissionValue(final String username, final ApplicationPermissionValue permissionValue) {
 
         // obtain all permissions for this user, map by its value, and
         // put into query cache (so that this method can be safely called in a tight loop)
@@ -136,7 +170,7 @@ public class ApplicationPermissions {
 
     //region > findByRoleAndRuleAndFeature (programmatic)
     @Programmatic
-    public ApplicationPermission findByRoleAndRuleAndFeature(ApplicationRole role, ApplicationPermissionRule rule, ApplicationFeatureType type, String featureFqn) {
+    public ApplicationPermission findByRoleAndRuleAndFeature(final ApplicationRole role, final ApplicationPermissionRule rule, final ApplicationFeatureType type, final String featureFqn) {
         return container.firstMatch(
                 new QueryDefault<>(
                         ApplicationPermission.class, "findByRoleAndRuleAndFeature",
@@ -149,7 +183,7 @@ public class ApplicationPermissions {
 
     //region > findByFeature (programmatic)
     @Programmatic
-    public List<ApplicationPermission> findByFeature(ApplicationFeatureId featureId) {
+    public List<ApplicationPermission> findByFeature(final ApplicationFeatureId featureId) {
         return container.allMatches(
                 new QueryDefault<>(
                         ApplicationPermission.class, "findByFeature",
@@ -203,9 +237,9 @@ public class ApplicationPermissions {
             final ApplicationPermissionRule rule,
             final ApplicationPermissionMode mode,
             final String featurePackage,
-            final @Optional String featureClassName,
-            final @Optional String featureMemberName) {
-        ApplicationFeatureId featureId = ApplicationFeatureId.newFeature(featurePackage, featureClassName, featureMemberName);
+            final String featureClassName,
+            final String featureMemberName) {
+        final ApplicationFeatureId featureId = ApplicationFeatureId.newFeature(featurePackage, featureClassName, featureMemberName);
         final ApplicationFeatureType featureType = featureId.getType();
         final String featureFqn = featureId.getFullyQualifiedName();
 
@@ -228,15 +262,17 @@ public class ApplicationPermissions {
     //endregion
 
     //region > allPermission (action)
-    public static class AllPermissionsEvent extends ActionInteractionEvent<ApplicationPermissions> {
-        public AllPermissionsEvent(ApplicationPermissions source, Identifier identifier, Object... args) {
+    public static class AllPermissionsDomainEvent extends ActionDomainEvent {
+        public AllPermissionsDomainEvent(final ApplicationPermissions source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(AllPermissionsEvent.class)
-    @Prototype
-    @ActionSemantics(ActionSemantics.Of.SAFE)
+    @Action(
+            domainEvent=AllPermissionsDomainEvent.class,
+            semantics = SemanticsOf.SAFE,
+            restrictTo = RestrictTo.PROTOTYPING
+    )
     @MemberOrder(sequence = "60.9")
     public List<ApplicationPermission> allPermissions() {
         return container.allInstances(ApplicationPermission.class);
@@ -253,7 +289,7 @@ public class ApplicationPermissions {
 
     /**
      * Will only be injected to if the programmer has supplied an implementation.  Otherwise
-     * this class will install a default implementation in {@link #postConstruct()}.
+     * this class will install a default implementation in {@link #init()}.
      */
     @Inject
     ApplicationPermissionFactory applicationPermissionFactory;

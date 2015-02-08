@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.apache.isis.applib.annotation.Hidden;
+import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.util.ObjectContracts;
 
 /**
@@ -32,15 +32,13 @@ import org.apache.isis.applib.util.ObjectContracts;
  *     is not required to perform the arithmetic.
  * </p>
  */
-@Hidden
 public class ApplicationPermissionValue implements Comparable<ApplicationPermissionValue>, Serializable {
 
     //region > constructor
-
     public ApplicationPermissionValue(
-            ApplicationFeatureId featureId,
-            ApplicationPermissionRule rule,
-            ApplicationPermissionMode mode) {
+            final ApplicationFeatureId featureId,
+            final ApplicationPermissionRule rule,
+            final ApplicationPermissionMode mode) {
         this.featureId = featureId;
         this.rule = rule;
         this.mode = mode;
@@ -49,6 +47,7 @@ public class ApplicationPermissionValue implements Comparable<ApplicationPermiss
 
     //region > featureId
     private final ApplicationFeatureId featureId;
+    @Programmatic
     public ApplicationFeatureId getFeatureId() {
         return featureId;
     }
@@ -56,6 +55,7 @@ public class ApplicationPermissionValue implements Comparable<ApplicationPermiss
 
     //region > rule
     private final ApplicationPermissionRule rule;
+    @Programmatic
     public ApplicationPermissionRule getRule() {
         return rule;
     }
@@ -63,13 +63,15 @@ public class ApplicationPermissionValue implements Comparable<ApplicationPermiss
 
     //region > mode
     private final ApplicationPermissionMode mode;
+    @Programmatic
     public ApplicationPermissionMode getMode() {
         return mode;
     }
     //endregion
 
     //region > implies, refutes
-    public boolean implies(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
+    @Programmatic
+    public boolean implies(final ApplicationFeatureId featureId, final ApplicationPermissionMode mode) {
         if(getRule() != ApplicationPermissionRule.ALLOW) {
             // only allow rules can imply
             return false;
@@ -83,7 +85,8 @@ public class ApplicationPermissionValue implements Comparable<ApplicationPermiss
         return onPathOf(featureId);
     }
 
-    public boolean refutes(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
+    @Programmatic
+    public boolean refutes(final ApplicationFeatureId featureId, final ApplicationPermissionMode mode) {
         if(getRule() != ApplicationPermissionRule.VETO) {
             // only veto rules can refute
             return false;
@@ -96,10 +99,10 @@ public class ApplicationPermissionValue implements Comparable<ApplicationPermiss
         return onPathOf(featureId);
     }
 
-    private boolean onPathOf(ApplicationFeatureId featureId) {
+    private boolean onPathOf(final ApplicationFeatureId featureId) {
 
         final List<ApplicationFeatureId> pathIds = featureId.getPathIds();
-        for (ApplicationFeatureId pathId : pathIds) {
+        for (final ApplicationFeatureId pathId : pathIds) {
             if(getFeatureId().equals(pathId)) {
                 return true;
             }
@@ -116,7 +119,7 @@ public class ApplicationPermissionValue implements Comparable<ApplicationPermiss
         public static Comparator<ApplicationPermissionValue> natural() {
             return new Comparator<ApplicationPermissionValue>() {
                 @Override
-                public int compare(ApplicationPermissionValue o1, ApplicationPermissionValue o2) {
+                public int compare(final ApplicationPermissionValue o1, final ApplicationPermissionValue o2) {
                     return o1.compareTo(o2);
                 }
             };
@@ -129,18 +132,18 @@ public class ApplicationPermissionValue implements Comparable<ApplicationPermiss
     private final static String propertyNames = "rule, mode, featureId";
 
     @Override
-    public int compareTo(ApplicationPermissionValue o) {
+    public int compareTo(final ApplicationPermissionValue o) {
         return ObjectContracts.compare(this, o, propertyNames);
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         // not using because trying to be efficient.  Premature optimization?
         // return ObjectContracts.equals(this, obj, propertyNames);
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ApplicationPermissionValue that = (ApplicationPermissionValue) o;
+        final ApplicationPermissionValue that = (ApplicationPermissionValue) o;
 
         if (featureId != null ? !featureId.equals(that.featureId) : that.featureId != null) return false;
         if (mode != that.mode) return false;

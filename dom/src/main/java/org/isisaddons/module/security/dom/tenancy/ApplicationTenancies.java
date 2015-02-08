@@ -19,29 +19,67 @@ package org.isisaddons.module.security.dom.tenancy;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import org.isisaddons.module.security.SecurityModule;
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.Identifier;
-import org.apache.isis.applib.annotation.ActionInteraction;
-import org.apache.isis.applib.annotation.ActionSemantics;
-import org.apache.isis.applib.annotation.ActionSemantics.Of;
+import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
-import org.apache.isis.applib.annotation.MaxLength;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.NotContributed;
-import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.NatureOfService;
+import org.apache.isis.applib.annotation.Optionality;
+import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.query.QueryDefault;
-import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 
-@DomainService(repositoryFor = ApplicationTenancy.class)
+@DomainService(
+        nature = NatureOfService.VIEW_MENU_ONLY,
+        repositoryFor = ApplicationTenancy.class
+)
 @DomainServiceLayout(
         named="Security",
         menuBar = DomainServiceLayout.MenuBar.SECONDARY,
         menuOrder = "100.50"
 )
 public class ApplicationTenancies extends AbstractFactoryAndRepository {
+
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationTenancies, T> {
+        public PropertyDomainEvent(final ApplicationTenancies source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public PropertyDomainEvent(final ApplicationTenancies source, final Identifier identifier, final T oldValue, final T newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationTenancies, T> {
+        public CollectionDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public CollectionDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Of of, final T value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationTenancies> {
+        public ActionDomainEvent(final ApplicationTenancies source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ActionDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
+
+        public ActionDomainEvent(final ApplicationTenancies source, final Identifier identifier, final List<Object> arguments) {
+            super(source, identifier, arguments);
+        }
+    }
+
+    // //////////////////////////////////////
 
     //region > iconName
 
@@ -65,18 +103,20 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
 
     //region > findTenancyByName
 
-    public static class FindTenancyByNameEvent extends ActionInteractionEvent<ApplicationTenancies> {
-        public FindTenancyByNameEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
+    public static class FindTenancyByNameDomainEvent extends ActionDomainEvent {
+        public FindTenancyByNameDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(FindTenancyByNameEvent.class)
+    @Action(
+            domainEvent = FindTenancyByNameDomainEvent.class,
+            semantics = SemanticsOf.SAFE
+    )
     @MemberOrder(sequence = "90.1")
-    @ActionSemantics(Of.SAFE)
     public ApplicationTenancy findTenancyByName(
+            @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_NAME)
             @ParameterLayout(named="Name", typicalLength=ApplicationTenancy.TYPICAL_LENGTH_NAME)
-            @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME)
             final String name) {
         return uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByName", "name", name));
     }
@@ -85,18 +125,20 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
 
     //region > findTenancyByPath
 
-    public static class FindTenancyByPathEvent extends ActionInteractionEvent<ApplicationTenancies> {
-        public FindTenancyByPathEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
+    public static class FindTenancyByPathDomainEvent extends ActionDomainEvent {
+        public FindTenancyByPathDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(FindTenancyByPathEvent.class)
+    @Action(
+            domainEvent = FindTenancyByPathDomainEvent.class,
+            semantics = SemanticsOf.SAFE
+    )
     @MemberOrder(sequence = "90.2")
-    @ActionSemantics(Of.SAFE)
     public ApplicationTenancy findTenancyByPath(
+            @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_NAME)
             @ParameterLayout(named="Name", typicalLength=ApplicationTenancy.TYPICAL_LENGTH_NAME)
-            @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME)
             final String path) {
         if(path == null) {
             return null;
@@ -109,25 +151,26 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
 
     //region > newTenancy
 
-    public static class NewTenancyEvent extends ActionInteractionEvent<ApplicationTenancies> {
-        public NewTenancyEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
+    public static class NewTenancyDomainEvent extends ActionDomainEvent {
+        public NewTenancyDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @NotContributed
-    @ActionInteraction(NewTenancyEvent.class)
+    @Action(
+            domainEvent = NewTenancyDomainEvent.class,
+            semantics = SemanticsOf.IDEMPOTENT
+    )
     @MemberOrder(sequence = "90.3")
-    @ActionSemantics(Of.IDEMPOTENT)
     public ApplicationTenancy newTenancy(
+            @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_NAME)
             @ParameterLayout(named = "Name", typicalLength = ApplicationTenancy.TYPICAL_LENGTH_NAME)
-            @MaxLength(ApplicationTenancy.MAX_LENGTH_NAME)
             final String name,
+            @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_PATH)
             @ParameterLayout(named = "Path")
-            @MaxLength(ApplicationTenancy.MAX_LENGTH_PATH)
             final String path,
+            @Parameter(optionality = Optionality.OPTIONAL)
             @ParameterLayout(named = "Parent")
-            @Optional
             final ApplicationTenancy parent) {
         ApplicationTenancy tenancy = findTenancyByName(name);
         if (tenancy == null){
@@ -144,15 +187,17 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
 
     //region > allTenancies
 
-    public static class AllTenanciesEvent extends ActionInteractionEvent<ApplicationTenancies> {
-        public AllTenanciesEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
+    public static class AllTenanciesDomainEvent extends ActionDomainEvent {
+        public AllTenanciesDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(AllTenanciesEvent.class)
+    @Action(
+            domainEvent = AllTenanciesDomainEvent.class,
+            semantics = SemanticsOf.SAFE
+    )
     @MemberOrder(sequence = "90.4")
-    @ActionSemantics(Of.SAFE)
     public List<ApplicationTenancy> allTenancies() {
         return allInstances(ApplicationTenancy.class);
     }

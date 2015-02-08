@@ -16,12 +16,52 @@
  */
 package org.isisaddons.module.security.app.feature;
 
+import java.util.List;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.apache.isis.applib.annotation.DomainObjectLayout;
+import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.Property;
+import org.apache.isis.applib.annotation.ViewModelLayout;
 
-@DomainObjectLayout(paged=100)
+@SuppressWarnings("UnusedDeclaration")
+@ViewModelLayout(paged=100)
 public class ApplicationClassCollection extends ApplicationClassMember {
+
+    public static abstract class PropertyDomainEvent<T> extends ApplicationClassMember.PropertyDomainEvent<ApplicationClassCollection, T> {
+        public PropertyDomainEvent(final ApplicationClassCollection source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public PropertyDomainEvent(final ApplicationClassCollection source, final Identifier identifier, final T oldValue, final T newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    public static abstract class CollectionDomainEvent<T> extends ApplicationClassMember.CollectionDomainEvent<ApplicationClassCollection, T> {
+        public CollectionDomainEvent(final ApplicationClassCollection source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public CollectionDomainEvent(final ApplicationClassCollection source, final Identifier identifier, final Of of, final T value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    public static abstract class ActionDomainEvent extends ApplicationClassMember.ActionDomainEvent<ApplicationClassCollection> {
+        public ActionDomainEvent(final ApplicationClassCollection source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ActionDomainEvent(final ApplicationClassCollection source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
+
+        public ActionDomainEvent(final ApplicationClassCollection source, final Identifier identifier, final List<Object> arguments) {
+            super(source, identifier, arguments);
+        }
+    }
+
+    // //////////////////////////////////////
 
     //region > constructors
 
@@ -29,13 +69,14 @@ public class ApplicationClassCollection extends ApplicationClassMember {
     public ApplicationClassCollection() {
     }
 
-    public ApplicationClassCollection(ApplicationFeatureId featureId) {
+    public ApplicationClassCollection(final ApplicationFeatureId featureId) {
         super(featureId);
     }
     //endregion
 
     //region > returnType
 
+    @Property
     @MemberOrder(name="Data Type", sequence = "2.6")
     public String getElementType() {
         return getFeature().getReturnTypeName();
@@ -44,6 +85,7 @@ public class ApplicationClassCollection extends ApplicationClassMember {
 
     //region > derived
 
+    @Property
     @MemberOrder(name="Detail", sequence = "2.7")
     public boolean isDerived() {
         return getFeature().isDerived();

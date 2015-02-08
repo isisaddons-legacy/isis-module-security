@@ -20,20 +20,20 @@ import javax.inject.Inject;
 import org.apache.isis.applib.DomainObjectContainer;
 
 /**
- * Optional hook so that alternative implementations of {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
+ * Optional hook for alternative implementations of {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
  *
  * <p>
- *     To use, simply implement the interface and annotate that implementation with {@link org.apache.isis.applib.annotation.DomainService},
+ *     To use, implement the interface and annotate that implementation with {@link org.apache.isis.applib.annotation.DomainService},
  *     for example:
  * </p>
  * <pre>
- *     @DomainService
+ *     &#64;DomainService
  *     public class MyApplicationFeatureFactory implements ApplicationFeatureFactory {
  *         public ApplicationFeature newApplicationFeature() {
  *             return container.newTransientInstance(MyApplicationFeature.class);
  *         }
  *
- *         @Inject
+ *         &#64;Inject
  *         DomainObjectContainer container;
  *     }
  * </pre>

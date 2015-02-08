@@ -32,11 +32,13 @@ public class PasswordEncryptionServiceUsingJBcrypt implements PasswordEncryption
     }
 
     @Programmatic
+    @Override
     public String encrypt(String password) {
         return password == null ? null : BCrypt.hashpw(password, getSalt());
     }
 
     @Programmatic
+    @Override
     public boolean matches(String candidate, String encrypted) {
         if (candidate == null && encrypted == null) {
             return true;

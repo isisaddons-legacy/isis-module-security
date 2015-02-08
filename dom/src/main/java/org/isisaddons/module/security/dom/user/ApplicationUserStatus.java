@@ -25,7 +25,7 @@ public enum ApplicationUserStatus {
     ENABLED,
     DISABLED;
 
-    static ApplicationUserStatus parse(Boolean enabled) {
+    static ApplicationUserStatus parse(final Boolean enabled) {
         return enabled != null && enabled ? ENABLED : DISABLED;
     }
 

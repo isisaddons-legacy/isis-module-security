@@ -21,6 +21,7 @@ import java.util.SortedSet;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
@@ -28,12 +29,16 @@ import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.apache.isis.applib.DomainObjectContainer;
+import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.ViewModel;
+import org.apache.isis.applib.annotation.Collection;
+import org.apache.isis.applib.annotation.CollectionLayout;
 import org.apache.isis.applib.annotation.MemberGroupLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.Property;
 import org.apache.isis.applib.annotation.PropertyLayout;
-import org.apache.isis.applib.annotation.Render;
+import org.apache.isis.applib.annotation.RenderType;
 import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.util.ObjectContracts;
 
@@ -46,6 +51,42 @@ import org.apache.isis.applib.util.ObjectContracts;
         right= {"Parent", "Contributed", "Detail"}
 )
 public abstract class ApplicationFeatureViewModel implements ViewModel {
+
+    public static abstract class PropertyDomainEvent<S extends ApplicationFeatureViewModel,T> extends SecurityModule.PropertyDomainEvent<S, T> {
+        public PropertyDomainEvent(final S source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public PropertyDomainEvent(final S source, final Identifier identifier, final T oldValue, final T newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    public static abstract class CollectionDomainEvent<S extends ApplicationFeatureViewModel,T> extends SecurityModule.CollectionDomainEvent<S, T> {
+        public CollectionDomainEvent(final S source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public CollectionDomainEvent(final S source, final Identifier identifier, final Of of, final T value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    public static abstract class ActionDomainEvent<S extends ApplicationFeatureViewModel> extends SecurityModule.ActionDomainEvent<S> {
+        public ActionDomainEvent(final S source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ActionDomainEvent(final S source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
+
+        public ActionDomainEvent(final S source, final Identifier identifier, final List<Object> arguments) {
+            super(source, identifier, arguments);
+        }
+    }
+
+    // //////////////////////////////////////
 
     //region > constructors
     public static ApplicationFeatureViewModel newViewModel(
@@ -107,6 +148,8 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > ViewModel impl
     @Override
     public String viewModelMemento() {
@@ -120,6 +163,8 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     }
 
     //endregion
+
+    // //////////////////////////////////////
 
     //region > featureId (property, programmatic)
     private ApplicationFeatureId featureId;
@@ -155,17 +200,23 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > type, packageName, className, memberName (properties)
+    @Property()
     @PropertyLayout(typicalLength=ApplicationFeature.TYPICAL_LENGTH_PKG_FQN)
     @MemberOrder(name="Id", sequence = "2.2")
     public String getPackageName() {
         return getFeatureId().getPackageName();
     }
 
+    // //////////////////////////////////////
+
     /**
      * For packages, will be null. Is in this class (rather than subclasses) so is shown in
      * {@link ApplicationPackage#getContents() package contents}.
      */
+    @Property()
     @PropertyLayout(typicalLength=ApplicationFeature.TYPICAL_LENGTH_CLS_NAME)
     @MemberOrder(name="Id", sequence = "2.3")
     public String getClassName() {
@@ -175,9 +226,12 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
         return getType().hideClassName();
     }
 
+    // //////////////////////////////////////
+
     /**
      * For packages and class names, will be null.
      */
+    @Property()
     @PropertyLayout(typicalLength=ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME)
     @MemberOrder(name="Id", sequence = "2.4")
     public String getMemberName() {
@@ -191,8 +245,11 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     //endregion
 
+    // //////////////////////////////////////
+
     //region > parent (property)
 
+    @Property()
     @PropertyLayout(hidden=Where.ALL_TABLES)
     @MemberOrder(name = "Parent", sequence = "2.6")
     public ApplicationFeatureViewModel getParent() {
@@ -213,11 +270,14 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > contributed (property)
 
     /**
      * For packages and class names, will be null.
      */
+    @Property()
     @MemberOrder(name="Contributed", sequence = "2.5.5")
     public boolean isContributed() {
         return getFeature().isContributed();
@@ -228,13 +288,20 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > permissions (collection)
+    @Collection
+    @CollectionLayout(
+            render = RenderType.EAGERLY
+    )
     @MemberOrder(sequence = "10")
-    @Render(Render.Type.EAGERLY)
     public List<ApplicationPermission> getPermissions() {
         return applicationPermissions.findByFeature(getFeatureId());
     }
     //endregion
+
+    // //////////////////////////////////////
 
     //region > parentPackage (property, programmatic, for packages & classes only)
 
@@ -246,6 +313,8 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
         return Functions.asViewModelForId(applicationFeatures, container).apply(getFeatureId().getParentPackageId());
     }
     //endregion
+
+    // //////////////////////////////////////
 
     //region > equals, hashCode, toString
 

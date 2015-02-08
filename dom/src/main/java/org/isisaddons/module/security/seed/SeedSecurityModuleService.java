@@ -27,6 +27,8 @@ import org.apache.isis.applib.fixturescripts.FixtureScripts;
 @DomainService
 public class SeedSecurityModuleService {
 
+    // //////////////////////////////////////
+
     //region > init
     @Programmatic
     @PostConstruct

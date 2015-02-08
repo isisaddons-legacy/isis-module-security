@@ -19,25 +19,63 @@ package org.isisaddons.module.security.app.feature;
 import java.util.List;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
-import org.apache.isis.applib.annotation.ActionInteraction;
-import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.Prototype;
-import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
+import org.apache.isis.applib.annotation.RestrictTo;
+import org.apache.isis.applib.annotation.SemanticsOf;
 
-@DomainService()
+@DomainService(
+        repositoryFor = ApplicationFeatureViewModel.class
+)
 @DomainServiceLayout(
         named="Security",
         menuBar = DomainServiceLayout.MenuBar.SECONDARY,
         menuOrder = "100.40"
 )
 public class ApplicationFeatureViewModels  {
+
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationFeatureViewModels, T> {
+        public PropertyDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public PropertyDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final T oldValue, final T newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationFeatureViewModels, T> {
+        public CollectionDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public CollectionDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Of of, final T value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationFeatureViewModels> {
+        public ActionDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ActionDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
+
+        public ActionDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final List<Object> arguments) {
+            super(source, identifier, arguments);
+        }
+    }
+
+    // //////////////////////////////////////
 
     //region > iconName
 
@@ -47,18 +85,22 @@ public class ApplicationFeatureViewModels  {
 
     //endregion
 
+    // //////////////////////////////////////
+
     //region > allPackages
 
-    public static class AllPackagesEvent extends ActionInteractionEvent<ApplicationFeatureViewModels> {
-        public AllPackagesEvent(ApplicationFeatureViewModels source, Identifier identifier, Object... args) {
+    public static class AllPackagesDomainEvent extends ActionDomainEvent {
+        public AllPackagesDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(AllPackagesEvent.class)
-    @Prototype
+    @Action(
+            domainEvent = AllPackagesDomainEvent.class,
+            semantics = SemanticsOf.SAFE,
+            restrictTo = RestrictTo.PROTOTYPING
+    )
     @MemberOrder(sequence = "10")
-    @ActionSemantics(ActionSemantics.Of.SAFE)
     public List<ApplicationPackage> allPackages() {
         return asViewModels(applicationFeatures.allPackages(), ApplicationPackage.class);
     }
@@ -66,33 +108,39 @@ public class ApplicationFeatureViewModels  {
 
     //region > allClasses
 
-    public static class AllClassesEvent extends ActionInteractionEvent<ApplicationFeatureViewModels> {
-        public AllClassesEvent(ApplicationFeatureViewModels source, Identifier identifier, Object... args) {
+    public static class AllClassesDomainEvent extends ActionDomainEvent {
+        public AllClassesDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(AllClassesEvent.class)
+    @Action(
+            domainEvent = AllClassesDomainEvent.class,
+            semantics = SemanticsOf.SAFE,
+            restrictTo = RestrictTo.PROTOTYPING
+    )
     @MemberOrder(sequence = "20")
-    @ActionSemantics(ActionSemantics.Of.SAFE)
-    @Prototype
     public List<ApplicationClass> allClasses() {
         return asViewModels(applicationFeatures.allClasses(), ApplicationClass.class);
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > allActions
 
-    public static class AllActionsEvent extends ActionInteractionEvent<ApplicationFeatureViewModels> {
-        public AllActionsEvent(ApplicationFeatureViewModels source, Identifier identifier, Object... args) {
+    public static class AllActionsDomainEvent extends ActionDomainEvent {
+        public AllActionsDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(AllActionsEvent.class)
+    @Action(
+            domainEvent = AllActionsDomainEvent.class,
+            semantics = SemanticsOf.SAFE,
+            restrictTo = RestrictTo.PROTOTYPING
+    )
     @MemberOrder(sequence = "40")
-    @ActionSemantics(ActionSemantics.Of.SAFE)
-    @Prototype
     public List<ApplicationClassAction> allActions() {
         return asViewModels(applicationFeatures.allActions(), ApplicationClassAction.class);
     }
@@ -100,32 +148,38 @@ public class ApplicationFeatureViewModels  {
 
     //region > allProperties
 
-    public static class AllPropertiesEvent extends ActionInteractionEvent<ApplicationFeatureViewModels> {
-        public AllPropertiesEvent(ApplicationFeatureViewModels source, Identifier identifier, Object... args) {
+    public static class AllPropertiesDomainEvent extends ActionDomainEvent {
+        public AllPropertiesDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(AllPropertiesEvent.class)
-    @ActionSemantics(ActionSemantics.Of.SAFE)
-    @Prototype
+    @Action(
+            domainEvent = AllPropertiesDomainEvent.class,
+            semantics = SemanticsOf.SAFE,
+            restrictTo = RestrictTo.PROTOTYPING
+    )
     @MemberOrder(sequence = "50")
     public List<ApplicationClassProperty> allProperties() {
         return asViewModels(applicationFeatures.allProperties(), ApplicationClassProperty.class);
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > allCollections
 
-    public static class AllCollectionsEvent extends ActionInteractionEvent<ApplicationFeatureViewModels> {
-        public AllCollectionsEvent(ApplicationFeatureViewModels source, Identifier identifier, Object... args) {
+    public static class AllCollectionsDomainEvent extends ActionDomainEvent {
+        public AllCollectionsDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(AllCollectionsEvent.class)
-    @ActionSemantics(ActionSemantics.Of.SAFE)
-    @Prototype
+    @Action(
+            domainEvent = AllCollectionsDomainEvent.class,
+            semantics = SemanticsOf.SAFE,
+            restrictTo = RestrictTo.PROTOTYPING
+    )
     @MemberOrder(sequence = "60")
     public List<ApplicationClassCollection> allCollections() {
         return asViewModels(applicationFeatures.allCollections(), ApplicationClassCollection.class);
@@ -133,16 +187,13 @@ public class ApplicationFeatureViewModels  {
     //endregion
 
     //region > helpers
-
-
-    private <T extends ApplicationFeatureViewModel> List<T> asViewModels(Iterable<ApplicationFeature> features, Class<T> cls) {
+    private <T extends ApplicationFeatureViewModel> List<T> asViewModels(final Iterable<ApplicationFeature> features, final Class<T> cls) {
         return Lists.newArrayList(
                 Iterables.transform(
                         features,
                         ApplicationFeatureViewModel.Functions.<T>asViewModel(applicationFeatures, container)
                 ));
     }
-
     //endregion
 
     //region > injected services

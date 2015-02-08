@@ -21,7 +21,7 @@ import org.apache.isis.core.commons.lang.StringExtensions;
 public enum ApplicationFeatureType {
     PACKAGE {
         @Override
-        void init(ApplicationFeatureId feature, String fullyQualifiedName) {
+        void init(final ApplicationFeatureId feature, final String fullyQualifiedName) {
             feature.setPackageName(fullyQualifiedName);
             feature.setClassName(null);
             feature.setMemberName(null);
@@ -30,7 +30,7 @@ public enum ApplicationFeatureType {
     },
     CLASS {
         @Override
-        void init(ApplicationFeatureId feature, String fullyQualifiedName) {
+        void init(final ApplicationFeatureId feature, final String fullyQualifiedName) {
             final int i = fullyQualifiedName.lastIndexOf(".");
             if(i != -1) {
                 feature.setPackageName(fullyQualifiedName.substring(0, i));
@@ -45,7 +45,7 @@ public enum ApplicationFeatureType {
     },
     MEMBER {
         @Override
-        void init(ApplicationFeatureId feature, String fullyQualifiedName) {
+        void init(final ApplicationFeatureId feature, final String fullyQualifiedName) {
             final int i = fullyQualifiedName.lastIndexOf("#");
             if(i == -1) {
                 throw new IllegalArgumentException("Malformed, expected a '#': " + fullyQualifiedName);
@@ -67,25 +67,25 @@ public enum ApplicationFeatureType {
 
     abstract void init(ApplicationFeatureId applicationFeatureId, String fullyQualifiedName);
 
-    static void ensurePackage(ApplicationFeatureId feature) {
+    static void ensurePackage(final ApplicationFeatureId feature) {
         if(feature.type != ApplicationFeatureType.PACKAGE) {
             throw new IllegalStateException("Can only be called for a package; " + feature.toString());
         }
     }
 
-    static void ensurePackageOrClass(ApplicationFeatureId applicationFeatureId) {
+    static void ensurePackageOrClass(final ApplicationFeatureId applicationFeatureId) {
         if(applicationFeatureId.type != ApplicationFeatureType.PACKAGE && applicationFeatureId.type != ApplicationFeatureType.CLASS) {
             throw new IllegalStateException("Can only be called for a package or a class; " + applicationFeatureId.toString());
         }
     }
 
-    static void ensureClass(ApplicationFeatureId feature) {
+    static void ensureClass(final ApplicationFeatureId feature) {
         if(feature.type != ApplicationFeatureType.CLASS) {
             throw new IllegalStateException("Can only be called for a class; " + feature.toString());
         }
     }
 
-    static void ensureMember(ApplicationFeatureId feature) {
+    static void ensureMember(final ApplicationFeatureId feature) {
         if(feature.type != ApplicationFeatureType.MEMBER) {
             throw new IllegalStateException("Can only be called for a member; " + feature.toString());
         }

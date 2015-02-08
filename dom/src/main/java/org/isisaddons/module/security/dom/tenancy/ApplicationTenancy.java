@@ -16,7 +16,6 @@
  */
 package org.isisaddons.module.security.dom.tenancy;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -25,29 +24,32 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
 import com.google.common.collect.Lists;
+import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
-import org.apache.isis.applib.annotation.ActionInteraction;
+import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
-import org.apache.isis.applib.annotation.ActionSemantics;
-import org.apache.isis.applib.annotation.Bookmarkable;
-import org.apache.isis.applib.annotation.Bounded;
-import org.apache.isis.applib.annotation.Disabled;
-import org.apache.isis.applib.annotation.Hidden;
-import org.apache.isis.applib.annotation.MaxLength;
+import org.apache.isis.applib.annotation.BookmarkPolicy;
+import org.apache.isis.applib.annotation.Collection;
+import org.apache.isis.applib.annotation.CollectionLayout;
+import org.apache.isis.applib.annotation.DomainObject;
+import org.apache.isis.applib.annotation.DomainObjectLayout;
+import org.apache.isis.applib.annotation.Editing;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.ObjectType;
-import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.Optionality;
+import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
+import org.apache.isis.applib.annotation.Property;
 import org.apache.isis.applib.annotation.PropertyLayout;
-import org.apache.isis.applib.annotation.Render;
+import org.apache.isis.applib.annotation.RenderType;
+import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.annotation.Title;
 import org.apache.isis.applib.annotation.Where;
-import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.util.ObjectContracts;
 
+@SuppressWarnings("UnusedDeclaration")
 @javax.jdo.annotations.PersistenceCapable(
         identityType = IdentityType.APPLICATION, table = "IsisSecurityApplicationTenancy")
 @javax.jdo.annotations.Inheritance(
@@ -79,19 +81,59 @@ import org.apache.isis.applib.util.ObjectContracts;
                         + "WHERE name.indexOf(:name) >= 0")
 
 })
-@ObjectType("IsisSecurityApplicationTenancy")
-@Bounded // rather than auto-complete, since only small number likely to exist.
-@Bookmarkable
+@DomainObject(
+        objectType = "IsisSecurityApplicationTenancy",
+        bounded = true // rather than auto-complete, since only small number likely to exist.
+)
+@DomainObjectLayout(
+        bookmarking = BookmarkPolicy.AS_ROOT
+)
 public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
-    public static final int MAX_LENGTH_PATH = 12;
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationTenancy, T> {
+        public PropertyDomainEvent(final ApplicationTenancy source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public PropertyDomainEvent(final ApplicationTenancy source, final Identifier identifier, final T oldValue, final T newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationTenancy, T> {
+        public CollectionDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public CollectionDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Of of, final T value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationTenancy> {
+        public ActionDomainEvent(final ApplicationTenancy source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ActionDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
+
+        public ActionDomainEvent(final ApplicationTenancy source, final Identifier identifier, final List<Object> arguments) {
+            super(source, identifier, arguments);
+        }
+    }
+
+    // //////////////////////////////////////
+
+    public static final int MAX_LENGTH_PATH = 30;
     public static final int MAX_LENGTH_NAME = 40;
     public static final int TYPICAL_LENGTH_NAME = 20;
 
     //region > name (property, title)
 
-    public static class UpdateNameEvent extends ActionInteractionEvent<ApplicationTenancy> {
-        public UpdateNameEvent(ApplicationTenancy source, Identifier identifier, Object... args) {
+    public static class UpdateNameDomainEvent extends ActionDomainEvent {
+        public UpdateNameDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -99,23 +141,27 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     private String name;
 
     @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_NAME)
-    @PropertyLayout(typicalLength=TYPICAL_LENGTH_NAME)
     @Title
-    @Disabled
+    @Property(editing = Editing.DISABLED)
+    @PropertyLayout(typicalLength=TYPICAL_LENGTH_NAME)
     @MemberOrder(sequence = "1")
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
-    @ActionInteraction(UpdateNameEvent.class)
+    @Action(
+            domainEvent =UpdateNameDomainEvent.class,
+            semantics = SemanticsOf.IDEMPOTENT
+    )
     @MemberOrder(name="name", sequence = "1")
-    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
     public ApplicationTenancy updateName(
-            final @ParameterLayout(named="Name", typicalLength=TYPICAL_LENGTH_NAME) @MaxLength(MAX_LENGTH_NAME) String name) {
+            @Parameter(maxLength = MAX_LENGTH_NAME)
+            @ParameterLayout(named="Name", typicalLength=TYPICAL_LENGTH_NAME)
+            final String name) {
         setName(name);
         return this;
     }
@@ -130,12 +176,14 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     @javax.jdo.annotations.PrimaryKey
     @javax.jdo.annotations.Column(length = MAX_LENGTH_PATH, allowsNull = "false")
-    @Disabled
+    @Property(
+            editing = Editing.DISABLED
+    )
     public String getPath() {
         return path;
     }
 
-    public void setPath(String path) {
+    public void setPath(final String path) {
         this.path = path;
     }
 
@@ -145,9 +193,14 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     @javax.jdo.annotations.Persistent(mappedBy = "tenancy")
     private SortedSet<ApplicationUser> users = new TreeSet<>();
 
+
+    @Collection(
+            editing = Editing.DISABLED
+    )
+    @CollectionLayout(
+            render = RenderType.EAGERLY
+    )
     @MemberOrder(sequence = "10")
-    @Render(Render.Type.EAGERLY)
-    @Disabled
     public SortedSet<ApplicationUser> getUsers() {
         return users;
     }
@@ -168,22 +221,27 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > addUser (action), removeUser (action)
 
-    public static class AddUserEvent extends ActionInteractionEvent<ApplicationTenancy> {
-        public AddUserEvent(ApplicationTenancy source, Identifier identifier, Object... args) {
+    public static class AddUserDomainEvent extends ActionDomainEvent {
+        public AddUserDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    public static class RemoveUserEvent extends ActionInteractionEvent<ApplicationTenancy> {
-        public RemoveUserEvent(ApplicationTenancy source, Identifier identifier, Object... args) {
+    public static class RemoveUserDomainEvent extends ActionDomainEvent {
+        public RemoveUserDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(AddUserEvent.class)
-    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @Action(
+           domainEvent = AddUserDomainEvent.class,
+            semantics = SemanticsOf.IDEMPOTENT
+    )
+    @ActionLayout(
+            named="Add",
+            cssClassFa = "fa fa-plus-square"
+    )
     @MemberOrder(name="Users", sequence = "1")
-    @ActionLayout(named="Add",cssClassFa = "fa fa-plus-square")
     public ApplicationTenancy addUser(final ApplicationUser applicationUser) {
         applicationUser.setTenancy(this);
         // no need to add to users set, since will be done by JDO/DN.
@@ -197,16 +255,21 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
         return list;
     }
 
-    @ActionInteraction(RemoveUserEvent.class)
-    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @Action(
+            domainEvent = RemoveUserDomainEvent.class,
+            semantics = SemanticsOf.IDEMPOTENT
+    )
+    @ActionLayout(
+            named="Remove",
+            cssClassFa = "fa fa-minus-square"
+    )
     @MemberOrder(name="Users", sequence = "2")
-    @ActionLayout(named="Remove",cssClassFa = "fa fa-minus-square")
     public ApplicationTenancy removeUser(final ApplicationUser applicationUser) {
         applicationUser.setTenancy(null);
         // no need to add to users set, since will be done by JDO/DN.
         return this;
     }
-    public Collection<ApplicationUser> choices0RemoveUser() {
+    public java.util.Collection<ApplicationUser> choices0RemoveUser() {
         return getUsers();
     }
     public String disableRemoveUser(final ApplicationUser applicationUser) {
@@ -219,26 +282,35 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     private ApplicationTenancy parent;
 
     @javax.jdo.annotations.Column(name = "parentPath", allowsNull = "true")
-    @Hidden(where = Where.PARENTED_TABLES)
-    @Disabled
+    @Collection(
+            editing = Editing.DISABLED
+    )
+    @CollectionLayout(
+            hidden = Where.PARENTED_TABLES
+    )
     public ApplicationTenancy getParent() {
         return parent;
     }
 
-    public void setParent(ApplicationTenancy parent) {
+    public void setParent(final ApplicationTenancy parent) {
         this.parent = parent;
     }
 
-    public static class UpdateParentEvent extends ActionInteractionEvent<ApplicationTenancy> {
-        public UpdateParentEvent(ApplicationTenancy source, Identifier identifier, Object... args) {
+    public static class UpdateParentDomainEvent extends ActionDomainEvent {
+        public UpdateParentDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(UpdateParentEvent.class)
+    @Action(
+            domainEvent = UpdateParentDomainEvent.class,
+            semantics = SemanticsOf.IDEMPOTENT
+    )
     @MemberOrder(name="parent", sequence = "1")
-    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
-    public ApplicationTenancy updateParent(final @Optional ApplicationTenancy tenancy) {
+    public ApplicationTenancy updateParent(
+            @Parameter(optionality = Optionality.OPTIONAL)
+            final ApplicationTenancy tenancy
+    ) {
         // no need to add to children set, since will be done by JDO/DN.
         setParent(tenancy);
         return this;
@@ -252,15 +324,19 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > children
     @javax.jdo.annotations.Persistent(mappedBy = "parent")
-    private SortedSet<ApplicationTenancy> children = new TreeSet<ApplicationTenancy>();
+    private SortedSet<ApplicationTenancy> children = new TreeSet<>();
 
-    @Render(Render.Type.EAGERLY)
-    @Disabled
+    @Collection(
+            editing = Editing.DISABLED
+    )
+    @CollectionLayout(
+            render = RenderType.EAGERLY
+    )
     public SortedSet<ApplicationTenancy> getChildren() {
         return children;
     }
 
-    public void setChildren(SortedSet<ApplicationTenancy> children) {
+    public void setChildren(final SortedSet<ApplicationTenancy> children) {
         this.children = children;
     }
 
@@ -276,38 +352,48 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > addChild (action), removeChild (action)
 
-    public static class AddChildEvent extends ActionInteractionEvent<ApplicationTenancy> {
-        public AddChildEvent(ApplicationTenancy source, Identifier identifier, Object... args) {
+    public static class AddChildDomainEvent extends ActionDomainEvent {
+        public AddChildDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    public static class RemoveChildEvent extends ActionInteractionEvent<ApplicationTenancy> {
-        public RemoveChildEvent(ApplicationTenancy source, Identifier identifier, Object... args) {
+    public static class RemoveChildDomainEvent extends ActionDomainEvent {
+        public RemoveChildDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(AddChildEvent.class)
-    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @Action(
+            domainEvent = AddChildDomainEvent.class,
+            semantics = SemanticsOf.IDEMPOTENT
+    )
+    @ActionLayout(
+            named="Add",
+            cssClassFa = "fa fa-plus-square"
+    )
     @MemberOrder(name="Children", sequence = "1")
-    @ActionLayout(named="Add",cssClassFa = "fa fa-plus-square")
     public ApplicationTenancy addChild(final ApplicationTenancy applicationTenancy) {
         applicationTenancy.setParent(this);
         // no need to add to children set, since will be done by JDO/DN.
         return this;
     }
 
-    @ActionInteraction(RemoveChildEvent.class)
-    @ActionSemantics(ActionSemantics.Of.IDEMPOTENT)
+    @Action(
+            domainEvent = RemoveChildDomainEvent.class,
+            semantics = SemanticsOf.IDEMPOTENT
+    )
+    @ActionLayout(
+            named="Remove",
+            cssClassFa = "fa fa-minus-square"
+    )
     @MemberOrder(name="Children", sequence = "2")
-    @ActionLayout(named="Remove",cssClassFa = "fa fa-minus-square")
     public ApplicationTenancy removeChild(final ApplicationTenancy applicationTenancy) {
         applicationTenancy.setParent(null);
         // no need to remove from children set, since will be done by JDO/DN.
         return this;
     }
-    public Collection<ApplicationTenancy> choices0RemoveChild() {
+    public java.util.Collection<ApplicationTenancy> choices0RemoveChild() {
         return getChildren();
     }
     public String disableRemoveChild(final ApplicationTenancy applicationTenancy) {
@@ -319,22 +405,26 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
 
     //region > delete (action)
-    public static class DeleteEvent extends ActionInteractionEvent<ApplicationTenancy> {
-        public DeleteEvent(ApplicationTenancy source, Identifier identifier, Object... args) {
+    public static class DeleteDomainEvent extends ActionDomainEvent {
+        public DeleteDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(DeleteEvent.class)
-    @ActionSemantics(ActionSemantics.Of.NON_IDEMPOTENT)
+    @Action(
+            domainEvent = DeleteDomainEvent.class,
+            semantics = SemanticsOf.NON_IDEMPOTENT
+    )
     @MemberOrder(sequence = "1")
     @ActionLayout(
         cssClassFa = "fa fa-trash",
         cssClass = "btn btn-danger"
     )
     public List<ApplicationTenancy> delete(
-            final @ParameterLayout(named="Are you sure?") @Optional Boolean areYouSure) {
-        for (ApplicationUser user : getUsers()) {
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named="Are you sure?")
+            final Boolean areYouSure) {
+        for (final ApplicationUser user : getUsers()) {
             user.updateTenancy(null);
         }
         container.removeIfNotAlready(this);
@@ -350,7 +440,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
         return Boolean.FALSE;
     }
 
-    static boolean not(Boolean areYouSure) {
+    static boolean not(final Boolean areYouSure) {
         return areYouSure == null || !areYouSure;
     }
     //endregion

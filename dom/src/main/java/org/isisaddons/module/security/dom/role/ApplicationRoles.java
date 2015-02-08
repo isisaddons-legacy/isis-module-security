@@ -19,20 +19,19 @@ package org.isisaddons.module.security.dom.role;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import org.isisaddons.module.security.SecurityModule;
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.Identifier;
-import org.apache.isis.applib.annotation.ActionInteraction;
-import org.apache.isis.applib.annotation.ActionSemantics;
-import org.apache.isis.applib.annotation.ActionSemantics.Of;
+import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
-import org.apache.isis.applib.annotation.MaxLength;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.Optionality;
+import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.query.QueryDefault;
-import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 
 @DomainService(repositoryFor = ApplicationRole.class)
@@ -42,6 +41,42 @@ import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
         menuOrder = "100.20"
 )
 public class ApplicationRoles extends AbstractFactoryAndRepository {
+
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationRoles, T> {
+        public PropertyDomainEvent(final ApplicationRoles source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public PropertyDomainEvent(final ApplicationRoles source, final Identifier identifier, final T oldValue, final T newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationRoles, T> {
+        public CollectionDomainEvent(final ApplicationRoles source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public CollectionDomainEvent(final ApplicationRoles source, final Identifier identifier, final Of of, final T value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationRoles> {
+        public ActionDomainEvent(final ApplicationRoles source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ActionDomainEvent(final ApplicationRoles source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
+
+        public ActionDomainEvent(final ApplicationRoles source, final Identifier identifier, final List<Object> arguments) {
+            super(source, identifier, arguments);
+        }
+    }
+
+    // //////////////////////////////////////
 
     //region > iconName
 
@@ -65,17 +100,21 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
 
     //region > findRoleByName
 
-    public static class FindByRoleNameEvent extends ActionInteractionEvent<ApplicationRoles> {
-        public FindByRoleNameEvent(ApplicationRoles source, Identifier identifier, Object... args) {
+    public static class FindByRoleNameDomainEvent extends ActionDomainEvent {
+        public FindByRoleNameDomainEvent(final ApplicationRoles source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(FindByRoleNameEvent.class)
+    @Action(
+            domainEvent = FindByRoleNameDomainEvent.class,
+            semantics = SemanticsOf.SAFE
+    )
     @MemberOrder(sequence = "20.1")
-    @ActionSemantics(Of.SAFE)
     public ApplicationRole findRoleByName(
-            final @ParameterLayout(named="Name", typicalLength=ApplicationRole.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationRole.MAX_LENGTH_NAME) String name) {
+            @Parameter(maxLength = ApplicationRole.MAX_LENGTH_NAME)
+            @ParameterLayout(named="Name", typicalLength=ApplicationRole.TYPICAL_LENGTH_NAME)
+            final String name) {
         return uniqueMatch(new QueryDefault<>(ApplicationRole.class, "findByName", "name", name));
     }
 
@@ -83,18 +122,24 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
 
     //region > newRole
 
-    public static class NewRoleEvent extends ActionInteractionEvent<ApplicationRoles> {
-        public NewRoleEvent(ApplicationRoles source, Identifier identifier, Object... args) {
+    public static class NewRoleDomainEvent extends ActionDomainEvent {
+        public NewRoleDomainEvent(final ApplicationRoles source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(NewRoleEvent.class)
+    @Action(
+            domainEvent = NewRoleDomainEvent.class,
+            semantics = SemanticsOf.IDEMPOTENT
+    )
     @MemberOrder(sequence = "20.2")
-    @ActionSemantics(Of.IDEMPOTENT)
     public ApplicationRole newRole(
-            final @ParameterLayout(named="Name", typicalLength=ApplicationRole.TYPICAL_LENGTH_NAME) @MaxLength(ApplicationRole.MAX_LENGTH_NAME) String name,
-            final @ParameterLayout(named="Description", typicalLength=ApplicationRole.TYPICAL_LENGTH_DESCRIPTION) @Optional @MaxLength(JdoColumnLength.DESCRIPTION) String description) {
+            @Parameter(maxLength = ApplicationRole.MAX_LENGTH_NAME)
+            @ParameterLayout(named="Name", typicalLength=ApplicationRole.TYPICAL_LENGTH_NAME)
+            final String name,
+            @Parameter(maxLength = JdoColumnLength.DESCRIPTION, optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named="Description", typicalLength=ApplicationRole.TYPICAL_LENGTH_DESCRIPTION)
+            final String description) {
         ApplicationRole role = findRoleByName(name);
         if (role == null){
             role = applicationRoleFactory.newApplicationRole();
@@ -109,15 +154,17 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
 
     //region > allRoles
 
-    public static class AllRolesEvent extends ActionInteractionEvent<ApplicationRoles> {
-        public AllRolesEvent(ApplicationRoles source, Identifier identifier, Object... args) {
+    public static class AllRolesDomainEvent extends ActionDomainEvent {
+        public AllRolesDomainEvent(final ApplicationRoles source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(AllRolesEvent.class)
+    @Action(
+            domainEvent = AllRolesDomainEvent.class,
+            semantics = SemanticsOf.SAFE
+    )
     @MemberOrder(sequence = "20.3")
-    @ActionSemantics(Of.SAFE)
     public List<ApplicationRole> allRoles() {
         return allInstances(ApplicationRole.class);
     }
@@ -127,7 +174,7 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
     //region > injected
     /**
      * Will only be injected to if the programmer has supplied an implementation.  Otherwise
-     * this class will install a default implementation in {@link #postConstruct()}.
+     * this class will install a default implementation in {@link #init()}.
      */
     @Inject
     ApplicationRoleFactory applicationRoleFactory;

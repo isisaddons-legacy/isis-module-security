@@ -20,20 +20,20 @@ import javax.inject.Inject;
 import org.apache.isis.applib.DomainObjectContainer;
 
 /**
- * Optional hook so that alternative implementations of {@link org.isisaddons.module.security.dom.permission.ApplicationPermission}.
+ * Optional hook for alternative implementations of {@link org.isisaddons.module.security.dom.permission.ApplicationPermission}.
  *
  * <p>
  *     To use, simply implement the interface and annotate that implementation with {@link org.apache.isis.applib.annotation.DomainService},
  *     for example:
  * </p>
  * <pre>
- *     @DomainService
+ *     &#64;DomainService
  *     public class MyApplicationPermissionFactory implements ApplicationPermissionFactory {
  *         public ApplicationPermission newApplicationPermission() {
  *             return container.newTransientInstance(MyApplicationPermission.class);
  *         }
  *
- *         @Inject
+ *         &#64;Inject
  *         DomainObjectContainer container;
  *     }
  * </pre>

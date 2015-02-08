@@ -24,18 +24,55 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
+import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.apache.isis.applib.annotation.Hidden;
+import org.apache.isis.applib.Identifier;
+import org.apache.isis.applib.annotation.Programmatic;
 
 /**
- * A serializable value object representing a set of (anonymized){@link org.isisaddons.module.security.dom.permission.ApplicationPermissionValue permission}s.
+ * A serializable value object representing a set of (anonymized) {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionValue permission}s.
  *
  * <p>
  *     Intended for value type arithmetic and also for caching.
  * </p>
  */
-@Hidden
 public class ApplicationPermissionValueSet implements Serializable {
+
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationPermissionValueSet, T> {
+        public PropertyDomainEvent(final ApplicationPermissionValueSet source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public PropertyDomainEvent(final ApplicationPermissionValueSet source, final Identifier identifier, final T oldValue, final T newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationPermissionValueSet, T> {
+        public CollectionDomainEvent(final ApplicationPermissionValueSet source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public CollectionDomainEvent(final ApplicationPermissionValueSet source, final Identifier identifier, final Of of, final T value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationPermissionValueSet> {
+        public ActionDomainEvent(final ApplicationPermissionValueSet source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ActionDomainEvent(final ApplicationPermissionValueSet source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
+
+        public ActionDomainEvent(final ApplicationPermissionValueSet source, final Identifier identifier, final List<Object> arguments) {
+            super(source, identifier, arguments);
+        }
+    }
+
+    // //////////////////////////////////////
 
     //region > values
     private final List<ApplicationPermissionValue> values;
@@ -80,15 +117,15 @@ public class ApplicationPermissionValueSet implements Serializable {
     //endregion
 
     //region > constructor
-    ApplicationPermissionValueSet(ApplicationPermissionValue... permissionValues) {
+    ApplicationPermissionValueSet(final ApplicationPermissionValue... permissionValues) {
         this(Arrays.asList(permissionValues));
     }
-    public ApplicationPermissionValueSet(Iterable<ApplicationPermissionValue> permissionValues) {
+    public ApplicationPermissionValueSet(final Iterable<ApplicationPermissionValue> permissionValues) {
         this(permissionValues, null);
     }
-    public ApplicationPermissionValueSet(Iterable<ApplicationPermissionValue> permissionValues, PermissionsEvaluationService permissionsEvaluationService) {
+    public ApplicationPermissionValueSet(final Iterable<ApplicationPermissionValue> permissionValues, final PermissionsEvaluationService permissionsEvaluationService) {
         this.values = Collections.unmodifiableList(Lists.newArrayList(permissionValues));
-        for (ApplicationPermissionValue permissionValue : permissionValues) {
+        for (final ApplicationPermissionValue permissionValue : permissionValues) {
             final ApplicationFeatureId featureId = permissionValue.getFeatureId();
             permissionsByFeature.put(featureId, permissionValue);
         }
@@ -99,15 +136,13 @@ public class ApplicationPermissionValueSet implements Serializable {
     }
     //endregion
 
-
-
     //region > grants, evaluate
 
     public static class Evaluation {
         private final ApplicationPermissionValue permissionValue;
         private final boolean granted;
 
-        public Evaluation(ApplicationPermissionValue permissionValue, boolean granted) {
+        public Evaluation(final ApplicationPermissionValue permissionValue, final boolean granted) {
             this.permissionValue = permissionValue;
             this.granted = granted;
         }
@@ -121,15 +156,17 @@ public class ApplicationPermissionValueSet implements Serializable {
         }
     }
 
-    public boolean grants(ApplicationFeatureId featureId, ApplicationPermissionMode mode) {
+    @Programmatic
+    public boolean grants(final ApplicationFeatureId featureId, final ApplicationPermissionMode mode) {
         return evaluate(featureId, mode).isGranted();
     }
 
+    @Programmatic
     public Evaluation evaluate(
             final ApplicationFeatureId featureId,
             final ApplicationPermissionMode mode) {
         final List<ApplicationFeatureId> pathIds = featureId.getPathIds();
-        for (ApplicationFeatureId pathId : pathIds) {
+        for (final ApplicationFeatureId pathId : pathIds) {
             final Collection<ApplicationPermissionValue> permissionValues = permissionsByFeature.get(pathId);
             final Evaluation evaluation = permissionsEvaluationService.evaluate(featureId, mode, permissionValues);
             if(evaluation != null) {
@@ -143,15 +180,14 @@ public class ApplicationPermissionValueSet implements Serializable {
 
     //region > equals, hashCode, toString
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ApplicationPermissionValueSet that = (ApplicationPermissionValueSet) o;
+        final ApplicationPermissionValueSet that = (ApplicationPermissionValueSet) o;
 
-        if (values != null ? !values.equals(that.values) : that.values != null) return false;
+        return !(values != null ? !values.equals(that.values) : that.values != null);
 
-        return true;
     }
 
     @Override

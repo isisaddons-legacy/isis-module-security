@@ -26,7 +26,6 @@ import com.google.common.collect.Lists;
  */
 public class PermissionsEvaluationServiceVetoBeatsAllow extends PermissionsEvaluationServiceAbstract {
 
-
     /**
      * Reverses the natural order of the {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionValue}s.
      *
@@ -39,7 +38,7 @@ public class PermissionsEvaluationServiceVetoBeatsAllow extends PermissionsEvalu
      * </p>
      */
     @Override
-    protected Iterable<ApplicationPermissionValue> ordered(Collection<ApplicationPermissionValue> permissionValues) {
+    protected Iterable<ApplicationPermissionValue> ordered(final Collection<ApplicationPermissionValue> permissionValues) {
         final ArrayList<ApplicationPermissionValue> reversed = Lists.newArrayList(permissionValues);
         Collections.reverse(reversed);
         return reversed;

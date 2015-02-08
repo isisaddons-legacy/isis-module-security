@@ -16,85 +16,135 @@
  */
 package org.isisaddons.module.security.app.user;
 
-import java.util.Collection;
 import java.util.List;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
-import org.apache.isis.applib.annotation.ActionInteraction;
-import org.apache.isis.applib.annotation.ActionSemantics;
-import org.apache.isis.applib.annotation.CollectionInteraction;
+import org.apache.isis.applib.annotation.Action;
+import org.apache.isis.applib.annotation.ActionLayout;
+import org.apache.isis.applib.annotation.Collection;
 import org.apache.isis.applib.annotation.CollectionLayout;
+import org.apache.isis.applib.annotation.Contributed;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.NotContributed;
-import org.apache.isis.applib.annotation.NotInServiceMenu;
-import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.NatureOfService;
+import org.apache.isis.applib.annotation.Optionality;
+import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
-import org.apache.isis.applib.annotation.Render;
-import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
-import org.apache.isis.applib.services.eventbus.CollectionInteractionEvent;
+import org.apache.isis.applib.annotation.RenderType;
+import org.apache.isis.applib.annotation.SemanticsOf;
 
-@DomainService
+@DomainService(
+        nature = NatureOfService.VIEW_CONTRIBUTIONS_ONLY
+)
 public class UserPermissionViewModelContributions  {
 
-    //region > Permissions (derived collection)
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<UserPermissionViewModelContributions, T> {
+        public PropertyDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier) {
+            super(source, identifier);
+        }
 
-    public static class PermissionsEvent extends ActionInteractionEvent<UserPermissionViewModelContributions> {
-        public PermissionsEvent(UserPermissionViewModelContributions source, Identifier identifier, Object... args) {
-            super(source, identifier, args);
+        public PropertyDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final T oldValue, final T newValue) {
+            super(source, identifier, oldValue, newValue);
         }
     }
-    public static class PermissionsEventContributed extends CollectionInteractionEvent<ApplicationUser, UserPermissionViewModel> {
-        public PermissionsEventContributed(ApplicationUser source, Identifier identifier, Of of, UserPermissionViewModel value) {
+
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<UserPermissionViewModelContributions, T> {
+        public CollectionDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public CollectionDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final Of of, final T value) {
             super(source, identifier, of, value);
         }
     }
 
-    @ActionInteraction(PermissionsEvent.class)
-    @CollectionInteraction(PermissionsEventContributed.class)
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<UserPermissionViewModelContributions> {
+        public ActionDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ActionDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
+
+        public ActionDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final List<Object> arguments) {
+            super(source, identifier, arguments);
+        }
+    }
+
+    // //////////////////////////////////////
+
+    //region > Permissions (derived collection)
+
+    public static class PermissionsDomainEvent extends CollectionDomainEvent<UserPermissionViewModel> {
+        public PermissionsDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public PermissionsDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final Of of, final UserPermissionViewModel value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    @Action(
+        semantics = SemanticsOf.SAFE
+    )
+    @ActionLayout(
+            contributed = Contributed.AS_ASSOCIATION
+    )
+    @Collection(
+            domainEvent = PermissionsDomainEvent.class
+    )
+    @CollectionLayout(
+            paged=50,
+            render = RenderType.EAGERLY
+    ) // when contributed
     @MemberOrder(sequence = "30")
-    @NotInServiceMenu
-    @NotContributed(NotContributed.As.ACTION) // ie contributed as collection
-    @Render(Render.Type.EAGERLY)
-    @CollectionLayout(paged=50) // when contributed
-    @ActionSemantics(ActionSemantics.Of.SAFE)
-    public List<UserPermissionViewModel> permissions(ApplicationUser user) {
-        final Collection<ApplicationFeature> allMembers = applicationFeatures.allMembers();
+    public List<UserPermissionViewModel> permissions(final ApplicationUser user) {
+        final java.util.Collection<ApplicationFeature> allMembers = applicationFeatures.allMembers();
         return asViewModels(user, allMembers);
     }
 
     //endregion
 
+    // //////////////////////////////////////
+
     //region > filterPermissions (action)
 
-    public static class FilterPermissionsEvent extends ActionInteractionEvent<UserPermissionViewModelContributions> {
-        public FilterPermissionsEvent(UserPermissionViewModelContributions source, Identifier identifier, Object... args) {
-            super(source, identifier, args);
+    public static class FilterPermissionsEvent extends ActionDomainEvent {
+        public FilterPermissionsEvent(final UserPermissionViewModelContributions source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public FilterPermissionsEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
+        public FilterPermissionsEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final List<Object> arguments) {
+            super(source, identifier, arguments);
         }
     }
-    public static class FilterPermissionsEventContributed extends CollectionInteractionEvent<ApplicationUser, UserPermissionViewModel> {
-        public FilterPermissionsEventContributed(ApplicationUser source, Identifier identifier, Of of, UserPermissionViewModel value) {
-            super(source, identifier, of, value);
-        }
-    }
-    @ActionInteraction(FilterPermissionsEvent.class)
-    @CollectionInteraction(FilterPermissionsEventContributed.class)
+
+    @Action(
+            domainEvent = FilterPermissionsEvent.class,
+            semantics = SemanticsOf.SAFE
+    )
     @MemberOrder(sequence = "1", name="permissions")
-    @NotInServiceMenu
-    @ActionSemantics(ActionSemantics.Of.SAFE)
     public List<UserPermissionViewModel> filterPermissions(
             final ApplicationUser user,
-            final @ParameterLayout(named="Package", typicalLength=ApplicationFeature.TYPICAL_LENGTH_PKG_FQN) String packageFqn,
-            final @Optional @ParameterLayout(named="Class",  typicalLength=ApplicationFeature.TYPICAL_LENGTH_CLS_NAME) String className) {
-        final Collection<ApplicationFeature> allMembers = applicationFeatures.allMembers();
+            @ParameterLayout(named="Package", typicalLength=ApplicationFeature.TYPICAL_LENGTH_PKG_FQN)
+            final String packageFqn,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named="Class",  typicalLength=ApplicationFeature.TYPICAL_LENGTH_CLS_NAME)
+            final String className) {
+        final java.util.Collection<ApplicationFeature> allMembers = applicationFeatures.allMembers();
         final Iterable<ApplicationFeature> filtered = Iterables.filter(allMembers, within(packageFqn, className));
         return asViewModels(user, filtered);
     }
@@ -108,7 +158,7 @@ public class UserPermissionViewModelContributions  {
                 // recursive match on package
                 final ApplicationFeatureId packageId = ApplicationFeatureId.newPackage(packageFqn);
                 final List<ApplicationFeatureId> pathIds = inputFeatureId.getPathIds();
-                if(!inputFeatureId.getPathIds().contains(packageId)) {
+                if(!pathIds.contains(packageId)) {
                     return false;
                 }
 
@@ -137,6 +187,8 @@ public class UserPermissionViewModelContributions  {
 
 
     //endregion
+
+    // //////////////////////////////////////
 
     //region > helpers
     List<UserPermissionViewModel> asViewModels(

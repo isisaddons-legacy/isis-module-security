@@ -27,7 +27,7 @@ import javax.inject.Inject;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
+import org.isisaddons.module.security.SecurityModule;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionSemantics;
@@ -36,15 +36,14 @@ import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.When;
 import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
-import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.core.metamodel.facetapi.FacetHolder;
 import org.apache.isis.core.metamodel.facets.SingleIntValueFacet;
 import org.apache.isis.core.metamodel.facets.all.hide.HiddenFacet;
 import org.apache.isis.core.metamodel.facets.collections.modify.CollectionAddToFacet;
 import org.apache.isis.core.metamodel.facets.collections.modify.CollectionRemoveFromFacet;
-import org.apache.isis.core.metamodel.facets.objpropparam.typicallen.TypicalLengthFacet;
+import org.apache.isis.core.metamodel.facets.objectvalue.maxlen.MaxLengthFacet;
+import org.apache.isis.core.metamodel.facets.objectvalue.typicallen.TypicalLengthFacet;
 import org.apache.isis.core.metamodel.facets.properties.update.modify.PropertySetterFacet;
-import org.apache.isis.core.metamodel.facets.propparam.maxlen.MaxLengthFacet;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjector;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjectorAware;
 import org.apache.isis.core.metamodel.spec.ObjectSpecification;
@@ -56,8 +55,46 @@ import org.apache.isis.core.metamodel.spec.feature.ObjectAssociation;
 import org.apache.isis.core.metamodel.spec.feature.ObjectMember;
 import org.apache.isis.core.metamodel.specloader.specimpl.ContributeeMember;
 
-@DomainService(repositoryFor = ApplicationFeature.class)
+@DomainService(
+        repositoryFor = ApplicationFeature.class
+)
 public class ApplicationFeatures implements SpecificationLoaderSpiAware, ServicesInjectorAware {
+
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationFeatures, T> {
+        public PropertyDomainEvent(final ApplicationFeatures source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public PropertyDomainEvent(final ApplicationFeatures source, final Identifier identifier, final T oldValue, final T newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationFeatures, T> {
+        public CollectionDomainEvent(final ApplicationFeatures source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public CollectionDomainEvent(final ApplicationFeatures source, final Identifier identifier, final Of of, final T value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationFeatures> {
+        public ActionDomainEvent(final ApplicationFeatures source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ActionDomainEvent(final ApplicationFeatures source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
+
+        public ActionDomainEvent(final ApplicationFeatures source, final Identifier identifier, final List<Object> arguments) {
+            super(source, identifier, arguments);
+        }
+    }
+
+    // //////////////////////////////////////
 
     //region > iconName
 
@@ -66,14 +103,18 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > caches
     SortedMap<ApplicationFeatureId, ApplicationFeature> packageFeatures = Maps.newTreeMap();
-    private SortedMap<ApplicationFeatureId, ApplicationFeature> classFeatures = Maps.newTreeMap();
-    private SortedMap<ApplicationFeatureId, ApplicationFeature> memberFeatures = Maps.newTreeMap();
-    private SortedMap<ApplicationFeatureId, ApplicationFeature> propertyFeatures = Maps.newTreeMap();
-    private SortedMap<ApplicationFeatureId, ApplicationFeature> collectionFeatures = Maps.newTreeMap();
-    private SortedMap<ApplicationFeatureId, ApplicationFeature> actionFeatures = Maps.newTreeMap();
+    private final SortedMap<ApplicationFeatureId, ApplicationFeature> classFeatures = Maps.newTreeMap();
+    private final SortedMap<ApplicationFeatureId, ApplicationFeature> memberFeatures = Maps.newTreeMap();
+    private final SortedMap<ApplicationFeatureId, ApplicationFeature> propertyFeatures = Maps.newTreeMap();
+    private final SortedMap<ApplicationFeatureId, ApplicationFeature> collectionFeatures = Maps.newTreeMap();
+    private final SortedMap<ApplicationFeatureId, ApplicationFeature> actionFeatures = Maps.newTreeMap();
     //endregion
+
+    // //////////////////////////////////////
 
     //region > init
     @Programmatic
@@ -88,21 +129,21 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
 
     private Collection<ObjectSpecification> primeMetaModel() {
         final List<Object> services = servicesInjector.getRegisteredServices();
-        for (Object service : services) {
+        for (final Object service : services) {
             specificationLoader.loadSpecification(service.getClass());
         }
         return specificationLoader.allSpecifications();
     }
 
-    private void createApplicationFeaturesFor(Collection<ObjectSpecification> specifications) {
+    private void createApplicationFeaturesFor(final Collection<ObjectSpecification> specifications) {
         // take copy to avoid ConcurrentModificationException
         final List<ObjectSpecification> objectSpecifications = Lists.newArrayList(specifications);
-        for (ObjectSpecification spec : objectSpecifications) {
+        for (final ObjectSpecification spec : objectSpecifications) {
             createApplicationFeaturesFor(spec);
         }
     }
 
-    void createApplicationFeaturesFor(ObjectSpecification spec) {
+    void createApplicationFeaturesFor(final ObjectSpecification spec) {
         if (exclude(spec)) {
             return;
         }
@@ -126,7 +167,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
 
         // add members
         boolean addedMembers = false;
-        for (ObjectAssociation property : properties) {
+        for (final ObjectAssociation property : properties) {
             final Class<?> returnType = correspondingClassFor(property.getSpecification());
             final Integer maxLength = returnType == String.class ? valueOf(property, MaxLengthFacet.class) : null;
             final Integer typicalLength = returnType == String.class ? valueOf(property, TypicalLengthFacet.class) : null;
@@ -134,13 +175,13 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
             final boolean contributed = property instanceof ContributeeMember;
             addedMembers = newProperty(classFeatureId, property, returnType, contributed, maxLength, typicalLength, derived) || addedMembers;
         }
-        for (ObjectAssociation collection : collections) {
+        for (final ObjectAssociation collection : collections) {
             final boolean derived = !(collection.containsDoOpFacet(CollectionAddToFacet.class) || collection.containsDoOpFacet(CollectionRemoveFromFacet.class));
             final Class<?> elementType = correspondingClassFor(collection.getSpecification());
             final boolean contributed = collection instanceof ContributeeMember;
             addedMembers = newCollection(classFeatureId, collection, elementType, contributed, derived) || addedMembers;
         }
-        for (ObjectAction action : actions) {
+        for (final ObjectAction action : actions) {
             final Class<?> returnType = correspondingClassFor(action.getReturnType());
             final ActionSemantics.Of actionSemantics = action.getSemantics();
             final boolean contributed = action instanceof ContributeeMember;
@@ -151,13 +192,12 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
             // remove this class feature, since it turned out to have no members
             classFeatures.remove(classFeatureId);
             return;
-        } else {
-            // leave the class as is and (as there were indeed members for this class)
-            // and add all of its parent packages
-            ApplicationFeatureId classParentPackageId = addClassParent(classFeatureId);
-            addParents(classParentPackageId);
         }
 
+        // leave the class as is and (as there were indeed members for this class)
+        // and add all of its parent packages
+        final ApplicationFeatureId classParentPackageId = addClassParent(classFeatureId);
+        addParents(classParentPackageId);
     }
 
     private static Class<?> correspondingClassFor(final ObjectSpecification objectSpec) {
@@ -175,19 +215,19 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     ApplicationFeatureId addClassParent(final ApplicationFeatureId classFeatureId) {
         final ApplicationFeatureId parentPackageId = classFeatureId.getParentPackageId();
 
-        ApplicationFeature parentPackage = findPackageElseCreate(parentPackageId);
+        final ApplicationFeature parentPackage = findPackageElseCreate(parentPackageId);
 
         parentPackage.addToContents(classFeatureId);
         return parentPackageId;
     }
 
     void addParents(final ApplicationFeatureId classOrPackageId) {
-        ApplicationFeatureId parentPackageId = classOrPackageId.getParentPackageId();
+        final ApplicationFeatureId parentPackageId = classOrPackageId.getParentPackageId();
         if (parentPackageId == null) {
             return;
         }
 
-        ApplicationFeature parentPackage = findPackageElseCreate(parentPackageId);
+        final ApplicationFeature parentPackage = findPackageElseCreate(parentPackageId);
 
         // add this feature as part of the contents of its parent
         parentPackage.addToContents(classOrPackageId);
@@ -196,7 +236,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         addParents(parentPackageId);
     }
 
-    private ApplicationFeature findPackageElseCreate(ApplicationFeatureId parentPackageId) {
+    private ApplicationFeature findPackageElseCreate(final ApplicationFeatureId parentPackageId) {
         ApplicationFeature parentPackage = findPackage(parentPackageId);
         if (parentPackage == null) {
             parentPackage = newPackage(parentPackageId);
@@ -204,8 +244,8 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         return parentPackage;
     }
 
-    private ApplicationFeature newPackage(ApplicationFeatureId packageId) {
-        ApplicationFeature parentPackage = newFeature(packageId);
+    private ApplicationFeature newPackage(final ApplicationFeatureId packageId) {
+        final ApplicationFeature parentPackage = newFeature(packageId);
         packageFeatures.put(packageId, parentPackage);
         return parentPackage;
     }
@@ -284,7 +324,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         classFeature.addToMembers(featureId, memberType);
     }
 
-    private SortedMap<ApplicationFeatureId, ApplicationFeature> featuresMapFor(ApplicationMemberType memberType) {
+    private SortedMap<ApplicationFeatureId, ApplicationFeature> featuresMapFor(final ApplicationMemberType memberType) {
         switch (memberType) {
             case PROPERTY:
                 return propertyFeatures;
@@ -295,14 +335,14 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         }
     }
 
-    private ApplicationFeature newFeature(ApplicationFeatureId featureId) {
+    private ApplicationFeature newFeature(final ApplicationFeatureId featureId) {
         final ApplicationFeature feature = applicationFeatureFactory.newApplicationFeature();
         feature.setFeatureId(featureId);
         return feature;
     }
 
 
-    protected boolean exclude(ObjectSpecification spec) {
+    protected boolean exclude(final ObjectSpecification spec) {
         return spec.isAbstract() ||
                 isBuiltIn(spec) ||
                 isHidden(spec) ||
@@ -310,7 +350,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
                 isSuperClassOfService(spec);
     }
 
-    private boolean isFixtureScript(ObjectSpecification spec) {
+    private boolean isFixtureScript(final ObjectSpecification spec) {
         return FixtureScript.class.isAssignableFrom(spec.getCorrespondingClass());
     }
 
@@ -322,14 +362,14 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
      * of that type (only of subtypes of that).
      * </p>
      */
-    private boolean isSuperClassOfService(ObjectSpecification spec) {
+    private boolean isSuperClassOfService(final ObjectSpecification spec) {
         final List<Object> registeredServices = servicesInjector.getRegisteredServices();
 
         final Class<?> specClass = spec.getCorrespondingClass();
 
         // is this class a supertype or the actual type of one of the services?
         boolean serviceCls = false;
-        for (Object registeredService : registeredServices) {
+        for (final Object registeredService : registeredServices) {
             final Class<?> serviceClass = registeredService.getClass();
             if (specClass.isAssignableFrom(serviceClass)) {
                 serviceCls = true;
@@ -340,7 +380,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         }
 
         // yes it is.  In which case, is it the actual concrete class of one of those services?
-        for (Object registeredService : registeredServices) {
+        for (final Object registeredService : registeredServices) {
             final Class<?> serviceClass = registeredService.getClass();
             if (serviceClass.isAssignableFrom(specClass)) {
                 return false;
@@ -350,7 +390,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         return true;
     }
 
-    protected boolean isHidden(ObjectSpecification spec) {
+    protected boolean isHidden(final ObjectSpecification spec) {
         final HiddenFacet facet = spec.getFacet(HiddenFacet.class);
         return facet != null &&
                 !facet.isNoop() &&
@@ -358,15 +398,17 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
                 facet.when() == When.ALWAYS;
     }
 
-    protected boolean isBuiltIn(ObjectSpecification spec) {
+    protected boolean isBuiltIn(final ObjectSpecification spec) {
         final String className = spec.getFullIdentifier();
         return className.startsWith("java") || className.startsWith("org.joda");
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > packageFeatures, classFeatures, memberFeatures
     @Programmatic
-    public ApplicationFeature findFeature(ApplicationFeatureId featureId) {
+    public ApplicationFeature findFeature(final ApplicationFeatureId featureId) {
         switch (featureId.getType()) {
             case PACKAGE:
                 return findPackage(featureId);
@@ -395,9 +437,11 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
 
     //endregion
 
+    // //////////////////////////////////////
+
     //region > allFeatures, allPackages, allClasses, allMembers
     @Programmatic
-    public Collection<ApplicationFeature> allFeatures(ApplicationFeatureType featureType) {
+    public Collection<ApplicationFeature> allFeatures(final ApplicationFeatureType featureType) {
         if (featureType == null) {
             return Collections.emptyList();
         }
@@ -443,6 +487,8 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > packageNames, packageNamesContainingClasses, classNamesContainedIn, memberNamesOf
     @Programmatic
     public List<String> packageNames() {
@@ -453,7 +499,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
 
 
     @Programmatic
-    public List<String> packageNamesContainingClasses(ApplicationMemberType memberType) {
+    public List<String> packageNamesContainingClasses(final ApplicationMemberType memberType) {
         final Collection<ApplicationFeature> packages = allFeatures(ApplicationFeatureType.PACKAGE);
         return Lists.newArrayList(
                 Iterables.transform(
@@ -465,7 +511,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     }
 
     @Programmatic
-    public List<String> classNamesContainedIn(String packageFqn, ApplicationMemberType memberType) {
+    public List<String> classNamesContainedIn(final String packageFqn, final ApplicationMemberType memberType) {
         final ApplicationFeatureId packageId = ApplicationFeatureId.newPackage(packageFqn);
         final ApplicationFeature pkg = findPackage(packageId);
         if (pkg == null) {
@@ -481,7 +527,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     }
 
     @Programmatic
-    public List<String> classNamesRecursivelyContainedIn(String packageFqn) {
+    public List<String> classNamesRecursivelyContainedIn(final String packageFqn) {
         final ApplicationFeatureId packageId = ApplicationFeatureId.newPackage(packageFqn);
         final ApplicationFeature pkg = findPackage(packageId);
         if (pkg == null) {
@@ -497,7 +543,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     }
 
     @Programmatic
-    public List<String> memberNamesOf(String packageFqn, String className, ApplicationMemberType memberType) {
+    public List<String> memberNamesOf(final String packageFqn, final String className, final ApplicationMemberType memberType) {
         final ApplicationFeatureId classId = ApplicationFeatureId.newClass(packageFqn + "." + className);
         final ApplicationFeature cls = findClass(classId);
         if (cls == null) {
@@ -511,6 +557,8 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
 
     //endregion
 
+    // //////////////////////////////////////
+
     //region  > services (injected)
     @Inject
     DomainObjectContainer container;
@@ -519,20 +567,20 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
 
     @Programmatic
     @Override
-    public void setSpecificationLoaderSpi(SpecificationLoaderSpi specificationLoader) {
+    public void setSpecificationLoaderSpi(final SpecificationLoaderSpi specificationLoader) {
         this.specificationLoader = specificationLoader;
     }
 
     private ServicesInjector servicesInjector;
 
     @Override
-    public void setServicesInjector(ServicesInjector servicesInjector) {
+    public void setServicesInjector(final ServicesInjector servicesInjector) {
         this.servicesInjector = servicesInjector;
     }
 
     /**
      * Will only be injected to if the programmer has supplied an implementation.  Otherwise
-     * this class will install a default implementation in {@link #postConstruct()}.
+     * this class will install a default implementation in {@link #init()}.
      */
     @Inject
     ApplicationFeatureFactory applicationFeatureFactory;

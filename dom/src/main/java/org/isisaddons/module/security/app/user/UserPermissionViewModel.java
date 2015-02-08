@@ -18,30 +18,89 @@ package org.isisaddons.module.security.app.user;
 
 import java.nio.charset.Charset;
 import java.util.Iterator;
+import java.util.List;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.io.BaseEncoding;
+import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.app.feature.ApplicationFeatureViewModel;
-import org.isisaddons.module.security.dom.feature.*;
-import org.isisaddons.module.security.dom.permission.*;
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
+import org.isisaddons.module.security.dom.permission.ApplicationPermission;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionValue;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.DomainObjectContainer;
+import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.ViewModel;
-import org.apache.isis.applib.annotation.*;
+import org.apache.isis.applib.annotation.BookmarkPolicy;
+import org.apache.isis.applib.annotation.Editing;
+import org.apache.isis.applib.annotation.MemberGroupLayout;
+import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.Property;
+import org.apache.isis.applib.annotation.PropertyLayout;
+import org.apache.isis.applib.annotation.ViewModelLayout;
+import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.util.ObjectContracts;
 
 /**
- * View model identified by {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId} and backed by an {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
+ * View model identified by {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId} and backed by an
+ * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
  */
+@SuppressWarnings("UnusedDeclaration")
+@ViewModelLayout(
+    bookmarking = BookmarkPolicy.AS_ROOT
+)
 @MemberGroupLayout(
         columnSpans = {6,0,6,0},
         left = {"Permission"},
         right= {"Cause"}
 )
-@Bookmarkable
 public class UserPermissionViewModel implements ViewModel {
+
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<UserPermissionViewModel, T> {
+        public PropertyDomainEvent(final UserPermissionViewModel source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public PropertyDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final T oldValue, final T newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<UserPermissionViewModel, T> {
+        public CollectionDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public CollectionDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final Of of, final T value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<UserPermissionViewModel> {
+        public ActionDomainEvent(final UserPermissionViewModel source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ActionDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
+
+        public ActionDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final List<Object> arguments) {
+            super(source, identifier, arguments);
+        }
+    }
+
+    // //////////////////////////////////////
 
     private static final int TYPICAL_LENGTH_VERB = 12;
 
@@ -55,6 +114,8 @@ public class UserPermissionViewModel implements ViewModel {
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > identification
     public String title() {
         return getVerb() + " " + getFeatureId().getFullyQualifiedName();
@@ -65,6 +126,8 @@ public class UserPermissionViewModel implements ViewModel {
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > ViewModel impl
     @Override
     public String viewModelMemento() {
@@ -72,15 +135,23 @@ public class UserPermissionViewModel implements ViewModel {
     }
 
     @Override
-    public void viewModelInit(String encodedMemento) {
+    public void viewModelInit(final String encodedMemento) {
         parseEncoded(encodedMemento);
     }
 
-    private static String asEncodedString(ApplicationFeatureId featureId, String username, ApplicationPermissionValueSet.Evaluation viewingEvaluation, ApplicationPermissionValueSet.Evaluation changingEvaluation) {
+    private static String asEncodedString(
+            final ApplicationFeatureId featureId,
+            final String username,
+            final ApplicationPermissionValueSet.Evaluation viewingEvaluation,
+            final ApplicationPermissionValueSet.Evaluation changingEvaluation) {
         return base64UrlEncode(asString(featureId, username, viewingEvaluation, changingEvaluation));
     }
 
-    private static String asString(ApplicationFeatureId featureId, String username, ApplicationPermissionValueSet.Evaluation viewingEvaluation, ApplicationPermissionValueSet.Evaluation changingEvaluation) {
+    private static String asString(
+            final ApplicationFeatureId featureId,
+            final String username,
+            final ApplicationPermissionValueSet.Evaluation viewingEvaluation,
+            final ApplicationPermissionValueSet.Evaluation changingEvaluation) {
 
         final boolean viewingEvaluationGranted = viewingEvaluation.isGranted();
         final ApplicationPermissionValue viewingEvaluationCause = viewingEvaluation.getCause();
@@ -107,19 +178,19 @@ public class UserPermissionViewModel implements ViewModel {
                 featureId.getType(), featureId.getFullyQualifiedName());
     }
 
-    private void parseEncoded(String encodedString) {
+    private void parseEncoded(final String encodedString) {
         parse(base64UrlDecode(encodedString));
     }
 
-    private void parse(String asString) {
+    private void parse(final String asString) {
         final Iterator<String> iterator = Splitter.on(":").split(asString).iterator();
 
         this.username = iterator.next();
 
         this.viewingGranted = Boolean.valueOf(iterator.next());
         final String viewingEvaluationCauseFeatureIdType = iterator.next();
-        ApplicationFeatureType viewingEvaluationFeatureIdType =  !viewingEvaluationCauseFeatureIdType.isEmpty() ? ApplicationFeatureType.valueOf(viewingEvaluationCauseFeatureIdType) : null;
-        String viewingEvaluationFeatureFqn = iterator.next();
+        final ApplicationFeatureType viewingEvaluationFeatureIdType =  !viewingEvaluationCauseFeatureIdType.isEmpty() ? ApplicationFeatureType.valueOf(viewingEvaluationCauseFeatureIdType) : null;
+        final String viewingEvaluationFeatureFqn = iterator.next();
         this.viewingFeatureId = viewingEvaluationFeatureIdType != null? new ApplicationFeatureId(viewingEvaluationFeatureIdType,viewingEvaluationFeatureFqn) : null;
 
         final String viewingEvaluationCauseRule = iterator.next();
@@ -130,8 +201,8 @@ public class UserPermissionViewModel implements ViewModel {
 
         this.changingGranted = Boolean.valueOf(iterator.next());
         final String changingEvaluationCauseFeatureIdType = iterator.next();
-        ApplicationFeatureType changingEvaluationFeatureIdType =  !changingEvaluationCauseFeatureIdType.isEmpty() ? ApplicationFeatureType.valueOf(changingEvaluationCauseFeatureIdType) : null;
-        String changingEvaluationFeatureFqn = iterator.next();
+        final ApplicationFeatureType changingEvaluationFeatureIdType =  !changingEvaluationCauseFeatureIdType.isEmpty() ? ApplicationFeatureType.valueOf(changingEvaluationCauseFeatureIdType) : null;
+        final String changingEvaluationFeatureFqn = iterator.next();
         this.changingFeatureId = changingEvaluationFeatureIdType != null? new ApplicationFeatureId(changingEvaluationFeatureIdType,changingEvaluationFeatureFqn) : null;
 
         final String changingEvaluationCauseRule = iterator.next();
@@ -143,16 +214,18 @@ public class UserPermissionViewModel implements ViewModel {
         this.featureId = new ApplicationFeatureId(type, iterator.next());
     }
 
+    // //////////////////////////////////////
+
     @Programmatic
     public String asEncodedString() {
         return asEncodedString(getFeatureId(), getUsername(), newEvaluation(viewingGranted, viewingFeatureId, viewingRule, viewingMode), newEvaluation(changingGranted, changingFeatureId, changingRule, changingMode));
     }
 
-    private static ApplicationPermissionValueSet.Evaluation newEvaluation(boolean granted, ApplicationFeatureId featureId, ApplicationPermissionRule rule, ApplicationPermissionMode mode) {
+    private static ApplicationPermissionValueSet.Evaluation newEvaluation(final boolean granted, final ApplicationFeatureId featureId, final ApplicationPermissionRule rule, final ApplicationPermissionMode mode) {
         return new ApplicationPermissionValueSet.Evaluation(newPermissionValue(featureId, rule, mode), granted);
     }
 
-    private static ApplicationPermissionValue newPermissionValue(ApplicationFeatureId featureId, ApplicationPermissionRule rule, ApplicationPermissionMode mode) {
+    private static ApplicationPermissionValue newPermissionValue(final ApplicationFeatureId featureId, final ApplicationPermissionRule rule, final ApplicationPermissionMode mode) {
         if(featureId == null || mode == null || rule == null) {
             return null;
         } else {
@@ -160,20 +233,23 @@ public class UserPermissionViewModel implements ViewModel {
         }
     }
 
-    private static String base64UrlDecode(String str) {
+    private static String base64UrlDecode(final String str) {
         final byte[] bytes = BaseEncoding.base64Url().decode(str);
         return new String(bytes, Charset.forName("UTF-8"));
     }
 
     private static String base64UrlEncode(final String str) {
-        byte[] bytes = str.getBytes(Charset.forName("UTF-8"));
+        final byte[] bytes = str.getBytes(Charset.forName("UTF-8"));
         return BaseEncoding.base64Url().encode(bytes);
     }
 
     //endregion
 
+    // //////////////////////////////////////
+
     //region > user (derived property, hidden in parented tables)
 
+    @Property
     @PropertyLayout(hidden=Where.PARENTED_TABLES)
     @MemberOrder(name = "Permission", sequence = "1")
     public ApplicationUser getUser() {
@@ -187,11 +263,14 @@ public class UserPermissionViewModel implements ViewModel {
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > verb (derived property)
 
     private boolean viewingGranted;
     private boolean changingGranted;
 
+    @Property
     @PropertyLayout(typicalLength=UserPermissionViewModel.TYPICAL_LENGTH_VERB)
     @MemberOrder(name="Permission", sequence = "2")
     public String getVerb() {
@@ -203,10 +282,14 @@ public class UserPermissionViewModel implements ViewModel {
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > feature (derived property)
 
     @javax.jdo.annotations.NotPersistent
-    @Disabled
+    @Property(
+            editing = Editing.DISABLED
+    )
     @PropertyLayout(hidden=Where.REFERENCES_PARENT)
     @MemberOrder(name = "Permission",sequence = "4")
     public ApplicationFeatureViewModel getFeature() {
@@ -216,6 +299,8 @@ public class UserPermissionViewModel implements ViewModel {
         return ApplicationFeatureViewModel.newViewModel(getFeatureId(), applicationFeatures, container);
     }
 
+    // //////////////////////////////////////
+
     private ApplicationFeatureId featureId;
 
     @Programmatic
@@ -223,11 +308,13 @@ public class UserPermissionViewModel implements ViewModel {
         return featureId;
     }
 
-    public void setFeatureId(ApplicationFeatureId applicationFeatureId) {
+    public void setFeatureId(final ApplicationFeatureId applicationFeatureId) {
         this.featureId = applicationFeatureId;
     }
 
     //endregion
+
+    // //////////////////////////////////////
 
     //region > viewingPermission (derived property)
     private ApplicationFeatureId viewingFeatureId;
@@ -235,7 +322,9 @@ public class UserPermissionViewModel implements ViewModel {
     private ApplicationPermissionRule viewingRule;
 
     @javax.jdo.annotations.NotPersistent
-    @Disabled
+    @Property(
+            editing = Editing.DISABLED
+    )
     @PropertyLayout(hidden=Where.REFERENCES_PARENT)
     @MemberOrder(name="Cause", sequence = "2.1")
     public ApplicationPermission getViewingPermission() {
@@ -254,6 +343,8 @@ public class UserPermissionViewModel implements ViewModel {
 
     //endregion
 
+    // //////////////////////////////////////
+
     //region > changingPermission (derived property)
 
     private ApplicationFeatureId changingFeatureId;
@@ -262,7 +353,9 @@ public class UserPermissionViewModel implements ViewModel {
 
 
     @javax.jdo.annotations.NotPersistent
-    @Disabled
+    @Property(
+            editing = Editing.DISABLED
+    )
     @PropertyLayout(hidden=Where.REFERENCES_PARENT)
     @MemberOrder(name="Cause", sequence = "2.2")
     public ApplicationPermission getChangingPermission() {
@@ -281,6 +374,8 @@ public class UserPermissionViewModel implements ViewModel {
 
     //endregion
 
+    // //////////////////////////////////////
+
     //region > toString
 
     private final static String propertyNames = "user, featureId";
@@ -291,6 +386,8 @@ public class UserPermissionViewModel implements ViewModel {
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > Functions
 
     public static class Functions {
@@ -298,7 +395,7 @@ public class UserPermissionViewModel implements ViewModel {
         public static Function<ApplicationFeature, UserPermissionViewModel> asViewModel(final ApplicationUser user, final DomainObjectContainer container) {
             return new Function<ApplicationFeature, UserPermissionViewModel>(){
                 @Override
-                public UserPermissionViewModel apply(ApplicationFeature input) {
+                public UserPermissionViewModel apply(final ApplicationFeature input) {
                     final ApplicationPermissionValueSet permissionSet = user.getPermissionSet();
                     final ApplicationPermissionValueSet.Evaluation changingEvaluation = permissionSet.evaluate(input.getFeatureId(), ApplicationPermissionMode.CHANGING);
                     final ApplicationPermissionValueSet.Evaluation viewingEvaluation = permissionSet.evaluate(input.getFeatureId(), ApplicationPermissionMode.VIEWING);
@@ -308,6 +405,8 @@ public class UserPermissionViewModel implements ViewModel {
         }
     }
     //endregion
+
+    // //////////////////////////////////////
 
     //region > injected services
     @javax.inject.Inject

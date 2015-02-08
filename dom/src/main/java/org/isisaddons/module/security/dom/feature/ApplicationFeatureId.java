@@ -28,8 +28,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
-import org.apache.isis.applib.annotation.Hidden;
-import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.util.ObjectContracts;
 import org.apache.isis.applib.util.TitleBuffer;
@@ -42,11 +40,13 @@ import org.apache.isis.applib.util.TitleBuffer;
  *     {@link #getPackageName() package name}, {@link #getClassName() class name} and {@link #getMemberName() member name}.
  * </p>
  */
-@Hidden
 public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, Serializable {
 
+
+    // //////////////////////////////////////
+
     //region > factory methods
-    public static ApplicationFeatureId newFeature(ApplicationFeatureType featureType, String fullyQualifiedName) {
+    public static ApplicationFeatureId newFeature(final ApplicationFeatureType featureType, final String fullyQualifiedName) {
         switch (featureType) {
             case PACKAGE:
                 return newPackage(fullyQualifiedName);
@@ -99,21 +99,23 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
     /**
      * Round-trip with {@link #asString()}
      */
-    public static ApplicationFeatureId parse(String asString) {
+    public static ApplicationFeatureId parse(final String asString) {
         return new ApplicationFeatureId(asString);
     }
 
     /**
      * Round-trip with {@link #asEncodedString()}
      */
-    public static ApplicationFeatureId parseEncoded(String encodedString) {
+    public static ApplicationFeatureId parseEncoded(final String encodedString) {
         return new ApplicationFeatureId(base64UrlDecode(encodedString));
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > constructor
 
-    private ApplicationFeatureId(String asString) {
+    private ApplicationFeatureId(final String asString) {
         final Iterator<String> iterator = Splitter.on(":").split(asString).iterator();
         final ApplicationFeatureType type = ApplicationFeatureType.valueOf(iterator.next());
         type.init(this, iterator.next());
@@ -123,15 +125,17 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
      * Must be called by {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#init(ApplicationFeatureId, String)} immediately afterwards
      * to fully initialize.
      */
-    ApplicationFeatureId(ApplicationFeatureType type) {
+    ApplicationFeatureId(final ApplicationFeatureType type) {
         this.type = type;
     }
 
-    public ApplicationFeatureId(ApplicationFeatureType type, String fullyQualifiedName) {
+    public ApplicationFeatureId(final ApplicationFeatureType type, final String fullyQualifiedName) {
         type.init(this, fullyQualifiedName);
     }
 
     //endregion
+
+    // //////////////////////////////////////
 
     //region > identification
     /**
@@ -145,9 +149,11 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > fullyQualifiedName (property)
 
-    @MemberOrder(sequence = "1.2")
+    @Programmatic
     public String getFullyQualifiedName() {
         final StringBuilder buf = new StringBuilder();
         buf.append(getPackageName());
@@ -162,6 +168,8 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
 
     //endregion
 
+    // //////////////////////////////////////
+
     //region > type (property)
     ApplicationFeatureType type;
 
@@ -170,8 +178,9 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
     }
     //endregion
 
-    //region > packageName (property)
+    // //////////////////////////////////////
 
+    //region > packageName (property)
     private String packageName;
 
     @Programmatic
@@ -179,10 +188,12 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
         return packageName;
     }
 
-    void setPackageName(String packageName) {
+    void setPackageName(final String packageName) {
         this.packageName = packageName;
     }
     //endregion
+
+    // //////////////////////////////////////
 
     //region > className (property, optional)
 
@@ -193,10 +204,12 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
         return className;
     }
 
-    void setClassName(String className) {
+    void setClassName(final String className) {
         this.className = className;
     }
     //endregion
+
+    // //////////////////////////////////////
 
     //region > memberName (property, optional)
     private String memberName;
@@ -206,10 +219,12 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
         return memberName;
     }
 
-    void setMemberName(String memberName) {
+    void setMemberName(final String memberName) {
         this.memberName = memberName;
     }
     //endregion
+
+    // //////////////////////////////////////
 
     //region > Package or Class: getParentPackageId
 
@@ -242,6 +257,8 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
 
     //endregion
 
+    // //////////////////////////////////////
+
     //region > Member: getParentClassId
 
     /**
@@ -253,6 +270,8 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
         return newClass(classFqn);
     }
     //endregion
+
+    // //////////////////////////////////////
 
     //region > asString, asEncodedString
 
@@ -266,19 +285,21 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
         return base64UrlEncode(asString());
     }
 
-    private static String base64UrlDecode(String str) {
+    private static String base64UrlDecode(final String str) {
         final byte[] bytes = BaseEncoding.base64Url().decode(str);
         return new String(bytes, Charset.forName("UTF-8"));
     }
 
     private static String base64UrlEncode(final String str) {
-        byte[] bytes = str.getBytes(Charset.forName("UTF-8"));
+        final byte[] bytes = str.getBytes(Charset.forName("UTF-8"));
         return BaseEncoding.base64Url().encode(bytes);
     }
 
 
 
     //endregion
+
+    // //////////////////////////////////////
 
     //region > Functions
 
@@ -288,20 +309,22 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
 
         public static final Function<ApplicationFeatureId, String> GET_CLASS_NAME = new Function<ApplicationFeatureId, String>() {
             @Override
-            public String apply(ApplicationFeatureId input) {
+            public String apply(final ApplicationFeatureId input) {
                 return input.getClassName();
             }
         };
 
         public static final Function<ApplicationFeatureId, String> GET_MEMBER_NAME = new Function<ApplicationFeatureId, String>() {
             @Override
-            public String apply(ApplicationFeatureId input) {
+            public String apply(final ApplicationFeatureId input) {
                 return input.getMemberName();
             }
         };
 
     }
     //endregion
+
+    // //////////////////////////////////////
 
     //region > Predicates
 
@@ -312,7 +335,7 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
                 final ApplicationMemberType memberType, final ApplicationFeatures applicationFeatures) {
             return new Predicate<ApplicationFeatureId>() {
                 @Override
-                public boolean apply(ApplicationFeatureId input) {
+                public boolean apply(final ApplicationFeatureId input) {
                     if(input.getType() != ApplicationFeatureType.CLASS) {
                         return false;
                     }
@@ -328,7 +351,7 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
         public static Predicate<ApplicationFeatureId> isClassRecursivelyWithin(final ApplicationFeatureId packageId) {
             return new Predicate<ApplicationFeatureId>() {
                 @Override
-                public boolean apply(ApplicationFeatureId input) {
+                public boolean apply(final ApplicationFeatureId input) {
                     return input.getParentIds().contains(packageId);
                 }
             };
@@ -336,19 +359,23 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > Comparators
     public static final class Comparators {
         private Comparators(){}
         public static Comparator<ApplicationFeatureId> natural() {
             return new Comparator<ApplicationFeatureId>() {
                 @Override
-                public int compare(ApplicationFeatureId o1, ApplicationFeatureId o2) {
+                public int compare(final ApplicationFeatureId o1, final ApplicationFeatureId o2) {
                     return o1.compareTo(o2);
                 }
             };
         }
     }
     //endregion
+
+    // //////////////////////////////////////
 
     //region > pathIds, parentIds
 
@@ -366,12 +393,12 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
         return type == ApplicationFeatureType.MEMBER? getParentClassId(): getParentPackageId();
     }
 
-    private static List<ApplicationFeatureId> pathIds(ApplicationFeatureId id) {
+    private static List<ApplicationFeatureId> pathIds(final ApplicationFeatureId id) {
         final List<ApplicationFeatureId> featureIds = Lists.newArrayList();
         return Collections.unmodifiableList(appendParents(id, featureIds));
     }
 
-    private static List<ApplicationFeatureId> appendParents(ApplicationFeatureId featureId, List<ApplicationFeatureId> parentIds) {
+    private static List<ApplicationFeatureId> appendParents(final ApplicationFeatureId featureId, final List<ApplicationFeatureId> parentIds) {
         if(featureId != null) {
             parentIds.add(featureId);
             appendParents(featureId.getParentId(), parentIds);
@@ -380,17 +407,19 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > equals, hashCode, compareTo, toString
 
     private final static String propertyNames = "type, packageName, className, memberName";
 
     @Override
-    public int compareTo(ApplicationFeatureId o) {
-        return ObjectContracts.compare(this, o, propertyNames);
+    public int compareTo(final ApplicationFeatureId other) {
+        return ObjectContracts.compare(this, other, propertyNames);
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
 
         // not using our ObjectContracts helper because trying to be efficient.  Premature optimization?
         // return ObjectContracts.equals(this, obj, propertyNames);
@@ -398,14 +427,13 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ApplicationFeatureId that = (ApplicationFeatureId) o;
+        final ApplicationFeatureId that = (ApplicationFeatureId) o;
 
         if (className != null ? !className.equals(that.className) : that.className != null) return false;
         if (memberName != null ? !memberName.equals(that.memberName) : that.memberName != null) return false;
         if (packageName != null ? !packageName.equals(that.packageName) : that.packageName != null) return false;
-        if (type != that.type) return false;
+        return type == that.type;
 
-        return true;
     }
 
     @Override

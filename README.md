@@ -261,7 +261,7 @@ To run the demo app:
 
     mvn antrun:run -P self-host
     
-Then log on using user: `sven`, password: `pass`
+Then log on using user: `isis-module-security-admin`, password: `pass`
 
 
 ## How to configure/use ##

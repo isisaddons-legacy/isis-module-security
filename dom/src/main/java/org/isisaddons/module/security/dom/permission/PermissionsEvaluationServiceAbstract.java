@@ -18,10 +18,11 @@ package org.isisaddons.module.security.dom.permission;
 
 import java.util.Collection;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.apache.isis.applib.annotation.Programmatic;
 
 public abstract class PermissionsEvaluationServiceAbstract implements PermissionsEvaluationService {
 
-
+    @Programmatic
     @Override
     public ApplicationPermissionValueSet.Evaluation evaluate(
             final ApplicationFeatureId targetMemberId,
@@ -30,7 +31,7 @@ public abstract class PermissionsEvaluationServiceAbstract implements Permission
 
         final Iterable<ApplicationPermissionValue> ordered = ordered(permissionValues);
 
-        for (ApplicationPermissionValue permissionValue : ordered) {
+        for (final ApplicationPermissionValue permissionValue : ordered) {
             if(permissionValue.implies(targetMemberId, mode)) {
                 return new ApplicationPermissionValueSet.Evaluation(permissionValue, true);
             } else if(permissionValue.refutes(targetMemberId, mode)) {

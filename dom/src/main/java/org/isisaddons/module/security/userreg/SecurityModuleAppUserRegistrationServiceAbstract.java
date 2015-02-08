@@ -18,11 +18,10 @@ package org.isisaddons.module.security.userreg;
 
 import java.util.Set;
 import javax.inject.Inject;
-
-import org.apache.isis.applib.services.userreg.UserDetails;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
+import org.apache.isis.applib.services.userreg.UserDetails;
 import org.apache.isis.applib.services.userreg.UserRegistrationService;
 import org.apache.isis.applib.value.Password;
 
@@ -44,8 +43,8 @@ public abstract class SecurityModuleAppUserRegistrationServiceAbstract implement
         final Password password = new Password(userDetails.getPassword());
         final ApplicationRole initialRole = getInitialRole();
         final Boolean enabled = true;
-        String username = userDetails.getUsername();
-        String emailAddress = userDetails.getEmailAddress();
+        final String username = userDetails.getUsername();
+        final String emailAddress = userDetails.getEmailAddress();
         final ApplicationUser applicationUser = applicationUsers.newLocalUser(username, password, password, initialRole, enabled, emailAddress);
 
         final Set<ApplicationRole> additionalRoles = getAdditionalInitialRoles();

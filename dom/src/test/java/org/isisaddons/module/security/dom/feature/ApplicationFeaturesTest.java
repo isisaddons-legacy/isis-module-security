@@ -34,10 +34,10 @@ import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.core.metamodel.adapter.ObjectAdapter;
 import org.apache.isis.core.metamodel.facets.all.hide.HiddenFacet;
 import org.apache.isis.core.metamodel.facets.members.hidden.HiddenFacetAbstract;
-import org.apache.isis.core.metamodel.facets.objpropparam.typicallen.TypicalLengthFacet;
+import org.apache.isis.core.metamodel.facets.objectvalue.maxlen.MaxLengthFacet;
+import org.apache.isis.core.metamodel.facets.objectvalue.maxlen.MaxLengthFacetAbstract;
+import org.apache.isis.core.metamodel.facets.objectvalue.typicallen.TypicalLengthFacet;
 import org.apache.isis.core.metamodel.facets.properties.typicallen.annotation.TypicalLengthFacetOnPropertyAnnotation;
-import org.apache.isis.core.metamodel.facets.properties.validating.maxlenannot.MaxLengthFacetOnPropertyAnnotation;
-import org.apache.isis.core.metamodel.facets.propparam.maxlen.MaxLengthFacet;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjector;
 import org.apache.isis.core.metamodel.spec.ObjectSpecification;
 import org.apache.isis.core.metamodel.spec.feature.Contributed;
@@ -131,7 +131,7 @@ public class ApplicationFeaturesTest {
                 will(returnValue("someProperty"));
 
                 allowing(mockProp).getFacet(MaxLengthFacet.class);
-                will(returnValue(new MaxLengthFacetOnPropertyAnnotation(30, mockProp)));
+                will(returnValue(new MaxLengthFacetAbstract(30, mockProp){}));
 
                 allowing(mockProp).getFacet(TypicalLengthFacet.class);
                 will(returnValue(new TypicalLengthFacetOnPropertyAnnotation(15, mockProp)));

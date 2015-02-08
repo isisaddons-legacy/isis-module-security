@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
@@ -28,29 +29,67 @@ import org.isisaddons.module.security.shiro.IsisModuleSecurityRealm;
 import org.isisaddons.module.security.shiro.ShiroUtils;
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.Identifier;
-import org.apache.isis.applib.annotation.ActionInteraction;
-import org.apache.isis.applib.annotation.ActionSemantics;
-import org.apache.isis.applib.annotation.ActionSemantics.Of;
+import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
-import org.apache.isis.applib.annotation.MaxLength;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.NotContributed;
-import org.apache.isis.applib.annotation.Optional;
+import org.apache.isis.applib.annotation.NatureOfService;
+import org.apache.isis.applib.annotation.Optionality;
+import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.query.QueryDefault;
-import org.apache.isis.applib.services.eventbus.ActionInteractionEvent;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 import org.apache.isis.applib.value.Password;
 
+@SuppressWarnings("UnusedDeclaration")
+@DomainService(
+        nature = NatureOfService.VIEW_MENU_ONLY,
+        repositoryFor = ApplicationUser.class
+)
 @DomainServiceLayout(
         named="Security",
         menuBar = DomainServiceLayout.MenuBar.SECONDARY,
         menuOrder = "100.10"
 )
-@DomainService(repositoryFor = ApplicationUser.class)
 public class ApplicationUsers extends AbstractFactoryAndRepository {
+
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationUsers, T> {
+        public PropertyDomainEvent(final ApplicationUsers source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public PropertyDomainEvent(final ApplicationUsers source, final Identifier identifier, final T oldValue, final T newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationUsers, T> {
+        public CollectionDomainEvent(final ApplicationUsers source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public CollectionDomainEvent(final ApplicationUsers source, final Identifier identifier, final Of of, final T value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationUsers> {
+        public ActionDomainEvent(final ApplicationUsers source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ActionDomainEvent(final ApplicationUsers source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
+
+        public ActionDomainEvent(final ApplicationUsers source, final Identifier identifier, final List<Object> arguments) {
+            super(source, identifier, arguments);
+        }
+    }
+
+    // //////////////////////////////////////
 
     //region > identification
     public String iconName() {
@@ -72,8 +111,8 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     //region > findUserByName
 
-    public static class FindOrCreateUserByUsernameEvent extends ActionInteractionEvent<ApplicationUsers> {
-        public FindOrCreateUserByUsernameEvent(ApplicationUsers source, Identifier identifier, Object... args) {
+    public static class FindOrCreateUserByUsernameDomainEvent extends ActionDomainEvent {
+        public FindOrCreateUserByUsernameDomainEvent(final ApplicationUsers source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -86,15 +125,19 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
      *     If the user does not exist, it will be automatically created.
      * </p>
      */
-    @ActionInteraction(FindOrCreateUserByUsernameEvent.class)
+    @Action(
+            domainEvent = FindOrCreateUserByUsernameDomainEvent.class,
+            semantics = SemanticsOf.IDEMPOTENT
+    )
     @MemberOrder(sequence = "10.2")
-    @ActionSemantics(Of.IDEMPOTENT)
     public ApplicationUser findOrCreateUserByUsername(
-            final @ParameterLayout(named="Username") @MaxLength(ApplicationUser.MAX_LENGTH_USERNAME) String username) {
+            @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
+            @ParameterLayout(named="Username")
+            final String username) {
         return queryResultsCache.execute(new Callable<ApplicationUser>() {
             @Override
             public ApplicationUser call() throws Exception {
-                ApplicationUser applicationUser = findUserByUsername(username);
+                final ApplicationUser applicationUser = findUserByUsername(username);
                 if (applicationUser != null) {
                     return applicationUser;
                 }
@@ -130,15 +173,17 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     //region > findUsersByName
 
-    public static class FindUsersByNameEvent extends ActionInteractionEvent<ApplicationUsers> {
-        public FindUsersByNameEvent(ApplicationUsers source, Identifier identifier, Object... args) {
+    public static class FindUsersByNameDomainEvent extends ActionDomainEvent {
+        public FindUsersByNameDomainEvent(final ApplicationUsers source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(FindUsersByNameEvent.class)
+    @Action(
+            domainEvent = FindUsersByNameDomainEvent.class,
+            semantics = SemanticsOf.SAFE
+    )
     @MemberOrder(sequence = "10.3")
-    @ActionSemantics(Of.SAFE)
     public List<ApplicationUser> findUsersByName(
             final @ParameterLayout(named="Name") String name) {
         final String nameRegex = "(?i).*" + name + ".*";
@@ -150,21 +195,28 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     //region > newUser (no password)
 
-    public static class NewDelegateUserEvent extends ActionInteractionEvent<ApplicationUsers> {
-        public NewDelegateUserEvent(ApplicationUsers source, Identifier identifier, Object... args) {
+    public static class NewDelegateUserDomainEvent extends ActionDomainEvent {
+        public NewDelegateUserDomainEvent(final ApplicationUsers source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(NewDelegateUserEvent.class)
+    @Action(
+            domainEvent = NewDelegateUserDomainEvent.class,
+            semantics = SemanticsOf.NON_IDEMPOTENT
+    )
     @MemberOrder(sequence = "10.4")
-    @ActionSemantics(Of.NON_IDEMPOTENT)
-    @NotContributed
     public ApplicationUser newDelegateUser(
-            final @ParameterLayout(named="Name") @MaxLength(ApplicationUser.MAX_LENGTH_USERNAME) String username,
-            final @ParameterLayout(named="Initial role") @Optional ApplicationRole initialRole,
-            final @ParameterLayout(named="Enabled?") @Optional Boolean enabled) {
-        ApplicationUser user = applicationUserFactory.newApplicationUser();
+            @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
+            @ParameterLayout(named="Name")
+            final String username,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named="Initial role")
+            final ApplicationRole initialRole,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named="Enabled?")
+            final Boolean enabled) {
+        final ApplicationUser user = applicationUserFactory.newApplicationUser();
         user.setUsername(username);
         user.setStatus(ApplicationUserStatus.parse(enabled));
         user.setAccountType(AccountType.DELEGATED);
@@ -190,23 +242,36 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     //region > newLocalUser (action)
 
-    public static class NewLocalUserEvent extends ActionInteractionEvent<ApplicationUsers> {
-        public NewLocalUserEvent(ApplicationUsers source, Identifier identifier, Object... args) {
+    public static class NewLocalUserDomainEvent extends ActionDomainEvent {
+        public NewLocalUserDomainEvent(final ApplicationUsers source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(NewLocalUserEvent.class)
+    @Action(
+            domainEvent = NewLocalUserDomainEvent.class,
+            semantics = SemanticsOf.IDEMPOTENT
+    )
     @MemberOrder(sequence = "10.4")
-    @ActionSemantics(Of.IDEMPOTENT)
-    @NotContributed
     public ApplicationUser newLocalUser(
-            final @ParameterLayout(named="Name") @MaxLength(ApplicationUser.MAX_LENGTH_USERNAME) String username,
-            final @ParameterLayout(named="Password") @Optional Password password,
-            final @ParameterLayout(named="Repeat password") @Optional Password passwordRepeat,
-            final @ParameterLayout(named="Initial role") @Optional ApplicationRole initialRole,
-            final @ParameterLayout(named="Enabled?") @Optional Boolean enabled,
-            final @ParameterLayout(named="Email Address") @Optional String emailAddress) {
+            @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
+            @ParameterLayout(named="Name")
+            final String username,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named="Password")
+            final Password password,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named="Repeat password")
+            final Password passwordRepeat,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named="Initial role")
+            final ApplicationRole initialRole,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named="Enabled?")
+            final Boolean enabled,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named="Email Address")
+            final String emailAddress) {
         ApplicationUser user = findUserByUsername(username);
         if (user == null){
             user = applicationUserFactory.newApplicationUser();
@@ -234,7 +299,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             final ApplicationRole initialRole,
             final Boolean enabled,
             final String emailAddress) {
-        ApplicationUser user = applicationUserFactory.newApplicationUser();
+        final ApplicationUser user = applicationUserFactory.newApplicationUser();
         return user.validateResetPassword(password, passwordRepeat);
     }
 
@@ -245,15 +310,17 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     //region > allUsers
 
-    public static class AllUsersEvent extends ActionInteractionEvent<ApplicationUsers> {
-        public AllUsersEvent(ApplicationUsers source, Identifier identifier, Object... args) {
+    public static class AllUsersDomainEvent extends ActionDomainEvent {
+        public AllUsersDomainEvent(final ApplicationUsers source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
 
-    @ActionInteraction(AllUsersEvent.class)
+    @Action(
+            domainEvent = AllUsersDomainEvent.class,
+            semantics = SemanticsOf.SAFE
+    )
     @MemberOrder(sequence = "10.9")
-    @ActionSemantics(Of.SAFE)
     public List<ApplicationUser> allUsers() {
         return allInstances(ApplicationUser.class);
     }
@@ -271,8 +338,8 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     //region > helpers: isPasswordsFeatureEnabled, isPasswordsFeatureDisabled
 
     private boolean hasNoDelegateAuthenticationRealm() {
-        IsisModuleSecurityRealm imsr = ShiroUtils.getIsisModuleSecurityRealm();
-        return imsr == null || !imsr.hasDelegateAuthenticationRealm();
+        final IsisModuleSecurityRealm realm = ShiroUtils.getIsisModuleSecurityRealm();
+        return realm == null || !realm.hasDelegateAuthenticationRealm();
     }
 
     //endregion
