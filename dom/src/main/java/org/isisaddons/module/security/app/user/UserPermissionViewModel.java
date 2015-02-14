@@ -248,8 +248,18 @@ public class UserPermissionViewModel implements ViewModel {
     // //////////////////////////////////////
 
     //region > user (derived property, hidden in parented tables)
+    public static class UserDomainEvent extends PropertyDomainEvent<ApplicationUser> {
+        public UserDomainEvent(final UserPermissionViewModel source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public UserDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final ApplicationUser oldValue, final ApplicationUser newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
 
-    @Property
+    @Property(
+            domainEvent = UserDomainEvent.class
+    )
     @PropertyLayout(hidden=Where.PARENTED_TABLES)
     @MemberOrder(name = "Permission", sequence = "1")
     public ApplicationUser getUser() {
@@ -267,10 +277,21 @@ public class UserPermissionViewModel implements ViewModel {
 
     //region > verb (derived property)
 
+    public static class VerbDomainEvent extends PropertyDomainEvent<String> {
+        public VerbDomainEvent(final UserPermissionViewModel source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public VerbDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
     private boolean viewingGranted;
     private boolean changingGranted;
 
-    @Property
+    @Property(
+            domainEvent = VerbDomainEvent.class
+    )
     @PropertyLayout(typicalLength=UserPermissionViewModel.TYPICAL_LENGTH_VERB)
     @MemberOrder(name="Permission", sequence = "2")
     public String getVerb() {
@@ -286,8 +307,18 @@ public class UserPermissionViewModel implements ViewModel {
 
     //region > feature (derived property)
 
+    public static class FeatureDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel> {
+        public FeatureDomainEvent(final UserPermissionViewModel source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public FeatureDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final ApplicationFeatureViewModel oldValue, final ApplicationFeatureViewModel newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
     @javax.jdo.annotations.NotPersistent
     @Property(
+            domainEvent = FeatureDomainEvent.class,
             editing = Editing.DISABLED
     )
     @PropertyLayout(hidden=Where.REFERENCES_PARENT)
@@ -317,12 +348,24 @@ public class UserPermissionViewModel implements ViewModel {
     // //////////////////////////////////////
 
     //region > viewingPermission (derived property)
+
+    public static class ViewingPermissionDomainEvent extends PropertyDomainEvent<ApplicationPermission> {
+        public ViewingPermissionDomainEvent(final UserPermissionViewModel source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ViewingPermissionDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final ApplicationPermission oldValue, final ApplicationPermission newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
     private ApplicationFeatureId viewingFeatureId;
     private ApplicationPermissionMode viewingMode;
     private ApplicationPermissionRule viewingRule;
 
     @javax.jdo.annotations.NotPersistent
     @Property(
+            domainEvent = ViewingPermissionDomainEvent.class,
             editing = Editing.DISABLED
     )
     @PropertyLayout(hidden=Where.REFERENCES_PARENT)
@@ -347,6 +390,16 @@ public class UserPermissionViewModel implements ViewModel {
 
     //region > changingPermission (derived property)
 
+    public static class ChangingPermissionDomainEvent extends PropertyDomainEvent<ApplicationPermission> {
+        public ChangingPermissionDomainEvent(final UserPermissionViewModel source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ChangingPermissionDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final ApplicationPermission oldValue, final ApplicationPermission newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
     private ApplicationFeatureId changingFeatureId;
     private ApplicationPermissionMode changingMode;
     private ApplicationPermissionRule changingRule;
@@ -354,6 +407,7 @@ public class UserPermissionViewModel implements ViewModel {
 
     @javax.jdo.annotations.NotPersistent
     @Property(
+            domainEvent = ChangingPermissionDomainEvent.class,
             editing = Editing.DISABLED
     )
     @PropertyLayout(hidden=Where.REFERENCES_PARENT)

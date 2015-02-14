@@ -78,7 +78,19 @@ public class ApplicationPackage extends ApplicationFeatureViewModel {
     //endregion
 
     //region > contents (collection, for packages only)
-    @Collection
+
+    public static class ContentsDomainEvent extends CollectionDomainEvent<ApplicationPackage> {
+        public ContentsDomainEvent(final ApplicationClass source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+        public ContentsDomainEvent(final ApplicationClass source, final Identifier identifier, final Of of, final ApplicationPackage value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    @Collection(
+            domainEvent = ContentsDomainEvent.class
+    )
     @CollectionLayout(
             render = RenderType.EAGERLY
     )
@@ -91,6 +103,5 @@ public class ApplicationPackage extends ApplicationFeatureViewModel {
         return getType() != ApplicationFeatureType.PACKAGE;
     }
     //endregion
-
 
 }

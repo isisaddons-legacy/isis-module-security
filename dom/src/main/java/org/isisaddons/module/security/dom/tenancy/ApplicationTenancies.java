@@ -23,6 +23,7 @@ import org.isisaddons.module.security.SecurityModule;
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
+import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
@@ -41,7 +42,7 @@ import org.apache.isis.applib.query.QueryDefault;
 @DomainServiceLayout(
         named="Security",
         menuBar = DomainServiceLayout.MenuBar.SECONDARY,
-        menuOrder = "100.50"
+        menuOrder = "100.30"
 )
 public class ApplicationTenancies extends AbstractFactoryAndRepository {
 
@@ -101,45 +102,19 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
 
     //endregion
 
-    //region > findTenancyByName
+    //region > findTenancyByName (programmatic)
 
-    public static class FindTenancyByNameDomainEvent extends ActionDomainEvent {
-        public FindTenancyByNameDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
-
-    @Action(
-            domainEvent = FindTenancyByNameDomainEvent.class,
-            semantics = SemanticsOf.SAFE
-    )
-    @MemberOrder(sequence = "90.1")
-    public ApplicationTenancy findTenancyByName(
-            @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_NAME)
-            @ParameterLayout(named="Name", typicalLength=ApplicationTenancy.TYPICAL_LENGTH_NAME)
-            final String name) {
+    @Programmatic
+    public ApplicationTenancy findTenancyByName(final String name) {
         return uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByName", "name", name));
     }
 
     //endregion
 
-    //region > findTenancyByPath
+    //region > findTenancyByPath (programmatic)
 
-    public static class FindTenancyByPathDomainEvent extends ActionDomainEvent {
-        public FindTenancyByPathDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
-
-    @Action(
-            domainEvent = FindTenancyByPathDomainEvent.class,
-            semantics = SemanticsOf.SAFE
-    )
-    @MemberOrder(sequence = "90.2")
-    public ApplicationTenancy findTenancyByPath(
-            @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_NAME)
-            @ParameterLayout(named="Name", typicalLength=ApplicationTenancy.TYPICAL_LENGTH_NAME)
-            final String path) {
+    @Programmatic
+    public ApplicationTenancy findTenancyByPath(final String path) {
         if(path == null) {
             return null;
         }
@@ -160,6 +135,9 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     @Action(
             domainEvent = NewTenancyDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
+    )
+    @ActionLayout(
+            cssClassFa = "fa-plus"
     )
     @MemberOrder(sequence = "90.3")
     public ApplicationTenancy newTenancy(
@@ -196,6 +174,9 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     @Action(
             domainEvent = AllTenanciesDomainEvent.class,
             semantics = SemanticsOf.SAFE
+    )
+    @ActionLayout(
+            cssClassFa = "fa-list"
     )
     @MemberOrder(sequence = "90.4")
     public List<ApplicationTenancy> allTenancies() {

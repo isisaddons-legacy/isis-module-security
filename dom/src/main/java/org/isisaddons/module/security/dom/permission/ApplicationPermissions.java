@@ -32,6 +32,7 @@ import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
+import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
@@ -45,7 +46,7 @@ import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 @DomainServiceLayout(
         named="Security",
         menuBar = DomainServiceLayout.MenuBar.SECONDARY,
-        menuOrder = "100.30"
+        menuOrder = "100.50"
 )
 public class ApplicationPermissions {
 
@@ -272,6 +273,9 @@ public class ApplicationPermissions {
             domainEvent=AllPermissionsDomainEvent.class,
             semantics = SemanticsOf.SAFE,
             restrictTo = RestrictTo.PROTOTYPING
+    )
+    @ActionLayout(
+            cssClassFa = "fa-list"
     )
     @MemberOrder(sequence = "60.9")
     public List<ApplicationPermission> allPermissions() {

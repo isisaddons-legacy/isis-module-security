@@ -75,7 +75,20 @@ public abstract class ApplicationClassMember extends ApplicationFeatureViewModel
     //endregion
 
     //region > memberName (properties)
-    @Property()
+
+    public static class MemberNameDomainEvent extends PropertyDomainEvent<ApplicationClassMember, String> {
+        public MemberNameDomainEvent(final ApplicationClassMember source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public MemberNameDomainEvent(final ApplicationClassMember source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    @Property(
+            domainEvent = MemberNameDomainEvent.class
+    )
     @MemberOrder(name="Id", sequence = "2.4")
     public String getMemberName() {
         return super.getMemberName();

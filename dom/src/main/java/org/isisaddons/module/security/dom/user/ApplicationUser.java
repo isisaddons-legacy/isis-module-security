@@ -172,9 +172,24 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //endregion
 
     //region > name (derived property)
+
+    public static class NameDomainEvent extends PropertyDomainEvent<String> {
+        public NameDomainEvent(final ApplicationUser source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public NameDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
     @javax.jdo.annotations.NotPersistent
-    @Property(editing = Editing.DISABLED)
-    @PropertyLayout(hidden=Where.OBJECT_FORMS)
+    @Property(
+            domainEvent = NameDomainEvent.class,
+            editing = Editing.DISABLED
+    )
+    @PropertyLayout(
+            hidden=Where.OBJECT_FORMS
+    )
     @MemberOrder(name="Id", sequence = "1")
     public String getName() {
         final StringBuilder buf = new StringBuilder();
@@ -196,17 +211,25 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     //region > username (property)
 
-    public static class UpdateUsernameDomainEvent extends ActionDomainEvent {
-        public UpdateUsernameDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
+    public static class UsernameDomainEvent extends PropertyDomainEvent<String> {
+        public UsernameDomainEvent(final ApplicationUser source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public UsernameDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
         }
     }
 
     private String username;
 
     @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_USERNAME)
-    @Property(editing = Editing.DISABLED)
-    @PropertyLayout(hidden=Where.PARENTED_TABLES)
+    @Property(
+            domainEvent = UsernameDomainEvent.class,
+            editing = Editing.DISABLED
+    )
+    @PropertyLayout(
+            hidden=Where.PARENTED_TABLES
+    )
     @MemberOrder(name="Id", sequence = "1")
     public String getUsername() {
         return username;
@@ -214,6 +237,16 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     public void setUsername(final String username) {
         this.username = username;
+    }
+
+    //endregion
+
+    //region > updateUsername (action)
+
+    public static class UpdateUsernameDomainEvent extends ActionDomainEvent {
+        public UpdateUsernameDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
     }
 
     @Action(
@@ -235,11 +268,27 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //endregion
 
     //region > familyName (property)
+
+    public static class FamilyNameDomainEvent extends PropertyDomainEvent<String> {
+        public FamilyNameDomainEvent(final ApplicationUser source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public FamilyNameDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
     private String familyName;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_FAMILY_NAME)
-    @Property(editing = Editing.DISABLED)
-    @PropertyLayout(hidden=Where.ALL_TABLES)
+    @Property(
+            domainEvent = FamilyNameDomainEvent.class,
+            editing = Editing.DISABLED
+    )
+    @PropertyLayout(
+            hidden=Where.ALL_TABLES
+    )
     @MemberOrder(name="Name",sequence = "2.1")
     public String getFamilyName() {
         return familyName;
@@ -251,11 +300,27 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //endregion
 
     //region > givenName (property)
+
+    public static class GivenNameDomainEvent extends PropertyDomainEvent<String> {
+        public GivenNameDomainEvent(final ApplicationUser source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public GivenNameDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
     private String givenName;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_GIVEN_NAME)
-    @Property(editing = Editing.DISABLED)
-    @PropertyLayout(hidden=Where.ALL_TABLES)
+    @Property(
+            domainEvent = GivenNameDomainEvent.class,
+            editing = Editing.DISABLED
+    )
+    @PropertyLayout(
+            hidden=Where.ALL_TABLES
+    )
     @MemberOrder(name="Name", sequence = "2.2")
     public String getGivenName() {
         return givenName;
@@ -267,11 +332,27 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //endregion
 
     //region > knownAs (property)
+
+    public static class KnownAsDomainEvent extends PropertyDomainEvent<String> {
+        public KnownAsDomainEvent(final ApplicationUser source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public KnownAsDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
     private String knownAs;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_KNOWN_AS)
-    @Property(editing = Editing.DISABLED)
-    @PropertyLayout(hidden=Where.ALL_TABLES)
+    @Property(
+            domainEvent = KnownAsDomainEvent.class,
+            editing = Editing.DISABLED
+    )
+    @PropertyLayout(
+            hidden=Where.ALL_TABLES
+    )
     @MemberOrder(name="Name",sequence = "2.3")
     public String getKnownAs() {
         return knownAs;
@@ -341,16 +422,24 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     //region > emailAddress (property)
 
-    public static class UpdateEmailAddressDomainEvent extends ActionDomainEvent {
-        public UpdateEmailAddressDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
+    public static class EmailAddressDomainEvent extends PropertyDomainEvent<String> {
+        public EmailAddressDomainEvent(final ApplicationUser source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public EmailAddressDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
         }
     }
+
 
     private String emailAddress;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_EMAIL_ADDRESS)
-    @Property(editing = Editing.DISABLED)
+    @Property(
+            domainEvent = EmailAddressDomainEvent.class,
+            editing = Editing.DISABLED
+    )
     @MemberOrder(name="Contact Details", sequence = "3.1")
     public String getEmailAddress() {
         return emailAddress;
@@ -358,6 +447,16 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     public void setEmailAddress(final String emailAddress) {
         this.emailAddress = emailAddress;
+    }
+
+    //endregion
+
+    //region > updateEmailAddress (action)
+
+    public static class UpdateEmailAddressDomainEvent extends ActionDomainEvent {
+        public UpdateEmailAddressDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
     }
 
     @Action(
@@ -384,16 +483,23 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     //region > phoneNumber (property)
 
-    public static class UpdatePhoneNumberDomainEvent extends ActionDomainEvent {
-        public UpdatePhoneNumberDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
+    public static class PhoneNumberDomainEvent extends PropertyDomainEvent<String> {
+        public PhoneNumberDomainEvent(final ApplicationUser source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public PhoneNumberDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
         }
     }
 
     private String phoneNumber;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_PHONE_NUMBER)
-    @Property(editing = Editing.DISABLED)
+    @Property(
+            domainEvent = PhoneNumberDomainEvent.class,
+            editing = Editing.DISABLED
+    )
     @MemberOrder(name="Contact Details", sequence = "3.2")
     public String getPhoneNumber() {
         return phoneNumber;
@@ -401,6 +507,16 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     public void setPhoneNumber(final String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    //endregion
+
+    //region > phoneNumber (property)
+
+    public static class UpdatePhoneNumberDomainEvent extends ActionDomainEvent {
+        public UpdatePhoneNumberDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
     }
 
     @Action(
@@ -427,9 +543,13 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     //region > faxNumber (property)
 
-    public static class UpdateFaxNumberDomainEvent extends ActionDomainEvent {
-        public UpdateFaxNumberDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
+    public static class FaxNumberDomainEvent extends PropertyDomainEvent<String> {
+        public FaxNumberDomainEvent(final ApplicationUser source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public FaxNumberDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
         }
     }
 
@@ -437,8 +557,13 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     private String faxNumber;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_PHONE_NUMBER)
-    @Property(editing = Editing.DISABLED)
-    @PropertyLayout(hidden=Where.PARENTED_TABLES)
+    @Property(
+            domainEvent = FaxNumberDomainEvent.class,
+            editing = Editing.DISABLED
+    )
+    @PropertyLayout(
+            hidden=Where.PARENTED_TABLES
+    )
     @MemberOrder(name="Contact Details", sequence = "3.3")
     public String getFaxNumber() {
         return faxNumber;
@@ -446,6 +571,16 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     public void setFaxNumber(final String faxNumber) {
         this.faxNumber = faxNumber;
+    }
+
+    //endregion
+
+    //region > updateFaxNumber (action)
+
+    public static class UpdateFaxNumberDomainEvent extends ActionDomainEvent {
+        public UpdateFaxNumberDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
     }
 
     @Action(
@@ -473,16 +608,23 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     //region > tenancy (property)
 
-    public static class UpdateTenancyDomainEvent extends ActionDomainEvent {
-        public UpdateTenancyDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
+    public static class TenancyDomainEvent extends PropertyDomainEvent<ApplicationTenancy> {
+        public TenancyDomainEvent(final ApplicationUser source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public TenancyDomainEvent(final ApplicationUser source, final Identifier identifier, final ApplicationTenancy oldValue, final ApplicationTenancy newValue) {
+            super(source, identifier, oldValue, newValue);
         }
     }
 
     private ApplicationTenancy tenancy;
 
     @javax.jdo.annotations.Column(name = "tenancyId", allowsNull="true")
-    @Property(editing = Editing.DISABLED)
+    @Property(
+            domainEvent = TenancyDomainEvent.class,
+            editing = Editing.DISABLED
+    )
     @MemberOrder(name="Tenancy", sequence = "3.4")
     public ApplicationTenancy getTenancy() {
         return tenancy;
@@ -490,6 +632,16 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     public void setTenancy(final ApplicationTenancy tenancy) {
         this.tenancy = tenancy;
+    }
+
+    //endregion
+
+    //region > updateTenancy (action)
+
+    public static class UpdateTenancyDomainEvent extends ActionDomainEvent {
+        public UpdateTenancyDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
     }
 
     @Action(
@@ -509,18 +661,25 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
     //endregion
 
-    //region > accountType (property), updateAccountType
+    //region > accountType (property)
 
-    public static class UpdateAccountTypeDomainEvent extends ActionDomainEvent {
-        public UpdateAccountTypeDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
+    public static class AccountTypeDomainEvent extends PropertyDomainEvent<AccountType> {
+        public AccountTypeDomainEvent(final ApplicationUser source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public AccountTypeDomainEvent(final ApplicationUser source, final Identifier identifier, final AccountType oldValue, final AccountType newValue) {
+            super(source, identifier, oldValue, newValue);
         }
     }
 
     private AccountType accountType;
 
     @javax.jdo.annotations.Column(allowsNull="false")
-    @Property(editing = Editing.DISABLED)
+    @Property(
+            domainEvent = AccountTypeDomainEvent.class,
+            editing = Editing.DISABLED
+    )
     @MemberOrder(name="Status", sequence = "3")
     public AccountType getAccountType() {
         return accountType;
@@ -528,6 +687,16 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     public void setAccountType(final AccountType accountType) {
         this.accountType = accountType;
+    }
+
+    //endregion
+
+    //region > updateAccountType (action)
+
+    public static class UpdateAccountTypeDomainEvent extends ActionDomainEvent {
+        public UpdateAccountTypeDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
     }
 
     @Action(
@@ -561,22 +730,22 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     //region > status (property), visible (action), usable (action)
 
-    public static class UnlockDomainEvent extends ActionDomainEvent {
-        public UnlockDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
+    public static class StatusDomainEvent extends PropertyDomainEvent<ApplicationUserStatus> {
+        public StatusDomainEvent(final ApplicationUser source, final Identifier identifier) {
+            super(source, identifier);
         }
-    }
-
-    public static class LockDomainEvent extends ActionDomainEvent {
-        public LockDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
+        public StatusDomainEvent(final ApplicationUser source, final Identifier identifier, final ApplicationUserStatus oldValue, final ApplicationUserStatus newValue) {
+            super(source, identifier, oldValue, newValue);
         }
     }
 
     private ApplicationUserStatus status;
 
     @javax.jdo.annotations.Column(allowsNull="false")
-    @Property(editing = Editing.DISABLED)
+    @Property(
+            domainEvent = StatusDomainEvent.class,
+            editing = Editing.DISABLED
+    )
     @MemberOrder(name="Status", sequence = "4")
     public ApplicationUserStatus getStatus() {
         return status;
@@ -584,6 +753,16 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     public void setStatus(final ApplicationUserStatus status) {
         this.status = status;
+    }
+
+    //endregion
+
+    //region > unlock (action)
+
+    public static class UnlockDomainEvent extends ActionDomainEvent {
+        public UnlockDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
     }
 
     @Action(
@@ -598,6 +777,16 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     }
     public String disableUnlock() {
         return getStatus() == ApplicationUserStatus.ENABLED ? "Status is already set to ENABLE": null;
+    }
+
+    //endregion
+
+    //region > lock (action)
+
+    public static class LockDomainEvent extends ActionDomainEvent {
+        public LockDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
     }
 
     @Action(
@@ -620,6 +809,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //endregion
 
     //region > encryptedPassword (hidden property)
+
     private String encryptedPassword;
 
     @javax.jdo.annotations.Column(allowsNull="true")
@@ -640,8 +830,20 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     //region > hasPassword (derived property)
 
+    public static class HasPasswordDomainEvent extends PropertyDomainEvent<Boolean> {
+        public HasPasswordDomainEvent(final ApplicationUser source, final Identifier identifier) {
+            super(source, identifier);
+        }
 
-    @Property(editing = Editing.DISABLED)
+        public HasPasswordDomainEvent(final ApplicationUser source, final Identifier identifier, final Boolean oldValue, final Boolean newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    @Property(
+            domainEvent = HasPasswordDomainEvent.class,
+            editing = Editing.DISABLED
+    )
     @MemberOrder(name="Status", sequence = "4")
     public boolean isHasPassword() {
         return !Strings.isNullOrEmpty(getEncryptedPassword());
@@ -786,12 +988,23 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     //endregion
 
     //region > roles (collection)
+    public static class RolesDomainEvent extends CollectionDomainEvent<ApplicationRole> {
+        public RolesDomainEvent(final ApplicationUser source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public RolesDomainEvent(final ApplicationUser source, final Identifier identifier, final Of of, final ApplicationRole value) {
+            super(source, identifier, of, value);
+        }
+    }
+
     @javax.jdo.annotations.Persistent(table="IsisSecurityApplicationUserRoles")
     @javax.jdo.annotations.Join(column="userId")
     @javax.jdo.annotations.Element(column="roleId")
     private SortedSet<ApplicationRole> roles = new TreeSet<>();
 
     @Collection(
+            domainEvent = RolesDomainEvent.class,
             editing = Editing.DISABLED
     )
     @CollectionLayout(
@@ -961,7 +1174,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     boolean isForSelf() {
         final String currentUserName = container.getUser().getName();
-        return Objects.equals(getName(), currentUserName);
+        return Objects.equals(getUsername(), currentUserName);
     }
     boolean isRunAsAdministrator() {
         final UserMemento currentUser = container.getUser();

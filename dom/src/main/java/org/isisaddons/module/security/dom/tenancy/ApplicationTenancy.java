@@ -132,9 +132,13 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > name (property, title)
 
-    public static class UpdateNameDomainEvent extends ActionDomainEvent {
-        public UpdateNameDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
+    public static class NameDomainEvent extends PropertyDomainEvent<String> {
+        public NameDomainEvent(final ApplicationTenancy source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public NameDomainEvent(final ApplicationTenancy source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
         }
     }
 
@@ -142,8 +146,13 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_NAME)
     @Title
-    @Property(editing = Editing.DISABLED)
-    @PropertyLayout(typicalLength=TYPICAL_LENGTH_NAME)
+    @Property(
+            domainEvent = NameDomainEvent.class,
+            editing = Editing.DISABLED
+    )
+    @PropertyLayout(
+            typicalLength=TYPICAL_LENGTH_NAME
+    )
     @MemberOrder(sequence = "1")
     public String getName() {
         return name;
@@ -151,6 +160,16 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     public void setName(final String name) {
         this.name = name;
+    }
+
+    //endregion
+
+    //region > updateName (action)
+
+    public static class UpdateNameDomainEvent extends ActionDomainEvent {
+        public UpdateNameDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
     }
 
     @Action(
@@ -172,11 +191,23 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     //endregion
 
     //region > path
+
+    public static class PathDomainEvent extends PropertyDomainEvent<String> {
+        public PathDomainEvent(final ApplicationTenancy source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public PathDomainEvent(final ApplicationTenancy source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
     private String path;
 
     @javax.jdo.annotations.PrimaryKey
     @javax.jdo.annotations.Column(length = MAX_LENGTH_PATH, allowsNull = "false")
     @Property(
+            domainEvent = PathDomainEvent.class,
             editing = Editing.DISABLED
     )
     public String getPath() {
@@ -190,11 +221,21 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     //endregion
 
     //region > users (collection)
+
+    public static class UsersDomainEvent extends CollectionDomainEvent<ApplicationUser> {
+        public UsersDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+        public UsersDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Of of, final ApplicationUser value) {
+            super(source, identifier, of, value);
+        }
+    }
+
     @javax.jdo.annotations.Persistent(mappedBy = "tenancy")
     private SortedSet<ApplicationUser> users = new TreeSet<>();
 
-
     @Collection(
+            domainEvent = UsersDomainEvent.class,
             editing = Editing.DISABLED
     )
     @CollectionLayout(
@@ -219,16 +260,10 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     }
     //endregion
 
-    //region > addUser (action), removeUser (action)
+    //region > addUser (action)
 
     public static class AddUserDomainEvent extends ActionDomainEvent {
         public AddUserDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
-
-    public static class RemoveUserDomainEvent extends ActionDomainEvent {
-        public RemoveUserDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -255,6 +290,16 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
         return list;
     }
 
+    //endregion
+
+    //region > removeUser (action)
+
+    public static class RemoveUserDomainEvent extends ActionDomainEvent {
+        public RemoveUserDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
     @Action(
             domainEvent = RemoveUserDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
@@ -278,14 +323,25 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //endregion
 
-    //region > parent (property), updateParent (action)
+    //region > parent (property)
+
+    public static class ParentDomainEvent extends PropertyDomainEvent<ApplicationTenancy> {
+        public ParentDomainEvent(final ApplicationTenancy source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public ParentDomainEvent(final ApplicationTenancy source, final Identifier identifier, final ApplicationTenancy oldValue, final ApplicationTenancy newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
     private ApplicationTenancy parent;
 
     @javax.jdo.annotations.Column(name = "parentPath", allowsNull = "true")
-    @Collection(
+    @Property(
+            domainEvent = ParentDomainEvent.class,
             editing = Editing.DISABLED
     )
-    @CollectionLayout(
+    @PropertyLayout(
             hidden = Where.PARENTED_TABLES
     )
     public ApplicationTenancy getParent() {
@@ -295,6 +351,10 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     public void setParent(final ApplicationTenancy parent) {
         this.parent = parent;
     }
+
+    //endregion
+
+    //region > updateParent (action)
 
     public static class UpdateParentDomainEvent extends ActionDomainEvent {
         public UpdateParentDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
@@ -323,10 +383,22 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
 
     //region > children
+
+    public static class ChildrenDomainEvent extends CollectionDomainEvent<ApplicationTenancy> {
+        public ChildrenDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public ChildrenDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Of of, final ApplicationTenancy value) {
+            super(source, identifier, of, value);
+        }
+    }
+
     @javax.jdo.annotations.Persistent(mappedBy = "parent")
     private SortedSet<ApplicationTenancy> children = new TreeSet<>();
 
     @Collection(
+            domainEvent = ChildrenDomainEvent.class,
             editing = Editing.DISABLED
     )
     @CollectionLayout(
@@ -350,16 +422,10 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     }
     //endregion
 
-    //region > addChild (action), removeChild (action)
+    //region > addChild (action)
 
     public static class AddChildDomainEvent extends ActionDomainEvent {
         public AddChildDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
-
-    public static class RemoveChildDomainEvent extends ActionDomainEvent {
-        public RemoveChildDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -370,13 +436,23 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     )
     @ActionLayout(
             named="Add",
-            cssClassFa = "fa fa-plus-square"
+            cssClassFa = "fa-plus-square"
     )
     @MemberOrder(name="Children", sequence = "1")
     public ApplicationTenancy addChild(final ApplicationTenancy applicationTenancy) {
         applicationTenancy.setParent(this);
         // no need to add to children set, since will be done by JDO/DN.
         return this;
+    }
+
+    //endregion
+
+    //region > removeChild (action)
+
+    public static class RemoveChildDomainEvent extends ActionDomainEvent {
+        public RemoveChildDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
     }
 
     @Action(
@@ -403,7 +479,6 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     //endregion
 
 
-
     //region > delete (action)
     public static class DeleteDomainEvent extends ActionDomainEvent {
         public DeleteDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
@@ -417,7 +492,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     )
     @MemberOrder(sequence = "1")
     @ActionLayout(
-        cssClassFa = "fa fa-trash",
+        cssClassFa = "fa-trash",
         cssClass = "btn btn-danger"
     )
     public List<ApplicationTenancy> delete(

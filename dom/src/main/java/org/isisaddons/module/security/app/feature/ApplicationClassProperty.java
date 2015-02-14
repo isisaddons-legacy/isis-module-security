@@ -75,7 +75,18 @@ public class ApplicationClassProperty extends ApplicationClassMember {
 
     //region > returnType
 
-    @Property
+    public static class ReturnTypeDomainEvent extends PropertyDomainEvent<String> {
+        public ReturnTypeDomainEvent(final ApplicationClassProperty source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public ReturnTypeDomainEvent(final ApplicationClassProperty source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    @Property(
+            domainEvent = ReturnTypeDomainEvent.class
+    )
     @MemberOrder(name="Data Type", sequence = "2.6")
     public String getReturnType() {
         return getFeature().getReturnTypeName();
@@ -84,7 +95,18 @@ public class ApplicationClassProperty extends ApplicationClassMember {
 
     //region > derived
 
-    @Property
+    public static class DerivedDomainEvent extends PropertyDomainEvent<Boolean> {
+        public DerivedDomainEvent(final ApplicationClassProperty source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public DerivedDomainEvent(final ApplicationClassProperty source, final Identifier identifier, final Boolean oldValue, final Boolean newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    @Property(
+            domainEvent = DerivedDomainEvent.class
+    )
     @MemberOrder(name="Detail", sequence = "2.7")
     public boolean isDerived() {
         return getFeature().isDerived();
@@ -92,8 +114,19 @@ public class ApplicationClassProperty extends ApplicationClassMember {
     //endregion
 
 
-    //region > maxLength, typicalLength (properties)
+    //region > maxLength
+    public static class MaxLengthDomainEvent extends PropertyDomainEvent<Integer> {
+        public MaxLengthDomainEvent(final ApplicationClassProperty source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public MaxLengthDomainEvent(final ApplicationClassProperty source, final Identifier identifier, final Integer oldValue, final Integer newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+
     @Property(
+            domainEvent = MaxLengthDomainEvent.class,
             optionality = Optionality.OPTIONAL
     )
     @MemberOrder(name="Detail", sequence = "2.8")
@@ -105,8 +138,21 @@ public class ApplicationClassProperty extends ApplicationClassMember {
         return !String.class.getSimpleName().equals(getReturnType());
     }
 
+    //endregion
+
+
+    //region > typicalLength
+    public static class TypicalLengthDomainEvent extends PropertyDomainEvent<Integer> {
+        public TypicalLengthDomainEvent(final ApplicationClassProperty source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public TypicalLengthDomainEvent(final ApplicationClassProperty source, final Identifier identifier, final Integer oldValue, final Integer newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
 
     @Property(
+            domainEvent = TypicalLengthDomainEvent.class,
             optionality = Optionality.OPTIONAL
     )
     @MemberOrder(name="Detail", sequence = "2.9")

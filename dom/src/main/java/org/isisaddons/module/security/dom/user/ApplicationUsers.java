@@ -30,6 +30,7 @@ import org.isisaddons.module.security.shiro.ShiroUtils;
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
+import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
@@ -38,6 +39,7 @@ import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.RestrictTo;
 import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
@@ -109,13 +111,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     //endregion
 
-    //region > findUserByName
-
-    public static class FindOrCreateUserByUsernameDomainEvent extends ActionDomainEvent {
-        public FindOrCreateUserByUsernameDomainEvent(final ApplicationUsers source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    //region > findOrCreateUserByUsername (programmatic)
 
     /**
      * Uses the {@link org.apache.isis.applib.services.queryresultscache.QueryResultsCache} in order to support
@@ -125,14 +121,8 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
      *     If the user does not exist, it will be automatically created.
      * </p>
      */
-    @Action(
-            domainEvent = FindOrCreateUserByUsernameDomainEvent.class,
-            semantics = SemanticsOf.IDEMPOTENT
-    )
-    @MemberOrder(sequence = "10.2")
+    @Programmatic
     public ApplicationUser findOrCreateUserByUsername(
-            @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
-            @ParameterLayout(named="Username")
             final String username) {
         return queryResultsCache.execute(new Callable<ApplicationUser>() {
             @Override
@@ -143,25 +133,40 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
                 }
                 return newDelegateUser(username, null, null);
             }
-        }, ApplicationUsers.class, "findUserByUsername", username );
+        }, ApplicationUsers.class, "findByUsername", username );
     }
 
-    /**
-     * Uses the {@link org.apache.isis.applib.services.queryresultscache.QueryResultsCache} in order to support
-     * multiple lookups from <code>org.isisaddons.module.security.app.user.UserPermissionViewModel</code>.
-     */
-    @Programmatic
+    //endregion
+
+    //region > findUserByName
+
+    public static class FindUserByUserNameDomainEvent extends ActionDomainEvent {
+        public FindUserByUserNameDomainEvent(final ApplicationUsers source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @Action(
+            domainEvent = FindUserByUserNameDomainEvent.class,
+            semantics = SemanticsOf.IDEMPOTENT
+    )
+    @ActionLayout(
+            cssClassFa = "fa-crosshairs"
+    )
+    @MemberOrder(sequence = "10")
     public ApplicationUser findUserByUsername(
-            final @ParameterLayout(named="Username") String username) {
+            @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
+            @ParameterLayout(named = "Username")
+            final String username) {
         return uniqueMatch(new QueryDefault<>(
                 ApplicationUser.class,
                 "findByUsername", "username", username));
     }
 
-    /**
-     * Uses the {@link org.apache.isis.applib.services.queryresultscache.QueryResultsCache} in order to support
-     * multiple lookups from <code>org.isisaddons.module.security.app.user.UserPermissionViewModel</code>.
-     */
+    //endregion
+
+    //region > findUserByEmail (programmatic)
+
     @Programmatic
     public ApplicationUser findUserByEmail(
         final @ParameterLayout(named="Email") String emailAddress) {
@@ -183,7 +188,10 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             domainEvent = FindUsersByNameDomainEvent.class,
             semantics = SemanticsOf.SAFE
     )
-    @MemberOrder(sequence = "10.3")
+    @ActionLayout(
+            cssClassFa = "fa-search"
+    )
+    @MemberOrder(sequence = "20")
     public List<ApplicationUser> findUsersByName(
             final @ParameterLayout(named="Name") String name) {
         final String nameRegex = "(?i).*" + name + ".*";
@@ -193,7 +201,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     }
     //endregion
 
-    //region > newUser (no password)
+    //region > newDelegateUser (action)
 
     public static class NewDelegateUserDomainEvent extends ActionDomainEvent {
         public NewDelegateUserDomainEvent(final ApplicationUsers source, final Identifier identifier, final Object... args) {
@@ -205,7 +213,10 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             domainEvent = NewDelegateUserDomainEvent.class,
             semantics = SemanticsOf.NON_IDEMPOTENT
     )
-    @MemberOrder(sequence = "10.4")
+    @ActionLayout(
+            cssClassFa = "fa-plus"
+    )
+    @MemberOrder(sequence = "30")
     public ApplicationUser newDelegateUser(
             @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
             @ParameterLayout(named="Name")
@@ -251,6 +262,9 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     @Action(
             domainEvent = NewLocalUserDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
+    )
+    @ActionLayout(
+            cssClassFa = "fa-plus"
     )
     @MemberOrder(sequence = "10.4")
     public ApplicationUser newLocalUser(
@@ -318,7 +332,11 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     @Action(
             domainEvent = AllUsersDomainEvent.class,
-            semantics = SemanticsOf.SAFE
+            semantics = SemanticsOf.SAFE,
+            restrictTo = RestrictTo.PROTOTYPING
+    )
+    @ActionLayout(
+            cssClassFa = "fa-list"
     )
     @MemberOrder(sequence = "10.9")
     public List<ApplicationUser> allUsers() {

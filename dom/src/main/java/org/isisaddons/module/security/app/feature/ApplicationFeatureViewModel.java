@@ -93,7 +93,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
             final ApplicationFeatureId featureId,
             final ApplicationFeatures applicationFeatures,
             final DomainObjectContainer container) {
-        Class<? extends ApplicationFeatureViewModel> cls = viewModelClassFor(featureId, applicationFeatures);
+        final Class<? extends ApplicationFeatureViewModel> cls = viewModelClassFor(featureId, applicationFeatures);
         if(cls == null) {
             // TODO: not sure why, yet...
             return null;
@@ -130,7 +130,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     public ApplicationFeatureViewModel() {
     }
 
-    ApplicationFeatureViewModel(ApplicationFeatureId featureId) {
+    ApplicationFeatureViewModel(final ApplicationFeatureId featureId) {
         setFeatureId(featureId);
     }
     //endregion
@@ -157,7 +157,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     }
 
     @Override
-    public void viewModelInit(String encodedMemento) {
+    public void viewModelInit(final String encodedMemento) {
         final ApplicationFeatureId applicationFeatureId = ApplicationFeatureId.parseEncoded(encodedMemento);
         setFeatureId(applicationFeatureId);
     }
@@ -174,7 +174,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
         return featureId;
     }
 
-    public void setFeatureId(ApplicationFeatureId applicationFeatureId) {
+    public void setFeatureId(final ApplicationFeatureId applicationFeatureId) {
         this.featureId = applicationFeatureId;
     }
     //endregion
@@ -193,6 +193,8 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > type (programmatic)
     @Programmatic
     public ApplicationFeatureType getType() {
@@ -202,21 +204,49 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     // //////////////////////////////////////
 
-    //region > type, packageName, className, memberName (properties)
-    @Property()
+    //region > packageName
+    public static class PackageNameDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel, String> {
+        public PackageNameDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public PackageNameDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    @Property(
+            domainEvent = PackageNameDomainEvent.class
+    )
     @PropertyLayout(typicalLength=ApplicationFeature.TYPICAL_LENGTH_PKG_FQN)
     @MemberOrder(name="Id", sequence = "2.2")
     public String getPackageName() {
         return getFeatureId().getPackageName();
     }
 
+    //endregion
+
     // //////////////////////////////////////
+
+    //region > className
+
+    public static class ClassNameDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel, String> {
+        public ClassNameDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ClassNameDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
 
     /**
      * For packages, will be null. Is in this class (rather than subclasses) so is shown in
      * {@link ApplicationPackage#getContents() package contents}.
      */
-    @Property()
+    @Property(
+            domainEvent = ClassNameDomainEvent.class
+    )
     @PropertyLayout(typicalLength=ApplicationFeature.TYPICAL_LENGTH_CLS_NAME)
     @MemberOrder(name="Id", sequence = "2.3")
     public String getClassName() {
@@ -226,12 +256,27 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
         return getType().hideClassName();
     }
 
+    //endregion
+
     // //////////////////////////////////////
+
+    //region > memberName
+
+    public static class MemberNameDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel, String> {
+        public MemberNameDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public MemberNameDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
 
     /**
      * For packages and class names, will be null.
      */
-    @Property()
+    @Property(
+            domainEvent = MemberNameDomainEvent.class
+    )
     @PropertyLayout(typicalLength=ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME)
     @MemberOrder(name="Id", sequence = "2.4")
     public String getMemberName() {
@@ -249,7 +294,18 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     //region > parent (property)
 
-    @Property()
+    public static class ParentDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel, ApplicationFeatureViewModel> {
+        public ParentDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public ParentDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier, final ApplicationFeatureViewModel oldValue, final ApplicationFeatureViewModel newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    @Property(
+            domainEvent = ParentDomainEvent.class
+    )
     @PropertyLayout(hidden=Where.ALL_TABLES)
     @MemberOrder(name = "Parent", sequence = "2.6")
     public ApplicationFeatureViewModel getParent() {
@@ -274,10 +330,21 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     //region > contributed (property)
 
+    public static class ContributedDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel, Boolean> {
+        public ContributedDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public ContributedDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier, final Boolean oldValue, final Boolean newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
     /**
      * For packages and class names, will be null.
      */
-    @Property()
+    @Property(
+            domainEvent = ContributedDomainEvent.class
+    )
     @MemberOrder(name="Contributed", sequence = "2.5.5")
     public boolean isContributed() {
         return getFeature().isContributed();
@@ -291,7 +358,18 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     // //////////////////////////////////////
 
     //region > permissions (collection)
-    @Collection
+    public static class PermissionsDomainEvent extends CollectionDomainEvent<ApplicationFeatureViewModel, ApplicationPermission> {
+        public PermissionsDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+        public PermissionsDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier, final Of of, final ApplicationPermission value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    @Collection(
+            domainEvent = PermissionsDomainEvent.class
+    )
     @CollectionLayout(
             render = RenderType.EAGERLY
     )
@@ -321,7 +399,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     private final static String propertyNames = "featureId";
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         return ObjectContracts.equals(this, obj, propertyNames);
     }
 
@@ -337,7 +415,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     //endregion
 
     //region > helpers
-    <T extends ApplicationFeatureViewModel> List<T> asViewModels(SortedSet<ApplicationFeatureId> members) {
+    <T extends ApplicationFeatureViewModel> List<T> asViewModels(final SortedSet<ApplicationFeatureId> members) {
         final Function<ApplicationFeatureId, T> function = Functions.<T>asViewModelForId(applicationFeatures, container);
         return Lists.newArrayList(
                 Iterables.transform(members, function));
@@ -352,7 +430,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
                 final ApplicationFeatures applicationFeatures, final DomainObjectContainer container) {
             return new Function<ApplicationFeatureId, T>(){
                 @Override
-                public T apply(ApplicationFeatureId input) {
+                public T apply(final ApplicationFeatureId input) {
                     return (T)ApplicationFeatureViewModel.newViewModel(input, applicationFeatures, container);
                 }
             };
@@ -361,7 +439,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
                 final ApplicationFeatures applicationFeatures, final DomainObjectContainer container) {
             return new Function<ApplicationFeature, T>(){
                 @Override
-                public T apply(ApplicationFeature input) {
+                public T apply(final ApplicationFeature input) {
                     return (T) ApplicationFeatureViewModel.newViewModel(input.getFeatureId(), applicationFeatures, container);
                 }
             };

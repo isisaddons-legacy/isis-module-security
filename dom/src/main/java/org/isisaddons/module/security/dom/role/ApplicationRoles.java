@@ -23,6 +23,7 @@ import org.isisaddons.module.security.SecurityModule;
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
+import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
@@ -110,6 +111,9 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
             domainEvent = FindByRoleNameDomainEvent.class,
             semantics = SemanticsOf.SAFE
     )
+    @ActionLayout(
+            cssClassFa = "fa-crosshairs"
+    )
     @MemberOrder(sequence = "20.1")
     public ApplicationRole findRoleByName(
             @Parameter(maxLength = ApplicationRole.MAX_LENGTH_NAME)
@@ -131,6 +135,9 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
     @Action(
             domainEvent = NewRoleDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
+    )
+    @ActionLayout(
+            cssClassFa = "fa-plus"
     )
     @MemberOrder(sequence = "20.2")
     public ApplicationRole newRole(
@@ -163,6 +170,9 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
     @Action(
             domainEvent = AllRolesDomainEvent.class,
             semantics = SemanticsOf.SAFE
+    )
+    @ActionLayout(
+            cssClassFa = "fa-list"
     )
     @MemberOrder(sequence = "20.3")
     public List<ApplicationRole> allRoles() {

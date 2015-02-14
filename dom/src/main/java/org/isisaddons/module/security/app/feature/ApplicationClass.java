@@ -80,8 +80,22 @@ public class ApplicationClass extends ApplicationFeatureViewModel {
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > actions (collection)
-    @Collection()
+
+    public static class ActionsDomainEvent extends CollectionDomainEvent<ApplicationClassAction> {
+        public ActionsDomainEvent(final ApplicationClass source, final Identifier identifier, final Of of, final ApplicationClassAction value) {
+            super(source, identifier, of, value);
+        }
+        public ActionsDomainEvent(final ApplicationClass source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+    }
+
+    @Collection(
+        domainEvent = ActionsDomainEvent.class
+    )
     @CollectionLayout(
             render = RenderType.EAGERLY
     )
@@ -93,7 +107,20 @@ public class ApplicationClass extends ApplicationFeatureViewModel {
     //endregion
 
     //region > properties (collection)
-    @Collection()
+
+    public static class PropertiesCollectionDomainEvent extends CollectionDomainEvent<ApplicationClassAction> {
+        public PropertiesCollectionDomainEvent(final ApplicationClass source, final Identifier identifier, final Of of, final ApplicationClassAction value) {
+            super(source, identifier, of, value);
+        }
+        public PropertiesCollectionDomainEvent(final ApplicationClass source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+    }
+
+
+    @Collection(
+            domainEvent = PropertiesCollectionDomainEvent.class
+    )
     @CollectionLayout(
             render = RenderType.EAGERLY
     )
@@ -105,7 +132,18 @@ public class ApplicationClass extends ApplicationFeatureViewModel {
     //endregion
 
     //region > collections (collection)
-    @Collection()
+    public static class CollectionsCollectionDomainEvent extends CollectionDomainEvent<ApplicationClassAction> {
+        public CollectionsCollectionDomainEvent(final ApplicationClass source, final Identifier identifier, final Of of, final ApplicationClassAction value) {
+            super(source, identifier, of, value);
+        }
+        public CollectionsCollectionDomainEvent(final ApplicationClass source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+    }
+
+    @Collection(
+            domainEvent = CollectionsCollectionDomainEvent.class
+    )
     @CollectionLayout(
             render = RenderType.EAGERLY
     )

@@ -25,6 +25,7 @@ import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
+import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
@@ -100,6 +101,9 @@ public class ApplicationFeatureViewModels  {
             semantics = SemanticsOf.SAFE,
             restrictTo = RestrictTo.PROTOTYPING
     )
+    @ActionLayout(
+            cssClassFa = "fa-list"
+    )
     @MemberOrder(sequence = "10")
     public List<ApplicationPackage> allPackages() {
         return asViewModels(applicationFeatures.allPackages(), ApplicationPackage.class);
@@ -118,6 +122,9 @@ public class ApplicationFeatureViewModels  {
             domainEvent = AllClassesDomainEvent.class,
             semantics = SemanticsOf.SAFE,
             restrictTo = RestrictTo.PROTOTYPING
+    )
+    @ActionLayout(
+            cssClassFa = "fa-list"
     )
     @MemberOrder(sequence = "20")
     public List<ApplicationClass> allClasses() {
@@ -140,6 +147,9 @@ public class ApplicationFeatureViewModels  {
             semantics = SemanticsOf.SAFE,
             restrictTo = RestrictTo.PROTOTYPING
     )
+    @ActionLayout(
+            cssClassFa = "fa-list"
+    )
     @MemberOrder(sequence = "40")
     public List<ApplicationClassAction> allActions() {
         return asViewModels(applicationFeatures.allActions(), ApplicationClassAction.class);
@@ -158,6 +168,9 @@ public class ApplicationFeatureViewModels  {
             domainEvent = AllPropertiesDomainEvent.class,
             semantics = SemanticsOf.SAFE,
             restrictTo = RestrictTo.PROTOTYPING
+    )
+    @ActionLayout(
+            cssClassFa = "fa-list"
     )
     @MemberOrder(sequence = "50")
     public List<ApplicationClassProperty> allProperties() {
@@ -179,6 +192,9 @@ public class ApplicationFeatureViewModels  {
             domainEvent = AllCollectionsDomainEvent.class,
             semantics = SemanticsOf.SAFE,
             restrictTo = RestrictTo.PROTOTYPING
+    )
+    @ActionLayout(
+            cssClassFa = "fa-list"
     )
     @MemberOrder(sequence = "60")
     public List<ApplicationClassCollection> allCollections() {

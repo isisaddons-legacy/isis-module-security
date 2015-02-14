@@ -74,9 +74,22 @@ public class ApplicationClassCollection extends ApplicationClassMember {
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > returnType
 
-    @Property
+    public static class ElementTypeDomainEvent extends PropertyDomainEvent<String> {
+        public ElementTypeDomainEvent(final ApplicationClassCollection source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public ElementTypeDomainEvent(final ApplicationClassCollection source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    @Property(
+            domainEvent = ElementTypeDomainEvent.class
+    )
     @MemberOrder(name="Data Type", sequence = "2.6")
     public String getElementType() {
         return getFeature().getReturnTypeName();
@@ -85,7 +98,19 @@ public class ApplicationClassCollection extends ApplicationClassMember {
 
     //region > derived
 
-    @Property
+    public static class DerivedDomainEvent extends PropertyDomainEvent<Boolean> {
+        public DerivedDomainEvent(final ApplicationClassCollection source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public DerivedDomainEvent(final ApplicationClassCollection source, final Identifier identifier, final Boolean oldValue, final Boolean newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    @Property(
+            domainEvent = DerivedDomainEvent.class
+    )
     @MemberOrder(name="Detail", sequence = "2.7")
     public boolean isDerived() {
         return getFeature().isDerived();

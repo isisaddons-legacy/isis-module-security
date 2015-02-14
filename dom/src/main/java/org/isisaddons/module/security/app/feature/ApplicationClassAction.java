@@ -74,22 +74,48 @@ public class ApplicationClassAction extends ApplicationClassMember {
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > returnTypeName (property)
 
-    @Property()
+    public static class ReturnTypeDomainEvent extends PropertyDomainEvent<String> {
+        public ReturnTypeDomainEvent(final ApplicationClassAction source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public ReturnTypeDomainEvent(final ApplicationClassAction source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    @Property(
+            domainEvent = ReturnTypeDomainEvent.class
+    )
     @MemberOrder(name="Data Type", sequence = "2.6")
     public String getReturnType() {
         return getFeature().getReturnTypeName();
     }
     //endregion
 
+    // //////////////////////////////////////
+
     //region > actionSemantics (property)
-    @Property()
+    public static class ActionSemanticsDomainEvent extends PropertyDomainEvent<ActionSemantics.Of> {
+        public ActionSemanticsDomainEvent(final ApplicationClassAction source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public ActionSemanticsDomainEvent(final ApplicationClassAction source, final Identifier identifier, final ActionSemantics.Of oldValue, final ActionSemantics.Of newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
+    @Property(
+            domainEvent = ActionSemanticsDomainEvent.class
+    )
     @MemberOrder(name="Detail", sequence = "2.8")
     public ActionSemantics.Of getActionSemantics() {
         return getFeature().getActionSemantics();
     }
     //endregion
-
 
 }

@@ -212,19 +212,25 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     }
     //endregion
 
-    //region > role (property), updateRole (action)
+    //region > role (property)
 
-    public static class UpdateRoleDomainEvent extends ActionDomainEvent {
-        public UpdateRoleDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
+    public static class RoleDomainEvent extends PropertyDomainEvent<ApplicationRole> {
+        public RoleDomainEvent(final ApplicationPermission source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public RoleDomainEvent(final ApplicationPermission source, final Identifier identifier, final ApplicationRole oldValue, final ApplicationRole newValue) {
+            super(source, identifier, oldValue, newValue);
         }
     }
+
 
     private ApplicationRole role;
 
     @javax.jdo.annotations.Column(name = "roleId", allowsNull="false")
     @Property(
-        editing = Editing.DISABLED
+            domainEvent = RoleDomainEvent.class,
+            editing = Editing.DISABLED
     )
     @PropertyLayout(
             hidden=Where.REFERENCES_PARENT
@@ -236,6 +242,15 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     public void setRole(final ApplicationRole role) {
         this.role = role;
+    }
+
+    //endregion
+
+    //region > updateRole (action)
+    public static class UpdateRoleDomainEvent extends ActionDomainEvent {
+        public UpdateRoleDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
     }
 
     @Action(
@@ -254,17 +269,15 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     //endregion
 
-    //region > rule (property), allow (action), veto (action)
+    //region > rule (property)
+    public static class RuleDomainEvent extends PropertyDomainEvent<ApplicationPermissionRule> {
 
-    public static class AllowDomainEvent extends ActionDomainEvent {
-        public AllowDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
+        public RuleDomainEvent(final ApplicationPermission source, final Identifier identifier) {
+            super(source, identifier);
         }
-    }
 
-    public static class VetoDomainEvent extends ActionDomainEvent {
-        public VetoDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
+        public RuleDomainEvent(final ApplicationPermission source, final Identifier identifier, final ApplicationPermissionRule oldValue, final ApplicationPermissionRule newValue) {
+            super(source, identifier, oldValue, newValue);
         }
     }
 
@@ -272,6 +285,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     @javax.jdo.annotations.Column(allowsNull="false")
     @Property(
+            domainEvent = RuleDomainEvent.class,
             editing = Editing.DISABLED
     )
     @MemberOrder(name="Permissions", sequence = "2")
@@ -283,6 +297,14 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
         this.rule = rule;
     }
 
+    //endregion
+
+    //region > allow (action)
+    public static class AllowDomainEvent extends ActionDomainEvent {
+        public AllowDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
+    }
 
     @Action(
             domainEvent = AllowDomainEvent.class,
@@ -295,6 +317,15 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     }
     public String disableAllow() {
         return getRule() == ApplicationPermissionRule.ALLOW? "Rule is already set to ALLOW": null;
+    }
+
+    //endregion
+
+    //region > veto (action)
+    public static class VetoDomainEvent extends ActionDomainEvent {
+        public VetoDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
     }
 
     @Action(
@@ -312,17 +343,14 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     //endregion
 
-    //region > mode (property), viewing(action), changing (action)
-
-    public static class ViewingDomainEvent extends ActionDomainEvent {
-        public ViewingDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
+    //region > mode (property)
+    public static class ModeDomainEvent extends PropertyDomainEvent<ApplicationPermissionMode> {
+        public ModeDomainEvent(final ApplicationPermission source, final Identifier identifier) {
+            super(source, identifier);
         }
-    }
 
-    public static class ChangingDomainEvent extends ActionDomainEvent {
-        public ChangingDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
+        public ModeDomainEvent(final ApplicationPermission source, final Identifier identifier, final ApplicationPermissionMode oldValue, final ApplicationPermissionMode newValue) {
+            super(source, identifier, oldValue, newValue);
         }
     }
 
@@ -330,6 +358,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     @javax.jdo.annotations.Column(allowsNull="false")
     @Property(
+            domainEvent = ModeDomainEvent.class,
             editing = Editing.DISABLED
     )
     @MemberOrder(name="Permissions", sequence = "3")
@@ -339,6 +368,16 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     public void setMode(final ApplicationPermissionMode mode) {
         this.mode = mode;
+    }
+
+    //endregion
+
+    //region > viewing(action)
+
+    public static class ViewingDomainEvent extends ActionDomainEvent {
+        public ViewingDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
     }
 
     @Action(
@@ -352,6 +391,16 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     }
     public String disableViewing() {
         return getMode() == ApplicationPermissionMode.VIEWING ? "Mode is already set to VIEWING": null;
+    }
+
+    //endregion
+
+    //region > changing (action)
+
+    public static class ChangingDomainEvent extends ActionDomainEvent {
+        public ChangingDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
+            super(source, identifier, arguments);
+        }
     }
 
     @Action(
@@ -387,10 +436,21 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     // region > type (derived, combined featureType and memberType)
 
+    public static class TypeDomainEvent extends PropertyDomainEvent<String> {
+        public TypeDomainEvent(final ApplicationPermission source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public TypeDomainEvent(final ApplicationPermission source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
+        }
+    }
+
     /**
      * Combines {@link #getFeatureType() feature type} and member type.
      */
     @Property(
+            domainEvent = TypeDomainEvent.class,
             editing = Editing.DISABLED
     )
     @PropertyLayout(typicalLength=ApplicationPermission.TYPICAL_LENGTH_TYPE)

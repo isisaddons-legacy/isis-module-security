@@ -99,6 +99,7 @@ public class MeService extends AbstractFactoryAndRepository {
             semantics = SemanticsOf.SAFE
     )
     @ActionLayout(
+            cssClassFa = "fa-user",
             describedAs = "Looks up ApplicationUser entity corresponding to your user account"
     )
     @MemberOrder(name = "Security", sequence = "100")

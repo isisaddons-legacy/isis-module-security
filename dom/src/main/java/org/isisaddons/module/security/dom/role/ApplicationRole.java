@@ -146,9 +146,12 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > name (property)
 
-    public static class UpdateNameDomainEvent extends ActionDomainEvent {
-        public UpdateNameDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
+    public static class NameDomainEvent extends PropertyDomainEvent<String> {
+        public NameDomainEvent(final ApplicationRole source, final Identifier identifier) {
+            super(source, identifier);
+        }
+        public NameDomainEvent(final ApplicationRole source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
         }
     }
 
@@ -156,6 +159,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_NAME)
     @Property(
+            domainEvent = NameDomainEvent.class,
             editing = Editing.DISABLED
     )
     @PropertyLayout(typicalLength=TYPICAL_LENGTH_NAME)
@@ -166,6 +170,16 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     public void setName(final String name) {
         this.name = name;
+    }
+
+    //endregion
+
+    //region > updateName (action)
+
+    public static class UpdateNameDomainEvent extends ActionDomainEvent {
+        public UpdateNameDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
     }
 
     @Action(
@@ -187,18 +201,26 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > description (property)
-    public static class UpdateDescriptionDomainEvent extends ActionDomainEvent {
-        public UpdateDescriptionDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
+
+    public static class DescriptionDomainEvent extends PropertyDomainEvent<String> {
+        public DescriptionDomainEvent(final ApplicationRole source, final Identifier identifier) {
+            super(source, identifier);
+        }
+
+        public DescriptionDomainEvent(final ApplicationRole source, final Identifier identifier, final String oldValue, final String newValue) {
+            super(source, identifier, oldValue, newValue);
         }
     }
 
     private String description;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = JdoColumnLength.DESCRIPTION)
-    @PropertyLayout(typicalLength=TYPICAL_LENGTH_DESCRIPTION)
     @Property(
+            domainEvent = DescriptionDomainEvent.class,
             editing = Editing.DISABLED
+    )
+    @PropertyLayout(
+            typicalLength=TYPICAL_LENGTH_DESCRIPTION
     )
     @MemberOrder(sequence = "2")
     public String getDescription() {
@@ -207,6 +229,16 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    //endregion
+
+    //region > updateDescription (action)
+
+    public static class UpdateDescriptionDomainEvent extends ActionDomainEvent {
+        public UpdateDescriptionDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
     }
 
     @Action(
@@ -232,12 +264,23 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > permissions (derived collection)
-    @MemberOrder(sequence = "10")
-    @Collection()
+    public static class PermissionsCollectionDomainEvent extends CollectionDomainEvent<ApplicationPermission> {
+        public PermissionsCollectionDomainEvent(final ApplicationRole source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+        public PermissionsCollectionDomainEvent(final ApplicationRole source, final Identifier identifier, final Of of, final ApplicationPermission value) {
+            super(source, identifier, of, value);
+        }
+    }
+
+    @Collection(
+            domainEvent = PermissionsCollectionDomainEvent.class
+    )
     @CollectionLayout(
             render = RenderType.EAGERLY,
             sortedBy = ApplicationPermission.DefaultComparator.class
     )
+    @MemberOrder(sequence = "10")
     public List<ApplicationPermission> getPermissions() {
         return applicationPermissions.findByRole(this);
     }
@@ -261,7 +304,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             semantics = SemanticsOf.NON_IDEMPOTENT
     )
     @ActionLayout(
-            cssClassFa = "fa fa-plus-square"
+            cssClassFa = "fa-plus-square"
     )
     @MemberOrder(name = "Permissions", sequence = "1")
     public ApplicationRole addPackage(
@@ -305,7 +348,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             semantics = SemanticsOf.NON_IDEMPOTENT
     )
     @ActionLayout(
-            cssClassFa = "fa fa-plus-square"
+            cssClassFa = "fa-plus-square"
     )
     @MemberOrder(name = "Permissions", sequence = "2")
     public ApplicationRole addClass(
@@ -365,15 +408,20 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             semantics = SemanticsOf.NON_IDEMPOTENT
     )
     @ActionLayout(
-            cssClassFa = "fa fa-plus-square"
+            cssClassFa = "fa-plus-square"
     )
     @MemberOrder(name = "Permissions", sequence = "3")
     public ApplicationRole addAction(
-            final @ParameterLayout(named="Rule") ApplicationPermissionRule rule,
-            final @ParameterLayout(named="Mode") ApplicationPermissionMode mode,
-            final @ParameterLayout(named="Package", typicalLength=ApplicationFeature.TYPICAL_LENGTH_PKG_FQN) String packageFqn,
-            final @ParameterLayout(named="Class", typicalLength=ApplicationFeature.TYPICAL_LENGTH_CLS_NAME) String className,
-            final @ParameterLayout(named="Action", typicalLength = ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME) String memberName) {
+            @ParameterLayout(named="Rule")
+            final ApplicationPermissionRule rule,
+            @ParameterLayout(named="Mode")
+            final ApplicationPermissionMode mode,
+            @ParameterLayout(named="Package", typicalLength=ApplicationFeature.TYPICAL_LENGTH_PKG_FQN)
+            final String packageFqn,
+            @ParameterLayout(named="Class", typicalLength=ApplicationFeature.TYPICAL_LENGTH_CLS_NAME)
+            final String className,
+            @ParameterLayout(named="Action", typicalLength = ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME)
+            final String memberName) {
         applicationPermissions.newPermission(this, rule, mode, packageFqn, className, memberName);
         return this;
     }
@@ -424,15 +472,20 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             semantics = SemanticsOf.NON_IDEMPOTENT
     )
     @ActionLayout(
-            cssClassFa = "fa fa-plus-square"
+            cssClassFa = "fa-plus-square"
     )
     @MemberOrder(name = "Permissions", sequence = "4")
     public ApplicationRole addProperty(
-            final @ParameterLayout(named="Rule") ApplicationPermissionRule rule,
-            final @ParameterLayout(named="Mode") ApplicationPermissionMode mode,
-            final @ParameterLayout(named="Package", typicalLength=ApplicationFeature.TYPICAL_LENGTH_PKG_FQN) String packageFqn,
-            final @ParameterLayout(named="Class", typicalLength=ApplicationFeature.TYPICAL_LENGTH_CLS_NAME) String className,
-            final @ParameterLayout(named="Property", typicalLength=ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME) String memberName) {
+            @ParameterLayout(named="Rule")
+            final ApplicationPermissionRule rule,
+            @ParameterLayout(named="Mode")
+            final ApplicationPermissionMode mode,
+            @ParameterLayout(named="Package", typicalLength=ApplicationFeature.TYPICAL_LENGTH_PKG_FQN)
+            final String packageFqn,
+            @ParameterLayout(named="Class", typicalLength=ApplicationFeature.TYPICAL_LENGTH_CLS_NAME)
+            final String className,
+            @ParameterLayout(named="Property", typicalLength=ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME)
+            final String memberName) {
         applicationPermissions.newPermission(this, rule, mode, packageFqn, className, memberName);
         return this;
     }
@@ -492,15 +545,20 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             semantics = SemanticsOf.NON_IDEMPOTENT
     )
     @ActionLayout(
-            cssClassFa = "fa fa-plus-square"
+            cssClassFa = "fa-plus-square"
     )
     @MemberOrder(name = "Permissions", sequence = "5")
     public ApplicationRole addCollection(
-            final @ParameterLayout(named="Rule") ApplicationPermissionRule rule,
-            final @ParameterLayout(named="Mode") ApplicationPermissionMode mode,
-            final @ParameterLayout(named="Package", typicalLength=ApplicationFeature.TYPICAL_LENGTH_PKG_FQN) String packageFqn,
-            final @ParameterLayout(named="Class", typicalLength=ApplicationFeature.TYPICAL_LENGTH_CLS_NAME) String className,
-            final @ParameterLayout(named="Collection", typicalLength=ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME) String memberName) {
+            @ParameterLayout(named="Rule")
+            final ApplicationPermissionRule rule,
+            @ParameterLayout(named="Mode")
+            final ApplicationPermissionMode mode,
+            @ParameterLayout(named="Package", typicalLength=ApplicationFeature.TYPICAL_LENGTH_PKG_FQN)
+            final String packageFqn,
+            @ParameterLayout(named="Class", typicalLength=ApplicationFeature.TYPICAL_LENGTH_CLS_NAME)
+            final String className,
+            @ParameterLayout(named="Collection", typicalLength=ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME)
+            final String memberName) {
         applicationPermissions.newPermission(this, rule, mode, packageFqn, className, memberName);
         return this;
     }
@@ -550,9 +608,12 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     )
     @MemberOrder(name = "Permissions", sequence = "9")
     public ApplicationRole removePermission(
-            final @ParameterLayout(named="Rule") ApplicationPermissionRule rule,
-            final @ParameterLayout(named="Type") ApplicationFeatureType type,
-            final @ParameterLayout(named="Feature", typicalLength=ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME) String featureFqn) {
+            @ParameterLayout(named="Rule")
+            final ApplicationPermissionRule rule,
+            @ParameterLayout(named="Type")
+            final ApplicationFeatureType type,
+            @ParameterLayout(named="Feature", typicalLength=ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME)
+            final String featureFqn) {
         final ApplicationPermission permission = applicationPermissions.findByRoleAndRuleAndFeature(this, rule, type, featureFqn);
         if(permission != null) {
             container.removeIfNotAlready(permission);
@@ -561,9 +622,12 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     }
 
     public String validateRemovePermission(
-            final @ParameterLayout(named="Rule") ApplicationPermissionRule rule,
-            final @ParameterLayout(named="Type") ApplicationFeatureType type,
-            final @ParameterLayout(named="Feature", typicalLength=ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME) String featureFqn) {
+            @ParameterLayout(named="Rule")
+            final ApplicationPermissionRule rule,
+            @ParameterLayout(named="Type")
+            final ApplicationFeatureType type,
+            @ParameterLayout(named="Feature", typicalLength=ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME)
+            final String featureFqn) {
         if(isAdminRole() && IsisModuleSecurityAdminRoleAndPermissions.oneOf(featureFqn)) {
             return "Cannot remove top-level package permissions for the admin role.";
         }
@@ -589,10 +653,22 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > users (collection)
+
+    public static class UsersDomainEvent extends CollectionDomainEvent<ApplicationUser> {
+        public UsersDomainEvent(final ApplicationRole source, final Identifier identifier, final Of of) {
+            super(source, identifier, of);
+        }
+
+        public UsersDomainEvent(final ApplicationRole source, final Identifier identifier, final Of of, final ApplicationUser value) {
+            super(source, identifier, of, value);
+        }
+    }
+
     @javax.jdo.annotations.Persistent(mappedBy = "roles")
     private SortedSet<ApplicationUser> users = new TreeSet<>();
 
     @Collection(
+            domainEvent = UsersDomainEvent.class,
             editing = Editing.DISABLED
     )
     @CollectionLayout(
@@ -617,16 +693,10 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     }
     //endregion
 
-    //region > addUser (action), removeUser (action)
+    //region > addUser (action)
 
     public static class AddUserDomainEvent extends ActionDomainEvent {
         public AddUserDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
-
-    public static class RemoveUserDomainEvent extends ActionDomainEvent {
-        public RemoveUserDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
         }
     }
@@ -651,6 +721,16 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
         final List<ApplicationUser> list = Lists.newArrayList(matchingSearch);
         list.removeAll(getUsers());
         return list;
+    }
+
+    //endregion
+
+    //region > removeUser (action)
+
+    public static class RemoveUserDomainEvent extends ActionDomainEvent {
+        public RemoveUserDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
     }
 
     @Action(
@@ -691,7 +771,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             semantics = SemanticsOf.NON_IDEMPOTENT
     )
     @ActionLayout(
-        cssClassFa = "fa fa-trash",
+        cssClassFa = "fa-trash",
         cssClass = "btn btn-danger"
     )
     @MemberOrder(sequence = "1")

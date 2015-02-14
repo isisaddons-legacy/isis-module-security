@@ -64,7 +64,7 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
     }
 
     @Override
-    protected void execute(ExecutionContext executionContext) {
+    protected void execute(final ExecutionContext executionContext) {
 
         // create user if does not exist, and assign to the role
         applicationUser = applicationUsers.findUserByUsername(username);
@@ -83,8 +83,8 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
             final ApplicationTenancy applicationTenancy = applicationTenancies.findTenancyByPath(tenancyPath);
             applicationUser.setTenancy(applicationTenancy);
 
-            for (String roleName : roleNames) {
-                ApplicationRole securityRole = applicationRoles.findRoleByName(roleName);
+            for (final String roleName : roleNames) {
+                final ApplicationRole securityRole = applicationRoles.findRoleByName(roleName);
                 applicationUser.addRole(securityRole);
             }
         }
