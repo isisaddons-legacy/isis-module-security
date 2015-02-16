@@ -32,6 +32,7 @@ import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.RestrictTo;
 import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.query.QueryDefault;
 
@@ -164,7 +165,6 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     //endregion
 
     //region > allTenancies
-
     public static class AllTenanciesDomainEvent extends ActionDomainEvent {
         public AllTenanciesDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
             super(source, identifier, args);
@@ -173,7 +173,8 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
 
     @Action(
             domainEvent = AllTenanciesDomainEvent.class,
-            semantics = SemanticsOf.SAFE
+            semantics = SemanticsOf.SAFE,
+            restrictTo = RestrictTo.PROTOTYPING
     )
     @ActionLayout(
             cssClassFa = "fa-list"
@@ -183,6 +184,15 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
         return allInstances(ApplicationTenancy.class);
     }
 
+    //endregion
+
+    //region > autoComplete
+    @Programmatic // not part of metamodel
+    public List<ApplicationTenancy> autoComplete(final String name) {
+        return allMatches(new QueryDefault<>(
+                ApplicationTenancy.class,
+                "findByNameContaining", "name", name));
+    }
     //endregion
 
     //region > injected

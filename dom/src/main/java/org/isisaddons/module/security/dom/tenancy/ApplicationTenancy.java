@@ -79,11 +79,11 @@ import org.apache.isis.applib.util.ObjectContracts;
                 value = "SELECT "
                         + "FROM org.isisaddons.module.security.dom.tenancy.ApplicationTenancy "
                         + "WHERE name.indexOf(:name) >= 0")
-
 })
 @DomainObject(
         objectType = "IsisSecurityApplicationTenancy",
-        bounded = true // rather than auto-complete, since only small number likely to exist.
+        autoCompleteRepository = ApplicationTenancies.class,
+        autoCompleteAction = "autoComplete"
 )
 @DomainObjectLayout(
         bookmarking = BookmarkPolicy.AS_ROOT

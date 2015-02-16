@@ -346,7 +346,6 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     //endregion
 
     //region > autoComplete
-
     @Programmatic // not part of metamodel
     public List<ApplicationUser> autoComplete(final String name) {
         return findUsersByName(name);

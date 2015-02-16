@@ -16,9 +16,8 @@
  */
 package org.isisaddons.module.security.dom.user;
 
-import org.apache.isis.core.commons.lang.StringExtensions;
-
 import org.isisaddons.module.security.shiro.IsisModuleSecurityRealm;
+import org.apache.isis.core.commons.lang.StringExtensions;
 
 /**
  * Whether the user's account is local enabled (user/password) or 

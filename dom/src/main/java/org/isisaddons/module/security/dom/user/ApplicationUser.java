@@ -1133,6 +1133,10 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
     public String validateDelete(final Boolean areYouSure) {
         return not(areYouSure) ? "Please confirm this action": null;
     }
+    public Boolean default0Delete() {
+        return Boolean.FALSE;
+    }
+
     public String disableDelete(final Boolean areYouSure) {
         return isAdminUser()? "Cannot delete the admin user": null;
     }
