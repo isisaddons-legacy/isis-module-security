@@ -11,6 +11,17 @@ fi
 
 
 echo ""
+echo "checking no reference to isis.version of -SNAPSHOT"
+echo ""
+grep SNAPSHOT dom/pom.xml | grep isis.version
+if [ $? == 0 ]; then
+    echo ""
+    echo "... failed" >&2
+    exit 1
+fi
+
+
+echo ""
 echo "sanity check (mvn clean install -o)"
 echo ""
 mvn clean install -o >/dev/null

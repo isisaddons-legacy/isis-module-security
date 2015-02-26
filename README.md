@@ -559,7 +559,8 @@ Other ways of specifying the key and passphrase are available, see the `pgp-mave
 
 If the script completes successfully, then push changes:
 
-    git push
+    git push origin master
+    git push origin 1.8.0
 
 If the script fails to complete, then identify the cause, perform a `git reset --hard` to start over and fix the issue
 before trying again.  Note that in the `dom`'s `pom.xml` the `nexus-staging-maven-plugin` has the 
