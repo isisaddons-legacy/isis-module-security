@@ -163,7 +163,7 @@ The user can then login:
 ![](https://raw.github.com/isisaddons/isis-module-security/master/images/550-logged-in.png)
 
 In the screenshot above note that the user has a default set of permissions.  These are set up by the `UserRegistrationService` implementation.
-The security module provides `SecurityModuleAppUserRegistrationServiceAbstract` which provides most of the implementation of this service; the demo app's AppUserRegistrationService service completes the implementation by specifying the role(s) to assign any new users:
+The security module provides `SecurityModuleAppUserRegistrationServiceAbstract` which provides most of the implementation of this service; the demo app's `AppUserRegistrationService` service completes the implementation by specifying the role(s) to assign any new users:
 
     @DomainService
     public class AppUserRegistrationService extends SecurityModuleAppUserRegistrationServiceAbstract {
@@ -173,12 +173,14 @@ The security module provides `SecurityModuleAppUserRegistrationServiceAbstract` 
         protected Set<ApplicationRole> getAdditionalInitialRoles() {
             return Collections.singleton(findRole(ExampleRegularRoleAndPermissions.ROLE_NAME));
         }
-        private ApplicationRole findRole(final String roleName) { return applicationRoles.findRoleByName(roleName); }
+        private ApplicationRole findRole(final String roleName) {
+            return applicationRoles.findRoleByName(roleName);
+        }
         @Inject
         private ApplicationRoles applicationRoles;
     }
 
-So, for the demo app at least, any new user has access to the "example-fixture-scripts" role (= the Prototyping menu) and to the "example-regular-role" (= the Tenanted and Non-Tenanties Entities menus).
+So, for the demo app at least, any new user has access to the "example-fixture-scripts" role (= the _Prototyping_ menu) and to the "example-regular-role" (= the _Tenanted Entities_ and the _Non-Tenanties Entities_ menus).
 
 Speaking of which...
 
