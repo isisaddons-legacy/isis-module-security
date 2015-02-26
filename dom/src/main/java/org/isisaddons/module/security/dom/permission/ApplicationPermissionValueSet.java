@@ -111,6 +111,10 @@ public class ApplicationPermissionValueSet implements Serializable {
     private final Multimap<ApplicationFeatureId, ApplicationPermissionValue> permissionsByFeature = TreeMultimap.create(
             Collections.reverseOrder(ApplicationFeatureId.Comparators.natural()),
             ApplicationPermissionValue.Comparators.natural());
+
+    /**
+     * Note that we require PermissionsEvaluationService to be serializable.
+     */
     private final PermissionsEvaluationService permissionsEvaluationService;
 
 
@@ -178,6 +182,8 @@ public class ApplicationPermissionValueSet implements Serializable {
 
     //endregion
 
+
+
     //region > equals, hashCode, toString
     @Override
     public boolean equals(final Object o) {
@@ -204,4 +210,6 @@ public class ApplicationPermissionValueSet implements Serializable {
     }
 
     //endregion
+
+
 }

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.TreeSet;
 import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
 import com.google.common.base.Function;
+import org.isisaddons.module.security.dom.SerializationContractTest;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.junit.Rule;
@@ -608,6 +609,20 @@ public class ApplicationFeatureIdTest {
                         is(true));
             }
         }
+    }
+
+    public static class Serialization extends SerializationContractTest {
+
+        @Test
+        public void roundtrip() throws Exception {
+
+            final ApplicationFeatureId original = ApplicationFeatureId.newClass("com.foo.Bar");
+
+            final ApplicationFeatureId roundtripped = roundtripSerialization(original);
+
+            assertThat(roundtripped.getFullyQualifiedName(), is("com.foo.Bar"));
+        }
+
     }
 
 }

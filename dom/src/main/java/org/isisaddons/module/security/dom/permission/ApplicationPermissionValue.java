@@ -117,12 +117,14 @@ public class ApplicationPermissionValue implements Comparable<ApplicationPermiss
     public static final class Comparators {
         private Comparators(){}
         public static Comparator<ApplicationPermissionValue> natural() {
-            return new Comparator<ApplicationPermissionValue>() {
-                @Override
-                public int compare(final ApplicationPermissionValue o1, final ApplicationPermissionValue o2) {
-                    return o1.compareTo(o2);
-                }
-            };
+            return new ApplicationPermissionValueComparator();
+        }
+
+        static class ApplicationPermissionValueComparator implements Comparator<ApplicationPermissionValue>, Serializable {
+            @Override
+            public int compare(final ApplicationPermissionValue o1, final ApplicationPermissionValue o2) {
+                return o1.compareTo(o2);
+            }
         }
     }
     //endregion

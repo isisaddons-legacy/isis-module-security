@@ -365,12 +365,15 @@ public class ApplicationFeatureId implements Comparable<ApplicationFeatureId>, S
     public static final class Comparators {
         private Comparators(){}
         public static Comparator<ApplicationFeatureId> natural() {
-            return new Comparator<ApplicationFeatureId>() {
-                @Override
-                public int compare(final ApplicationFeatureId o1, final ApplicationFeatureId o2) {
-                    return o1.compareTo(o2);
-                }
-            };
+            return new ApplicationFeatureIdComparator();
+        }
+
+        static class ApplicationFeatureIdComparator implements Comparator<ApplicationFeatureId>, Serializable {
+
+            @Override
+            public int compare(final ApplicationFeatureId o1, final ApplicationFeatureId o2) {
+                return o1.compareTo(o2);
+            }
         }
     }
     //endregion
