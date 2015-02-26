@@ -137,7 +137,7 @@ If a user is disabled, then they may not log in.  This is useful for temporarily
 having to change all their roles, for example if they leave the company or go on maternity leave.
 
 
-#### Application Tenancy (1.8.0-SNAPSHOT) ####
+#### Application Tenancy ####
 
 Both application users and domain objects can be associated with an `ApplicationTenancy`.  For application user's this
 is a property of the object, for domain object's this is performed by implementing the `WithApplicationTenancy` interface:
@@ -315,7 +315,7 @@ where:
 
 There is further discussion of the `PasswordEncryptionService` and `PermissionsEvaluationService` below.
 
-#### Tenancy checking (isis.properties, 1.8.0-SNAPSHOT) ####
+#### Tenancy checking (isis.properties) ####
 
 To enable tenancy checking (as described above, to restrict a user's access to tenanted objects), add the following
 in `WEB-INF/isis.properties`:
@@ -333,7 +333,7 @@ Finally, update your classpath by adding this dependency in your dom project's `
     &lt;dependency&gt;
         &lt;groupId&gt;org.isisaddons.module.security&lt;/groupId&gt;
         &lt;artifactId&gt;isis-module-security-dom&lt;/artifactId&gt;
-        &lt;version&gt;1.7.0&lt;/version&gt;
+        &lt;version&gt;1.8.0&lt;/version&gt;
     &lt;/dependency&gt;
 </pre>
 
@@ -351,7 +351,6 @@ Check for later releases by searching [Maven Central Repo](http://search.maven.o
 
 
 
-
 ### "Out-of-the-box" (-SNAPSHOT) ###
 
 If you want to use the current `-SNAPSHOT`, then the steps are the same as above, except:
@@ -359,7 +358,7 @@ If you want to use the current `-SNAPSHOT`, then the steps are the same as above
 * when updating the classpath, specify the appropriate -SNAPSHOT version:
 
 <pre>
-    &lt;version&gt;1.8.0-SNAPSHOT&lt;/version&gt;
+    &lt;version&gt;1.9.0-SNAPSHOT&lt;/version&gt;
 </pre>
 
 * add the repository definition to pick up the most recent snapshot (we use the Cloudbees continuous integration service).  We suggest defining the repository in a `<profile>`:
@@ -481,7 +480,7 @@ Ideas for future features:
 
 ## Change Log ##
 
-* `1.8.0` (snapshot) - released against Isis 1.8.0.  `ApplicationTenancy` extended to support hierarchical tenancies, with path as primary key (nb: breaking change), support to make easier to extend (pluggable factories and events for all actions). MeService on TERTIARY menuBar.
+* `1.8.0` - released against Isis 1.8.0.  `ApplicationTenancy` extended to support hierarchical tenancies, with path as primary key (nb: breaking change), support to make easier to extend (pluggable factories and events for all actions). MeService on TERTIARY menuBar.
 * `1.7.0` - released against Isis 1.7.0
 * `1.6.2` - made more resilient so can be called by an application's own 'security seed' service
 * `1.6.1` - support for account types and delegated authentication realm
