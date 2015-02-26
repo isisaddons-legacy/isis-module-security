@@ -59,7 +59,7 @@ For further screenshots, see the [screenshot tutorial](https://github.com/isisad
 When the security module starts up, it will automatically (idempotently) seed a number of roles, corresponding permissions and a 
 default `isis-module-security-admin` user.   This user has access to the security menu:
 
-![](https://raw.github.com/isisaddons/isis-module-security/master/images/010-role.png)
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/010-menus.png)
 
 One of the roles granted to the `isis-module-security-admin` user is the corresponding (similarly named)
 `isis-module-security-admin` role.  It is this that grants all permissions to all classes in the security module itself:
@@ -136,6 +136,51 @@ as well as reset a users' password.
 If a user is disabled, then they may not log in.  This is useful for temporarily barring access to users without 
 having to change all their roles, for example if they leave the company or go on maternity leave.
 
+#### User Sign-up (Self-Registration) ####
+
+Apache Isis allows users to sign-up (self-register) with an application provided that:
+
+* the application is correctly configured for the `EmailNotificationService`, by specifying `isis.service.email.sender.address` and `isis.service.email.sender.password` configuration properties; and
+* the application provides an implementation of the `UserRegistrationService` (more on this below).
+
+The sign-up link is shown on the initial login page:
+
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/500-sign-in-register-link.png)
+
+Following the link prompts for an email:
+
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/510-sign-up.png)
+
+An email is sent to the specified address, with a link to complete the registration:
+
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/530-sign-up-email.png)
+
+Completing registration consists of selecting a username and password:
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/540-complete-registration.png)
+
+The user can then login:
+
+![](https://raw.github.com/isisaddons/isis-module-security/master/images/550-logged-in.png)
+
+In the screenshot above note that the user has a default set of permissions.  These are set up by the `UserRegistrationService` implementation.
+The security module provides `SecurityModuleAppUserRegistrationServiceAbstract` which provides most of the implementation of this service; the demo app's AppUserRegistrationService service completes the implementation by specifying the role(s) to assign any new users:
+
+    @DomainService
+    public class AppUserRegistrationService extends SecurityModuleAppUserRegistrationServiceAbstract {
+        protected ApplicationRole getInitialRole() {
+        return findRole(ExampleFixtureScriptsRoleAndPermissions.ROLE_NAME);
+        }
+        protected Set<ApplicationRole> getAdditionalInitialRoles() {
+            return Collections.singleton(findRole(ExampleRegularRoleAndPermissions.ROLE_NAME));
+        }
+        private ApplicationRole findRole(final String roleName) { return applicationRoles.findRoleByName(roleName); }
+        @Inject
+        private ApplicationRoles applicationRoles;
+    }
+
+So, for the demo app at least, any new user has access to the "example-fixture-scripts" role (= the Prototyping menu) and to the "example-regular-role" (= the Tenanted and Non-Tenanties Entities menus).
+
+Speaking of which...
 
 #### Application Tenancy ####
 
