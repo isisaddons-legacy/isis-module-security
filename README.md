@@ -527,6 +527,7 @@ Ideas for future features:
 
 ## Change Log ##
 
+* `1.8.1` - released against Isis 1.8.0; closes <a href="https://github.com/isisaddons/isis-module-security/issues/11">#11</a>.
 * `1.8.0` - released against Isis 1.8.0.  `ApplicationTenancy` extended to support hierarchical tenancies, with path as primary key (nb: breaking change), support to make easier to extend (pluggable factories and events for all actions). MeService on TERTIARY menuBar.
 * `1.7.0` - released against Isis 1.7.0
 * `1.6.2` - made more resilient so can be called by an application's own 'security seed' service
