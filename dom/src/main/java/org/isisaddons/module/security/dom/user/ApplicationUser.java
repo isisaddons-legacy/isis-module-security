@@ -620,7 +620,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
 
     private ApplicationTenancy tenancy;
 
-    @javax.jdo.annotations.Column(name = "tenancyId", allowsNull="true")
+    @javax.jdo.annotations.Column(name = "atPath", allowsNull="true")
     @Property(
             domainEvent = TenancyDomainEvent.class,
             editing = Editing.DISABLED
