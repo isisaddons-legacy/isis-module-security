@@ -61,14 +61,16 @@ import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 
 @SuppressWarnings("UnusedDeclaration")
 @javax.jdo.annotations.PersistenceCapable(
-        identityType = IdentityType.DATASTORE, table = "IsisSecurityApplicationRole")
+        identityType = IdentityType.DATASTORE,
+        schema = "IsisAddonsSecurity",
+        table = "ApplicationRole")
 @javax.jdo.annotations.Inheritance(
         strategy = InheritanceStrategy.NEW_TABLE)
 @javax.jdo.annotations.DatastoreIdentity(
         strategy = IdGeneratorStrategy.NATIVE, column = "id")
 @javax.jdo.annotations.Uniques({
         @javax.jdo.annotations.Unique(
-                name = "IsisSecurityApplicationRole_name_UNQ", members = { "name" })
+                name = "ApplicationRole_name_UNQ", members = { "name" })
 })
 @javax.jdo.annotations.Queries({
         @javax.jdo.annotations.Query(
@@ -84,7 +86,7 @@ import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 })
 @DomainObject(
         bounded = true,
-        objectType = "IsisSecurityApplicationRole"
+        objectType = "IsisAddonsSecurity_ApplicationRole"
 )
 @DomainObjectLayout(
         bookmarking = BookmarkPolicy.AS_ROOT

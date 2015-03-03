@@ -66,7 +66,9 @@ import org.apache.isis.applib.value.Password;
 
 @SuppressWarnings("UnusedDeclaration")
 @javax.jdo.annotations.PersistenceCapable(
-        identityType = IdentityType.DATASTORE, table = "IsisSecurityApplicationUser")
+        identityType = IdentityType.DATASTORE,
+        schema = "IsisAddonsSecurity",
+        table = "ApplicationUser")
 @javax.jdo.annotations.Inheritance(
         strategy = InheritanceStrategy.NEW_TABLE)
 @javax.jdo.annotations.DatastoreIdentity(
@@ -76,7 +78,7 @@ import org.apache.isis.applib.value.Password;
         column = "version")
 @javax.jdo.annotations.Uniques({
         @javax.jdo.annotations.Unique(
-                name = "IsisSecurityApplicationUser_username_UNQ", members = { "username" })
+                name = "ApplicationUser_username_UNQ", members = { "username" })
 })
 @javax.jdo.annotations.Queries( {
         @javax.jdo.annotations.Query(
@@ -100,7 +102,7 @@ import org.apache.isis.applib.value.Password;
         )
 })
 @DomainObject(
-        objectType = "IsisSecurityApplicationUser",
+        objectType = "IsisAddonsSecurity_ApplicationUser",
         autoCompleteRepository = ApplicationUsers.class,
         autoCompleteAction = "autoComplete"
 )
@@ -998,7 +1000,7 @@ public class ApplicationUser implements Comparable<ApplicationUser> {
         }
     }
 
-    @javax.jdo.annotations.Persistent(table="IsisSecurityApplicationUserRoles")
+    @javax.jdo.annotations.Persistent(table="ApplicationUserRoles")
     @javax.jdo.annotations.Join(column="userId")
     @javax.jdo.annotations.Element(column="roleId")
     private SortedSet<ApplicationRole> roles = new TreeSet<>();

@@ -51,7 +51,9 @@ import org.apache.isis.applib.util.ObjectContracts;
 
 @SuppressWarnings("UnusedDeclaration")
 @javax.jdo.annotations.PersistenceCapable(
-        identityType = IdentityType.APPLICATION, table = "IsisSecurityApplicationTenancy")
+        identityType = IdentityType.APPLICATION,
+        schema = "IsisAddonsSecurity",
+        table = "ApplicationTenancy")
 @javax.jdo.annotations.Inheritance(
         strategy = InheritanceStrategy.NEW_TABLE)
 @javax.jdo.annotations.DatastoreIdentity(
@@ -61,7 +63,7 @@ import org.apache.isis.applib.util.ObjectContracts;
         column = "version")
 @javax.jdo.annotations.Uniques({
         @javax.jdo.annotations.Unique(
-                name = "IsisSecurityApplicationTenancy_name_UNQ", members = { "name" })
+                name = "ApplicationTenancy_name_UNQ", members = { "name" })
 })
 @javax.jdo.annotations.Queries( {
         @javax.jdo.annotations.Query(
@@ -81,7 +83,7 @@ import org.apache.isis.applib.util.ObjectContracts;
                         + "WHERE name.indexOf(:name) >= 0")
 })
 @DomainObject(
-        objectType = "IsisSecurityApplicationTenancy",
+        objectType = "IsisAddonsSecurity_ApplicationTenancy",
         autoCompleteRepository = ApplicationTenancies.class,
         autoCompleteAction = "autoComplete"
 )

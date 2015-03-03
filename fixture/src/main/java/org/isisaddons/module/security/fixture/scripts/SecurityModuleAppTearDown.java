@@ -23,11 +23,11 @@ public class SecurityModuleAppTearDown extends FixtureScript {
 
     @Override
     protected void execute(ExecutionContext executionContext) {
-        isisJdoSupport.executeUpdate("delete from \"IsisSecurityApplicationPermission\"");
-        isisJdoSupport.executeUpdate("delete from \"IsisSecurityApplicationUserRoles\"");
-        isisJdoSupport.executeUpdate("delete from \"IsisSecurityApplicationRole\"");
-        isisJdoSupport.executeUpdate("delete from \"IsisSecurityApplicationUser\"");
-        isisJdoSupport.executeUpdate("delete from \"IsisSecurityApplicationTenancy\"");
+        isisJdoSupport.executeUpdate("delete from IsisAddonsSecurity.\"ApplicationPermission\"");
+        isisJdoSupport.executeUpdate("delete from IsisAddonsSecurity.\"ApplicationUserRoles\"");
+        isisJdoSupport.executeUpdate("delete from IsisAddonsSecurity.\"ApplicationRole\"");
+        isisJdoSupport.executeUpdate("delete from IsisAddonsSecurity.\"ApplicationUser\"");
+        isisJdoSupport.executeUpdate("delete from IsisAddonsSecurity.\"ApplicationTenancy\"");
 
         isisJdoSupport.executeUpdate("delete from \"NonTenantedEntity\"");
         isisJdoSupport.executeUpdate("delete from \"TenantedEntity\"");
