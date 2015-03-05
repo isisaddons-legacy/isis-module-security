@@ -153,7 +153,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     @ActionLayout(
             cssClassFa = "fa-crosshairs"
     )
-    @MemberOrder(sequence = "10")
+    @MemberOrder(sequence = "100.10.1")
     public ApplicationUser findUserByUsername(
             @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
             @ParameterLayout(named = "Username")
@@ -191,7 +191,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     @ActionLayout(
             cssClassFa = "fa-search"
     )
-    @MemberOrder(sequence = "20")
+    @MemberOrder(sequence = "100.10.2")
     public List<ApplicationUser> findUsersByName(
             final @ParameterLayout(named="Name") String name) {
         final String nameRegex = "(?i).*" + name + ".*";
@@ -216,7 +216,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     @ActionLayout(
             cssClassFa = "fa-plus"
     )
-    @MemberOrder(sequence = "30")
+    @MemberOrder(sequence = "100.10.3")
     public ApplicationUser newDelegateUser(
             @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
             @ParameterLayout(named="Name")
@@ -266,7 +266,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     @ActionLayout(
             cssClassFa = "fa-plus"
     )
-    @MemberOrder(sequence = "10.4")
+    @MemberOrder(sequence = "100.10.4")
     public ApplicationUser newLocalUser(
             @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
             @ParameterLayout(named="Name")
@@ -338,7 +338,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     @ActionLayout(
             cssClassFa = "fa-list"
     )
-    @MemberOrder(sequence = "10.9")
+    @MemberOrder(sequence = "100.10.5")
     public List<ApplicationUser> allUsers() {
         return allInstances(ApplicationUser.class);
     }

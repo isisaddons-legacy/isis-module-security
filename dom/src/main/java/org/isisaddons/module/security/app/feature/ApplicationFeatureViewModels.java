@@ -104,7 +104,7 @@ public class ApplicationFeatureViewModels  {
     @ActionLayout(
             cssClassFa = "fa-list"
     )
-    @MemberOrder(sequence = "10")
+    @MemberOrder(sequence = "100.40.1")
     public List<ApplicationPackage> allPackages() {
         return asViewModels(applicationFeatures.allPackages(), ApplicationPackage.class);
     }
@@ -126,7 +126,7 @@ public class ApplicationFeatureViewModels  {
     @ActionLayout(
             cssClassFa = "fa-list"
     )
-    @MemberOrder(sequence = "20")
+    @MemberOrder(sequence = "100.40.2")
     public List<ApplicationClass> allClasses() {
         return asViewModels(applicationFeatures.allClasses(), ApplicationClass.class);
     }
@@ -150,7 +150,7 @@ public class ApplicationFeatureViewModels  {
     @ActionLayout(
             cssClassFa = "fa-list"
     )
-    @MemberOrder(sequence = "40")
+    @MemberOrder(sequence = "100.40.3")
     public List<ApplicationClassAction> allActions() {
         return asViewModels(applicationFeatures.allActions(), ApplicationClassAction.class);
     }
@@ -172,7 +172,7 @@ public class ApplicationFeatureViewModels  {
     @ActionLayout(
             cssClassFa = "fa-list"
     )
-    @MemberOrder(sequence = "50")
+    @MemberOrder(sequence = "100.40.4")
     public List<ApplicationClassProperty> allProperties() {
         return asViewModels(applicationFeatures.allProperties(), ApplicationClassProperty.class);
     }
@@ -196,7 +196,7 @@ public class ApplicationFeatureViewModels  {
     @ActionLayout(
             cssClassFa = "fa-list"
     )
-    @MemberOrder(sequence = "60")
+    @MemberOrder(sequence = "100.40.5")
     public List<ApplicationClassCollection> allCollections() {
         return asViewModels(applicationFeatures.allCollections(), ApplicationClassCollection.class);
     }

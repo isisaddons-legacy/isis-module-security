@@ -114,7 +114,7 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
     @ActionLayout(
             cssClassFa = "fa-crosshairs"
     )
-    @MemberOrder(sequence = "20.1")
+    @MemberOrder(sequence = "100.20.1")
     public ApplicationRole findRoleByName(
             @Parameter(maxLength = ApplicationRole.MAX_LENGTH_NAME)
             @ParameterLayout(named="Name", typicalLength=ApplicationRole.TYPICAL_LENGTH_NAME)
@@ -142,7 +142,7 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
     @ActionLayout(
             cssClassFa = "fa-plus"
     )
-    @MemberOrder(sequence = "20.2")
+    @MemberOrder(sequence = "100.20.2")
     public ApplicationRole newRole(
             @Parameter(maxLength = ApplicationRole.MAX_LENGTH_NAME)
             @ParameterLayout(named="Name", typicalLength=ApplicationRole.TYPICAL_LENGTH_NAME)
@@ -177,7 +177,7 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
     @ActionLayout(
             cssClassFa = "fa-list"
     )
-    @MemberOrder(sequence = "20.3")
+    @MemberOrder(sequence = "100.20.3")
     public List<ApplicationRole> allRoles() {
         return allInstances(ApplicationRole.class);
     }

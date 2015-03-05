@@ -103,19 +103,51 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
 
     //endregion
 
-    //region > findTenancyByName (programmatic)
+    //region > findTenancyByName
 
-    @Programmatic
-    public ApplicationTenancy findTenancyByName(final String name) {
+    public static class FindTenancyByNameDomainEvent extends ActionDomainEvent {
+        public FindTenancyByNameDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @Action(
+            domainEvent = FindTenancyByNameDomainEvent.class,
+            semantics = SemanticsOf.SAFE
+    )
+    @ActionLayout(
+            cssClassFa = "fa-crosshairs"
+    )
+    @MemberOrder(sequence = "100.30.1")
+    public ApplicationTenancy findTenancyByName(
+            @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_NAME)
+            @ParameterLayout(named = "Name", typicalLength = ApplicationTenancy.TYPICAL_LENGTH_NAME)
+            final String name) {
         return uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByName", "name", name));
     }
 
     //endregion
 
-    //region > findTenancyByPath (programmatic)
+    //region > findTenancyByPath
 
-    @Programmatic
-    public ApplicationTenancy findTenancyByPath(final String path) {
+    public static class FindTenancyByPathDomainEvent extends ActionDomainEvent {
+        public FindTenancyByPathDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
+            super(source, identifier, args);
+        }
+    }
+
+    @Action(
+            domainEvent = FindTenancyByPathDomainEvent.class,
+            semantics = SemanticsOf.SAFE
+    )
+    @ActionLayout(
+            cssClassFa = "fa-crosshairs"
+    )
+    @MemberOrder(sequence = "100.30.2")
+    public ApplicationTenancy findTenancyByPath(
+            @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_PATH)
+            @ParameterLayout(named = "Path")
+            final String path) {
         if(path == null) {
             return null;
         }
@@ -140,7 +172,7 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     @ActionLayout(
             cssClassFa = "fa-plus"
     )
-    @MemberOrder(sequence = "90.3")
+    @MemberOrder(sequence = "100.30.3")
     public ApplicationTenancy newTenancy(
             @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_NAME)
             @ParameterLayout(named = "Name", typicalLength = ApplicationTenancy.TYPICAL_LENGTH_NAME)
@@ -179,7 +211,7 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     @ActionLayout(
             cssClassFa = "fa-list"
     )
-    @MemberOrder(sequence = "90.4")
+    @MemberOrder(sequence = "100.30.4")
     public List<ApplicationTenancy> allTenancies() {
         return allInstances(ApplicationTenancy.class);
     }

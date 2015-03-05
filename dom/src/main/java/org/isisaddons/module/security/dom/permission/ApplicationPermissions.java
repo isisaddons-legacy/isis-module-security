@@ -277,7 +277,7 @@ public class ApplicationPermissions {
     @ActionLayout(
             cssClassFa = "fa-list"
     )
-    @MemberOrder(sequence = "60.9")
+    @MemberOrder(sequence = "100.50.1")
     public List<ApplicationPermission> allPermissions() {
         return container.allInstances(ApplicationPermission.class);
     }
