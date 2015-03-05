@@ -61,6 +61,7 @@ import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.security.RoleMemento;
 import org.apache.isis.applib.security.UserMemento;
+import org.apache.isis.applib.services.HasUsername;
 import org.apache.isis.applib.util.ObjectContracts;
 import org.apache.isis.applib.value.Password;
 
@@ -114,7 +115,7 @@ import org.apache.isis.applib.value.Password;
     middle= {"Contact Details"},
     right= {"Status", "Tenancy"}
 )
-public class ApplicationUser implements Comparable<ApplicationUser> {
+public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername {
 
     public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationUser, T> {
         public PropertyDomainEvent(final ApplicationUser source, final Identifier identifier) {
