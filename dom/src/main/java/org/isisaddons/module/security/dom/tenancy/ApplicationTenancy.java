@@ -52,7 +52,7 @@ import org.apache.isis.applib.util.ObjectContracts;
 @SuppressWarnings("UnusedDeclaration")
 @javax.jdo.annotations.PersistenceCapable(
         identityType = IdentityType.APPLICATION,
-        schema = "IsisAddonsSecurity",
+        schema = "isissecurity",
         table = "ApplicationTenancy")
 @javax.jdo.annotations.Inheritance(
         strategy = InheritanceStrategy.NEW_TABLE)
@@ -83,7 +83,7 @@ import org.apache.isis.applib.util.ObjectContracts;
                         + "WHERE name.indexOf(:name) >= 0")
 })
 @DomainObject(
-        objectType = "IsisAddonsSecurity_ApplicationTenancy",
+        objectType = "isissecurity.ApplicationTenancy",
         autoCompleteRepository = ApplicationTenancies.class,
         autoCompleteAction = "autoComplete"
 )

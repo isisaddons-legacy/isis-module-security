@@ -15,7 +15,7 @@ public class AuthenticationStrategyForIsisModuleSecurityRealm extends AllSuccess
      *
      * <p>
      *    The default implementation uses a {@link org.apache.shiro.subject.SimplePrincipalCollection}, however this
-     *    doesn't play well with the IsisAddons' security module which ends up chaining together multiple instances of
+     *    doesn't play well with the Isis Addons' security module which ends up chaining together multiple instances of
      *    {@link org.isisaddons.module.security.shiro.PrincipalForApplicationUser} for each login.  This is probably
      *    because of it doing double duty with holding authorization information.  There may be a better design here,
      *    but for now the solution I've chosen is to use a different implementation of

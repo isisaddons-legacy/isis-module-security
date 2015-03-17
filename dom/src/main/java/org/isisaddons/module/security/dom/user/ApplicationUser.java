@@ -65,10 +65,9 @@ import org.apache.isis.applib.services.HasUsername;
 import org.apache.isis.applib.util.ObjectContracts;
 import org.apache.isis.applib.value.Password;
 
-@SuppressWarnings("UnusedDeclaration")
 @javax.jdo.annotations.PersistenceCapable(
         identityType = IdentityType.DATASTORE,
-        schema = "IsisAddonsSecurity",
+        schema = "isissecurity",
         table = "ApplicationUser")
 @javax.jdo.annotations.Inheritance(
         strategy = InheritanceStrategy.NEW_TABLE)
@@ -103,7 +102,7 @@ import org.apache.isis.applib.value.Password;
         )
 })
 @DomainObject(
-        objectType = "IsisAddonsSecurity_ApplicationUser",
+        objectType = "isissecurity.ApplicationUser",
         autoCompleteRepository = ApplicationUsers.class,
         autoCompleteAction = "autoComplete"
 )

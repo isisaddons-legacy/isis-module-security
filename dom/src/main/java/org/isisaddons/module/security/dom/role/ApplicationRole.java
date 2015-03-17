@@ -62,7 +62,7 @@ import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 @SuppressWarnings("UnusedDeclaration")
 @javax.jdo.annotations.PersistenceCapable(
         identityType = IdentityType.DATASTORE,
-        schema = "IsisAddonsSecurity",
+        schema = "isissecurity",
         table = "ApplicationRole")
 @javax.jdo.annotations.Inheritance(
         strategy = InheritanceStrategy.NEW_TABLE)
@@ -86,7 +86,7 @@ import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 })
 @DomainObject(
         bounded = true,
-        objectType = "IsisAddonsSecurity_ApplicationRole"
+        objectType = "isissecurity.ApplicationRole"
 )
 @DomainObjectLayout(
         bookmarking = BookmarkPolicy.AS_ROOT

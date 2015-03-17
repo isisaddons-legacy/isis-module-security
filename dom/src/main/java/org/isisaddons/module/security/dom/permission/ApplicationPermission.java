@@ -82,7 +82,7 @@ import org.apache.isis.applib.util.ObjectContracts;
 @SuppressWarnings("UnusedDeclaration")
 @javax.jdo.annotations.PersistenceCapable(
         identityType = IdentityType.DATASTORE,
-        schema = "IsisAddonsSecurity",
+        schema = "isissecurity",
         table = "ApplicationPermission")
 @javax.jdo.annotations.Inheritance(
         strategy = InheritanceStrategy.NEW_TABLE)
@@ -130,7 +130,7 @@ import org.apache.isis.applib.util.ObjectContracts;
                 name = "ApplicationPermission_role_feature_rule_UNQ", members = { "role", "featureType", "featureFqn", "rule" })
 })
 @DomainObject(
-        objectType = "IsisAddonsSecurity_ApplicationPermission"
+        objectType = "isissecurity.ApplicationPermission"
 )
 @DomainObjectLayout(
         bookmarking = BookmarkPolicy.AS_CHILD
