@@ -19,6 +19,7 @@
 
 package org.isisaddons.module.security.facets;
 
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluator;
 import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
@@ -40,35 +41,47 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
     @Override
     public void process(final ProcessClassContext processClassContext) {
         final Class<?> cls = processClassContext.getCls();
-        final boolean assignableFrom = WithApplicationTenancy.class.isAssignableFrom(cls);
-        if (!assignableFrom) {
-            return;
+
+        final ApplicationTenancyPathEvaluator evaluator = servicesInjector.lookupService(ApplicationTenancyPathEvaluator.class);
+
+        if(evaluator != null) {
+            if(!evaluator.handles(cls)) {
+                return;
+            }
+        } else {
+            final boolean assignableFrom = WithApplicationTenancy.class.isAssignableFrom(cls);
+            if (!assignableFrom) {
+                return;
+            }
         }
 
-        FacetUtil.addFacet(createFacet(processClassContext.getFacetHolder()));
+        FacetUtil.addFacet(createFacet(processClassContext.getFacetHolder(), evaluator));
     }
 
     @Override
     public void process(final ProcessMethodContext processMethodContext) {
         final Class<?> cls = processMethodContext.getCls();
-        final boolean assignableFrom = WithApplicationTenancy.class.isAssignableFrom(cls);
-        if (!assignableFrom) {
-            return;
+
+        final ApplicationTenancyPathEvaluator evaluator = servicesInjector.lookupService(ApplicationTenancyPathEvaluator.class);
+        if(evaluator != null) {
+            if (!evaluator.handles(cls)) {
+                return;
+            }
+        } else {
+            final boolean assignableFrom = WithApplicationTenancy.class.isAssignableFrom(cls);
+            if (!assignableFrom) {
+                return;
+            }
         }
-        FacetUtil.addFacet(createFacet(processMethodContext.getFacetHolder()));
+        FacetUtil.addFacet(createFacet(processMethodContext.getFacetHolder(), evaluator));
     }
 
-    private TenantedAuthorizationFacetDefault createFacet(final FacetHolder holder) {
-        final ApplicationUsers applicationUsers = getApplicationUsers();
-        final QueryResultsCache queryResultsCache = getQueryResultsCache();
-        return new TenantedAuthorizationFacetDefault(applicationUsers, queryResultsCache, holder);
-    }
-
-    private ApplicationUsers getApplicationUsers() {
-        return servicesInjector.lookupService(ApplicationUsers.class);
-    }
-    private QueryResultsCache getQueryResultsCache() {
-        return servicesInjector.lookupService(QueryResultsCache.class);
+    private TenantedAuthorizationFacetDefault createFacet(
+            final FacetHolder holder,
+            final ApplicationTenancyPathEvaluator evaluator) {
+        final ApplicationUsers applicationUsers = servicesInjector.lookupService(ApplicationUsers.class);
+        final QueryResultsCache queryResultsCache = servicesInjector.lookupService(QueryResultsCache.class);
+        return new TenantedAuthorizationFacetDefault(applicationUsers, queryResultsCache, evaluator, holder);
     }
 
 
