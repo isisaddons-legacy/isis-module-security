@@ -128,7 +128,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     // //////////////////////////////////////
 
-    public static final int MAX_LENGTH_PATH = 30;
+    public static final int MAX_LENGTH_PATH = 255;
     public static final int MAX_LENGTH_NAME = 40;
     public static final int TYPICAL_LENGTH_NAME = 20;
 
