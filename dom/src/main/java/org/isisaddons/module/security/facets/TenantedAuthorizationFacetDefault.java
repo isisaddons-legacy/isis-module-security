@@ -21,6 +21,7 @@ package org.isisaddons.module.security.facets;
 
 import java.util.concurrent.Callable;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluator;
 import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
@@ -30,6 +31,7 @@ import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 import org.apache.isis.core.metamodel.facetapi.Facet;
 import org.apache.isis.core.metamodel.facetapi.FacetAbstract;
 import org.apache.isis.core.metamodel.facetapi.FacetHolder;
+import org.apache.isis.core.metamodel.interactions.InteractionContext;
 import org.apache.isis.core.metamodel.interactions.UsabilityContext;
 import org.apache.isis.core.metamodel.interactions.VisibilityContext;
 
@@ -41,90 +43,111 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
 
     private final ApplicationUsers applicationUsers;
     private final QueryResultsCache queryResultsCache;
+    private final ApplicationTenancyPathEvaluator evaluator;
 
     public TenantedAuthorizationFacetDefault(
             final ApplicationUsers applicationUsers,
             final QueryResultsCache queryResultsCache,
+            final ApplicationTenancyPathEvaluator evaluator,
             final FacetHolder holder) {
         super(type(), holder, Derivation.NOT_DERIVED);
         this.applicationUsers = applicationUsers;
         this.queryResultsCache = queryResultsCache;
+        this.evaluator = evaluator;
+    }
+
+    static class Paths {
+        String objectTenancyPath; // eg /x/y
+        String userTenancyPath;   // eg /x  or /x/y/z
+        String reason;
     }
 
     @Override
     public String hides(final VisibilityContext<? extends VisibilityEvent> ic) {
-        final Object object = ic.getTarget().getObject();
-        if (!(object instanceof WithApplicationTenancy)) {
-            // not expected, facet factory should only have installed for those classes that implement the WithApplicationTenancy interface
+        final Paths paths = pathsFor(ic);
+
+        if (paths == null) {
             return null;
         }
-
-        final WithApplicationTenancy tenantedObject = (WithApplicationTenancy) object;
-        final ApplicationTenancy objectTenancy = tenantedObject.getApplicationTenancy();
-        if(objectTenancy == null) {
-            return null;
+        if(paths.reason != null) {
+            return paths.reason;
         }
-
-        final String userName = ic.getSession().getUserName();
-
-        final ApplicationUser applicationUser = getApplicationUser(userName);
-        if(applicationUser == null) {
-            // not expected, but best to be safe...
-            return "Could not location application user for " + userName;
-        }
-
-        final ApplicationTenancy userTenancy = applicationUser.getTenancy();
-        if(userTenancy == null) {
-            return "User has no tenancy";
-        }
-
-        final String objectTenancyPath = objectTenancy.getPath(); // eg /x/y
-        final String userTenancyPath = userTenancy.getPath();     // eg /x  or /x/y/z
 
         // if in same hierarchy
-        if(objectTenancyPath.startsWith(userTenancyPath) || userTenancyPath.startsWith(objectTenancyPath)) {
+        if( paths.objectTenancyPath.startsWith(paths.userTenancyPath) ||
+            paths.userTenancyPath.startsWith(paths.objectTenancyPath)) {
             return null;
         }
 
-        // it's ok to return this info, because it isn't actually rendered
-        return String.format("User with tenancy '%s' is not permitted to view object with tenancy '%s'", userTenancyPath, objectTenancyPath);
+        // it's ok to return this info, because it isn't actually rendered (helpful if debugging)
+        return String.format("User with tenancy '%s' is not permitted to view object with tenancy '%s'", paths.userTenancyPath, paths.objectTenancyPath);
     }
 
     @Override
     public String disables(final UsabilityContext<? extends UsabilityEvent> ic) {
-        final Object object = ic.getTarget().getObject();
-        if (!(object instanceof WithApplicationTenancy)) {
-            // not expected, facet factory should only have installed for those classes that implement the WithApplicationTenancy interface
+        Paths paths = pathsFor(ic);
+
+        if (paths == null) {
+            return null;
+        }
+        if(paths.reason != null) {
+            return paths.reason;
+        }
+
+        // if user's tenancy "above" object's tenancy in the hierarchy
+        if(paths.objectTenancyPath.startsWith(paths.userTenancyPath)) {
             return null;
         }
 
-        final WithApplicationTenancy tenantedObject = (WithApplicationTenancy) object;
-        final ApplicationTenancy objectTenancy = tenantedObject.getApplicationTenancy();
-        if(objectTenancy == null) {
-            return null;
-        }
+        return String.format("User with tenancy '%s' is not permitted to edit object with tenancy '%s'", paths.userTenancyPath, paths.objectTenancyPath);
+    }
 
+    private Paths pathsFor(final InteractionContext<?> ic) {
+
+        final Paths paths = new Paths();
         final String userName = ic.getSession().getUserName();
+
         final ApplicationUser applicationUser = getApplicationUser(userName);
         if(applicationUser == null) {
             // not expected, but best to be safe...
-            return "Could not location application user for " + userName;
+            paths.reason = "Could not locate application user for " + userName;
+            return paths;
         }
 
-        final ApplicationTenancy userTenancy = applicationUser.getTenancy();
-        if(userTenancy == null) {
-            return "User has no tenancy";
+        final Object domainObject = ic.getTarget().getObject();
+
+        if(evaluator != null) {
+
+            paths.objectTenancyPath = evaluator.applicationTenancyPathFor(domainObject);
+            paths.userTenancyPath = evaluator.applicationTenancyPathFor(applicationUser);
+
+        } else {
+
+            if (domainObject instanceof WithApplicationTenancy) {
+                // should always be true, facet factory should only have installed for
+                // classes implementing WithApplicationTenancy
+
+                final WithApplicationTenancy tenantedObject = (WithApplicationTenancy) domainObject;
+                final ApplicationTenancy objectTenancy = tenantedObject.getApplicationTenancy();
+                if (objectTenancy == null) {
+                    return null;
+                }
+                paths.objectTenancyPath = objectTenancy.getPath();
+
+                final ApplicationTenancy userTenancy = applicationUser.getTenancy();
+                if (userTenancy == null) {
+                    paths.reason = "User has no tenancy";
+                    return paths;
+                }
+                paths.userTenancyPath = userTenancy.getPath();
+            }
         }
 
-        final String objectTenancyPath = objectTenancy.getPath(); // eg /x/y
-        final String userTenancyPath = userTenancy.getPath();     // eg /x  or /x/y/z
-
-        // if user's tenancy "above" object's tenancy in the hierarchy
-        if(objectTenancyPath.startsWith(userTenancyPath)) {
+        if(paths.objectTenancyPath == null || paths.userTenancyPath == null) {
             return null;
         }
 
-        return String.format("User with tenancy '%s' is not permitted to edit object with tenancy '%s'", userTenancyPath, objectTenancyPath);
+        return paths;
     }
 
     protected ApplicationUser getApplicationUser(final String userName) {
