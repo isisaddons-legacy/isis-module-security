@@ -22,6 +22,7 @@ package org.isisaddons.module.security.facets;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluator;
 import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
+import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 import org.apache.isis.core.metamodel.facetapi.FacetHolder;
 import org.apache.isis.core.metamodel.facetapi.FacetUtil;
@@ -54,8 +55,9 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
                 return;
             }
         }
+        final DomainObjectContainer container = servicesInjector.lookupService(DomainObjectContainer.class);
 
-        FacetUtil.addFacet(createFacet(processClassContext.getFacetHolder(), evaluator));
+        FacetUtil.addFacet(createFacet(processClassContext.getFacetHolder(), evaluator, container));
     }
 
     @Override
@@ -73,15 +75,17 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
                 return;
             }
         }
-        FacetUtil.addFacet(createFacet(processMethodContext.getFacetHolder(), evaluator));
+        final DomainObjectContainer container = servicesInjector.lookupService(DomainObjectContainer.class);
+        FacetUtil.addFacet(createFacet(processMethodContext.getFacetHolder(), evaluator, container));
     }
 
     private TenantedAuthorizationFacetDefault createFacet(
             final FacetHolder holder,
-            final ApplicationTenancyPathEvaluator evaluator) {
+            final ApplicationTenancyPathEvaluator evaluator,
+            final DomainObjectContainer container) {
         final ApplicationUsers applicationUsers = servicesInjector.lookupService(ApplicationUsers.class);
         final QueryResultsCache queryResultsCache = servicesInjector.lookupService(QueryResultsCache.class);
-        return new TenantedAuthorizationFacetDefault(applicationUsers, queryResultsCache, evaluator, holder);
+        return new TenantedAuthorizationFacetDefault(applicationUsers, queryResultsCache, evaluator, container, holder);
     }
 
 

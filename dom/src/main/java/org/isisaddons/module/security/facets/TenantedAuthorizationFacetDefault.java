@@ -25,6 +25,7 @@ import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluato
 import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
+import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.events.UsabilityEvent;
 import org.apache.isis.applib.events.VisibilityEvent;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
@@ -44,16 +45,19 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
     private final ApplicationUsers applicationUsers;
     private final QueryResultsCache queryResultsCache;
     private final ApplicationTenancyPathEvaluator evaluator;
+    private final DomainObjectContainer container;
 
     public TenantedAuthorizationFacetDefault(
             final ApplicationUsers applicationUsers,
             final QueryResultsCache queryResultsCache,
             final ApplicationTenancyPathEvaluator evaluator,
+            final DomainObjectContainer container,
             final FacetHolder holder) {
         super(type(), holder, Derivation.NOT_DERIVED);
         this.applicationUsers = applicationUsers;
         this.queryResultsCache = queryResultsCache;
         this.evaluator = evaluator;
+        this.container = container;
     }
 
     static class Paths {
@@ -105,9 +109,9 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
     private Paths pathsFor(final InteractionContext<?> ic) {
 
         final Paths paths = new Paths();
-        final String userName = ic.getSession().getUserName();
+        final String userName = container.getUser().getName();
 
-        final ApplicationUser applicationUser = getApplicationUser(userName);
+        final ApplicationUser applicationUser = findApplicationUser(userName);
         if(applicationUser == null) {
             // not expected, but best to be safe...
             paths.reason = "Could not locate application user for " + userName;
@@ -150,14 +154,15 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
         return paths;
     }
 
-    protected ApplicationUser getApplicationUser(final String userName) {
+    protected ApplicationUser findApplicationUser(final String userName) {
         return queryResultsCache.execute(new Callable<ApplicationUser>() {
             @Override
             public ApplicationUser call() throws Exception {
                 return applicationUsers.findUserByUsername(userName);
             }
-        }, TenantedAuthorizationFacetDefault.class, "getApplicationUser", userName);
+        }, TenantedAuthorizationFacetDefault.class, "findApplicationUser", userName);
     }
+
 
 
 }
