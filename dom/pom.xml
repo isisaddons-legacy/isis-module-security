@@ -19,7 +19,7 @@ language governing permissions and limitations under the License.
 
     <groupId>org.isisaddons.module.security</groupId>
     <artifactId>isis-module-security-dom</artifactId>
-    <version>1.9.0-SNAPSHOT</version>
+    <version>1.9.0_dn4-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
@@ -53,9 +53,9 @@ language governing permissions and limitations under the License.
         <compileSource>1.7</compileSource>
         <compileTarget>1.7</compileTarget>
 
-        <isis.version>1.9.0-SNAPSHOT</isis.version>
+        <isis.version>1.9.0_dn4-SNAPSHOT</isis.version>
 
-        <datanucleus-maven-plugin.version>3.3.2</datanucleus-maven-plugin.version>
+        <datanucleus-maven-plugin.version>4.0.0-release</datanucleus-maven-plugin.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -170,7 +170,7 @@ language governing permissions and limitations under the License.
                                     <pluginExecutionFilter>
                                         <groupId>org.datanucleus</groupId>
                                         <artifactId>datanucleus-maven-plugin</artifactId>
-                                        <versionRange>[3.2.0-release,)</versionRange>
+                                        <versionRange>[${datanucleus-maven-plugin.version},)</versionRange>
                                         <goals>
                                             <goal>enhance</goal>
                                         </goals>
