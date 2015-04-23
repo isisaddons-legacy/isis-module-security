@@ -18,15 +18,10 @@ package org.isisaddons.module.security.dom.user;
 
 import java.util.List;
 import java.util.concurrent.Callable;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
-import org.isisaddons.module.security.dom.role.ApplicationRole;
-import org.isisaddons.module.security.dom.role.ApplicationRoles;
-import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityRegularUserRoleAndPermissions;
-import org.isisaddons.module.security.shiro.IsisModuleSecurityRealm;
-import org.isisaddons.module.security.shiro.ShiroUtils;
+
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
@@ -39,11 +34,18 @@ import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
-import org.apache.isis.applib.annotation.RestrictTo;
 import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 import org.apache.isis.applib.value.Password;
+
+import org.isisaddons.module.security.SecurityModule;
+import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.role.ApplicationRoles;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityRegularUserRoleAndPermissions;
+import org.isisaddons.module.security.shiro.IsisModuleSecurityRealm;
+import org.isisaddons.module.security.shiro.ShiroUtils;
 
 @SuppressWarnings("UnusedDeclaration")
 @DomainService(
@@ -332,8 +334,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     @Action(
             domainEvent = AllUsersDomainEvent.class,
-            semantics = SemanticsOf.SAFE,
-            restrictTo = RestrictTo.PROTOTYPING
+            semantics = SemanticsOf.SAFE
     )
     @ActionLayout(
             cssClassFa = "fa-list"
