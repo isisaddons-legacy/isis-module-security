@@ -19,11 +19,14 @@ package org.isisaddons.module.security.shiro;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
+
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.Permission;
+
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.user.AccountType;
@@ -42,6 +45,9 @@ import org.isisaddons.module.security.dom.user.ApplicationUserStatus;
  *     {@link IsisModuleSecurityRealm#doGetAuthorizationInfo(org.apache.shiro.subject.PrincipalCollection) authorization} merely involves
  *     creating an adapter object for the appropriate Shiro API.
  * </p>
+ *
+ * TODO: this should probably implement java.security.Principal so that it doesn't get wrapped in a
+ * ShiroHttpServletRequest.ObjectPrincipal.  Such a change would need some testing to avoid regressions, though.
  */
 class PrincipalForApplicationUser implements AuthorizationInfo {
 
@@ -126,5 +132,17 @@ class PrincipalForApplicationUser implements AuthorizationInfo {
 
     public AccountType getAccountType() {
         return accountType;
+    }
+
+    /**
+     * When wrapped by ShiroHttpServletRequest.ObjectPrincipal, the principal's name is derived by calling toString().
+     *
+     *  TODO: this should probably implement java.security.Principal so that it doesn't get wrapped in a
+     *  ShiroHttpServletRequest.ObjectPrincipal.  Such a change would need some testing to avoid regressions, though.
+     *
+     */
+    @Override
+    public String toString() {
+        return getUsername();
     }
 }
