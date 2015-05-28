@@ -135,7 +135,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
                 }
                 return newDelegateUser(username, null, null);
             }
-        }, ApplicationUsers.class, "findByUsername", username );
+        }, ApplicationUsers.class, "findOrCreateUserByUsername", username );
     }
 
     //endregion
