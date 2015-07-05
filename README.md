@@ -362,6 +362,9 @@ where:
 
 There is further discussion of the `PasswordEncryptionService` and `PermissionsEvaluationService` below.
 
+It's also necessary to register an implementation of `FixtureScripts` domain service.  If you aren't using fixture scripts, then you can just take a copy of the example app's `SecurityModuleAppFixturesService` implementation.
+
+
 #### Tenancy checking (isis.properties) ####
 
 To enable tenancy checking (as described above, to restrict a user's access to tenanted objects), add the following
