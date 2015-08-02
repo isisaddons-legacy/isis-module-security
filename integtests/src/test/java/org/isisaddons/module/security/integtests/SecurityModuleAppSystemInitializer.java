@@ -46,9 +46,7 @@ public class SecurityModuleAppSystemInitializer {
             with(new DataNucleusPersistenceMechanismInstaller());
 
             // services annotated with @DomainService
-            withServicesIn(
-                    "org.isisaddons.module.security"
-            );
+            withServicesIn( "org.isisaddons.module.security" );
 
             withServices( /* nothing extra */);
         }
