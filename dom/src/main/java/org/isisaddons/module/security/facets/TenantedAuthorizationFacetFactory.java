@@ -19,9 +19,6 @@
 
 package org.isisaddons.module.security.facets;
 
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluator;
-import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 import org.apache.isis.core.metamodel.facetapi.FacetHolder;
@@ -31,60 +28,61 @@ import org.apache.isis.core.metamodel.facets.FacetFactoryAbstract;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjector;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjectorAware;
 
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluator;
+import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
+import org.isisaddons.module.security.dom.user.ApplicationUsers;
+
 public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract implements ServicesInjectorAware {
 
     private ServicesInjector servicesInjector;
 
     public TenantedAuthorizationFacetFactory() {
-        super(FeatureType.EVERYTHING_BUT_PARAMETERS);
+        super(FeatureType.EVERYTHING);
     }
 
     @Override
     public void process(final ProcessClassContext processClassContext) {
         final Class<?> cls = processClassContext.getCls();
 
-        final ApplicationTenancyPathEvaluator evaluator = servicesInjector.lookupService(ApplicationTenancyPathEvaluator.class);
-
-        if(evaluator != null) {
-            if(!evaluator.handles(cls)) {
-                return;
-            }
-        } else {
-            final boolean assignableFrom = WithApplicationTenancy.class.isAssignableFrom(cls);
-            if (!assignableFrom) {
-                return;
-            }
-        }
-        final DomainObjectContainer container = servicesInjector.lookupService(DomainObjectContainer.class);
-
-        FacetUtil.addFacet(createFacet(processClassContext.getFacetHolder(), evaluator, container));
+        FacetHolder facetHolder = processClassContext.getFacetHolder();
+        FacetUtil.addFacet(createFacet(cls, facetHolder));
     }
 
     @Override
     public void process(final ProcessMethodContext processMethodContext) {
         final Class<?> cls = processMethodContext.getCls();
+        FacetHolder facetHolder = processMethodContext.getFacetHolder();
+        FacetUtil.addFacet(createFacet(cls, facetHolder));
+    }
+
+    @Override
+    public void processParams(final ProcessParameterContext processParameterContext) {
+        final Class<?> cls = processParameterContext.getCls();
+        FacetHolder facetHolder = processParameterContext.getFacetHolder();
+        FacetUtil.addFacet(createFacet(cls, facetHolder));
+    }
+
+    private TenantedAuthorizationFacetDefault createFacet(
+            final Class<?> cls, final FacetHolder holder) {
 
         final ApplicationTenancyPathEvaluator evaluator = servicesInjector.lookupService(ApplicationTenancyPathEvaluator.class);
         if(evaluator != null) {
-            if (!evaluator.handles(cls)) {
-                return;
+            if(!evaluator.handles(cls)) {
+                return null;
             }
         } else {
             final boolean assignableFrom = WithApplicationTenancy.class.isAssignableFrom(cls);
             if (!assignableFrom) {
-                return;
+                return null;
             }
         }
-        final DomainObjectContainer container = servicesInjector.lookupService(DomainObjectContainer.class);
-        FacetUtil.addFacet(createFacet(processMethodContext.getFacetHolder(), evaluator, container));
-    }
 
-    private TenantedAuthorizationFacetDefault createFacet(
-            final FacetHolder holder,
-            final ApplicationTenancyPathEvaluator evaluator,
-            final DomainObjectContainer container) {
+
         final ApplicationUsers applicationUsers = servicesInjector.lookupService(ApplicationUsers.class);
         final QueryResultsCache queryResultsCache = servicesInjector.lookupService(QueryResultsCache.class);
+
+        final DomainObjectContainer container = servicesInjector.lookupService(DomainObjectContainer.class);
+
         return new TenantedAuthorizationFacetDefault(applicationUsers, queryResultsCache, evaluator, container, holder);
     }
 
