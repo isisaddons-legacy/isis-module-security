@@ -17,13 +17,15 @@
 package org.isisaddons.module.security.integtests.user;
 
 import javax.inject.Inject;
-import org.isisaddons.module.security.fixture.scripts.roles.AllExampleRolesAndPermissions;
-import org.isisaddons.module.security.fixture.scripts.roles.ExampleRegularRoleAndPermissions;
-import org.isisaddons.module.security.fixture.scripts.tenancy.AllTenancies;
-import org.isisaddons.module.security.fixture.scripts.tenancy.FranceTenancy;
-import org.isisaddons.module.security.fixture.scripts.tenancy.SwedenTenancy;
-import org.isisaddons.module.security.fixture.scripts.users.SvenUser;
-import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import org.apache.isis.applib.services.wrapper.DisabledException;
+import org.apache.isis.applib.services.wrapper.InvalidException;
+
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoles;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancies;
@@ -31,15 +33,20 @@ import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
+import org.isisaddons.module.security.fixture.scripts.roles.AllExampleRolesAndPermissions;
+import org.isisaddons.module.security.fixture.scripts.roles.ExampleRegularRoleAndPermissions;
+import org.isisaddons.module.security.fixture.scripts.tenancy.AllTenancies;
+import org.isisaddons.module.security.fixture.scripts.tenancy.FranceTenancy;
+import org.isisaddons.module.security.fixture.scripts.tenancy.SwedenTenancy;
+import org.isisaddons.module.security.fixture.scripts.users.SvenUser;
 import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.apache.isis.applib.services.wrapper.DisabledException;
-import org.apache.isis.applib.services.wrapper.InvalidException;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
@@ -306,6 +313,26 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
 
                 // then
                 assertThat(user.getRoles().size(), is(1));
+            }
+
+            @Test
+            public void cannotAddUsingSupportingMethod() throws Exception {
+
+                // expect
+                expectedException.expect(DisabledException.class);
+
+                // when
+                user.addToRoles(userRole);
+            }
+
+            @Test
+            public void cannotAddDirectly() throws Exception {
+
+                // expect
+                expectedException.expect(UnsupportedOperationException.class);
+
+                // when
+                user.getRoles().add(userRole);
             }
 
         }

@@ -20,24 +20,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
-import org.isisaddons.module.security.dom.permission.ApplicationPermission;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
-import org.isisaddons.module.security.dom.permission.PermissionsEvaluationService;
-import org.isisaddons.module.security.dom.role.ApplicationRole;
-import org.isisaddons.module.security.dom.role.ApplicationRoles;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
-import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
-import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminUser;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
@@ -64,6 +56,18 @@ import org.apache.isis.applib.security.UserMemento;
 import org.apache.isis.applib.services.HasUsername;
 import org.apache.isis.applib.util.ObjectContracts;
 import org.apache.isis.applib.value.Password;
+
+import org.isisaddons.module.security.SecurityModule;
+import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
+import org.isisaddons.module.security.dom.permission.ApplicationPermission;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
+import org.isisaddons.module.security.dom.permission.PermissionsEvaluationService;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.role.ApplicationRoles;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminUser;
 
 @javax.jdo.annotations.PersistenceCapable(
         identityType = IdentityType.DATASTORE,
