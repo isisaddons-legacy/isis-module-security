@@ -268,7 +268,9 @@ language governing permissions and limitations under the License.
         <profile>
             <id>enhance</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>!skip.enhance</name>
+                </property>
             </activation>
             <properties>
                 <datanucleus-maven-plugin.version>4.0.1</datanucleus-maven-plugin.version>
@@ -339,7 +341,9 @@ language governing permissions and limitations under the License.
         <profile>
             <id>cloudbees-snapshots</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>!skip.cloudbees-snapshots</name>
+                </property>
             </activation>
             <repositories>
                 <repository>
