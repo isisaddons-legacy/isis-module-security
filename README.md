@@ -270,6 +270,7 @@ To enable this requires a single configuration property to be set, see below.
 The prerequisite software is:
 
 * Java JDK 8 (>= 1.9.0) or Java JDK 7 (<= 1.8.0)
+** note that the compile source and target remains at JDK 7
 * [maven 3](http://maven.apache.org) (3.2.x is recommended).
 
 To build the demo app:
@@ -383,7 +384,7 @@ Finally, update your classpath by adding this dependency in your dom project's `
     &lt;dependency&gt;
         &lt;groupId&gt;org.isisaddons.module.security&lt;/groupId&gt;
         &lt;artifactId&gt;isis-module-security-dom&lt;/artifactId&gt;
-        &lt;version&gt;1.8.0&lt;/version&gt;
+        &lt;version&gt;1.9.0&lt;/version&gt;
     &lt;/dependency&gt;
 </pre>
 
@@ -408,7 +409,7 @@ If you want to use the current `-SNAPSHOT`, then the steps are the same as above
 * when updating the classpath, specify the appropriate -SNAPSHOT version:
 
 <pre>
-    &lt;version&gt;1.9.0-SNAPSHOT&lt;/version&gt;
+    &lt;version&gt;1.10.0-SNAPSHOT&lt;/version&gt;
 </pre>
 
 * add the repository definition to pick up the most recent snapshot (we use the Cloudbees continuous integration service).  We suggest defining the repository in a `<profile>`:
@@ -530,8 +531,9 @@ Ideas for future features:
 
 ## Change Log ##
 
+* `1.9.0` - released against Isis 1.9.0; closes <a href="https://github.com/isisaddons/isis-module-security/issues/18">#18</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/17">#17</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/16">#16</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/15">#15</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/14">#14</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/13">#13</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/12">#12</a> (mapping entities to 'isissecurity' schema);
 * `1.8.1` - released against Isis 1.8.0; closes <a href="https://github.com/isisaddons/isis-module-security/issues/11">#11</a>.
-* `1.8.0` - released against Isis 1.8.0.  `ApplicationTenancy` extended to support hierarchical tenancies, with path as primary key (nb: breaking change), support to make easier to extend (pluggable factories and events for all actions). MeService on TERTIARY menuBar.
+* `1.8.0` - released against Isis 1.8.0.  `ApplicationTenancy` extended to support hierarchical tenancies, with path as primary key (nb: breaking change), support to make easier to extend (pluggable factories and events for all actions). MeService on TERTIARY menuBar; <a href="https://github.com/isisaddons/isis-module-security/issues/10">#10</a>
 * `1.7.0` - released against Isis 1.7.0
 * `1.6.2` - made more resilient so can be called by an application's own 'security seed' service
 * `1.6.1` - support for account types and delegated authentication realm
@@ -593,8 +595,8 @@ The `release.sh` script automates the release process.  It performs the followin
 
 For example:
 
-    sh release.sh 1.9.0 \
-                  1.10.0-SNAPSHOT \
+    sh release.sh 1.10.0 \
+                  1.11.0-SNAPSHOT \
                   dan@haywood-associates.co.uk \
                   "this is not really my passphrase"
     
@@ -610,7 +612,7 @@ Other ways of specifying the key and passphrase are available, see the `pgp-mave
 If the script completes successfully, then push changes:
 
     git push origin master
-    git push origin 1.9.0
+    git push origin 1.10.0
 
 If the script fails to complete, then identify the cause, perform a `git reset --hard` to start over and fix the issue
 before trying again.  Note that in the `dom`'s `pom.xml` the `nexus-staging-maven-plugin` has the 

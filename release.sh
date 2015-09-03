@@ -22,9 +22,9 @@ fi
 
 
 echo ""
-echo "sanity check (mvn clean install -o)"
+echo "sanity check (mvn clean install -T1C -o)"
 echo ""
-mvn clean install -o >/dev/null
+mvn clean install -T1C -o >/dev/null
 if [ $? != 0 ]; then
     echo "... failed" >&2
     exit 1
@@ -42,9 +42,9 @@ fi
 
 
 echo ""
-echo "double-check (mvn clean install -o)"
+echo "double-check (mvn clean install -T1C -o)"
 echo ""
-mvn clean install -o >/dev/null
+mvn clean install -T1C -o >/dev/null
 if [ $? != 0 ]; then
     echo "... failed" >&2
     exit 1
