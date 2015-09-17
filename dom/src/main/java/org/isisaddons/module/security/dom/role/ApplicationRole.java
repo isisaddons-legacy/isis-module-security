@@ -19,24 +19,15 @@ package org.isisaddons.module.security.dom.role;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
-import org.isisaddons.module.security.dom.feature.ApplicationMemberType;
-import org.isisaddons.module.security.dom.permission.ApplicationPermission;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
-import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
-import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
@@ -58,6 +49,19 @@ import org.apache.isis.applib.annotation.RenderType;
 import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.util.ObjectContracts;
 import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
+
+import org.isisaddons.module.security.SecurityModule;
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.feature.ApplicationMemberType;
+import org.isisaddons.module.security.dom.permission.ApplicationPermission;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRepository;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
 
 @SuppressWarnings("UnusedDeclaration")
 @javax.jdo.annotations.PersistenceCapable(
@@ -284,7 +288,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     )
     @MemberOrder(sequence = "10")
     public List<ApplicationPermission> getPermissions() {
-        return applicationPermissions.findByRole(this);
+        return applicationPermissionRepository.findByRole(this);
     }
     //endregion
 
@@ -316,7 +320,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             final ApplicationPermissionMode mode,
             @ParameterLayout(named="Package", typicalLength=ApplicationFeature.TYPICAL_LENGTH_PKG_FQN)
             final String packageFqn) {
-        applicationPermissions.newPermission(this, rule, mode, ApplicationFeatureType.PACKAGE, packageFqn);
+        applicationPermissionRepository.newPermission(this, rule, mode, ApplicationFeatureType.PACKAGE, packageFqn);
         return this;
     }
 
@@ -329,7 +333,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     }
 
     public List<String> choices2AddPackage() {
-        return applicationFeatures.packageNames();
+        return applicationFeatureRepository.packageNames();
     }
     //endregion
 
@@ -362,7 +366,8 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             final String packageFqn,
             @ParameterLayout(named="Class", typicalLength=ApplicationFeature.TYPICAL_LENGTH_CLS_NAME)
             final String className) {
-        applicationPermissions.newPermission(this, rule, mode, ApplicationFeatureType.CLASS, packageFqn + "." + className);
+        applicationPermissionRepository.newPermission(this, rule, mode, ApplicationFeatureType.CLASS,
+                packageFqn + "." + className);
         return this;
     }
 
@@ -378,7 +383,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
      * Package names that have classes in them.
      */
     public List<String> choices2AddClass() {
-        return applicationFeatures.packageNamesContainingClasses(null);
+        return applicationFeatureRepository.packageNamesContainingClasses(null);
     }
 
     /**
@@ -388,7 +393,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             final ApplicationPermissionRule rule,
             final ApplicationPermissionMode mode,
             final String packageFqn) {
-        return applicationFeatures.classNamesContainedIn(packageFqn, null);
+        return applicationFeatureRepository.classNamesContainedIn(packageFqn, null);
     }
 
     //endregion
@@ -424,7 +429,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             final String className,
             @ParameterLayout(named="Action", typicalLength = ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME)
             final String memberName) {
-        applicationPermissions.newPermission(this, rule, mode, packageFqn, className, memberName);
+        applicationPermissionRepository.newPermission(this, rule, mode, packageFqn, className, memberName);
         return this;
     }
 
@@ -437,14 +442,14 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     }
 
     public List<String> choices2AddAction() {
-        return applicationFeatures.packageNamesContainingClasses(ApplicationMemberType.ACTION);
+        return applicationFeatureRepository.packageNamesContainingClasses(ApplicationMemberType.ACTION);
     }
 
     public List<String> choices3AddAction(
             final ApplicationPermissionRule rule,
             final ApplicationPermissionMode mode,
             final String packageFqn) {
-        return applicationFeatures.classNamesContainedIn(packageFqn, ApplicationMemberType.ACTION);
+        return applicationFeatureRepository.classNamesContainedIn(packageFqn, ApplicationMemberType.ACTION);
     }
 
     public List<String> choices4AddAction(
@@ -452,7 +457,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             final ApplicationPermissionMode mode,
             final String packageFqn,
             final String className) {
-        return applicationFeatures.memberNamesOf(packageFqn, className, ApplicationMemberType.ACTION);
+        return applicationFeatureRepository.memberNamesOf(packageFqn, className, ApplicationMemberType.ACTION);
     }
 
     //endregion
@@ -488,7 +493,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             final String className,
             @ParameterLayout(named="Property", typicalLength=ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME)
             final String memberName) {
-        applicationPermissions.newPermission(this, rule, mode, packageFqn, className, memberName);
+        applicationPermissionRepository.newPermission(this, rule, mode, packageFqn, className, memberName);
         return this;
     }
 
@@ -504,7 +509,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
      * Package names that have classes in them.
      */
     public List<String> choices2AddProperty() {
-        return applicationFeatures.packageNamesContainingClasses(ApplicationMemberType.PROPERTY);
+        return applicationFeatureRepository.packageNamesContainingClasses(ApplicationMemberType.PROPERTY);
     }
 
     /**
@@ -514,7 +519,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             final ApplicationPermissionRule rule,
             final ApplicationPermissionMode mode,
             final String packageFqn) {
-        return applicationFeatures.classNamesContainedIn(packageFqn, ApplicationMemberType.PROPERTY);
+        return applicationFeatureRepository.classNamesContainedIn(packageFqn, ApplicationMemberType.PROPERTY);
     }
 
     /**
@@ -525,7 +530,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             final ApplicationPermissionMode mode,
             final String packageFqn,
             final String className) {
-        return applicationFeatures.memberNamesOf(packageFqn, className, ApplicationMemberType.PROPERTY);
+        return applicationFeatureRepository.memberNamesOf(packageFqn, className, ApplicationMemberType.PROPERTY);
     }
     //endregion
 
@@ -561,7 +566,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             final String className,
             @ParameterLayout(named="Collection", typicalLength=ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME)
             final String memberName) {
-        applicationPermissions.newPermission(this, rule, mode, packageFqn, className, memberName);
+        applicationPermissionRepository.newPermission(this, rule, mode, packageFqn, className, memberName);
         return this;
     }
 
@@ -574,14 +579,14 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     }
 
     public List<String> choices2AddCollection() {
-        return applicationFeatures.packageNamesContainingClasses(ApplicationMemberType.COLLECTION);
+        return applicationFeatureRepository.packageNamesContainingClasses(ApplicationMemberType.COLLECTION);
     }
 
     public List<String> choices3AddCollection(
             final ApplicationPermissionRule rule,
             final ApplicationPermissionMode mode,
             final String packageFqn) {
-        return applicationFeatures.classNamesContainedIn(packageFqn, ApplicationMemberType.COLLECTION);
+        return applicationFeatureRepository.classNamesContainedIn(packageFqn, ApplicationMemberType.COLLECTION);
     }
 
     public List<String> choices4AddCollection(
@@ -589,7 +594,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             final ApplicationPermissionMode mode,
             final String packageFqn,
             final String className) {
-        return applicationFeatures.memberNamesOf(packageFqn, className, ApplicationMemberType.COLLECTION);
+        return applicationFeatureRepository.memberNamesOf(packageFqn, className, ApplicationMemberType.COLLECTION);
     }
 
     //endregion
@@ -616,7 +621,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             final ApplicationFeatureType type,
             @ParameterLayout(named="Feature", typicalLength=ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME)
             final String featureFqn) {
-        final ApplicationPermission permission = applicationPermissions.findByRoleAndRuleAndFeature(this, rule, type, featureFqn);
+        final ApplicationPermission permission = applicationPermissionRepository.findByRoleAndRuleAndFeature(this, rule, type, featureFqn);
         if(permission != null) {
             container.removeIfNotAlready(permission);
         }
@@ -645,7 +650,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     public java.util.Collection<String> choices2RemovePermission(
             final ApplicationPermissionRule rule,
             final ApplicationFeatureType type) {
-        final List<ApplicationPermission> permissions = applicationPermissions.findByRoleAndRuleAndFeatureType(this, rule, type);
+        final List<ApplicationPermission> permissions = applicationPermissionRepository.findByRoleAndRuleAndFeatureType(this, rule, type);
         return Lists.newArrayList(
                 Iterables.transform(
                         permissions,
@@ -719,7 +724,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     }
 
     public List<ApplicationUser> autoComplete0AddUser(final String search) {
-        final List<ApplicationUser> matchingSearch = applicationUsers.findUsersByName(search);
+        final List<ApplicationUser> matchingSearch = applicationUserRepository.findUsersByName(search);
         final List<ApplicationUser> list = Lists.newArrayList(matchingSearch);
         list.removeAll(getUsers());
         return list;
@@ -789,7 +794,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
         container.flush();
         container.removeIfNotAlready(this);
         container.flush();
-        return applicationRoles.allRoles();
+        return applicationRoleRepository.allRoles();
     }
 
     public String disableDelete(final Boolean areYouSure) {
@@ -808,7 +813,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //region > isAdminRole (programmatic)
     @Programmatic
     public boolean isAdminRole() {
-        final ApplicationRole adminRole = applicationRoles.findRoleByName(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME);
+        final ApplicationRole adminRole = applicationRoleRepository.findRoleByName(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME);
         return this == adminRole;
     }
     //endregion
@@ -856,13 +861,13 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     @javax.inject.Inject
     DomainObjectContainer container;
     @javax.inject.Inject
-    ApplicationFeatures applicationFeatures;
+    ApplicationFeatureRepository applicationFeatureRepository;
     @javax.inject.Inject
-    ApplicationPermissions applicationPermissions;
+    ApplicationPermissionRepository applicationPermissionRepository;
     @javax.inject.Inject
-    ApplicationUsers applicationUsers;
+    ApplicationUserRepository applicationUserRepository;
     @javax.inject.Inject
-    ApplicationRoles applicationRoles;
+    ApplicationRoleRepository applicationRoleRepository;
     //endregion
 
 }

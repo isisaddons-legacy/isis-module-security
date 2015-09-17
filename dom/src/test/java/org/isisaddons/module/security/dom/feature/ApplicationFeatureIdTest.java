@@ -19,16 +19,20 @@ package org.isisaddons.module.security.dom.feature;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
+
 import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
 import com.google.common.base.Function;
-import org.isisaddons.module.security.dom.SerializationContractTest;
+
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 import org.apache.isis.core.unittestsupport.value.ValueTypeContractTestAbstract;
+
+import org.isisaddons.module.security.dom.SerializationContractTest;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -531,7 +535,7 @@ public class ApplicationFeatureIdTest {
             private ApplicationMemberType memberType;
 
             @Mock
-            private ApplicationFeatures mockApplicationFeatures;
+            private ApplicationFeatureRepository mockApplicationFeatureRepository;
             @Mock
             private ApplicationFeature mockApplicationFeature;
 
@@ -540,7 +544,7 @@ public class ApplicationFeatureIdTest {
                 expectedException.expect(NullPointerException.class);
 
                 ApplicationFeatureId.Predicates.
-                        isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatures).
+                        isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatureRepository).
                         apply(null);
             }
 
@@ -548,12 +552,12 @@ public class ApplicationFeatureIdTest {
             public void whenNotClass() throws Exception {
                 assertThat(
                         ApplicationFeatureId.Predicates.
-                                isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatures).
+                                isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatureRepository).
                                 apply(ApplicationFeatureId.newPackage("com.mycompany")),
                         is(false));
                 assertThat(
                         ApplicationFeatureId.Predicates.
-                                isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatures).
+                                isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatureRepository).
                                 apply(ApplicationFeatureId.newMember("com.mycompany.Bar#foo")),
                         is(false));
             }
@@ -562,13 +566,13 @@ public class ApplicationFeatureIdTest {
             public void whenClassButFeatureNotFound() throws Exception {
                 final ApplicationFeatureId classFeature = ApplicationFeatureId.newClass("com.mycompany.Bar");
                 context.checking(new Expectations() {{
-                    allowing(mockApplicationFeatures).findFeature(classFeature);
+                    allowing(mockApplicationFeatureRepository).findFeature(classFeature);
                     will(returnValue(null));
                 }});
 
                 assertThat(
                         ApplicationFeatureId.Predicates.
-                                isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatures).
+                                isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatureRepository).
                                 apply(classFeature),
                         is(false));
             }
@@ -576,7 +580,7 @@ public class ApplicationFeatureIdTest {
             public void whenClassAndFeatureNotFoundButHasNoMembersOfType() throws Exception {
                 final ApplicationFeatureId classFeature = ApplicationFeatureId.newClass("com.mycompany.Bar");
                 context.checking(new Expectations() {{
-                    oneOf(mockApplicationFeatures).findFeature(classFeature);
+                    oneOf(mockApplicationFeatureRepository).findFeature(classFeature);
                     will(returnValue(mockApplicationFeature));
 
                     allowing(mockApplicationFeature).membersOf(ApplicationMemberType.ACTION);
@@ -585,7 +589,7 @@ public class ApplicationFeatureIdTest {
 
                 assertThat(
                         ApplicationFeatureId.Predicates.
-                                isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatures).
+                                isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatureRepository).
                                 apply(classFeature),
                         is(false));
             }
@@ -593,7 +597,7 @@ public class ApplicationFeatureIdTest {
             public void whenClassAndFeatureNotFoundAndHasMembersOfType() throws Exception {
                 final ApplicationFeatureId classFeature = ApplicationFeatureId.newClass("com.mycompany.Bar");
                 context.checking(new Expectations() {{
-                    oneOf(mockApplicationFeatures).findFeature(classFeature);
+                    oneOf(mockApplicationFeatureRepository).findFeature(classFeature);
                     will(returnValue(mockApplicationFeature));
 
                     allowing(mockApplicationFeature).membersOf(ApplicationMemberType.ACTION);
@@ -604,7 +608,7 @@ public class ApplicationFeatureIdTest {
 
                 assertThat(
                         ApplicationFeatureId.Predicates.
-                                isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatures).
+                                isClassContaining(ApplicationMemberType.ACTION, mockApplicationFeatureRepository).
                                 apply(classFeature),
                         is(true));
             }

@@ -27,11 +27,11 @@ import org.apache.isis.applib.services.wrapper.DisabledException;
 import org.apache.isis.applib.services.wrapper.InvalidException;
 
 import org.isisaddons.module.security.dom.role.ApplicationRole;
-import org.isisaddons.module.security.dom.role.ApplicationRoles;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancies;
+import org.isisaddons.module.security.dom.role.ApplicationRoleRepository;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyRepository;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
+import org.isisaddons.module.security.dom.user.ApplicationUserMenu;
 import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
 import org.isisaddons.module.security.fixture.scripts.roles.AllExampleRolesAndPermissions;
 import org.isisaddons.module.security.fixture.scripts.roles.ExampleRegularRoleAndPermissions;
@@ -67,13 +67,13 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
 
 
     @Inject
-    ApplicationUsers applicationUsers;
+    ApplicationUserMenu applicationUserMenu;
 
     ApplicationUser user;
 
     @Before
     public void setUp() throws Exception {
-        user = wrap(applicationUsers.findOrCreateUserByUsername(SvenUser.USER_NAME));
+        user = wrap(applicationUserMenu.findOrCreateUserByUsername(SvenUser.USER_NAME));
         assertThat(unwrap(user).getRoles().size(), is(0));
 
         assertThat(user, is(not(nullValue())));
@@ -135,17 +135,17 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
                     new AllTenancies()
             );
             // necessary to lookup again because above fixtures will be installed in a new xactn
-            user = wrap(applicationUsers.findOrCreateUserByUsername(SvenUser.USER_NAME));
+            user = wrap(applicationUserMenu.findOrCreateUserByUsername(SvenUser.USER_NAME));
 
-            swedenTenancy = applicationTenancies.findTenancyByName(SwedenTenancy.TENANCY_NAME);
-            franceTenancy = applicationTenancies.findTenancyByName(FranceTenancy.TENANCY_NAME);
+            swedenTenancy = applicationTenancyRepository.findTenancyByName(SwedenTenancy.TENANCY_NAME);
+            franceTenancy = applicationTenancyRepository.findTenancyByName(FranceTenancy.TENANCY_NAME);
 
             assertThat(swedenTenancy, is(notNullValue()));
             assertThat(franceTenancy, is(notNullValue()));
         }
 
         @Inject
-        ApplicationTenancies applicationTenancies;
+        ApplicationTenancyRepository applicationTenancyRepository;
 
         ApplicationTenancy swedenTenancy;
         ApplicationTenancy franceTenancy;
@@ -222,17 +222,17 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
             );
 
             // necessary to lookup again because above fixtures will be installed in a new xactn
-            user = wrap(applicationUsers.findOrCreateUserByUsername(SvenUser.USER_NAME));
+            user = wrap(applicationUserMenu.findOrCreateUserByUsername(SvenUser.USER_NAME));
 
-            adminRole = applicationRoles.findRoleByName(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME);
-            userRole = applicationRoles.findRoleByName(ExampleRegularRoleAndPermissions.ROLE_NAME);
+            adminRole = applicationRoleRepository.findRoleByName(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME);
+            userRole = applicationRoleRepository.findRoleByName(ExampleRegularRoleAndPermissions.ROLE_NAME);
 
             assertThat(adminRole, is(notNullValue()));
             assertThat(userRole, is(notNullValue()));
         }
 
         @Inject
-        ApplicationRoles applicationRoles;
+        ApplicationRoleRepository applicationRoleRepository;
 
         ApplicationRole adminRole;
         ApplicationRole userRole;

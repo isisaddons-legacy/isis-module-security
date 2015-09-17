@@ -17,10 +17,7 @@
 package org.isisaddons.module.security.app.feature;
 
 import java.util.List;
-import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
-import org.isisaddons.module.security.dom.permission.ApplicationPermission;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
@@ -33,6 +30,11 @@ import org.apache.isis.applib.annotation.Property;
 import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.annotation.Where;
+
+import org.isisaddons.module.security.SecurityModule;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
+import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 
 @DomainService(
         nature = NatureOfService.VIEW_CONTRIBUTIONS_ONLY
@@ -100,7 +102,7 @@ public class ApplicationFeatureViewModelContributions {
             return null;
         }
         final ApplicationFeatureId featureId = getFeatureId(permission);
-        return ApplicationFeatureViewModel.newViewModel(featureId, applicationFeatures, container);
+        return ApplicationFeatureViewModel.newViewModel(featureId, applicationFeatureRepository, container);
     }
 
     private static ApplicationFeatureId getFeatureId(final ApplicationPermission permission) {
@@ -114,7 +116,7 @@ public class ApplicationFeatureViewModelContributions {
     DomainObjectContainer container;
 
     @javax.inject.Inject
-    ApplicationFeatures applicationFeatures;
+    ApplicationFeatureRepository applicationFeatureRepository;
 
     //endregion
 

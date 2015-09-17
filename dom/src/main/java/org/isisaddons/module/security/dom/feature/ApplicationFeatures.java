@@ -112,12 +112,6 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     }
     //endregion
 
-    //region > iconName
-
-    public String iconName() {
-        return "applicationFeature";
-    }
-    //endregion
 
     //region > caches
     SortedMap<ApplicationFeatureId, ApplicationFeature> packageFeatures = Maps.newTreeMap();

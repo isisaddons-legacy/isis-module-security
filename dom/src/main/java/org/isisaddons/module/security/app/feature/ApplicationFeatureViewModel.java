@@ -18,16 +18,11 @@ package org.isisaddons.module.security.app.feature;
 
 import java.util.List;
 import java.util.SortedSet;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
-import org.isisaddons.module.security.dom.permission.ApplicationPermission;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.ViewModel;
@@ -41,6 +36,14 @@ import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.RenderType;
 import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.util.ObjectContracts;
+
+import org.isisaddons.module.security.SecurityModule;
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.permission.ApplicationPermission;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRepository;
 
 /**
  * View model identified by {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId} and backed by an {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
@@ -91,9 +94,9 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     //region > constructors
     public static ApplicationFeatureViewModel newViewModel(
             final ApplicationFeatureId featureId,
-            final ApplicationFeatures applicationFeatures,
+            final ApplicationFeatureRepository applicationFeatureRepository,
             final DomainObjectContainer container) {
-        final Class<? extends ApplicationFeatureViewModel> cls = viewModelClassFor(featureId, applicationFeatures);
+        final Class<? extends ApplicationFeatureViewModel> cls = viewModelClassFor(featureId, applicationFeatureRepository);
         if(cls == null) {
             // TODO: not sure why, yet...
             return null;
@@ -103,14 +106,14 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     private static Class<? extends ApplicationFeatureViewModel> viewModelClassFor(
             final ApplicationFeatureId featureId,
-            final ApplicationFeatures applicationFeatures) {
+            final ApplicationFeatureRepository applicationFeatureRepository) {
         switch (featureId.getType()) {
             case PACKAGE:
                 return ApplicationPackage.class;
             case CLASS:
                 return ApplicationClass.class;
             case MEMBER:
-            final ApplicationFeature feature = applicationFeatures.findFeature(featureId);
+            final ApplicationFeature feature = applicationFeatureRepository.findFeature(featureId);
                 if(feature == null) {
                     // TODO: not sure why, yet...
                     return null;
@@ -182,7 +185,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     //region > feature (property, programmatic)
     @Programmatic
     ApplicationFeature getFeature() {
-        return applicationFeatures.findFeature(getFeatureId());
+        return applicationFeatureRepository.findFeature(getFeatureId());
     }
     //endregion
     
@@ -316,11 +319,11 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
         if(parentId == null) {
             return null;
         }
-        final ApplicationFeature feature = applicationFeatures.findFeature(parentId);
+        final ApplicationFeature feature = applicationFeatureRepository.findFeature(parentId);
         if (feature == null) {
             return null;
         }
-        final Class<?> cls = viewModelClassFor(parentId, applicationFeatures);
+        final Class<?> cls = viewModelClassFor(parentId, applicationFeatureRepository);
         return (ApplicationFeatureViewModel) container.newViewModelInstance(cls, parentId.asEncodedString());
 
     }
@@ -375,7 +378,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     )
     @MemberOrder(sequence = "10")
     public List<ApplicationPermission> getPermissions() {
-        return applicationPermissions.findByFeature(getFeatureId());
+        return applicationPermissionRepository.findByFeature(getFeatureId());
     }
     //endregion
 
@@ -388,7 +391,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
      */
     @Programmatic
     public ApplicationFeatureViewModel getParentPackage() {
-        return Functions.asViewModelForId(applicationFeatures, container).apply(getFeatureId().getParentPackageId());
+        return Functions.asViewModelForId(applicationFeatureRepository, container).apply(getFeatureId().getParentPackageId());
     }
     //endregion
 
@@ -416,7 +419,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     //region > helpers
     <T extends ApplicationFeatureViewModel> List<T> asViewModels(final SortedSet<ApplicationFeatureId> members) {
-        final Function<ApplicationFeatureId, T> function = Functions.<T>asViewModelForId(applicationFeatures, container);
+        final Function<ApplicationFeatureId, T> function = Functions.<T>asViewModelForId(applicationFeatureRepository, container);
         return Lists.newArrayList(
                 Iterables.transform(members, function));
     }
@@ -427,20 +430,20 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     public static class Functions {
         private Functions(){}
         public static <T extends ApplicationFeatureViewModel> Function<ApplicationFeatureId, T> asViewModelForId(
-                final ApplicationFeatures applicationFeatures, final DomainObjectContainer container) {
+                final ApplicationFeatureRepository applicationFeatureRepository, final DomainObjectContainer container) {
             return new Function<ApplicationFeatureId, T>(){
                 @Override
                 public T apply(final ApplicationFeatureId input) {
-                    return (T)ApplicationFeatureViewModel.newViewModel(input, applicationFeatures, container);
+                    return (T)ApplicationFeatureViewModel.newViewModel(input, applicationFeatureRepository, container);
                 }
             };
         }
         public static <T extends ApplicationFeatureViewModel> Function<ApplicationFeature, T> asViewModel(
-                final ApplicationFeatures applicationFeatures, final DomainObjectContainer container) {
+                final ApplicationFeatureRepository applicationFeatureRepository, final DomainObjectContainer container) {
             return new Function<ApplicationFeature, T>(){
                 @Override
                 public T apply(final ApplicationFeature input) {
-                    return (T) ApplicationFeatureViewModel.newViewModel(input.getFeatureId(), applicationFeatures, container);
+                    return (T) ApplicationFeatureViewModel.newViewModel(input.getFeatureId(), applicationFeatureRepository, container);
                 }
             };
         }
@@ -452,10 +455,10 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     DomainObjectContainer container;
 
     @javax.inject.Inject
-    ApplicationFeatures applicationFeatures;
+    ApplicationFeatureRepository applicationFeatureRepository;
 
     @javax.inject.Inject
-    ApplicationPermissions applicationPermissions;
+    ApplicationPermissionRepository applicationPermissionRepository;
     //endregion
 
 }

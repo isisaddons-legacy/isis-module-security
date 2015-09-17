@@ -16,9 +16,10 @@
  */
 package org.isisaddons.module.security.seed.scripts;
 
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancies;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
+
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyRepository;
 
 public abstract class AbstractTenancyFixtureScript extends FixtureScript {
 
@@ -29,8 +30,8 @@ public abstract class AbstractTenancyFixtureScript extends FixtureScript {
             final String parentPath,
             final ExecutionContext executionContext) {
 
-        final ApplicationTenancy parent = parentPath != null? applicationTenancies.findTenancyByPath(parentPath): null;
-        applicationTenancy = applicationTenancies.newTenancy(name, path, parent);
+        final ApplicationTenancy parent = parentPath != null? applicationTenancyRepository.findTenancyByPath(parentPath): null;
+        applicationTenancy = applicationTenancyRepository.newTenancy(name, path, parent);
         executionContext.addResult(this, name, applicationTenancy);
         return applicationTenancy;
     }
@@ -45,6 +46,6 @@ public abstract class AbstractTenancyFixtureScript extends FixtureScript {
     }
 
     @javax.inject.Inject
-    private ApplicationTenancies applicationTenancies;
+    private ApplicationTenancyRepository applicationTenancyRepository;
 
 }

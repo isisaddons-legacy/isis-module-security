@@ -17,8 +17,9 @@
 package org.isisaddons.module.security.dom.user;
 
 import java.util.List;
+
 import javax.inject.Inject;
-import org.isisaddons.module.security.SecurityModule;
+
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
@@ -30,6 +31,8 @@ import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.services.HasUsername;
 import org.apache.isis.applib.services.i18n.TranslatableString;
+
+import org.isisaddons.module.security.SecurityModule;
 
 @DomainService(
         nature = NatureOfService.VIEW_CONTRIBUTIONS_ONLY
@@ -62,7 +65,7 @@ public class HasUsernameContributions extends AbstractFactoryAndRepository {
         if (hasUsername == null || hasUsername.getUsername() == null) {
             return null;
         }
-        return applicationUsers.findUserByUsername(hasUsername.getUsername());
+        return applicationUserRepository.findUserByUsername(hasUsername.getUsername());
     }
     public boolean hideOpen(final HasUsername hasUsername) {
         return hasUsername instanceof ApplicationUser;
@@ -76,6 +79,6 @@ public class HasUsernameContributions extends AbstractFactoryAndRepository {
 
 
     @Inject
-    private ApplicationUsers applicationUsers;
+    private ApplicationUserRepository applicationUserRepository;
 
 }

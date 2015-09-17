@@ -23,21 +23,21 @@ import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
 import static org.hamcrest.CoreMatchers.is;
 
-public class ApplicationTenanciesTest {
+public class ApplicationTenancyMenuTest {
 
     @Rule
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(JUnitRuleMockery2.Mode.INTERFACES_AND_CLASSES);
 
-    ApplicationTenancies applicationTenancies;
+    ApplicationTenancyMenu applicationTenancyMenu;
 
 
-    public static class IconName extends ApplicationTenanciesTest {
+    public static class IconName extends ApplicationTenancyMenuTest {
 
         @Test
         public void happyCase() throws Exception {
 
-            applicationTenancies = new ApplicationTenancies();
-            Assert.assertThat(applicationTenancies.iconName(), is("applicationTenancy"));
+            applicationTenancyMenu = new ApplicationTenancyMenu();
+            Assert.assertThat(applicationTenancyMenu.iconName(), is("applicationTenancy"));
         }
     }
 

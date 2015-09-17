@@ -1,20 +1,28 @@
 package org.isisaddons.module.security.app.user;
 
 import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
+
 import org.hamcrest.Description;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.permission.*;
-import org.isisaddons.module.security.dom.role.ApplicationRole;
-import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.jmock.Expectations;
 import org.jmock.api.Action;
 import org.jmock.api.Invocation;
 import org.jmock.auto.Mock;
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.ViewModel;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
+
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.permission.ApplicationPermission;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRepository;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionValue;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -43,7 +51,7 @@ public class UserPermissionViewModelTest {
         @Mock
         private DomainObjectContainer mockContainer;
         @Mock
-        ApplicationPermissions mockApplicationPermissions;
+        ApplicationPermissionRepository mockApplicationPermissionRepository;
 
         @Test
         public void happyCase() throws Exception {
@@ -82,9 +90,9 @@ public class UserPermissionViewModelTest {
 
 
             context.checking(new Expectations() {{
-                allowing(mockApplicationPermissions).findByUserAndPermissionValue("fred", new ApplicationPermissionValue(viewingFeatureId, viewingRule, viewingMode));
+                allowing(mockApplicationPermissionRepository).findByUserAndPermissionValue("fred", new ApplicationPermissionValue(viewingFeatureId, viewingRule, viewingMode));
                 will(returnValue(viewingPermission));
-                allowing(mockApplicationPermissions).findByUserAndPermissionValue("fred", new ApplicationPermissionValue(changingFeatureId, changingRule, changingMode));
+                allowing(mockApplicationPermissionRepository).findByUserAndPermissionValue("fred", new ApplicationPermissionValue(changingFeatureId, changingRule, changingMode));
                 will(returnValue(changingPermission));
             }});
 
@@ -108,7 +116,7 @@ public class UserPermissionViewModelTest {
             // when
             final String str = upvm.viewModelMemento();
             final UserPermissionViewModel upvm2 = new UserPermissionViewModel();
-            upvm2.applicationPermissions = mockApplicationPermissions;
+            upvm2.applicationPermissionRepository = mockApplicationPermissionRepository;
             upvm2.viewModelInit(str);
 
             // then
@@ -132,7 +140,7 @@ public class UserPermissionViewModelTest {
                     final ViewModel viewModelInstance = (ViewModel) cls.newInstance();
                     viewModelInstance.viewModelInit(memento);
                     if(viewModelInstance instanceof UserPermissionViewModel) {
-                        ((UserPermissionViewModel) viewModelInstance).applicationPermissions = mockApplicationPermissions;
+                        ((UserPermissionViewModel) viewModelInstance).applicationPermissionRepository = mockApplicationPermissionRepository;
                     }
                     return viewModelInstance;
                 }

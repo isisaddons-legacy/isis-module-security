@@ -35,7 +35,7 @@ import org.apache.isis.core.metamodel.interactions.VisibilityContext;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluator;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
+import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 
 public class TenantedAuthorizationFacetDefault extends FacetAbstract implements TenantedAuthorizationFacet {
 
@@ -43,19 +43,19 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
         return TenantedAuthorizationFacet.class;
     }
 
-    private final ApplicationUsers applicationUsers;
+    private final ApplicationUserRepository applicationUserRepository;
     private final QueryResultsCache queryResultsCache;
     private final ApplicationTenancyPathEvaluator evaluator;
     private final DomainObjectContainer container;
 
     public TenantedAuthorizationFacetDefault(
-            final ApplicationUsers applicationUsers,
+            final ApplicationUserRepository applicationUserRepository,
             final QueryResultsCache queryResultsCache,
             final ApplicationTenancyPathEvaluator evaluator,
             final DomainObjectContainer container,
             final FacetHolder holder) {
         super(type(), holder, Derivation.NOT_DERIVED);
-        this.applicationUsers = applicationUsers;
+        this.applicationUserRepository = applicationUserRepository;
         this.queryResultsCache = queryResultsCache;
         this.evaluator = evaluator;
         this.container = container;
@@ -190,7 +190,7 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
     }
 
     protected ApplicationUser doFindApplicationUser(final String userName) {
-        return applicationUsers.findUserByUsername(userName);
+        return applicationUserRepository.findUserByUsername(userName);
     }
 
 }

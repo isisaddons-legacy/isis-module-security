@@ -36,7 +36,7 @@ import org.junit.rules.ExpectedException;
 
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
 import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
 import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
 
@@ -57,7 +57,7 @@ public class ApplicationFeaturesIntegTest extends SecurityModuleAppIntegTest {
     }
 
     @Inject
-    ApplicationFeatures applicationFeatures;
+    ApplicationFeatureRepository applicationFeatureRepository;
 
     public static class AllPackages extends ApplicationFeaturesIntegTest {
 
@@ -65,7 +65,7 @@ public class ApplicationFeaturesIntegTest extends SecurityModuleAppIntegTest {
         public void happyCase() throws Exception {
 
             // when
-            final Collection<ApplicationFeature> packages = applicationFeatures.allPackages();
+            final Collection<ApplicationFeature> packages = applicationFeatureRepository.allPackages();
 
             // then
             assertThat(packages.size(), greaterThan(0));
@@ -97,7 +97,7 @@ public class ApplicationFeaturesIntegTest extends SecurityModuleAppIntegTest {
         public void whenExistsAndContainsOnlyPackages() throws Exception {
 
             // when
-            final ApplicationFeature pkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("org"));
+            final ApplicationFeature pkg = applicationFeatureRepository.findPackage(ApplicationFeatureId.newPackage("org"));
 
             // then
             assertThat(pkg, is(notNullValue()));
@@ -112,7 +112,7 @@ public class ApplicationFeaturesIntegTest extends SecurityModuleAppIntegTest {
         public void whenExistsAndContainsClasses() throws Exception {
 
             // when
-            final ApplicationFeature pkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.role"));
+            final ApplicationFeature pkg = applicationFeatureRepository.findPackage(ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.role"));
 
             // then
             assertThat(pkg, is(notNullValue()));
@@ -126,7 +126,7 @@ public class ApplicationFeaturesIntegTest extends SecurityModuleAppIntegTest {
         public void whenDoesNotExist() throws Exception {
 
             // when
-            final ApplicationFeature pkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("org.nonExistent"));
+            final ApplicationFeature pkg = applicationFeatureRepository.findPackage(ApplicationFeatureId.newPackage("org.nonExistent"));
 
             // then
             assertThat(pkg, is(nullValue()));

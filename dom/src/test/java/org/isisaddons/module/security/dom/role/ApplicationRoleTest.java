@@ -17,23 +17,33 @@
 package org.isisaddons.module.security.dom.role;
 
 import java.util.List;
+
 import com.danhaywood.java.testsupport.coverage.PojoTester;
 import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
 import com.google.common.collect.Lists;
-import org.isisaddons.module.security.dom.feature.*;
-import org.isisaddons.module.security.dom.permission.ApplicationPermission;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
+
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.apache.isis.core.unittestsupport.comparable.ComparableContractTest_compareTo;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
-import static org.hamcrest.CoreMatchers.*;
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.feature.ApplicationMemberType;
+import org.isisaddons.module.security.dom.permission.ApplicationPermission;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRepository;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
@@ -45,9 +55,9 @@ public class ApplicationRoleTest {
     ApplicationRole applicationRole;
 
     @Mock
-    ApplicationPermissions mockApplicationPermissions;
+    ApplicationPermissionRepository mockApplicationPermissionRepository;
     @Mock
-    ApplicationFeatures mockApplicationFeatures;
+    ApplicationFeatureRepository mockApplicationFeatureRepository;
 
     final ApplicationFeature pkg1 = new ApplicationFeature();
     final ApplicationFeature pkg2 = new ApplicationFeature();
@@ -59,8 +69,8 @@ public class ApplicationRoleTest {
     @Before
     public void setUp() throws Exception {
         applicationRole = new ApplicationRole();
-        applicationRole.applicationPermissions = mockApplicationPermissions;
-        applicationRole.applicationFeatures = mockApplicationFeatures;
+        applicationRole.applicationPermissionRepository = mockApplicationPermissionRepository;
+        applicationRole.applicationFeatureRepository = mockApplicationFeatureRepository;
 
         pkg1.setFeatureId(ApplicationFeatureId.newFeature(ApplicationFeatureType.PACKAGE, "com.mycompany"));
         pkg2.setFeatureId(ApplicationFeatureId.newFeature(ApplicationFeatureType.PACKAGE, "com.mycompany.foo"));
@@ -171,7 +181,7 @@ public class ApplicationRoleTest {
 
             final List<ApplicationPermission> result = Lists.newArrayList();
             context.checking(new Expectations() {{
-                oneOf(mockApplicationPermissions).findByRole(applicationRole);
+                oneOf(mockApplicationPermissionRepository).findByRole(applicationRole);
                 will(returnValue(result));
             }});
 
@@ -187,7 +197,7 @@ public class ApplicationRoleTest {
             public void happyCase() throws Exception {
 
                 context.checking(new Expectations() {{
-                    oneOf(mockApplicationPermissions).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, ApplicationFeatureType.PACKAGE, "com.mycompany");
+                    oneOf(mockApplicationPermissionRepository).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, ApplicationFeatureType.PACKAGE, "com.mycompany");
                 }});
 
                 final ApplicationRole role = applicationRole.addPackage(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany");
@@ -217,7 +227,7 @@ public class ApplicationRoleTest {
             @Test
             public void happyCase() throws Exception {
                 context.checking(new Expectations() {{
-                    allowing(mockApplicationFeatures).packageNames();
+                    allowing(mockApplicationFeatureRepository).packageNames();
                     will(returnValue(Lists.newArrayList("com.mycompany", "com.mycompany.foo")));
                 }});
                 final List<String> packageNames = applicationRole.choices2AddPackage();
@@ -234,7 +244,7 @@ public class ApplicationRoleTest {
             public void happyCase() throws Exception {
 
                 context.checking(new Expectations() {{
-                    oneOf(mockApplicationPermissions).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, ApplicationFeatureType.CLASS, "com.mycompany.Bar");
+                    oneOf(mockApplicationPermissionRepository).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, ApplicationFeatureType.CLASS, "com.mycompany.Bar");
                 }});
 
                 final ApplicationRole role = applicationRole.addClass(ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar");
@@ -266,7 +276,7 @@ public class ApplicationRoleTest {
             public void happyCase() throws Exception {
 
                 context.checking(new Expectations() {{
-                    allowing(mockApplicationFeatures).packageNamesContainingClasses(null);
+                    allowing(mockApplicationFeatureRepository).packageNamesContainingClasses(null);
                     will(returnValue(Lists.newArrayList("com.mycompany", "com.mycompany.foo")));
                 }});
                 final List<String> packageNames = applicationRole.choices2AddClass();
@@ -280,7 +290,7 @@ public class ApplicationRoleTest {
             public void happyCase() throws Exception {
 
                 context.checking(new Expectations() {{
-                    allowing(mockApplicationFeatures).classNamesContainedIn("com.mycompany", null);
+                    allowing(mockApplicationFeatureRepository).classNamesContainedIn("com.mycompany", null);
                     will(returnValue(Lists.newArrayList("Bar", "Baz")));
                 }});
                 final List<String> classNames =
@@ -300,10 +310,10 @@ public class ApplicationRoleTest {
             @Before
             public void setUp() throws Exception {
                 super.setUp();
-                applicationRole.applicationPermissions = mockApplicationPermissions;
+                applicationRole.applicationPermissionRepository = mockApplicationPermissionRepository;
 
                 context.checking(new Expectations() {{
-                    oneOf(mockApplicationPermissions).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar", "foo");
+                    oneOf(mockApplicationPermissionRepository).newPermission(applicationRole, ApplicationPermissionRule.ALLOW, ApplicationPermissionMode.CHANGING, "com.mycompany", "Bar", "foo");
                 }});
             }
 
@@ -356,11 +366,11 @@ public class ApplicationRoleTest {
             public void happyCase() throws Exception {
 
                 context.checking(new Expectations() {{
-                    allowing(mockApplicationFeatures).packageNamesContainingClasses(ApplicationMemberType.ACTION);
+                    allowing(mockApplicationFeatureRepository).packageNamesContainingClasses(ApplicationMemberType.ACTION);
                     will(returnValue(Lists.newArrayList("com.mycompany", "com.mycompany.actions")));
-                    allowing(mockApplicationFeatures).packageNamesContainingClasses(ApplicationMemberType.PROPERTY);
+                    allowing(mockApplicationFeatureRepository).packageNamesContainingClasses(ApplicationMemberType.PROPERTY);
                     will(returnValue(Lists.newArrayList("com.mycompany", "com.mycompany.properties")));
-                    allowing(mockApplicationFeatures).packageNamesContainingClasses(ApplicationMemberType.COLLECTION);
+                    allowing(mockApplicationFeatureRepository).packageNamesContainingClasses(ApplicationMemberType.COLLECTION);
                     will(returnValue(Lists.newArrayList("com.mycompany", "com.mycompany.collections")));
                 }});
 
@@ -381,11 +391,11 @@ public class ApplicationRoleTest {
             public void forAll() throws Exception {
 
                 context.checking(new Expectations() {{
-                    allowing(mockApplicationFeatures).classNamesContainedIn("com.mycompany", ApplicationMemberType.ACTION);
+                    allowing(mockApplicationFeatureRepository).classNamesContainedIn("com.mycompany", ApplicationMemberType.ACTION);
                     will(returnValue(Lists.newArrayList("Bar", "Baz")));
-                    allowing(mockApplicationFeatures).classNamesContainedIn("com.mycompany", ApplicationMemberType.PROPERTY);
+                    allowing(mockApplicationFeatureRepository).classNamesContainedIn("com.mycompany", ApplicationMemberType.PROPERTY);
                     will(returnValue(Lists.newArrayList("Fiz", "Foz")));
-                    allowing(mockApplicationFeatures).classNamesContainedIn("com.mycompany", ApplicationMemberType.COLLECTION);
+                    allowing(mockApplicationFeatureRepository).classNamesContainedIn("com.mycompany", ApplicationMemberType.COLLECTION);
                     will(returnValue(Lists.newArrayList("Qiz", "Qoz")));
                 }});
 
@@ -419,11 +429,11 @@ public class ApplicationRoleTest {
             public void forAll() throws Exception {
 
                 context.checking(new Expectations() {{
-                    allowing(mockApplicationFeatures).memberNamesOf("com.mycompany", "Bar", ApplicationMemberType.ACTION);
+                    allowing(mockApplicationFeatureRepository).memberNamesOf("com.mycompany", "Bar", ApplicationMemberType.ACTION);
                     will(returnValue(Lists.newArrayList("foo", "far")));
-                    allowing(mockApplicationFeatures).memberNamesOf("com.mycompany", "Bar", ApplicationMemberType.PROPERTY);
+                    allowing(mockApplicationFeatureRepository).memberNamesOf("com.mycompany", "Bar", ApplicationMemberType.PROPERTY);
                     will(returnValue(Lists.newArrayList("boo", "bar")));
-                    allowing(mockApplicationFeatures).memberNamesOf("com.mycompany", "Bar", ApplicationMemberType.COLLECTION);
+                    allowing(mockApplicationFeatureRepository).memberNamesOf("com.mycompany", "Bar", ApplicationMemberType.COLLECTION);
                     will(returnValue(Lists.newArrayList("coo", "car")));
                 }});
 

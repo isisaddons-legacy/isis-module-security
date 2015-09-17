@@ -23,20 +23,20 @@ import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
 import static org.hamcrest.CoreMatchers.is;
 
-public class ApplicationPermissionsTest {
+public class ApplicationPermissionMenuTest {
 
     @Rule
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(JUnitRuleMockery2.Mode.INTERFACES_AND_CLASSES);
 
-    ApplicationPermissions applicationPermissions;
+    ApplicationPermissionMenu applicationPermissionMenu;
 
-    public static class IconName extends ApplicationPermissionsTest {
+    public static class IconName extends ApplicationPermissionMenuTest {
 
         @Test
         public void happyCase() throws Exception {
 
-            applicationPermissions = new ApplicationPermissions();
-            Assert.assertThat(applicationPermissions.iconName(), is("applicationPermission"));
+            applicationPermissionMenu = new ApplicationPermissionMenu();
+            Assert.assertThat(applicationPermissionMenu.iconName(), is("applicationPermission"));
         }
     }
 

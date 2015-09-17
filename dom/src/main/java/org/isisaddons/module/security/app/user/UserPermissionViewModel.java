@@ -19,24 +19,12 @@ package org.isisaddons.module.security.app.user;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
+
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.io.BaseEncoding;
-import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.app.feature.ApplicationFeatureViewModel;
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
-import org.isisaddons.module.security.dom.permission.ApplicationPermission;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissionValue;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
-import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.ViewModel;
@@ -50,6 +38,21 @@ import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.ViewModelLayout;
 import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.util.ObjectContracts;
+
+import org.isisaddons.module.security.SecurityModule;
+import org.isisaddons.module.security.app.feature.ApplicationFeatureViewModel;
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.permission.ApplicationPermission;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRepository;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionValue;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 
 /**
  * View model identified by {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId} and backed by an
@@ -263,7 +266,7 @@ public class UserPermissionViewModel implements ViewModel {
     @PropertyLayout(hidden=Where.PARENTED_TABLES)
     @MemberOrder(name = "Permission", sequence = "1")
     public ApplicationUser getUser() {
-        return applicationUsers.findOrCreateUserByUsername(getUsername());
+        return applicationUserRepository.findOrCreateUserByUsername(getUsername());
     }
 
     private String username;
@@ -327,7 +330,7 @@ public class UserPermissionViewModel implements ViewModel {
         if(getFeatureId() == null) {
             return null;
         }
-        return ApplicationFeatureViewModel.newViewModel(getFeatureId(), applicationFeatures, container);
+        return ApplicationFeatureViewModel.newViewModel(getFeatureId(), applicationFeatureRepository, container);
     }
 
     // //////////////////////////////////////
@@ -374,7 +377,7 @@ public class UserPermissionViewModel implements ViewModel {
         if(getViewingPermissionValue() == null) {
             return null;
         }
-        return applicationPermissions.findByUserAndPermissionValue(username, getViewingPermissionValue());
+        return applicationPermissionRepository.findByUserAndPermissionValue(username, getViewingPermissionValue());
     }
 
     private ApplicationPermissionValue getViewingPermissionValue() {
@@ -416,7 +419,7 @@ public class UserPermissionViewModel implements ViewModel {
         if(getChangingPermissionValue() == null) {
             return null;
         }
-        return applicationPermissions.findByUserAndPermissionValue(username, getChangingPermissionValue());
+        return applicationPermissionRepository.findByUserAndPermissionValue(username, getChangingPermissionValue());
     }
 
     private ApplicationPermissionValue getChangingPermissionValue() {
@@ -467,13 +470,13 @@ public class UserPermissionViewModel implements ViewModel {
     DomainObjectContainer container;
 
     @javax.inject.Inject
-    ApplicationFeatures applicationFeatures;
+    ApplicationFeatureRepository applicationFeatureRepository;
 
     @javax.inject.Inject
-    ApplicationPermissions applicationPermissions;
+    ApplicationPermissionRepository applicationPermissionRepository;
 
     @javax.inject.Inject
-    ApplicationUsers applicationUsers;
+    ApplicationUserRepository applicationUserRepository;
     //endregion
 
 }

@@ -75,14 +75,14 @@ public class ApplicationFeaturesTest {
     @Mock
     ServicesInjector mockServicesInjector;
 
-    ApplicationFeatures applicationFeatures;
+    ApplicationFeatureRepository applicationFeatureRepository;
 
     @Before
     public void setUp() throws Exception {
-        applicationFeatures = new ApplicationFeatures();
-        applicationFeatures.container = mockContainer;
-        applicationFeatures.setServicesInjector(mockServicesInjector);
-        applicationFeatures.applicationFeatureFactory = new ApplicationFeatureFactory.Default(mockContainer);
+        applicationFeatureRepository = new ApplicationFeatureRepository();
+        applicationFeatureRepository.container = mockContainer;
+        applicationFeatureRepository.setServicesInjector(mockServicesInjector);
+        applicationFeatureRepository.applicationFeatureFactory = new ApplicationFeatureFactory.Default(mockContainer);
 
 
         mockActThatIsHidden = context.mock(ObjectAction.class, "mockActThatIsHidden");
@@ -212,20 +212,20 @@ public class ApplicationFeaturesTest {
             }});
 
             // when
-            applicationFeatures.createApplicationFeaturesFor(mockSpec);
+            applicationFeatureRepository.createApplicationFeaturesFor(mockSpec);
 
             // then
-            final ApplicationFeature orgPkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("org"));
+            final ApplicationFeature orgPkg = applicationFeatureRepository.findPackage(ApplicationFeatureId.newPackage("org"));
             assertThat(orgPkg, is(notNullValue()));
-            final ApplicationFeature orgIsisaddonsPkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("org.isisaddons"));
+            final ApplicationFeature orgIsisaddonsPkg = applicationFeatureRepository.findPackage(ApplicationFeatureId.newPackage("org.isisaddons"));
             assertThat(orgPkg, is(notNullValue()));
-            final ApplicationFeature featurePkg = applicationFeatures.findPackage(ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.feature"));
+            final ApplicationFeature featurePkg = applicationFeatureRepository.findPackage(ApplicationFeatureId.newPackage("org.isisaddons.module.security.dom.feature"));
             assertThat(orgPkg, is(notNullValue()));
             assertThat(orgPkg.getContents(), contains(orgIsisaddonsPkg.getFeatureId()));
             assertThat(featurePkg.getContents(), contains(ApplicationFeatureId.newClass(Bar.class.getName())));
 
             // then
-            final ApplicationFeature barClass = applicationFeatures.findClass(ApplicationFeatureId.newClass(Bar.class.getName()));
+            final ApplicationFeature barClass = applicationFeatureRepository.findClass(ApplicationFeatureId.newClass(Bar.class.getName()));
             assertThat(barClass, is(Matchers.notNullValue()));
 
             // then the mockActThatIsHidden is not listed.
@@ -264,11 +264,11 @@ public class ApplicationFeaturesTest {
             }});
 
             // when
-            final ApplicationFeatureId classParentId = applicationFeatures.addClassParent(classFeatureId);
+            final ApplicationFeatureId classParentId = applicationFeatureRepository.addClassParent(classFeatureId);
 
             // then
             Assert.assertThat(classParentId, is(equalTo(classFeatureId.getParentPackageId())));
-            final ApplicationFeature classPackage = applicationFeatures.findPackage(classParentId);
+            final ApplicationFeature classPackage = applicationFeatureRepository.findPackage(classParentId);
             assertThat(classPackage, is(newlyCreatedParent));
         }
 
@@ -279,27 +279,17 @@ public class ApplicationFeaturesTest {
             final ApplicationFeatureId packageId = ApplicationFeatureId.newPackage("com.mycompany");
             final ApplicationFeature pkg = new ApplicationFeature();
             pkg.setFeatureId(packageId);
-            applicationFeatures.packageFeatures.put(packageId, pkg);
+            applicationFeatureRepository.packageFeatures.put(packageId, pkg);
 
             final ApplicationFeatureId classFeatureId = ApplicationFeatureId.newClass("com.mycompany.Bar");
 
             // when
-            final ApplicationFeatureId applicationFeatureId = applicationFeatures.addClassParent(classFeatureId);
+            final ApplicationFeatureId applicationFeatureId = applicationFeatureRepository.addClassParent(classFeatureId);
 
             // then
             Assert.assertThat(applicationFeatureId, is(equalTo(packageId)));
         }
 
-    }
-
-    public static class IconName extends ApplicationFeaturesTest {
-
-        @Test
-        public void happyCase() throws Exception {
-
-            applicationFeatures = new ApplicationFeatures();
-            Assert.assertThat(applicationFeatures.iconName(), is("applicationFeature"));
-        }
     }
 
 

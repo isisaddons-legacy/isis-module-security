@@ -18,18 +18,32 @@ package org.isisaddons.module.security.dom.permission;
 
 import java.util.Arrays;
 import java.util.List;
+
 import com.danhaywood.java.testsupport.coverage.PojoTester;
 import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
 import com.danhaywood.java.testsupport.coverage.ValueTypeContractTestAbstract;
-import org.isisaddons.module.security.dom.feature.*;
-import org.isisaddons.module.security.dom.role.ApplicationRole;
+
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
-import static org.hamcrest.CoreMatchers.*;
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.feature.ApplicationMemberType;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.isisaddons.module.security.dom.FixtureDatumFactories.roles;
 import static org.junit.Assert.assertThat;
 
@@ -42,7 +56,7 @@ public class ApplicationPermissionTest {
     DomainObjectContainer mockContainer;
 
     @Mock
-    ApplicationFeatures mockApplicationFeatures;
+    ApplicationFeatureRepository mockApplicationFeatureRepository;
 
     ApplicationPermission applicationPermission;
 
@@ -59,13 +73,13 @@ public class ApplicationPermissionTest {
             final ApplicationFeatureId applicationFeatureId = ApplicationFeatureId.newPackage("org.company");
             applicationPermission.setFeatureType(applicationFeatureId.getType());
             applicationPermission.setFeatureFqn(applicationFeatureId.getFullyQualifiedName());
-            applicationPermission.applicationFeatures = mockApplicationFeatures;
+            applicationPermission.applicationFeatureRepository = mockApplicationFeatureRepository;
 
             final ApplicationFeature applicationFeature = new ApplicationFeature();
 
             // then
             context.checking(new Expectations() {{
-                oneOf(mockApplicationFeatures).findFeature(applicationFeatureId);
+                oneOf(mockApplicationFeatureRepository).findFeature(applicationFeatureId);
                 will(returnValue(applicationFeature));
             }});
 
@@ -313,7 +327,7 @@ public class ApplicationPermissionTest {
         @Before
         public void setUp() throws Exception {
             applicationPermission = new ApplicationPermission();
-            applicationPermission.applicationFeatures = mockApplicationFeatures;
+            applicationPermission.applicationFeatureRepository = mockApplicationFeatureRepository;
         }
 
         @Test
@@ -337,7 +351,7 @@ public class ApplicationPermissionTest {
             applicationPermission.setFeatureFqn(featureId.getFullyQualifiedName());
 
             context.checking(new Expectations() {{
-                allowing(mockApplicationFeatures).findFeature(featureId);
+                allowing(mockApplicationFeatureRepository).findFeature(featureId);
                 will(returnValue(mockApplicationFeature));
 
                 allowing(mockApplicationFeature).getMemberType();
@@ -354,7 +368,7 @@ public class ApplicationPermissionTest {
             applicationPermission.setFeatureFqn(featureId.getFullyQualifiedName());
 
             context.checking(new Expectations() {{
-                allowing(mockApplicationFeatures).findFeature(featureId);
+                allowing(mockApplicationFeatureRepository).findFeature(featureId);
                 will(returnValue(null));
             }});
 

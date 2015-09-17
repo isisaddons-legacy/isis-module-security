@@ -18,22 +18,32 @@ package org.isisaddons.module.security.app.feature;
 
 import java.util.Arrays;
 import java.util.List;
+
 import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
 import com.google.common.collect.Lists;
+
 import org.hamcrest.CoreMatchers;
-import org.isisaddons.module.security.dom.feature.*;
-import org.isisaddons.module.security.dom.permission.ApplicationPermission;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 import org.apache.isis.core.unittestsupport.value.ValueTypeContractTestAbstract;
 
-import static org.hamcrest.CoreMatchers.*;
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.feature.ApplicationMemberType;
+import org.isisaddons.module.security.dom.permission.ApplicationPermission;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRepository;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class ApplicationFeatureViewModelTest {
@@ -44,7 +54,8 @@ public class ApplicationFeatureViewModelTest {
     ApplicationFeatureViewModel applicationFeatureViewModel;
 
     @Mock
-    ApplicationFeatures mockApplicationFeatures;
+    ApplicationFeatureRepository mockApplicationFeatureRepository;
+
     @Mock
     DomainObjectContainer mockContainer;
 
@@ -219,12 +230,12 @@ public class ApplicationFeatureViewModelTest {
             applicationFeature.addToContents(classFeatureId);
 
             ApplicationPackage applicationFeatureVM = new ApplicationPackage(applicationFeatureId);
-            applicationFeatureVM.applicationFeatures = mockApplicationFeatures;
+            applicationFeatureVM.applicationFeatureRepository = mockApplicationFeatureRepository;
             applicationFeatureVM.container = mockContainer;
 
             // then
             context.checking(new Expectations() {{
-                allowing(mockApplicationFeatures).findFeature(applicationFeatureId);
+                allowing(mockApplicationFeatureRepository).findFeature(applicationFeatureId);
                 will(returnValue(applicationFeature));
 
                 oneOf(mockContainer).newViewModelInstance(ApplicationPackage.class, packageFeatureId.asEncodedString());
@@ -263,18 +274,18 @@ public class ApplicationFeatureViewModelTest {
             classFeature.addToMembers(actionId, ApplicationMemberType.ACTION);
 
             ApplicationClass applicationClass = new ApplicationClass(classId);
-            applicationClass.applicationFeatures = mockApplicationFeatures;
+            applicationClass.applicationFeatureRepository = mockApplicationFeatureRepository;
             applicationClass.container = mockContainer;
 
             // then
             context.checking(new Expectations() {{
-                allowing(mockApplicationFeatures).findFeature(classId);
+                allowing(mockApplicationFeatureRepository).findFeature(classId);
                 will(returnValue(classFeature));
 
-                allowing(mockApplicationFeatures).findFeature(propertyId);
+                allowing(mockApplicationFeatureRepository).findFeature(propertyId);
                 will(returnValue(propertyFeature));
 
-                allowing(mockApplicationFeatures).findFeature(actionId);
+                allowing(mockApplicationFeatureRepository).findFeature(actionId);
                 will(returnValue(actionFeature));
 
                 oneOf(mockContainer).newViewModelInstance(ApplicationClassProperty.class, propertyId.asEncodedString());
@@ -388,11 +399,11 @@ public class ApplicationFeatureViewModelTest {
                 final ApplicationFeatureId featureId = ApplicationFeatureId.newMember("com.mycompany.Bar#foo");
                 applicationFeatureViewModel = new ApplicationFeatureViewModel(featureId) {
                 };
-                applicationFeatureViewModel.applicationFeatures = mockApplicationFeatures;
+                applicationFeatureViewModel.applicationFeatureRepository = mockApplicationFeatureRepository;
 
                 // then
                 context.checking(new Expectations() {{
-                    oneOf(mockApplicationFeatures).findFeature(featureId);
+                    oneOf(mockApplicationFeatureRepository).findFeature(featureId);
                     will(returnValue(mockApplicationFeature));
 
                     oneOf(mockApplicationFeature).isContributed();
@@ -438,7 +449,7 @@ public class ApplicationFeatureViewModelTest {
         public void setUp() throws Exception {
             applicationFeatureViewModel = new ApplicationFeatureViewModel() {
             };
-            applicationFeatureViewModel.applicationFeatures = mockApplicationFeatures;
+            applicationFeatureViewModel.applicationFeatureRepository = mockApplicationFeatureRepository;
             applicationFeatureViewModel.container = mockContainer;
 
             parent = new ApplicationFeatureViewModel() {
@@ -455,7 +466,7 @@ public class ApplicationFeatureViewModelTest {
 
             // then
             context.checking(new Expectations() {{
-                allowing(mockApplicationFeatures).findFeature(parentId);
+                allowing(mockApplicationFeatureRepository).findFeature(parentId);
                 will(returnValue(mockApplicationFeature));
 
                 oneOf(mockContainer).newViewModelInstance(ApplicationPackage.class, parentId.asEncodedString());
@@ -475,7 +486,7 @@ public class ApplicationFeatureViewModelTest {
 
             // then
             context.checking(new Expectations() {{
-                never(mockApplicationFeatures);
+                never(mockApplicationFeatureRepository);
 
                 never(mockContainer);
             }});
@@ -495,7 +506,7 @@ public class ApplicationFeatureViewModelTest {
 
             // then
             context.checking(new Expectations() {{
-                allowing(mockApplicationFeatures).findFeature(parentId);
+                allowing(mockApplicationFeatureRepository).findFeature(parentId);
                 will(returnValue(null));
 
                 never(mockContainer);
@@ -515,7 +526,7 @@ public class ApplicationFeatureViewModelTest {
 
             // then
             context.checking(new Expectations() {{
-                allowing(mockApplicationFeatures).findFeature(with(equalTo(parentId)));
+                allowing(mockApplicationFeatureRepository).findFeature(with(equalTo(parentId)));
                 will(returnValue(mockApplicationFeature));
 
                 oneOf(mockContainer).newViewModelInstance(ApplicationPackage.class, parentId.asEncodedString());
@@ -534,7 +545,7 @@ public class ApplicationFeatureViewModelTest {
 
             // then
             context.checking(new Expectations() {{
-                allowing(mockApplicationFeatures).findFeature(parentId);
+                allowing(mockApplicationFeatureRepository).findFeature(parentId);
                 will(returnValue(mockApplicationFeature));
 
                 oneOf(mockContainer).newViewModelInstance(ApplicationClass.class, parentId.asEncodedString());
@@ -549,7 +560,7 @@ public class ApplicationFeatureViewModelTest {
     public static class GetPermissions extends ApplicationFeatureViewModelTest {
 
         @Mock
-        ApplicationPermissions mockApplicationPermissions;
+        ApplicationPermissionRepository mockApplicationPermissionRepository;
 
         @Test
         public void delegatesToUnderlyingRepo() throws Exception {
@@ -557,13 +568,13 @@ public class ApplicationFeatureViewModelTest {
             final ApplicationFeatureId featureId = ApplicationFeatureId.newMember("com.mycompany.Bar#foo");
             applicationFeatureViewModel = new ApplicationFeatureViewModel(featureId) {
             };
-            applicationFeatureViewModel.applicationPermissions = mockApplicationPermissions;
+            applicationFeatureViewModel.applicationPermissionRepository = mockApplicationPermissionRepository;
 
 
             // then
             final List<ApplicationPermission> result = Lists.newArrayList();
             context.checking(new Expectations() {{
-                oneOf(mockApplicationPermissions).findByFeature(featureId);
+                oneOf(mockApplicationPermissionRepository).findByFeature(featureId);
                 will(returnValue(result));
             }});
 

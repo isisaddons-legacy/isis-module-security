@@ -17,11 +17,10 @@
 package org.isisaddons.module.security.app.feature;
 
 import java.util.List;
+
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
@@ -31,6 +30,10 @@ import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.RestrictTo;
 import org.apache.isis.applib.annotation.SemanticsOf;
+
+import org.isisaddons.module.security.SecurityModule;
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
 
 @DomainService(
         repositoryFor = ApplicationFeatureViewModel.class
@@ -214,7 +217,7 @@ public class ApplicationFeatureViewModels  {
 
     //region > injected services
     @javax.inject.Inject
-    ApplicationFeatures applicationFeatures;
+    ApplicationFeatureRepository applicationFeatures;
     @javax.inject.Inject
     DomainObjectContainer container;
     //endregion

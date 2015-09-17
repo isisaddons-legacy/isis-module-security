@@ -17,10 +17,17 @@
 package org.isisaddons.module.security.seed;
 
 import javax.inject.Inject;
-import org.isisaddons.module.security.dom.role.ApplicationRoles;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
-import org.isisaddons.module.security.seed.scripts.*;
+
 import org.apache.isis.applib.fixturescripts.FixtureScript;
+
+import org.isisaddons.module.security.dom.role.ApplicationRoleRepository;
+import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
+import org.isisaddons.module.security.seed.scripts.GlobalTenancy;
+import org.isisaddons.module.security.seed.scripts.IsisApplibFixtureResultsRoleAndPermissions;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminUser;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityFixtureRoleAndPermissions;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityRegularUserRoleAndPermissions;
 
 /**
  * This fixture script will be run automatically on start-up by virtue of the fact that the
@@ -50,8 +57,8 @@ public class SeedUsersAndRolesFixtureScript extends FixtureScript {
 
     //region > injected
     @Inject
-    ApplicationRoles applicationRoles;
+    ApplicationRoleRepository applicationRoleRepository;
     @Inject
-    ApplicationUsers applicationUsers;
+    ApplicationUserRepository applicationUserRepository;
     //endregion
 }

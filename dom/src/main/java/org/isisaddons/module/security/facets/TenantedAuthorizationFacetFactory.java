@@ -31,8 +31,7 @@ import org.apache.isis.core.metamodel.runtimecontext.ServicesInjectorAware;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluator;
 import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
-import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
+import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 
 public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract implements ServicesInjectorAware {
 
@@ -78,11 +77,12 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
             return null;
         }
 
-        final ApplicationUsers applicationUsers = servicesInjector.lookupService(ApplicationUsers.class);
+        final ApplicationUserRepository applicationUserRepository =
+                servicesInjector.lookupService(ApplicationUserRepository.class);
         final QueryResultsCache queryResultsCache = servicesInjector.lookupService(QueryResultsCache.class);
         final DomainObjectContainer container = servicesInjector.lookupService(DomainObjectContainer.class);
 
-        return new TenantedAuthorizationFacetDefault(applicationUsers, queryResultsCache, evaluator, container, holder);
+        return new TenantedAuthorizationFacetDefault(applicationUserRepository, queryResultsCache, evaluator, container, holder);
     }
 
     static class ApplicationTenancyPathEvaluatorDefault implements ApplicationTenancyPathEvaluator {
@@ -97,7 +97,7 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
             final WithApplicationTenancy tenantedObject = (WithApplicationTenancy) domainObject;
 
             final ApplicationTenancy objectTenancy = tenantedObject.getApplicationTenancy();
-            String objectTenancyPath = objectTenancy == null ? null : objectTenancy.getPath();
+            final String objectTenancyPath = objectTenancy == null ? null : objectTenancy.getPath();
             return objectTenancyPath;
         }
     }

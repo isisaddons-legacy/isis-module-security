@@ -60,11 +60,11 @@ import org.apache.isis.applib.value.Password;
 import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRepository;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.isisaddons.module.security.dom.permission.PermissionsEvaluationService;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
-import org.isisaddons.module.security.dom.role.ApplicationRoles;
+import org.isisaddons.module.security.dom.role.ApplicationRoleRepository;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminUser;
@@ -1059,7 +1059,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     }
 
     public SortedSet<ApplicationRole> choices0AddRole() {
-        final List<ApplicationRole> allRoles = applicationRoles.allRoles();
+        final List<ApplicationRole> allRoles = applicationRoleRepository.allRoles();
         final SortedSet<ApplicationRole> applicationRoles = Sets.newTreeSet(allRoles);
         applicationRoles.removeAll(getRoles());
         return applicationRoles;
@@ -1133,7 +1133,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             final Boolean areYouSure) {
         container.removeIfNotAlready(this);
         container.flush();
-        return applicationUsers.allUsers();
+        return applicationUserRepository.allUsers();
     }
 
     public String validateDelete(final Boolean areYouSure) {
@@ -1161,7 +1161,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
         if(cachedPermissionSet != null) {
             return cachedPermissionSet;
         }
-        final List<ApplicationPermission> permissions = applicationPermissions.findByUser(this);
+        final List<ApplicationPermission> permissions = applicationPermissionRepository.findByUser(this);
         return cachedPermissionSet =
                 new ApplicationPermissionValueSet(
                         Iterables.transform(permissions, ApplicationPermission.Functions.AS_VALUE),
@@ -1229,11 +1229,11 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region  >  (injected)
     @javax.inject.Inject
-    ApplicationRoles applicationRoles;
+    ApplicationRoleRepository applicationRoleRepository;
     @javax.inject.Inject
-    ApplicationUsers applicationUsers;
+    ApplicationUserRepository applicationUserRepository;
     @javax.inject.Inject
-    ApplicationPermissions applicationPermissions;
+    ApplicationPermissionRepository applicationPermissionRepository;
     @javax.inject.Inject
     PasswordEncryptionService passwordEncryptionService;
     @javax.inject.Inject

@@ -16,15 +16,16 @@
  */
 package org.isisaddons.module.security.fixture.scripts.users;
 
-import org.isisaddons.module.security.dom.role.ApplicationRole;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancies;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
-import org.isisaddons.module.security.dom.user.AccountType;
-import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
-import org.isisaddons.module.security.fixture.scripts.Util;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 import org.apache.isis.applib.value.Password;
+
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyRepository;
+import org.isisaddons.module.security.dom.user.AccountType;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
+import org.isisaddons.module.security.fixture.scripts.Util;
 
 public abstract class AbstractUserFixtureScript extends FixtureScript {
 
@@ -97,14 +98,14 @@ public abstract class AbstractUserFixtureScript extends FixtureScript {
 
         final ApplicationUser applicationUser;
         if(accountType == AccountType.DELEGATED) {
-            applicationUser = applicationUsers.newDelegateUser(name, null, null);
+            applicationUser = applicationUserRepository.newDelegateUser(name, null, null);
         } else {
             final String passwordStr = Util.coalesce(executionContext.getParameter("password"), getPassword(), "12345678a");
             final Password password = new Password(passwordStr);
-            applicationUser = applicationUsers.newLocalUser(name, password, password, null, null, emailAddress);
+            applicationUser = applicationUserRepository.newLocalUser(name, password, password, null, null, emailAddress);
         }
 
-        final ApplicationTenancy applicationTenancy = applicationTenancies.findTenancyByPath(tenancyPath);
+        final ApplicationTenancy applicationTenancy = applicationTenancyRepository.findTenancyByPath(tenancyPath);
         applicationUser.setTenancy(applicationTenancy);
 
         executionContext.addResult(this, name, applicationUser);
@@ -112,8 +113,8 @@ public abstract class AbstractUserFixtureScript extends FixtureScript {
     }
 
     @javax.inject.Inject
-    private ApplicationUsers applicationUsers;
+    private ApplicationUserRepository applicationUserRepository;
 
     @javax.inject.Inject
-    private ApplicationTenancies applicationTenancies;
+    private ApplicationTenancyRepository applicationTenancyRepository;
 }

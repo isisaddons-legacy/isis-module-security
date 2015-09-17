@@ -18,19 +18,15 @@ package org.isisaddons.module.security.dom.permission;
 
 import java.util.Comparator;
 import java.util.List;
+
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
-import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
-import org.isisaddons.module.security.dom.feature.ApplicationMemberType;
-import org.isisaddons.module.security.dom.role.ApplicationRole;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
@@ -50,6 +46,14 @@ import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.util.ObjectContracts;
+
+import org.isisaddons.module.security.SecurityModule;
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+import org.isisaddons.module.security.dom.feature.ApplicationMemberType;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
 
 /**
  * Specifies how a particular {@link #getRole() application role} may interact with a specific
@@ -433,7 +437,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
         if(getFeatureId() == null) {
             return null;
         }
-        return applicationFeatures.findFeature(getFeatureId());
+        return applicationFeatureRepository.findFeature(getFeatureId());
     }
 
     //endregion
@@ -616,7 +620,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     DomainObjectContainer container;
 
     @javax.inject.Inject
-    ApplicationFeatures applicationFeatures;
+    ApplicationFeatureRepository applicationFeatureRepository;
 
     //endregion
 

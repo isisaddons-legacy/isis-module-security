@@ -17,14 +17,16 @@
 package org.isisaddons.module.security.integtests.permission;
 
 import javax.inject.Inject;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
-import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
-import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRepository;
+import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
+import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
 
 public class ApplicationPermissionsIntegTest extends SecurityModuleAppIntegTest {
 
@@ -37,7 +39,7 @@ public class ApplicationPermissionsIntegTest extends SecurityModuleAppIntegTest 
     }
 
     @Inject
-    ApplicationPermissions applicationPermissions;
+    ApplicationPermissionRepository applicationPermissionRepository;
 
     public static class Xxx extends ApplicationPermissionsIntegTest {
 

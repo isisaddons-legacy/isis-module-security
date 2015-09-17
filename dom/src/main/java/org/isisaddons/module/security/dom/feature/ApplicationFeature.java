@@ -18,15 +18,18 @@ package org.isisaddons.module.security.dom.feature;
 
 import java.util.List;
 import java.util.SortedSet;
+
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.isisaddons.module.security.SecurityModule;
+
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.util.ObjectContracts;
+
+import org.isisaddons.module.security.SecurityModule;
 
 /**
  * Canonical application feature, identified by {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId},

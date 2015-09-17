@@ -17,21 +17,29 @@
 package org.isisaddons.module.security.shiro;
 
 import javax.inject.Inject;
-import org.apache.shiro.authc.*;
+
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.CredentialsException;
+import org.apache.shiro.authc.DisabledAccountException;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
-import org.isisaddons.module.security.dom.user.AccountType;
-import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
+
 import org.apache.isis.core.runtime.system.context.IsisContext;
 import org.apache.isis.core.runtime.system.internal.InitialisationSession;
 import org.apache.isis.core.runtime.system.persistence.PersistenceSession;
 import org.apache.isis.core.runtime.system.transaction.IsisTransactionManager;
 import org.apache.isis.core.runtime.system.transaction.TransactionalClosureWithReturn;
 import org.apache.isis.core.runtime.system.transaction.TransactionalClosureWithReturnAbstract;
+
+import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
+import org.isisaddons.module.security.dom.user.AccountType;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 
 public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
@@ -141,15 +149,15 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
             private ApplicationUser lookupUser() {
                 if (autoCreateUser) {
-                    return applicationUsers.findOrCreateUserByUsername(username);
+                    return applicationUserRepository.findOrCreateUserByUsername(username);
                 }
                 else {
-                    return applicationUsers.findUserByUsername(username);
+                    return applicationUserRepository.findUserByUsername(username);
                 }
             }
 
             @Inject
-            private ApplicationUsers applicationUsers;
+            private ApplicationUserRepository applicationUserRepository;
         });
     }
 

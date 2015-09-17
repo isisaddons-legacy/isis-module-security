@@ -16,11 +16,12 @@
  */
 package org.isisaddons.module.security.fixture.scripts.example.tenanted;
 
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancies;
+import org.apache.isis.applib.fixturescripts.FixtureScript;
+
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyRepository;
 import org.isisaddons.module.security.fixture.dom.example.tenanted.TenantedEntities;
 import org.isisaddons.module.security.fixture.dom.example.tenanted.TenantedEntity;
-import org.apache.isis.applib.fixturescripts.FixtureScript;
 
 public abstract class AbstractTenantedEntityFixtureScript extends FixtureScript {
 
@@ -28,7 +29,7 @@ public abstract class AbstractTenantedEntityFixtureScript extends FixtureScript 
             final String name,
             final String tenancyPath,
             final ExecutionContext executionContext) {
-        final ApplicationTenancy tenancy = applicationTenancies.findTenancyByPath(tenancyPath);
+        final ApplicationTenancy tenancy = applicationTenancyRepository.findTenancyByPath(tenancyPath);
         final TenantedEntity entity = exampleTenantedEntities.create(name, tenancy);
         executionContext.addResult(this, name, entity);
         return entity;
@@ -38,6 +39,6 @@ public abstract class AbstractTenantedEntityFixtureScript extends FixtureScript 
     private TenantedEntities exampleTenantedEntities;
 
     @javax.inject.Inject
-    private ApplicationTenancies applicationTenancies;
+    private ApplicationTenancyRepository applicationTenancyRepository;
 
 }

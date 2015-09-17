@@ -28,15 +28,15 @@ public class ApplicationUsersTest {
     @Rule
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(JUnitRuleMockery2.Mode.INTERFACES_AND_CLASSES);
 
-    ApplicationUsers applicationUsers;
+    ApplicationUserMenu applicationUserMenu;
 
     public static class IconName extends ApplicationUsersTest {
 
         @Test
         public void happyCase() throws Exception {
 
-            applicationUsers = new ApplicationUsers();
-            Assert.assertThat(applicationUsers.iconName(), is("applicationUser"));
+            applicationUserMenu = new ApplicationUserMenu();
+            Assert.assertThat(applicationUserMenu.iconName(), is("applicationUser"));
         }
     }
 

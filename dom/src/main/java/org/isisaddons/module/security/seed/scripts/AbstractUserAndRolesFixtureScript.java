@@ -18,18 +18,22 @@ package org.isisaddons.module.security.seed.scripts;
 
 import java.util.Collections;
 import java.util.List;
+
 import javax.inject.Inject;
+
 import com.google.common.collect.Lists;
-import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
-import org.isisaddons.module.security.dom.role.ApplicationRole;
-import org.isisaddons.module.security.dom.role.ApplicationRoles;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancies;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
-import org.isisaddons.module.security.dom.user.AccountType;
-import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
+
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 import org.apache.isis.applib.value.Password;
+
+import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.role.ApplicationRoleRepository;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyRepository;
+import org.isisaddons.module.security.dom.user.AccountType;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 
 public class AbstractUserAndRolesFixtureScript extends FixtureScript {
 
@@ -67,24 +71,24 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
     protected void execute(final ExecutionContext executionContext) {
 
         // create user if does not exist, and assign to the role
-        applicationUser = applicationUsers.findUserByUsername(username);
+        applicationUser = applicationUserRepository.findUserByUsername(username);
         if(applicationUser == null) {
             final boolean enabled = true;
             switch (accountType) {
                 case DELEGATED:
-                    applicationUser = applicationUsers.newDelegateUser(username, null , enabled);
+                    applicationUser = applicationUserRepository.newDelegateUser(username, null , enabled);
                     break;
                 case LOCAL:
                     final Password pwd = new Password(password);
-                    applicationUser = applicationUsers.newLocalUser(username, pwd, pwd, null, enabled, emailAddress);
+                    applicationUser = applicationUserRepository.newLocalUser(username, pwd, pwd, null, enabled, emailAddress);
             }
 
             // update tenancy (repository checks for null)
-            final ApplicationTenancy applicationTenancy = applicationTenancies.findTenancyByPath(tenancyPath);
+            final ApplicationTenancy applicationTenancy = applicationTenancyRepository.findTenancyByPath(tenancyPath);
             applicationUser.setTenancy(applicationTenancy);
 
             for (final String roleName : roleNames) {
-                final ApplicationRole securityRole = applicationRoles.findRoleByName(roleName);
+                final ApplicationRole securityRole = applicationRoleRepository.findRoleByName(roleName);
                 applicationUser.addRole(securityRole);
             }
         }
@@ -101,11 +105,11 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
 
     //region  >  (injected)
     @Inject
-    ApplicationUsers applicationUsers;
+    ApplicationUserRepository applicationUserRepository;
     @Inject
-    ApplicationRoles applicationRoles;
+    ApplicationRoleRepository applicationRoleRepository;
     @Inject
-    ApplicationTenancies applicationTenancies;
+    ApplicationTenancyRepository applicationTenancyRepository;
     @Inject
     PasswordEncryptionService passwordEncryptionService;
     //endregion

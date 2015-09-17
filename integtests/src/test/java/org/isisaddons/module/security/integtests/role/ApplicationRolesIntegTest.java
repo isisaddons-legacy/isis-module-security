@@ -16,11 +16,6 @@
  */
 package org.isisaddons.module.security.integtests.role;
 
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
 import java.util.List;
 
 import javax.inject.Inject;
@@ -31,9 +26,14 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import org.isisaddons.module.security.dom.role.ApplicationRole;
-import org.isisaddons.module.security.dom.role.ApplicationRoles;
+import org.isisaddons.module.security.dom.role.ApplicationRoleRepository;
 import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
 import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
+
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
 
@@ -46,7 +46,7 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
     }
 
     @Inject
-    ApplicationRoles applicationRoles;
+    ApplicationRoleRepository applicationRoleRepository;
 
 
     public static class NewRole extends ApplicationRolesIntegTest {
@@ -55,28 +55,28 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
         public void happyCase() throws Exception {
 
             // given
-            final List<ApplicationRole> before = applicationRoles.allRoles();
+            final List<ApplicationRole> before = applicationRoleRepository.allRoles();
             assertThat(before.size(), is(0));
 
             // when
-            final ApplicationRole applicationRole = applicationRoles.newRole("fred", null);
+            final ApplicationRole applicationRole = applicationRoleRepository.newRole("fred", null);
             assertThat(applicationRole.getName(), is("fred"));
 
             // then
-            final List<ApplicationRole> after = applicationRoles.allRoles();
+            final List<ApplicationRole> after = applicationRoleRepository.allRoles();
             assertThat(after.size(), is(1));
         }
 
         @Test
         public void alreadyExists() throws Exception {
             // given
-            applicationRoles.newRole("guest", null);
+            applicationRoleRepository.newRole("guest", null);
 
             // when
-            applicationRoles.newRole("guest", null);
+            applicationRoleRepository.newRole("guest", null);
             
             // then
-            assertThat(applicationRoles.allRoles().size(), is(1));
+            assertThat(applicationRoleRepository.allRoles().size(), is(1));
         }
 
     }
@@ -92,11 +92,11 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
         public void happyCase() throws Exception {
 
             // given
-            applicationRoles.newRole("guest", null);
-            applicationRoles.newRole("root", null);
+            applicationRoleRepository.newRole("guest", null);
+            applicationRoleRepository.newRole("root", null);
 
             // when
-            final ApplicationRole guest = applicationRoles.findRoleByName("guest");
+            final ApplicationRole guest = applicationRoleRepository.findRoleByName("guest");
 
             // then
             assertThat(guest, is(not(nullValue())));
@@ -107,11 +107,11 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
         public void whenDoesntMatch() throws Exception {
 
             // given
-            applicationRoles.newRole("guest", null);
-            applicationRoles.newRole("root", null);
+            applicationRoleRepository.newRole("guest", null);
+            applicationRoleRepository.newRole("root", null);
 
             // when
-            final ApplicationRole nonExistent = applicationRoles.findRoleByName("admin");
+            final ApplicationRole nonExistent = applicationRoleRepository.findRoleByName("admin");
 
             // then
             assertThat(nonExistent, is(nullValue()));
@@ -126,11 +126,11 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
         public void happyCase() throws Exception {
 
             // given
-            applicationRoles.newRole("guest", null);
-            applicationRoles.newRole("root", null);
+            applicationRoleRepository.newRole("guest", null);
+            applicationRoleRepository.newRole("root", null);
 
             // when
-            final List<ApplicationRole> after = applicationRoles.allRoles();
+            final List<ApplicationRole> after = applicationRoleRepository.allRoles();
 
             // then
             assertThat(after.size(), is(2));

@@ -17,9 +17,8 @@
 package org.isisaddons.module.security.app.user;
 
 import java.util.List;
-import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
+import java.util.concurrent.Callable;
+
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
@@ -28,6 +27,11 @@ import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.SemanticsOf;
+import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
+
+import org.isisaddons.module.security.SecurityModule;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 
 @SuppressWarnings("UnusedDeclaration")
 @DomainService()
@@ -104,15 +108,30 @@ public class MeService extends AbstractFactoryAndRepository {
     )
     @MemberOrder(name = "Security", sequence = "100")
     public ApplicationUser me() {
+        return queryResultsCache.execute(new Callable<ApplicationUser>() {
+            @Override
+            public ApplicationUser call() throws Exception {
+                return doMe();
+            }
+        }, MeService.class, "me");
+    }
+
+    protected ApplicationUser doMe() {
         final String myName = getContainer().getUser().getName();
-        return applicationUsers.findOrCreateUserByUsername(myName);
+        return applicationUserRepository.findOrCreateUserByUsername(myName);
+    }
+
+    protected ApplicationUser doMe(final String myName) {
+        return applicationUserRepository.findOrCreateUserByUsername(myName);
     }
 
     //endregion
 
     //region  > services (injected)
     @javax.inject.Inject
-    ApplicationUsers applicationUsers;
+    ApplicationUserRepository applicationUserRepository;
+    @javax.inject.Inject
+    QueryResultsCache queryResultsCache;
     //endregion
 
 }

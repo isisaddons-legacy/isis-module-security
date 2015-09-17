@@ -17,15 +17,12 @@
 package org.isisaddons.module.security.app.user;
 
 import java.util.List;
+
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
-import org.isisaddons.module.security.dom.user.ApplicationUser;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
@@ -41,6 +38,12 @@ import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.RenderType;
 import org.apache.isis.applib.annotation.SemanticsOf;
+
+import org.isisaddons.module.security.SecurityModule;
+import org.isisaddons.module.security.dom.feature.ApplicationFeature;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
 
 @DomainService(
         nature = NatureOfService.VIEW_CONTRIBUTIONS_ONLY
@@ -110,7 +113,7 @@ public class UserPermissionViewModelContributions  {
     ) // when contributed
     @MemberOrder(sequence = "30")
     public List<UserPermissionViewModel> permissions(final ApplicationUser user) {
-        final java.util.Collection<ApplicationFeature> allMembers = applicationFeatures.allMembers();
+        final java.util.Collection<ApplicationFeature> allMembers = applicationFeatureRepository.allMembers();
         return asViewModels(user, allMembers);
     }
 
@@ -144,7 +147,7 @@ public class UserPermissionViewModelContributions  {
             @Parameter(optionality = Optionality.OPTIONAL)
             @ParameterLayout(named="Class",  typicalLength=ApplicationFeature.TYPICAL_LENGTH_CLS_NAME)
             final String className) {
-        final java.util.Collection<ApplicationFeature> allMembers = applicationFeatures.allMembers();
+        final java.util.Collection<ApplicationFeature> allMembers = applicationFeatureRepository.allMembers();
         final Iterable<ApplicationFeature> filtered = Iterables.filter(allMembers, within(packageFqn, className));
         return asViewModels(user, filtered);
     }
@@ -172,7 +175,7 @@ public class UserPermissionViewModelContributions  {
      * Package names that have classes in them.
      */
     public List<String> choices1FilterPermissions() {
-        return applicationFeatures.packageNames();
+        return applicationFeatureRepository.packageNames();
     }
 
 
@@ -182,7 +185,7 @@ public class UserPermissionViewModelContributions  {
     public List<String> choices2FilterPermissions(
             final ApplicationUser user,
             final String packageFqn) {
-        return applicationFeatures.classNamesRecursivelyContainedIn(packageFqn);
+        return applicationFeatureRepository.classNamesRecursivelyContainedIn(packageFqn);
     }
 
     //endregion
@@ -205,7 +208,7 @@ public class UserPermissionViewModelContributions  {
     @javax.inject.Inject
     DomainObjectContainer container;
     @javax.inject.Inject
-    ApplicationFeatures applicationFeatures;
+    ApplicationFeatureRepository applicationFeatureRepository;
     //endregion
 
 }

@@ -51,7 +51,7 @@ import org.apache.isis.applib.util.ObjectContracts;
 
 import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
+import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 
 @SuppressWarnings("UnusedDeclaration")
 @javax.jdo.annotations.PersistenceCapable(
@@ -294,7 +294,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     }
 
     public List<ApplicationUser> autoComplete0AddUser(final String search) {
-        final List<ApplicationUser> matchingSearch = applicationUsers.findUsersByName(search);
+        final List<ApplicationUser> matchingSearch = applicationUserRepository.findUsersByName(search);
         final List<ApplicationUser> list = Lists.newArrayList(matchingSearch);
         list.removeAll(getUsers());
         return list;
@@ -514,7 +514,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
         }
         container.removeIfNotAlready(this);
         container.flush();
-        return applicationTenancies.allTenancies();
+        return applicationTenancyRepository.allTenancies();
     }
 
     public String validateDelete(final Boolean areYouSure) {
@@ -546,9 +546,9 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region  >  (injected)
     @javax.inject.Inject
-    ApplicationUsers applicationUsers;
+    ApplicationUserRepository applicationUserRepository;
     @javax.inject.Inject
-    ApplicationTenancies applicationTenancies;
+    ApplicationTenancyRepository applicationTenancyRepository;
     @javax.inject.Inject
     DomainObjectContainer container;
     //endregion
