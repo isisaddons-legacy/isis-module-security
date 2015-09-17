@@ -17,47 +17,32 @@
 package org.isisaddons.module.security.dom.user;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
-import org.apache.isis.applib.annotation.DomainService;
-import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.SemanticsOf;
-import org.apache.isis.applib.query.QueryDefault;
-import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 import org.apache.isis.applib.value.Password;
 
 import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
-import org.isisaddons.module.security.dom.role.ApplicationRoles;
+import org.isisaddons.module.security.dom.role.ApplicationRoleRepository;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityRegularUserRoleAndPermissions;
 import org.isisaddons.module.security.shiro.IsisModuleSecurityRealm;
 import org.isisaddons.module.security.shiro.ShiroUtils;
 
-@SuppressWarnings("UnusedDeclaration")
-@DomainService(
-        nature = NatureOfService.VIEW_MENU_ONLY,
-        repositoryFor = ApplicationUser.class
-)
-@DomainServiceLayout(
-        named="Security",
-        menuBar = DomainServiceLayout.MenuBar.SECONDARY,
-        menuOrder = "100.10"
-)
-public class ApplicationUsers extends AbstractFactoryAndRepository {
+/**
+ * @deprecated - use {@link ApplicationUserRepository} or {@link ApplicationUserMenu} instead.
+ */
+@Deprecated
+public class ApplicationUsers {
 
     public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationUsers, T> {
         public PropertyDomainEvent(final ApplicationUsers source, final Identifier identifier) {
@@ -101,41 +86,15 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     }
     //endregion
 
-    //region > init
-
-    @Programmatic
-    @PostConstruct
-    public void init() {
-        if(applicationUserFactory == null) {
-            applicationUserFactory = new ApplicationUserFactory.Default(getContainer());
-        }
-    }
-
-    //endregion
-
     //region > findOrCreateUserByUsername (programmatic)
 
     /**
-     * Uses the {@link org.apache.isis.applib.services.queryresultscache.QueryResultsCache} in order to support
-     * multiple lookups from <code>org.isisaddons.module.security.app.user.UserPermissionViewModel</code>.
-     *
-     * <p>
-     *     If the user does not exist, it will be automatically created.
-     * </p>
+     * @deprecated - use {@link ApplicationUserRepository#findOrCreateUserByUsername(String)} instead.
      */
+    @Deprecated
     @Programmatic
-    public ApplicationUser findOrCreateUserByUsername(
-            final String username) {
-        return queryResultsCache.execute(new Callable<ApplicationUser>() {
-            @Override
-            public ApplicationUser call() throws Exception {
-                final ApplicationUser applicationUser = findUserByUsername(username);
-                if (applicationUser != null) {
-                    return applicationUser;
-                }
-                return newDelegateUser(username, null, null);
-            }
-        }, ApplicationUsers.class, "findOrCreateUserByUsername", username );
+    public ApplicationUser findOrCreateUserByUsername(final String username) {
+        return applicationUserRepository.findOrCreateUserByUsername(username);
     }
 
     //endregion
@@ -160,9 +119,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
             @ParameterLayout(named = "Username")
             final String username) {
-        return uniqueMatch(new QueryDefault<>(
-                ApplicationUser.class,
-                "findByUsername", "username", username));
+        return applicationUserRepository.findUserByUsername(username);
     }
 
     //endregion
@@ -172,9 +129,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     @Programmatic
     public ApplicationUser findUserByEmail(
         final @ParameterLayout(named="Email") String emailAddress) {
-        return uniqueMatch(new QueryDefault<>(
-            ApplicationUser.class,
-            "findByEmailAddress", "emailAddress", emailAddress));
+        return applicationUserRepository.findUserByEmail(emailAddress);
     }
     //endregion
 
@@ -197,9 +152,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     public List<ApplicationUser> findUsersByName(
             final @ParameterLayout(named="Name") String name) {
         final String nameRegex = "(?i).*" + name + ".*";
-        return allMatches(new QueryDefault<>(
-                ApplicationUser.class,
-                "findByName", "nameRegex", nameRegex));
+        return applicationUserRepository.findUsersByName(name);
     }
     //endregion
 
@@ -229,15 +182,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             @Parameter(optionality = Optionality.OPTIONAL)
             @ParameterLayout(named="Enabled?")
             final Boolean enabled) {
-        final ApplicationUser user = applicationUserFactory.newApplicationUser();
-        user.setUsername(username);
-        user.setStatus(ApplicationUserStatus.parse(enabled));
-        user.setAccountType(AccountType.DELEGATED);
-        if(initialRole != null) {
-            user.addRole(initialRole);
-        }
-        persistIfNotAlready(user);
-        return user;
+        return applicationUserRepository.newDelegateUser(username, initialRole, enabled);
     }
 
     public boolean hideNewDelegateUser(
@@ -248,7 +193,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     }
 
     public ApplicationRole default1NewDelegateUser() {
-        return applicationRoles.findRoleByName(IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
+        return applicationRoleRepository.findRoleByName(IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
     }
 
     //endregion
@@ -288,24 +233,7 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             @Parameter(optionality = Optionality.OPTIONAL)
             @ParameterLayout(named="Email Address")
             final String emailAddress) {
-        ApplicationUser user = findUserByUsername(username);
-        if (user == null){
-            user = applicationUserFactory.newApplicationUser();
-            user.setUsername(username);
-            user.setStatus(ApplicationUserStatus.parse(enabled));
-            user.setAccountType(AccountType.LOCAL);
-        }
-        if(initialRole != null) {
-            user.addRole(initialRole);
-        }
-        if(password != null) {
-            user.updatePassword(password.getPassword());
-        }
-        if(emailAddress != null) {
-            user.updateEmailAddress(emailAddress);
-        }
-        persistIfNotAlready(user);
-        return user;
+        return applicationUserRepository.newLocalUser(username, password, passwordRepeat, initialRole, enabled, emailAddress);
     }
 
     public String validateNewLocalUser(
@@ -315,12 +243,11 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
             final ApplicationRole initialRole,
             final Boolean enabled,
             final String emailAddress) {
-        final ApplicationUser user = applicationUserFactory.newApplicationUser();
-        return user.validateResetPassword(password, passwordRepeat);
+        return applicationUserRepository.validateNewLocalUser(username, password, passwordRepeat, initialRole, enabled, emailAddress);
     }
 
     public ApplicationRole default3NewLocalUser() {
-        return applicationRoles.findRoleByName(IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
+        return applicationRoleRepository.findRoleByName(IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
     }
     //endregion
 
@@ -341,19 +268,12 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
     )
     @MemberOrder(sequence = "100.10.5")
     public List<ApplicationUser> allUsers() {
-        return allInstances(ApplicationUser.class);
+        return applicationUserRepository.allUsers();
     }
 
     //endregion
 
-    //region > autoComplete
-    @Programmatic // not part of metamodel
-    public List<ApplicationUser> autoComplete(final String name) {
-        return findUsersByName(name);
-    }
-    //endregion
-
-    //region > helpers: isPasswordsFeatureEnabled, isPasswordsFeatureDisabled
+    //region > helpers: hasNoDelegateAuthenticationRealm
 
     private boolean hasNoDelegateAuthenticationRealm() {
         final IsisModuleSecurityRealm realm = ShiroUtils.getIsisModuleSecurityRealm();
@@ -364,19 +284,10 @@ public class ApplicationUsers extends AbstractFactoryAndRepository {
 
     //region  >  (injected)
     @Inject
-    QueryResultsCache queryResultsCache;
-    @Inject
-    PasswordEncryptionService passwordEncryptionService;
-    @Inject
-    ApplicationRoles applicationRoles;
+    ApplicationRoleRepository applicationRoleRepository;
 
-    /**
-     * Will only be injected to if the programmer has supplied an implementation.  Otherwise
-     * this class will install a default implementation in {@link #init()}.
-     */
     @Inject
-    ApplicationUserFactory applicationUserFactory;
-
+    ApplicationUserRepository applicationUserRepository;
     //endregion
 
 }
