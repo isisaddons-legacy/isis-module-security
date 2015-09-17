@@ -76,6 +76,15 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
     }
     //endregion
 
+    //region > iconName
+
+    public String iconName() {
+        return "applicationRole";
+    }
+
+    //endregion
+
+
     //region > findRoleByName
 
     public static class FindByRoleNameDomainEvent extends ActionDomainEvent {

@@ -77,6 +77,14 @@ public class ApplicationPermissions {
     }
     //endregion
 
+    //region > iconName
+
+    public String iconName() {
+        return "applicationPermission";
+    }
+
+    //endregion
+
     //region > findByRole (programmatic)
 
     /**
