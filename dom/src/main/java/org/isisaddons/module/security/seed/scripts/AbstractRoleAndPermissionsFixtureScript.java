@@ -17,16 +17,20 @@
 package org.isisaddons.module.security.seed.scripts;
 
 import java.util.Arrays;
+
 import javax.inject.Inject;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
+
+import org.apache.isis.applib.fixturescripts.FixtureScript;
+
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionRepository;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
-import org.isisaddons.module.security.dom.permission.ApplicationPermissions;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
-import org.isisaddons.module.security.dom.role.ApplicationRoles;
-import org.apache.isis.applib.fixturescripts.FixtureScript;
+import org.isisaddons.module.security.dom.role.ApplicationRoleRepository;
 
 public abstract class AbstractRoleAndPermissionsFixtureScript extends FixtureScript {
 
@@ -100,14 +104,14 @@ public abstract class AbstractRoleAndPermissionsFixtureScript extends FixtureScr
             return;
         }
 
-        ApplicationRole securityRole = applicationRoles.findRoleByName(roleName);
+        ApplicationRole securityRole = applicationRoleRepository.findByName(roleName);
         if(securityRole == null) {
-            securityRole = applicationRoles.newRole(roleName, roleDescription);
+            securityRole = applicationRoleRepository.newRole(roleName, roleDescription);
         }
         for (String featureFqn : featureFqns) {
             // can't use role#addPackage because that does a check for existence of the package, which is
             // not guaranteed to exist yet (the SecurityFeatures#init() may not have run).
-            applicationPermissions.newPermissionNoCheck(
+            applicationPermissionRepository.newPermissionNoCheck(
                     securityRole,
                     rule,
                     mode,
@@ -143,8 +147,8 @@ public abstract class AbstractRoleAndPermissionsFixtureScript extends FixtureScr
 
     //region  >  (injected)
     @Inject
-    ApplicationRoles applicationRoles;
+    ApplicationRoleRepository applicationRoleRepository;
     @Inject
-    ApplicationPermissions applicationPermissions;
+    ApplicationPermissionRepository applicationPermissionRepository;
     //endregion
 }

@@ -105,7 +105,7 @@ public abstract class AbstractUserFixtureScript extends FixtureScript {
             applicationUser = applicationUserRepository.newLocalUser(name, password, password, null, null, emailAddress);
         }
 
-        final ApplicationTenancy applicationTenancy = applicationTenancyRepository.findTenancyByPath(tenancyPath);
+        final ApplicationTenancy applicationTenancy = applicationTenancyRepository.findByPath(tenancyPath);
         applicationUser.setTenancy(applicationTenancy);
 
         executionContext.addResult(this, name, applicationUser);

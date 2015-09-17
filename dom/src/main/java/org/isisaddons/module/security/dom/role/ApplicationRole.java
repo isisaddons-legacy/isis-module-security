@@ -621,7 +621,8 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             final ApplicationFeatureType type,
             @ParameterLayout(named="Feature", typicalLength=ApplicationFeature.TYPICAL_LENGTH_MEMBER_NAME)
             final String featureFqn) {
-        final ApplicationPermission permission = applicationPermissionRepository.findByRoleAndRuleAndFeature(this, rule, type, featureFqn);
+        final ApplicationPermission permission = applicationPermissionRepository.findByRoleAndRuleAndFeature(this,
+                rule, type, featureFqn);
         if(permission != null) {
             container.removeIfNotAlready(permission);
         }
@@ -650,7 +651,8 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     public java.util.Collection<String> choices2RemovePermission(
             final ApplicationPermissionRule rule,
             final ApplicationFeatureType type) {
-        final List<ApplicationPermission> permissions = applicationPermissionRepository.findByRoleAndRuleAndFeatureType(this, rule, type);
+        final List<ApplicationPermission> permissions = applicationPermissionRepository.findByRoleAndRuleAndFeatureTypeCached(
+                this, rule, type);
         return Lists.newArrayList(
                 Iterables.transform(
                         permissions,
@@ -724,7 +726,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     }
 
     public List<ApplicationUser> autoComplete0AddUser(final String search) {
-        final List<ApplicationUser> matchingSearch = applicationUserRepository.findUsersByName(search);
+        final List<ApplicationUser> matchingSearch = applicationUserRepository.findByName(search);
         final List<ApplicationUser> list = Lists.newArrayList(matchingSearch);
         list.removeAll(getUsers());
         return list;
@@ -813,7 +815,8 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //region > isAdminRole (programmatic)
     @Programmatic
     public boolean isAdminRole() {
-        final ApplicationRole adminRole = applicationRoleRepository.findRoleByName(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME);
+        final ApplicationRole adminRole = applicationRoleRepository.findByNameCached(
+                IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME);
         return this == adminRole;
     }
     //endregion

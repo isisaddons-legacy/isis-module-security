@@ -378,7 +378,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     )
     @MemberOrder(sequence = "10")
     public List<ApplicationPermission> getPermissions() {
-        return applicationPermissionRepository.findByFeature(getFeatureId());
+        return applicationPermissionRepository.findByFeatureCached(getFeatureId());
     }
     //endregion
 

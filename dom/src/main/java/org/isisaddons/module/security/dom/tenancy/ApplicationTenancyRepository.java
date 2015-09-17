@@ -17,8 +17,8 @@
 package org.isisaddons.module.security.dom.tenancy;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.isis.applib.DomainObjectContainer;
@@ -26,6 +26,7 @@ import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.query.QueryDefault;
+import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 
 @DomainService(
         nature = NatureOfService.DOMAIN,
@@ -34,19 +35,16 @@ import org.apache.isis.applib.query.QueryDefault;
 public class ApplicationTenancyRepository {
 
 
-    //region > init
+    //region > findByNameOrPathMatching
 
     @Programmatic
-    @PostConstruct
-    public void init() {
-        if(applicationTenancyFactory == null) {
-            applicationTenancyFactory = new ApplicationTenancyFactory.Default(container);
-        }
+    public List<ApplicationTenancy> findByNameOrPathMatchingCached(final String regex) {
+        return queryResultsCache.execute(new Callable<List<ApplicationTenancy>>() {
+            @Override public List<ApplicationTenancy> call() throws Exception {
+                return findByNameOrPathMatching(regex);
+            }
+        }, ApplicationTenancyRepository.class, "findByNameOrPathMatchingCached", regex);
     }
-
-    //endregion
-
-    //region > findTenancyByPath
 
     @Programmatic
     public List<ApplicationTenancy> findByNameOrPathMatching(final String regex) {
@@ -58,18 +56,37 @@ public class ApplicationTenancyRepository {
 
     //endregion
 
-    //region > findTenancyByName
+    //region > findByName
     @Programmatic
-    public ApplicationTenancy findTenancyByName(final String name) {
-        return container.uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByName", "name", name));
+    public ApplicationTenancy findByNameCached(final String name) {
+        return queryResultsCache.execute(new Callable<ApplicationTenancy>() {
+            @Override
+            public ApplicationTenancy call() throws Exception {
+                return findByName(name);
+            }
+        }, ApplicationTenancyRepository.class, "findByNameCached", name);
     }
 
+    @Programmatic
+    public ApplicationTenancy findByName(final String name) {
+        return container.uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByName", "name", name));
+    }
     //endregion
 
-    //region > findTenancyByPath
+    //region > findByPath
 
     @Programmatic
-    public ApplicationTenancy findTenancyByPath(final String path) {
+    public ApplicationTenancy findByPathCached(final String path) {
+        return queryResultsCache.execute(new Callable<ApplicationTenancy>() {
+            @Override
+            public ApplicationTenancy call() throws Exception {
+                return findByPath(path);
+            }
+        }, ApplicationTenancyRepository.class, "findByPathCached", path);
+    }
+
+    @Programmatic
+    public ApplicationTenancy findByPath(final String path) {
         if(path == null) {
             return null;
         }
@@ -86,9 +103,9 @@ public class ApplicationTenancyRepository {
             final String name,
             final String path,
             final ApplicationTenancy parent) {
-        ApplicationTenancy tenancy = findTenancyByName(name);
+        ApplicationTenancy tenancy = findByName(name);
         if (tenancy == null){
-            tenancy = applicationTenancyFactory.newApplicationTenancy();
+            tenancy = getApplicationTenancyFactory().newApplicationTenancy();
             tenancy.setName(name);
             tenancy.setPath(path);
             tenancy.setParent(parent);
@@ -102,6 +119,16 @@ public class ApplicationTenancyRepository {
     //region > allTenancies
     @Programmatic
     public List<ApplicationTenancy> allTenancies() {
+        return queryResultsCache.execute(new Callable<List<ApplicationTenancy>>() {
+            @Override
+            public List<ApplicationTenancy> call() throws Exception {
+                return allTenanciesNoCache();
+            }
+        }, ApplicationTenancyRepository.class, "allTenancies");
+    }
+
+    @Programmatic
+    public List<ApplicationTenancy> allTenanciesNoCache() {
         return container.allInstances(ApplicationTenancy.class);
     }
 
@@ -119,12 +146,22 @@ public class ApplicationTenancyRepository {
     //region > injected
     /**
      * Will only be injected to if the programmer has supplied an implementation.  Otherwise
-     * this class will install a default implementation in {@link #init()}.
+     * this class will install a default implementation in the {@link #getApplicationTenancyFactory() accessor}.
      */
     @Inject
     ApplicationTenancyFactory applicationTenancyFactory;
+
+    private ApplicationTenancyFactory getApplicationTenancyFactory() {
+        return applicationTenancyFactory != null
+                    ? applicationTenancyFactory
+                    : (applicationTenancyFactory = new ApplicationTenancyFactory.Default(container));
+    }
+
     @Inject
     DomainObjectContainer container;
+    @Inject
+    QueryResultsCache queryResultsCache;
+
     //endregion
 
 }

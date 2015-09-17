@@ -127,9 +127,8 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
 
         final Object domainObject = ic.getTarget().getObject();
 
-        paths.objectTenancyPath = applicationTenancyPathFor(domainObject);
-//        paths.userTenancyPath = doUserTenancyPathFor(applicationUser);
-        paths.userTenancyPath = userTenancyPathFor(applicationUser);
+        paths.objectTenancyPath = applicationTenancyPathForCached(domainObject);
+        paths.userTenancyPath = userTenancyPathForCached(applicationUser);
 
         if(paths.objectTenancyPath == null) {
             return null;
@@ -141,32 +140,35 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
         return paths;
     }
 
-    protected String applicationTenancyPathFor(final Object domainObject) {
+    /**
+     * Per {@link #applicationTenancyPathFor(Object)}, with result cached for the remainder of the request using the {@link QueryResultsCache}.
+     */
+    protected String applicationTenancyPathForCached(final Object domainObject) {
         return queryResultsCache.execute(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                return doApplicationTenancyPathFor(domainObject);
+                return applicationTenancyPathFor(domainObject);
             }
         }, TenantedAuthorizationFacetDefault.class, "applicationTenancyPathFor", domainObject);
     }
 
-    protected String doApplicationTenancyPathFor(final Object domainObject) {
+    protected String applicationTenancyPathFor(final Object domainObject) {
         return evaluator.applicationTenancyPathFor(domainObject);
     }
 
     /**
-     * Per {@link #doUserTenancyPathFor(ApplicationUser)}, cached for the request using the {@link QueryResultsCache}.
+     * Per {@link #userTenancyPathFor(ApplicationUser)}, with result cached for the remainder of the request using the {@link QueryResultsCache}.
      */
-    protected String userTenancyPathFor(final ApplicationUser applicationUser) {
+    protected String userTenancyPathForCached(final ApplicationUser applicationUser) {
         return queryResultsCache.execute(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                return doUserTenancyPathFor(applicationUser);
+                return userTenancyPathFor(applicationUser);
             }
         }, TenantedAuthorizationFacetDefault.class, "userTenancyPathFor", applicationUser);
     }
 
-    protected String doUserTenancyPathFor(final ApplicationUser applicationUser) {
+    protected String userTenancyPathFor(final ApplicationUser applicationUser) {
         if (evaluator.handles(applicationUser.getClass())) {
             return evaluator.applicationTenancyPathFor(applicationUser);
         }
@@ -178,19 +180,19 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
     }
 
     /**
-     * Per {@link #doFindApplicationUser(String)}, cached for the request using the {@link QueryResultsCache}.
+     * Per {@link #findApplicationUserNoCache(String)}, cached for the request using the {@link QueryResultsCache}.
      */
     protected ApplicationUser findApplicationUser(final String userName) {
         return queryResultsCache.execute(new Callable<ApplicationUser>() {
             @Override
             public ApplicationUser call() throws Exception {
-                return doFindApplicationUser(userName);
+                return findApplicationUserNoCache(userName);
             }
         }, TenantedAuthorizationFacetDefault.class, "findApplicationUser", userName);
     }
 
-    protected ApplicationUser doFindApplicationUser(final String userName) {
-        return applicationUserRepository.findUserByUsername(userName);
+    protected ApplicationUser findApplicationUserNoCache(final String userName) {
+        return applicationUserRepository.findByUsername(userName);
     }
 
 }

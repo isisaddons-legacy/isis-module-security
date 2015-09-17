@@ -574,7 +574,7 @@ public class ApplicationFeatureViewModelTest {
             // then
             final List<ApplicationPermission> result = Lists.newArrayList();
             context.checking(new Expectations() {{
-                oneOf(mockApplicationPermissionRepository).findByFeature(featureId);
+                oneOf(mockApplicationPermissionRepository).findByFeatureCached(featureId);
                 will(returnValue(result));
             }});
 

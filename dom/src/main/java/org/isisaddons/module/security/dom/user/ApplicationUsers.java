@@ -120,7 +120,7 @@ public class ApplicationUsers {
             @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
             @ParameterLayout(named = "Username")
             final String username) {
-        return applicationUserRepository.findUserByUsername(username);
+        return applicationUserRepository.findByUsername(username);
     }
 
     //endregion
@@ -130,7 +130,7 @@ public class ApplicationUsers {
     @Programmatic
     public ApplicationUser findUserByEmail(
         final @ParameterLayout(named="Email") String emailAddress) {
-        return applicationUserRepository.findUserByEmail(emailAddress);
+        return applicationUserRepository.findByEmailAddress(emailAddress);
     }
     //endregion
 
@@ -153,7 +153,7 @@ public class ApplicationUsers {
     public List<ApplicationUser> findUsersByName(
             final @ParameterLayout(named="Name") String name) {
         final String nameRegex = "(?i).*" + name + ".*";
-        return applicationUserRepository.findUsersByName(name);
+        return applicationUserRepository.findByName(name);
     }
     //endregion
 
@@ -194,7 +194,7 @@ public class ApplicationUsers {
     }
 
     public ApplicationRole default1NewDelegateUser() {
-        return applicationRoleRepository.findRoleByName(IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
+        return applicationRoleRepository.findByNameCached(IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
     }
 
     //endregion
@@ -248,7 +248,7 @@ public class ApplicationUsers {
     }
 
     public ApplicationRole default3NewLocalUser() {
-        return applicationRoleRepository.findRoleByName(IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
+        return applicationRoleRepository.findByNameCached(IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
     }
     //endregion
 

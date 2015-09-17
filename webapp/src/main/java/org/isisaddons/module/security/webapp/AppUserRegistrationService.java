@@ -32,7 +32,7 @@ public class AppUserRegistrationService extends SecurityModuleAppUserRegistratio
     }
 
     private ApplicationRole findRole(final String roleName) {
-        return applicationRoleRepository.findRoleByName(roleName);
+        return applicationRoleRepository.findByName(roleName);
     }
 
 

@@ -29,7 +29,7 @@ public abstract class AbstractTenantedEntityFixtureScript extends FixtureScript 
             final String name,
             final String tenancyPath,
             final ExecutionContext executionContext) {
-        final ApplicationTenancy tenancy = applicationTenancyRepository.findTenancyByPath(tenancyPath);
+        final ApplicationTenancy tenancy = applicationTenancyRepository.findByPath(tenancyPath);
         final TenantedEntity entity = exampleTenantedEntities.create(name, tenancy);
         executionContext.addResult(this, name, entity);
         return entity;

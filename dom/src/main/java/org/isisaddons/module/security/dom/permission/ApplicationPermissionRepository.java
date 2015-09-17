@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import com.google.common.collect.Maps;
@@ -45,19 +44,18 @@ import org.isisaddons.module.security.dom.user.ApplicationUser;
 )
 public class ApplicationPermissionRepository {
 
-    //region > init
-
-    @Programmatic
-    @PostConstruct
-    public void init() {
-        if(applicationPermissionFactory == null) {
-            applicationPermissionFactory = new ApplicationPermissionFactory.Default(container);
-        }
-    }
-
-    //endregion
 
     //region > findByRole (programmatic)
+    @Programmatic
+    public List<ApplicationPermission> findByRoleCached(final ApplicationRole role) {
+        return queryResultsCache.execute(new Callable<List<ApplicationPermission>>() {
+            @Override
+            public List<ApplicationPermission> call() throws Exception {
+                return findByRole(role);
+            }
+        }, ApplicationPermissionRepository.class, "findByRoleCached", role);
+    }
+
     @Programmatic
     public List<ApplicationPermission> findByRole(final ApplicationRole role) {
         return container.allMatches(
@@ -68,6 +66,15 @@ public class ApplicationPermissionRepository {
     //endregion
 
     //region > findByUser (programmatic)
+    @Programmatic
+    public List<ApplicationPermission> findByUserCached(final ApplicationUser user) {
+        return queryResultsCache.execute(new Callable<List<ApplicationPermission>>() {
+            @Override public List<ApplicationPermission> call() throws Exception {
+                return findByUser(user);
+            }
+        }, ApplicationPermissionRepository.class, "findByUserCached", user);
+    }
+
     @Programmatic
     public List<ApplicationPermission> findByUser(final ApplicationUser user) {
         final String username = user.getUsername();
@@ -99,6 +106,8 @@ public class ApplicationPermissionRepository {
                     final List<ApplicationPermission> applicationPermissions = findByUser(username);
                     return Maps.uniqueIndex(applicationPermissions, ApplicationPermission.Functions.AS_VALUE);
                 }
+                // note: it is correct that only username (and not permissionValue) is the key
+                // (we are obtaining all the perms for this user)
             }, ApplicationPermissionRepository.class, "findByUserAndPermissionValue", username);
 
         // now simply return the permission from the required value (if it exists)
@@ -107,6 +116,17 @@ public class ApplicationPermissionRepository {
     //endregion
 
     //region > findByRoleAndRuleAndFeatureType (programmatic)
+    @Programmatic
+    public List<ApplicationPermission> findByRoleAndRuleAndFeatureTypeCached(
+            final ApplicationRole role, final ApplicationPermissionRule rule,
+            final ApplicationFeatureType type) {
+        return queryResultsCache.execute(new Callable<List<ApplicationPermission>>() {
+            @Override public List<ApplicationPermission> call() throws Exception {
+                return findByRoleAndRuleAndFeatureType(role, rule, type);
+            }
+        }, ApplicationPermissionRepository.class, "findByRoleAndRuleAndFeatureTypeCached", role, rule, type);
+    }
+
     @Programmatic
     public List<ApplicationPermission> findByRoleAndRuleAndFeatureType(
             final ApplicationRole role, final ApplicationPermissionRule rule,
@@ -122,7 +142,22 @@ public class ApplicationPermissionRepository {
 
     //region > findByRoleAndRuleAndFeature (programmatic)
     @Programmatic
-    public ApplicationPermission findByRoleAndRuleAndFeature(final ApplicationRole role, final ApplicationPermissionRule rule, final ApplicationFeatureType type, final String featureFqn) {
+    public ApplicationPermission findByRoleAndRuleAndFeatureCached(
+            final ApplicationRole role,
+            final ApplicationPermissionRule rule,
+            final ApplicationFeatureType type,
+            final String featureFqn) {
+        return queryResultsCache.execute(new Callable<ApplicationPermission>() {
+            @Override public ApplicationPermission call() throws Exception {
+                return findByRoleAndRuleAndFeature(role, rule, type, featureFqn);
+            }
+        }, ApplicationPermissionRepository.class, "findByRoleAndRuleAndFeatureCached", role, rule, type, featureFqn);
+    }
+
+    @Programmatic
+    public ApplicationPermission findByRoleAndRuleAndFeature(
+            final ApplicationRole role,
+            final ApplicationPermissionRule rule, final ApplicationFeatureType type, final String featureFqn) {
         return container.firstMatch(
                 new QueryDefault<>(
                         ApplicationPermission.class, "findByRoleAndRuleAndFeature",
@@ -134,6 +169,15 @@ public class ApplicationPermissionRepository {
     //endregion
 
     //region > findByFeature (programmatic)
+    @Programmatic
+    public List<ApplicationPermission> findByFeatureCached(final ApplicationFeatureId featureId) {
+        return queryResultsCache.execute(new Callable<List<ApplicationPermission>>() {
+            @Override public List<ApplicationPermission> call() throws Exception {
+                return findByFeature(featureId);
+            }
+        }, ApplicationPermissionRepository.class, "findByFeatureCached", featureId);
+    }
+
     @Programmatic
     public List<ApplicationPermission> findByFeature(final ApplicationFeatureId featureId) {
         return container.allMatches(
@@ -173,7 +217,7 @@ public class ApplicationPermissionRepository {
         if (permission != null) {
             return permission;
         }
-        permission = applicationPermissionFactory.newApplicationPermission();
+        permission = getApplicationPermissionFactory().newApplicationPermission();
         permission.setRole(role);
         permission.setRule(rule);
         permission.setMode(mode);
@@ -225,14 +269,22 @@ public class ApplicationPermissionRepository {
     DomainObjectContainer container;
     @Inject
     ApplicationFeatureRepository applicationFeatureRepository;
-    @Inject
-    QueryResultsCache queryResultsCache;
 
     /**
      * Will only be injected to if the programmer has supplied an implementation.  Otherwise
-     * this class will install a default implementation in {@link #init()}.
+     * this class will install a default implementation in the {@link #getApplicationPermissionFactory() accessor}.
      */
     @Inject
     ApplicationPermissionFactory applicationPermissionFactory;
+
+    private ApplicationPermissionFactory getApplicationPermissionFactory() {
+        return applicationPermissionFactory != null
+                ? applicationPermissionFactory
+                : (applicationPermissionFactory = new ApplicationPermissionFactory.Default(container));
+    }
+
+    @Inject
+    QueryResultsCache queryResultsCache;
     //endregion
+
 }

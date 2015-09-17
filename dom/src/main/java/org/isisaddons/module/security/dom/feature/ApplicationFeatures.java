@@ -126,9 +126,6 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     @Programmatic
     @PostConstruct
     public void init() {
-        if (applicationFeatureFactory == null) {
-            applicationFeatureFactory = new ApplicationFeatureFactory.Default(container);
-        }
         final Collection<ObjectSpecification> specifications = primeMetaModel();
         createApplicationFeaturesFor(specifications);
     }
@@ -342,7 +339,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     }
 
     private ApplicationFeature newFeature(final ApplicationFeatureId featureId) {
-        final ApplicationFeature feature = applicationFeatureFactory.newApplicationFeature();
+        final ApplicationFeature feature = getApplicationFeatureFactory().newApplicationFeature();
         feature.setFeatureId(featureId);
         return feature;
     }
@@ -578,10 +575,17 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
 
     /**
      * Will only be injected to if the programmer has supplied an implementation.  Otherwise
-     * this class will install a default implementation in {@link #init()}.
+     * this class will install a default implementation in the {@link #getApplicationFeatureFactory() accessor}.
      */
     @Inject
     ApplicationFeatureFactory applicationFeatureFactory;
+
+    private ApplicationFeatureFactory getApplicationFeatureFactory() {
+        return applicationFeatureFactory != null
+                ? applicationFeatureFactory
+                : (applicationFeatureFactory = new ApplicationFeatureFactory.Default(container));
+    }
+
     //endregion
 
 }

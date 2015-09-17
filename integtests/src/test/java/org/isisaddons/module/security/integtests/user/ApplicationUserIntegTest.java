@@ -32,6 +32,7 @@ import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyRepository;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUserMenu;
+import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
 import org.isisaddons.module.security.fixture.scripts.roles.AllExampleRolesAndPermissions;
 import org.isisaddons.module.security.fixture.scripts.roles.ExampleRegularRoleAndPermissions;
@@ -68,6 +69,8 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
 
     @Inject
     ApplicationUserMenu applicationUserMenu;
+    @Inject
+    ApplicationUserRepository applicationUserRepository;
 
     ApplicationUser user;
 
@@ -137,8 +140,8 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
             // necessary to lookup again because above fixtures will be installed in a new xactn
             user = wrap(applicationUserMenu.findOrCreateUserByUsername(SvenUser.USER_NAME));
 
-            swedenTenancy = applicationTenancyRepository.findTenancyByName(SwedenTenancy.TENANCY_NAME);
-            franceTenancy = applicationTenancyRepository.findTenancyByName(FranceTenancy.TENANCY_NAME);
+            swedenTenancy = applicationTenancyRepository.findByNameCached(SwedenTenancy.TENANCY_NAME);
+            franceTenancy = applicationTenancyRepository.findByNameCached(FranceTenancy.TENANCY_NAME);
 
             assertThat(swedenTenancy, is(notNullValue()));
             assertThat(franceTenancy, is(notNullValue()));
@@ -222,10 +225,10 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
             );
 
             // necessary to lookup again because above fixtures will be installed in a new xactn
-            user = wrap(applicationUserMenu.findOrCreateUserByUsername(SvenUser.USER_NAME));
+            user = wrap(applicationUserRepository.findOrCreateUserByUsername(SvenUser.USER_NAME));
 
-            adminRole = applicationRoleRepository.findRoleByName(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME);
-            userRole = applicationRoleRepository.findRoleByName(ExampleRegularRoleAndPermissions.ROLE_NAME);
+            adminRole = applicationRoleRepository.findByNameCached(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME);
+            userRole = applicationRoleRepository.findByNameCached(ExampleRegularRoleAndPermissions.ROLE_NAME);
 
             assertThat(adminRole, is(notNullValue()));
             assertThat(userRole, is(notNullValue()));

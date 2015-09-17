@@ -19,7 +19,6 @@ package org.isisaddons.module.security.dom.user;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.isis.applib.DomainObjectContainer;
@@ -41,17 +40,6 @@ import org.isisaddons.module.security.dom.role.ApplicationRoleRepository;
 )
 public class ApplicationUserRepository {
 
-    //region > init
-
-    @Programmatic
-    @PostConstruct
-    public void init() {
-        if(applicationUserFactory == null) {
-            applicationUserFactory = new ApplicationUserFactory.Default(container);
-        }
-    }
-
-    //endregion
 
     //region > findOrCreateUserByUsername (programmatic)
 
@@ -66,10 +54,11 @@ public class ApplicationUserRepository {
     @Programmatic
     public ApplicationUser findOrCreateUserByUsername(
             final String username) {
+        // slightly unusual to cache a function that modifies state, but safe because this is idempotent
         return queryResultsCache.execute(new Callable<ApplicationUser>() {
             @Override
             public ApplicationUser call() throws Exception {
-                final ApplicationUser applicationUser = findUserByUsername(username);
+                final ApplicationUser applicationUser = findByUsername(username);
                 if (applicationUser != null) {
                     return applicationUser;
                 }
@@ -80,10 +69,19 @@ public class ApplicationUserRepository {
 
     //endregion
 
-    //region > findUserByName
+    //region > findByUsername
 
     @Programmatic
-    public ApplicationUser findUserByUsername(final String username) {
+    public ApplicationUser findByUsernameCached(final String username) {
+        return queryResultsCache.execute(new Callable<ApplicationUser>() {
+            @Override public ApplicationUser call() throws Exception {
+                return findByUsername(username);
+            }
+        }, ApplicationUserRepository.class, "findByUsernameCached", username);
+    }
+
+    @Programmatic
+    public ApplicationUser findByUsername(final String username) {
         return container.uniqueMatch(new QueryDefault<>(
                 ApplicationUser.class,
                 "findByUsername", "username", username));
@@ -91,21 +89,29 @@ public class ApplicationUserRepository {
 
     //endregion
 
-    //region > findUserByEmail (programmatic)
+    //region > findByEmailAddress (programmatic)
 
     @Programmatic
-    public ApplicationUser findUserByEmail(final String emailAddress) {
+    public ApplicationUser findByEmailAddressCached(final String emailAddress) {
+        return queryResultsCache.execute(new Callable<ApplicationUser>() {
+            @Override public ApplicationUser call() throws Exception {
+                return findByEmailAddress(emailAddress);
+            }
+        }, ApplicationUserRepository.class, "findByEmailAddressCached", emailAddress);
+    }
+
+    @Programmatic
+    public ApplicationUser findByEmailAddress(final String emailAddress) {
         return container.uniqueMatch(new QueryDefault<>(
             ApplicationUser.class,
             "findByEmailAddress", "emailAddress", emailAddress));
     }
     //endregion
 
-    //region > findUsersByName
+    //region > findByName
 
     @Programmatic
-    public List<ApplicationUser> findUsersByName(
-            final String name) {
+    public List<ApplicationUser> findByName(final String name) {
         final String nameRegex = "(?i).*" + name + ".*";
         return container.allMatches(new QueryDefault<>(
                 ApplicationUser.class,
@@ -120,7 +126,7 @@ public class ApplicationUserRepository {
             final String username,
             final ApplicationRole initialRole,
             final Boolean enabled) {
-        final ApplicationUser user = applicationUserFactory.newApplicationUser();
+        final ApplicationUser user = getApplicationUserFactory().newApplicationUser();
         user.setUsername(username);
         user.setStatus(ApplicationUserStatus.parse(enabled));
         user.setAccountType(AccountType.DELEGATED);
@@ -142,9 +148,9 @@ public class ApplicationUserRepository {
             final ApplicationRole initialRole,
             final Boolean enabled,
             final String emailAddress) {
-        ApplicationUser user = findUserByUsername(username);
+        ApplicationUser user = findByUsername(username);
         if (user == null){
-            user = applicationUserFactory.newApplicationUser();
+            user = getApplicationUserFactory().newApplicationUser();
             user.setUsername(username);
             user.setStatus(ApplicationUserStatus.parse(enabled));
             user.setAccountType(AccountType.LOCAL);
@@ -170,7 +176,7 @@ public class ApplicationUserRepository {
             final ApplicationRole initialRole,
             final Boolean enabled,
             final String emailAddress) {
-        final ApplicationUser user = applicationUserFactory.newApplicationUser();
+        final ApplicationUser user = getApplicationUserFactory().newApplicationUser();
         return user.validateResetPassword(password, passwordRepeat);
     }
 
@@ -188,7 +194,7 @@ public class ApplicationUserRepository {
     //region > autoComplete
     @Programmatic // not part of metamodel
     public List<ApplicationUser> autoComplete(final String name) {
-        return findUsersByName(name);
+        return findByName(name);
     }
     //endregion
 
@@ -202,12 +208,20 @@ public class ApplicationUserRepository {
 
     /**
      * Will only be injected to if the programmer has supplied an implementation.  Otherwise
-     * this class will install a default implementation in {@link #init()}.
+     * this class will install a default implementation in the {@link #getApplicationUserFactory() accessor}.
      */
     @Inject
     ApplicationUserFactory applicationUserFactory;
+
+    private ApplicationUserFactory getApplicationUserFactory() {
+        return applicationUserFactory != null
+                ? applicationUserFactory
+                : (applicationUserFactory = new ApplicationUserFactory.Default(container));
+    }
+
     @Inject
     DomainObjectContainer container;
+
 
     //endregion
 

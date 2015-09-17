@@ -105,7 +105,7 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
             @Parameter(maxLength = ApplicationRole.MAX_LENGTH_NAME)
             @ParameterLayout(named="Name", typicalLength=ApplicationRole.TYPICAL_LENGTH_NAME)
             final String name) {
-        return applicationRoleRepository.findRoleByName(name);
+        return applicationRoleRepository.findByName(name);
     }
 
     //endregion

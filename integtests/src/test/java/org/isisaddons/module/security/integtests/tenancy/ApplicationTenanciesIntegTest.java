@@ -50,7 +50,7 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
     public void setUpData() throws Exception {
         scenarioExecution().install(new SecurityModuleAppTearDown());
 
-        globalTenancy = applicationTenancyRepository.findTenancyByPath("/");
+        globalTenancy = applicationTenancyRepository.findByPathCached("/");
     }
 
     public static class NewTenancy extends ApplicationTenanciesIntegTest {
@@ -61,10 +61,12 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
             // given
             final List<ApplicationTenancy> before = applicationTenancyRepository.allTenancies();
             assertThat(before.size(), is(0));
+            nextSession();
 
             // when
             final ApplicationTenancy applicationTenancy = applicationTenancyRepository.newTenancy("uk", "/uk", globalTenancy);
             assertThat(applicationTenancy.getName(), is("uk"));
+            nextSession();
 
             // then
             final List<ApplicationTenancy> after = applicationTenancyRepository.allTenancies();
@@ -76,10 +78,12 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
 
             // given
             applicationTenancyRepository.newTenancy("UK", "/uk", globalTenancy);
+            nextSession();
 
             // when
             applicationTenancyRepository.newTenancy("UK", "/uk", globalTenancy);
-            
+            nextSession();
+
             //then
             assertThat(applicationTenancyRepository.allTenancies().size(), is(1));
         }
@@ -94,9 +98,10 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
             applicationTenancyRepository.newTenancy("portugal", "/po", globalTenancy);
             applicationTenancyRepository.newTenancy("uk", "/uk", globalTenancy);
             applicationTenancyRepository.newTenancy("zambia", "/za", globalTenancy);
+            nextSession();
 
             // when
-            final ApplicationTenancy uk = applicationTenancyRepository.findTenancyByName("uk");
+            final ApplicationTenancy uk = applicationTenancyRepository.findByNameCached("uk");
 
             // then
             Assert.assertThat(uk, is(not(nullValue())));
@@ -111,7 +116,7 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
             applicationTenancyRepository.newTenancy("uk", "/uk", globalTenancy);
 
             // when
-            final ApplicationTenancy nonExistent = applicationTenancyRepository.findTenancyByName("france");
+            final ApplicationTenancy nonExistent = applicationTenancyRepository.findByNameCached("france");
 
             // then
             Assert.assertThat(nonExistent, is(nullValue()));
@@ -130,9 +135,9 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
             applicationTenancyRepository.newTenancy("zambia", "/za", globalTenancy);
 
             // when, then
-            Assert.assertThat(applicationTenancyRepository.findByNameOrPathMatching("/.*").size(), is(3));
-            Assert.assertThat(applicationTenancyRepository.findByNameOrPathMatching(".*u.*").size(), is(2));
-            Assert.assertThat(applicationTenancyRepository.findByNameOrPathMatching(".*k").size(), is(1));
+            Assert.assertThat(applicationTenancyRepository.findByNameOrPathMatchingCached("/.*").size(), is(3));
+            Assert.assertThat(applicationTenancyRepository.findByNameOrPathMatchingCached(".*u.*").size(), is(2));
+            Assert.assertThat(applicationTenancyRepository.findByNameOrPathMatchingCached(".*k").size(), is(1));
         }
 
         @Test
@@ -143,7 +148,8 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
             applicationTenancyRepository.newTenancy("uk", "/uk", globalTenancy);
 
             // when
-            final List<ApplicationTenancy> results = applicationTenancyRepository.findByNameOrPathMatching("tugal");
+            final List<ApplicationTenancy> results = applicationTenancyRepository.findByNameOrPathMatchingCached(
+                    "tugal");
 
             // then
             Assert.assertThat(results.size(), is(0));

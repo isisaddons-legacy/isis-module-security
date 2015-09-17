@@ -96,7 +96,8 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
             applicationRoleRepository.newRole("root", null);
 
             // when
-            final ApplicationRole guest = applicationRoleRepository.findRoleByName("guest");
+            nextSession();
+            final ApplicationRole guest = applicationRoleRepository.findByNameCached("guest");
 
             // then
             assertThat(guest, is(not(nullValue())));
@@ -109,9 +110,10 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
             // given
             applicationRoleRepository.newRole("guest", null);
             applicationRoleRepository.newRole("root", null);
+            nextSession();
 
             // when
-            final ApplicationRole nonExistent = applicationRoleRepository.findRoleByName("admin");
+            final ApplicationRole nonExistent = applicationRoleRepository.findByNameCached("admin");
 
             // then
             assertThat(nonExistent, is(nullValue()));

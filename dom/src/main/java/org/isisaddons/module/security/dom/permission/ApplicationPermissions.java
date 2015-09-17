@@ -88,7 +88,7 @@ public class ApplicationPermissions {
     //region > findByRole (programmatic)
 
     /**
-     * @deprecated - use {@link ApplicationPermissionRepository#findByRole(ApplicationRole)} instead.
+     * @deprecated - use {@link ApplicationPermissionRepository#findByRoleCached(ApplicationRole)} or {@link ApplicationPermissionRepository#findByRole(ApplicationRole)} instead.
      */
     @Deprecated
     @Programmatic
@@ -100,7 +100,7 @@ public class ApplicationPermissions {
     //region > findByUser (programmatic)
 
     /**
-     * @deprecated - use {@link ApplicationPermissionRepository#findByUser(ApplicationUser)} instead.
+     * @deprecated - use {@link ApplicationPermissionRepository#findByUserCached(ApplicationUser)} or {@link ApplicationPermissionRepository#findByUser(ApplicationUser)} instead.
      */
     @Deprecated
     @Programmatic
@@ -124,7 +124,7 @@ public class ApplicationPermissions {
     //region > findByRoleAndRuleAndFeatureType (programmatic)
 
     /**
-     * @deprecated - use {@link ApplicationPermissionRepository#findByRoleAndRuleAndFeatureType(ApplicationRole, ApplicationPermissionRule, ApplicationFeatureType)} instead.
+     * @deprecated - use {@link ApplicationPermissionRepository#findByRoleAndRuleAndFeatureTypeCached(ApplicationRole, ApplicationPermissionRule, ApplicationFeatureType)} or {@link ApplicationPermissionRepository#findByRoleAndRuleAndFeatureType(ApplicationRole, ApplicationPermissionRule, ApplicationFeatureType)} instead.
      */
     @Deprecated
     @Programmatic
@@ -138,7 +138,7 @@ public class ApplicationPermissions {
     //region > findByRoleAndRuleAndFeature (programmatic)
 
     /**
-     * @deprecated - use {@link ApplicationPermissionRepository#findByRoleAndRuleAndFeature(ApplicationRole, ApplicationPermissionRule, ApplicationFeatureType, String)} instead.
+     * @deprecated - use {@link ApplicationPermissionRepository#findByRoleAndRuleAndFeatureCached(ApplicationRole, ApplicationPermissionRule, ApplicationFeatureType, String)} or {@link ApplicationPermissionRepository#findByRoleAndRuleAndFeature(ApplicationRole, ApplicationPermissionRule, ApplicationFeatureType, String)} instead.
      */
     @Deprecated
     @Programmatic
@@ -150,7 +150,7 @@ public class ApplicationPermissions {
     //region > findByFeature (programmatic)
 
     /**
-     * @deprecated - use {@link ApplicationPermissionRepository#findByFeature(ApplicationFeatureId)} instead.
+     * @deprecated - use {@link ApplicationPermissionRepository#findByFeatureCached(ApplicationFeatureId)} or {@link ApplicationPermissionRepository#findByFeature(ApplicationFeatureId)} instead.
      */
     @Deprecated
     @Programmatic

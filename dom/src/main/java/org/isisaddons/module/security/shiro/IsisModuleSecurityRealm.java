@@ -152,7 +152,7 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
                     return applicationUserRepository.findOrCreateUserByUsername(username);
                 }
                 else {
-                    return applicationUserRepository.findUserByUsername(username);
+                    return applicationUserRepository.findByUsername(username);
                 }
             }
 

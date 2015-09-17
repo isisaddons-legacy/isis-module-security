@@ -81,11 +81,6 @@ import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
                         + "FROM org.isisaddons.module.security.dom.tenancy.ApplicationTenancy "
                         + "WHERE name == :name"),
         @javax.jdo.annotations.Query(
-                name = "findByNameContaining", language = "JDOQL",
-                value = "SELECT "
-                        + "FROM org.isisaddons.module.security.dom.tenancy.ApplicationTenancy "
-                        + "WHERE name.indexOf(:name) >= 0"),
-        @javax.jdo.annotations.Query(
                 name = "findByNameOrPathMatching", language = "JDOQL",
                 value = "SELECT "
                         + "FROM org.isisaddons.module.security.dom.tenancy.ApplicationTenancy "
@@ -294,7 +289,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     }
 
     public List<ApplicationUser> autoComplete0AddUser(final String search) {
-        final List<ApplicationUser> matchingSearch = applicationUserRepository.findUsersByName(search);
+        final List<ApplicationUser> matchingSearch = applicationUserRepository.findByName(search);
         final List<ApplicationUser> list = Lists.newArrayList(matchingSearch);
         list.removeAll(getUsers());
         return list;

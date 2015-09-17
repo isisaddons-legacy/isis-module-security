@@ -71,7 +71,7 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
     protected void execute(final ExecutionContext executionContext) {
 
         // create user if does not exist, and assign to the role
-        applicationUser = applicationUserRepository.findUserByUsername(username);
+        applicationUser = applicationUserRepository.findByUsername(username);
         if(applicationUser == null) {
             final boolean enabled = true;
             switch (accountType) {
@@ -84,11 +84,11 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
             }
 
             // update tenancy (repository checks for null)
-            final ApplicationTenancy applicationTenancy = applicationTenancyRepository.findTenancyByPath(tenancyPath);
+            final ApplicationTenancy applicationTenancy = applicationTenancyRepository.findByPath(tenancyPath);
             applicationUser.setTenancy(applicationTenancy);
 
             for (final String roleName : roleNames) {
-                final ApplicationRole securityRole = applicationRoleRepository.findRoleByName(roleName);
+                final ApplicationRole securityRole = applicationRoleRepository.findByName(roleName);
                 applicationUser.addRole(securityRole);
             }
         }

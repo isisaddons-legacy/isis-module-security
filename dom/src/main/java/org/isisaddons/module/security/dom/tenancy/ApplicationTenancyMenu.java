@@ -61,7 +61,8 @@ public class ApplicationTenancyMenu extends ApplicationTenancies {
                 @Parameter(optionality = Optionality.OPTIONAL)
                 @ParameterLayout(named = "Partial Name Or Path", describedAs = "String to search for, wildcard (*) can be used")
                 final String partialNameOrPath) {
-                return applicationTenancyRepository.findByNameOrPathMatching(partialNameOrPath == null ? ".*" : "(?i)" + partialNameOrPath.replaceAll("\\*", ".*"));
+                return applicationTenancyRepository.findByNameOrPathMatchingCached(
+                        partialNameOrPath == null ? ".*" : "(?i)" + partialNameOrPath.replaceAll("\\*", ".*"));
         }
 
         //endregion

@@ -65,7 +65,7 @@ public class HasUsernameContributions extends AbstractFactoryAndRepository {
         if (hasUsername == null || hasUsername.getUsername() == null) {
             return null;
         }
-        return applicationUserRepository.findUserByUsername(hasUsername.getUsername());
+        return applicationUserRepository.findByUsername(hasUsername.getUsername());
     }
     public boolean hideOpen(final HasUsername hasUsername) {
         return hasUsername instanceof ApplicationUser;

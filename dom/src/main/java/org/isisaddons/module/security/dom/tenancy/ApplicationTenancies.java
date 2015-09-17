@@ -109,7 +109,7 @@ public class ApplicationTenancies {
             @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_NAME)
             @ParameterLayout(named = "Name", typicalLength = ApplicationTenancy.TYPICAL_LENGTH_NAME)
             final String name) {
-        return applicationTenancyRepository.findTenancyByName(name);
+        return applicationTenancyRepository.findByName(name);
     }
 
     //endregion
@@ -139,7 +139,7 @@ public class ApplicationTenancies {
             @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_PATH)
             @ParameterLayout(named = "Path")
             final String path) {
-        return applicationTenancyRepository.findTenancyByPath(path);
+        return applicationTenancyRepository.findByPath(path);
     }
 
     //endregion

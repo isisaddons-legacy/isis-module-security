@@ -17,8 +17,8 @@
 package org.isisaddons.module.security.dom.role;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.isis.applib.DomainObjectContainer;
@@ -26,6 +26,7 @@ import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.query.QueryDefault;
+import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 
 @DomainService(
         nature = NatureOfService.DOMAIN,
@@ -33,22 +34,20 @@ import org.apache.isis.applib.query.QueryDefault;
 )
 public class ApplicationRoleRepository  {
 
-    //region > init
+
+    //region > findByName
 
     @Programmatic
-    @PostConstruct
-    public void init() {
-        if(applicationRoleFactory == null) {
-            applicationRoleFactory = new ApplicationRoleFactory.Default(container);
-        }
+    public ApplicationRole findByNameCached(final String name) {
+        return queryResultsCache.execute(new Callable<ApplicationRole>() {
+            @Override public ApplicationRole call() throws Exception {
+                return findByName(name);
+            }
+        }, ApplicationRoleRepository.class, "findByNameCached", name);
     }
 
-    //endregion
-
-    //region > findRoleByName
-
     @Programmatic
-    public ApplicationRole findRoleByName(final String name) {
+    public ApplicationRole findByName(final String name) {
         if(name == null) {
             return null;
         }
@@ -63,9 +62,9 @@ public class ApplicationRoleRepository  {
     public ApplicationRole newRole(
             final String name,
             final String description) {
-        ApplicationRole role = findRoleByName(name);
+        ApplicationRole role = findByName(name);
         if (role == null){
-            role = applicationRoleFactory.newApplicationRole();
+            role = getApplicationRoleFactory().newApplicationRole();
             role.setName(name);
             role.setDescription(description);
             container.persist(role);
@@ -94,6 +93,15 @@ public class ApplicationRoleRepository  {
      */
     @Inject
     ApplicationRoleFactory applicationRoleFactory;
+
+    private ApplicationRoleFactory getApplicationRoleFactory() {
+        return applicationRoleFactory != null
+                ? applicationRoleFactory
+                : (applicationRoleFactory = new ApplicationRoleFactory.Default(container));
+    }
+
+    @Inject
+    QueryResultsCache queryResultsCache;
     //endregion
 
 }
