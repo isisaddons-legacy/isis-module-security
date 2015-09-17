@@ -17,30 +17,26 @@
 package org.isisaddons.module.security.dom.role;
 
 import java.util.List;
-import javax.annotation.PostConstruct;
+
 import javax.inject.Inject;
-import org.isisaddons.module.security.SecurityModule;
+
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
-import org.apache.isis.applib.annotation.DomainService;
-import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
-import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.SemanticsOf;
-import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 
-@DomainService(repositoryFor = ApplicationRole.class)
-@DomainServiceLayout(
-        named="Security",
-        menuBar = DomainServiceLayout.MenuBar.SECONDARY,
-        menuOrder = "100.20"
-)
+import org.isisaddons.module.security.SecurityModule;
+
+/**
+ * @deprecated - use {@link ApplicationRoleRepository} or {@link ApplicationRoleMenu} instead.
+ */
+@Deprecated
 public class ApplicationRoles extends AbstractFactoryAndRepository {
 
     public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationRoles, T> {
@@ -79,26 +75,6 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
 
     // //////////////////////////////////////
 
-    //region > iconName
-
-    public String iconName() {
-        return "applicationRole";
-    }
-
-    //endregion
-
-    //region > init
-
-    @Programmatic
-    @PostConstruct
-    public void init() {
-        if(applicationRoleFactory == null) {
-            applicationRoleFactory = new ApplicationRoleFactory.Default(getContainer());
-        }
-    }
-
-    //endregion
-
     //region > findRoleByName
 
     public static class FindByRoleNameDomainEvent extends ActionDomainEvent {
@@ -119,10 +95,7 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
             @Parameter(maxLength = ApplicationRole.MAX_LENGTH_NAME)
             @ParameterLayout(named="Name", typicalLength=ApplicationRole.TYPICAL_LENGTH_NAME)
             final String name) {
-        if(name == null) {
-            return null;
-        }
-        return uniqueMatch(new QueryDefault<>(ApplicationRole.class, "findByName", "name", name));
+        return applicationRoleRepository.findRoleByName(name);
     }
 
     //endregion
@@ -150,14 +123,7 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
             @Parameter(maxLength = JdoColumnLength.DESCRIPTION, optionality = Optionality.OPTIONAL)
             @ParameterLayout(named="Description", typicalLength=ApplicationRole.TYPICAL_LENGTH_DESCRIPTION)
             final String description) {
-        ApplicationRole role = findRoleByName(name);
-        if (role == null){
-            role = applicationRoleFactory.newApplicationRole();
-            role.setName(name);
-            role.setDescription(description);
-            persist(role);
-        }
-        return role;
+        return applicationRoleRepository.newRole(name, description);
     }
 
     //endregion
@@ -179,18 +145,14 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
     )
     @MemberOrder(sequence = "100.20.3")
     public List<ApplicationRole> allRoles() {
-        return allInstances(ApplicationRole.class);
+        return applicationRoleRepository.allRoles();
     }
 
     //endregion
 
     //region > injected
-    /**
-     * Will only be injected to if the programmer has supplied an implementation.  Otherwise
-     * this class will install a default implementation in {@link #init()}.
-     */
     @Inject
-    ApplicationRoleFactory applicationRoleFactory;
+    ApplicationRoleRepository applicationRoleRepository;
     //endregion
 
 }
