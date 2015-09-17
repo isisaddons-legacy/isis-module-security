@@ -24,9 +24,6 @@ import javax.inject.Inject;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.NatureOfService;
-import org.apache.isis.applib.annotation.Optionality;
-import org.apache.isis.applib.annotation.Parameter;
-import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.query.QueryDefault;
 
@@ -52,8 +49,7 @@ public class ApplicationTenancyRepository {
     //region > findTenancyByPath
 
     @Programmatic
-    public List<ApplicationTenancy> findByNameOrPathMatching(
-            final String regex) {
+    public List<ApplicationTenancy> findByNameOrPathMatching(final String regex) {
         if(regex == null) {
             return null;
         }
@@ -64,10 +60,7 @@ public class ApplicationTenancyRepository {
 
     //region > findTenancyByName
     @Programmatic
-    public ApplicationTenancy findTenancyByName(
-            @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_NAME)
-            @ParameterLayout(named = "Name", typicalLength = ApplicationTenancy.TYPICAL_LENGTH_NAME)
-            final String name) {
+    public ApplicationTenancy findTenancyByName(final String name) {
         return container.uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByName", "name", name));
     }
 
@@ -76,10 +69,7 @@ public class ApplicationTenancyRepository {
     //region > findTenancyByPath
 
     @Programmatic
-    public ApplicationTenancy findTenancyByPath(
-            @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_PATH)
-            @ParameterLayout(named = "Path")
-            final String path) {
+    public ApplicationTenancy findTenancyByPath(final String path) {
         if(path == null) {
             return null;
         }
@@ -93,14 +83,8 @@ public class ApplicationTenancyRepository {
 
     @Programmatic
     public ApplicationTenancy newTenancy(
-            @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_NAME)
-            @ParameterLayout(named = "Name", typicalLength = ApplicationTenancy.TYPICAL_LENGTH_NAME)
             final String name,
-            @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_PATH)
-            @ParameterLayout(named = "Path")
             final String path,
-            @Parameter(optionality = Optionality.OPTIONAL)
-            @ParameterLayout(named = "Parent")
             final ApplicationTenancy parent) {
         ApplicationTenancy tenancy = findTenancyByName(name);
         if (tenancy == null){
