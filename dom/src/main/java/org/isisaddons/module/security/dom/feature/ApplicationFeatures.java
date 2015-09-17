@@ -22,16 +22,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.isisaddons.module.security.SecurityModule;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionSemantics;
-import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.When;
 import org.apache.isis.applib.annotation.Where;
@@ -55,11 +56,18 @@ import org.apache.isis.core.metamodel.spec.feature.ObjectAssociation;
 import org.apache.isis.core.metamodel.spec.feature.ObjectMember;
 import org.apache.isis.core.metamodel.specloader.specimpl.ContributeeMember;
 
-@DomainService(
-        repositoryFor = ApplicationFeature.class
-)
+import org.isisaddons.module.security.SecurityModule;
+
+/**
+ * @deprecated - use {@link ApplicationFeatureRepository} instead.
+ */
+@Deprecated
 public class ApplicationFeatures implements SpecificationLoaderSpiAware, ServicesInjectorAware {
 
+    /**
+     * @deprecated - never used.
+     */
+    @Deprecated
     public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationFeatures, T> {
         public PropertyDomainEvent(final ApplicationFeatures source, final Identifier identifier) {
             super(source, identifier);
@@ -70,6 +78,10 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         }
     }
 
+    /**
+     * @deprecated - never used.
+     */
+    @Deprecated
     public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationFeatures, T> {
         public CollectionDomainEvent(final ApplicationFeatures source, final Identifier identifier, final Of of) {
             super(source, identifier, of);
@@ -80,6 +92,10 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         }
     }
 
+    /**
+     * @deprecated - never used.
+     */
+    @Deprecated
     public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationFeatures> {
         public ActionDomainEvent(final ApplicationFeatures source, final Identifier identifier) {
             super(source, identifier);
