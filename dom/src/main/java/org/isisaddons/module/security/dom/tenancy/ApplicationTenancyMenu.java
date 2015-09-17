@@ -66,8 +66,4 @@ public class ApplicationTenancyMenu extends ApplicationTenancies {
 
         //endregion
 
-
-
-
-
 }

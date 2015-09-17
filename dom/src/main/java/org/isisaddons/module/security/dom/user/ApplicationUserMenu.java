@@ -21,8 +21,7 @@ import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.NatureOfService;
 
 @DomainService(
-        nature = NatureOfService.VIEW_MENU_ONLY,
-        repositoryFor = ApplicationUser.class
+        nature = NatureOfService.VIEW_MENU_ONLY
 )
 @DomainServiceLayout(
         named="Security",

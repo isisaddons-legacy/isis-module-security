@@ -44,6 +44,8 @@ import org.isisaddons.module.security.shiro.ShiroUtils;
 @Deprecated
 public class ApplicationUsers {
 
+    //region > domain event classes
+
     public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationUsers, T> {
         public PropertyDomainEvent(final ApplicationUsers source, final Identifier identifier) {
             super(source, identifier);
@@ -77,8 +79,7 @@ public class ApplicationUsers {
             super(source, identifier, arguments);
         }
     }
-
-    // //////////////////////////////////////
+    //endregion
 
     //region > identification
     public String iconName() {
@@ -282,7 +283,7 @@ public class ApplicationUsers {
 
     //endregion
 
-    //region  >  (injected)
+    //region  > injected
     @Inject
     ApplicationRoleRepository applicationRoleRepository;
 

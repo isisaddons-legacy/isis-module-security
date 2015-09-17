@@ -40,6 +40,8 @@ import org.isisaddons.module.security.dom.user.ApplicationUser;
 @Deprecated
 public class ApplicationPermissions {
 
+    //region > domain event classes
+
     public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationPermissions, T> {
         public PropertyDomainEvent(final ApplicationPermissions source, final Identifier identifier) {
             super(source, identifier);
@@ -73,15 +75,6 @@ public class ApplicationPermissions {
             super(source, identifier, arguments);
         }
     }
-
-    // //////////////////////////////////////
-
-    //region > iconName
-
-    public String iconName() {
-        return "applicationPermission";
-    }
-
     //endregion
 
     //region > findByRole (programmatic)
@@ -225,7 +218,7 @@ public class ApplicationPermissions {
     }
     //endregion
 
-    //region  >  (injected)
+    //region  > injected
     @Inject
     ApplicationPermissionRepository applicationPermissionRepository;
     //endregion

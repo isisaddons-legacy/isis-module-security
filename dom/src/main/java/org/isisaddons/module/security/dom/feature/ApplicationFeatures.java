@@ -64,6 +64,7 @@ import org.isisaddons.module.security.SecurityModule;
 @Deprecated
 public class ApplicationFeatures implements SpecificationLoaderSpiAware, ServicesInjectorAware {
 
+    //region > domain event classes
     /**
      * @deprecated - never used.
      */
@@ -109,8 +110,7 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
             super(source, identifier, arguments);
         }
     }
-
-    // //////////////////////////////////////
+    //endregion
 
     //region > iconName
 
@@ -118,8 +118,6 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         return "applicationFeature";
     }
     //endregion
-
-    // //////////////////////////////////////
 
     //region > caches
     SortedMap<ApplicationFeatureId, ApplicationFeature> packageFeatures = Maps.newTreeMap();
@@ -129,8 +127,6 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     private final SortedMap<ApplicationFeatureId, ApplicationFeature> collectionFeatures = Maps.newTreeMap();
     private final SortedMap<ApplicationFeatureId, ApplicationFeature> actionFeatures = Maps.newTreeMap();
     //endregion
-
-    // //////////////////////////////////////
 
     //region > init
     @Programmatic
@@ -420,8 +416,6 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     }
     //endregion
 
-    // //////////////////////////////////////
-
     //region > packageFeatures, classFeatures, memberFeatures
     @Programmatic
     public ApplicationFeature findFeature(final ApplicationFeatureId featureId) {
@@ -452,8 +446,6 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     }
 
     //endregion
-
-    // //////////////////////////////////////
 
     //region > allFeatures, allPackages, allClasses, allMembers
     @Programmatic
@@ -502,8 +494,6 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
         return actionFeatures.values();
     }
     //endregion
-
-    // //////////////////////////////////////
 
     //region > packageNames, packageNamesContainingClasses, classNamesContainedIn, memberNamesOf
     @Programmatic
@@ -572,8 +562,6 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
     }
 
     //endregion
-
-    // //////////////////////////////////////
 
     //region  > services (injected)
     @Inject

@@ -20,7 +20,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
@@ -39,6 +38,8 @@ import org.isisaddons.module.security.SecurityModule;
  */
 @Deprecated
 public class ApplicationTenancies {
+
+    //region > domain event classes
 
     public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationTenancies, T> {
         public PropertyDomainEvent(final ApplicationTenancies source, final Identifier identifier) {
@@ -73,8 +74,7 @@ public class ApplicationTenancies {
             super(source, identifier, arguments);
         }
     }
-
-    // //////////////////////////////////////
+    //endregion
 
     //region > iconName
 
@@ -202,8 +202,6 @@ public class ApplicationTenancies {
     //region > injected
     @Inject
     ApplicationTenancyRepository applicationTenancyRepository;
-    @Inject
-    DomainObjectContainer container;
     //endregion
 
 }

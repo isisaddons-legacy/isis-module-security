@@ -39,6 +39,8 @@ import org.isisaddons.module.security.SecurityModule;
 @Deprecated
 public class ApplicationRoles extends AbstractFactoryAndRepository {
 
+    //region > domain event classes
+
     public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationRoles, T> {
         public PropertyDomainEvent(final ApplicationRoles source, final Identifier identifier) {
             super(source, identifier);
@@ -72,8 +74,7 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
             super(source, identifier, arguments);
         }
     }
-
-    // //////////////////////////////////////
+    //endregion
 
     //region > findRoleByName
 

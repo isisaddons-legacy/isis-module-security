@@ -192,8 +192,7 @@ public class ApplicationUserRepository {
     }
     //endregion
 
-
-    //region  >  (injected)
+    //region  > injected
     @Inject
     QueryResultsCache queryResultsCache;
     @Inject
