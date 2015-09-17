@@ -116,39 +116,6 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
     }
 
 
-    public static class FindByNameOrPathMatching extends ApplicationTenanciesIntegTest {
-
-        @Test
-        public void happyCase() throws Exception {
-
-            // given
-            applicationTenancies.newTenancy("portugal", "/po", globalTenancy);
-            applicationTenancies.newTenancy("uk", "/uk", globalTenancy);
-            applicationTenancies.newTenancy("zambia", "/za", globalTenancy);
-
-            // when, then
-            Assert.assertThat(applicationTenancies.findByNameOrPathMatching("/.*").size(), is(3));
-            Assert.assertThat(applicationTenancies.findByNameOrPathMatching(".*u.*").size(), is(2));
-            Assert.assertThat(applicationTenancies.findByNameOrPathMatching(".*k").size(), is(1));
-        }
-
-        @Test
-        public void whenDoesntMatch() throws Exception {
-
-            // given
-            applicationTenancies.newTenancy("portugal", "/po", globalTenancy);
-            applicationTenancies.newTenancy("uk", "/uk", globalTenancy);
-
-            // when
-            final List<ApplicationTenancy> results = applicationTenancies.findByNameOrPathMatching("tugal");
-
-            // then
-            Assert.assertThat(results.size(), is(0));
-        }
-    }
-
-
-
     public static class AllTenancies extends ApplicationTenanciesIntegTest {
 
         @Test

@@ -80,12 +80,7 @@ import org.apache.isis.applib.util.ObjectContracts;
                 name = "findByNameContaining", language = "JDOQL",
                 value = "SELECT "
                         + "FROM org.isisaddons.module.security.dom.tenancy.ApplicationTenancy "
-                        + "WHERE name.indexOf(:name) >= 0"),
-        @javax.jdo.annotations.Query(
-                name = "findByNameOrPathMatching", language = "JDOQL",
-                value = "SELECT "
-                        + "FROM org.isisaddons.module.security.dom.tenancy.ApplicationTenancy "
-                        + "WHERE name.matches(:regex) || path.matches(:regex) ")
+                        + "WHERE name.indexOf(:name) >= 0")
 })
 @DomainObject(
         objectType = "isissecurity.ApplicationTenancy",
