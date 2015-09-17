@@ -18,23 +18,27 @@ package org.isisaddons.module.security.integtests.feature;
 
 import java.util.Arrays;
 import java.util.Collection;
+
 import javax.inject.Inject;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.SelfDescribing;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
 import org.isisaddons.module.security.dom.feature.ApplicationFeature;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatures;
 import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
 import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -114,7 +118,7 @@ public class ApplicationFeaturesIntegTest extends SecurityModuleAppIntegTest {
             assertThat(pkg, is(notNullValue()));
             assertThat(pkg.getContents(), containsAtLeast(
                     ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.role.ApplicationRole"),
-                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.role.ApplicationRoles")
+                    ApplicationFeatureId.newClass("org.isisaddons.module.security.dom.role.ApplicationRoleMenu")
             ));
         }
 
