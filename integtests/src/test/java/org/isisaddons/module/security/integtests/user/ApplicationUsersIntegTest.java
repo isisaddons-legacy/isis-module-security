@@ -17,17 +17,21 @@
 package org.isisaddons.module.security.integtests.user;
 
 import java.util.List;
+
 import javax.inject.Inject;
 import javax.jdo.JDODataStoreException;
-import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
-import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
-import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
-import org.isisaddons.module.security.integtests.ThrowableMatchers;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
+import org.isisaddons.module.security.dom.user.ApplicationUsers;
+import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
+import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
+import org.isisaddons.module.security.integtests.ThrowableMatchers;
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -46,6 +50,8 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
 
     @Inject
     ApplicationUsers applicationUsers;
+    @Inject
+    ApplicationUserRepository applicationUserRepository;
 
     public static class NewUser extends ApplicationUsersIntegTest {
 
@@ -124,7 +130,7 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
             applicationUsers.newDelegateUser("bill", null, true);
 
             // when
-            final List<ApplicationUser> after = applicationUsers.autoComplete("r");
+            final List<ApplicationUser> after = applicationUserRepository.autoComplete("r");
 
             // then
             assertThat(after.size(), is(2)); // fred and mary

@@ -107,7 +107,7 @@ import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminUser;
 })
 @DomainObject(
         objectType = "isissecurity.ApplicationUser",
-        autoCompleteRepository = ApplicationUsers.class,
+        autoCompleteRepository = ApplicationUserRepository.class,
         autoCompleteAction = "autoComplete"
 )
 @DomainObjectLayout(
