@@ -265,6 +265,43 @@ tenancies of the user accessing the object and of the object itself.  The table 
 To enable this requires a single configuration property to be set, see below.
 
 
+#### `ApplicationTenancyPathEvaluator` ####
+
+You may not wish to have your domain objects implement the `WithApplicationTenancy`.  As all that is required is to determine the application "path" of a domain object, an alternative is to provide an implementation of the `ApplicationTenancyPathEvaluator` SPI service. 
+
+This is defined as:
+
+    public interface ApplicationTenancyPathEvaluator {
+        @Programmatic
+        boolean handles(Class<?> cls);
+    
+        @Programmatic
+        String applicationTenancyPathFor(final Object domainObject);
+    }
+
+where `handles(...)` method indicates if the domain object's class has multi-tenancy, and the `applicationTenancyPathFor(...)` method actually returns the path. 
+
+For example, the [todoapp](http://github.com/isisaddons/isis-app-todoapp) provides an implementation for its `ToDoItem`:
+
+    @DomainService(
+            nature = NatureOfService.DOMAIN
+    )
+    public class ApplicationTenancyPathEvaluatorForToDoApp implements ApplicationTenancyPathEvaluator {
+        @Override
+        public boolean handles(final Class<?> cls) {
+            return ToDoItem.class == cls;
+        }
+        @Override
+        public String applicationTenancyPathFor(final Object domainObject) {
+            // always safe to do, per the handles(...) method earlier
+            final ToDoItem toDoItem = (ToDoItem) domainObject;
+            return toDoItem.getAtPath();
+        }
+    }
+    
+The evaluator can also optionally handle and return a path for the security domain module's own `ApplicationUser` entity; but if it does not, then the user's own tenancy (`ApplicationUser#getTenancy()`) is used instead.  
+  
+
 ## How to run the Demo App ##
 
 The prerequisite software is:

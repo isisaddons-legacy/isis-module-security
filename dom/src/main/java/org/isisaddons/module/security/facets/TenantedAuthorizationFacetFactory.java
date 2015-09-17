@@ -28,16 +28,21 @@ import org.apache.isis.core.metamodel.facets.FacetFactoryAbstract;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjector;
 import org.apache.isis.core.metamodel.runtimecontext.ServicesInjectorAware;
 
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluator;
 import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUsers;
 
 public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract implements ServicesInjectorAware {
 
     private ServicesInjector servicesInjector;
 
+    private final ApplicationTenancyPathEvaluatorDefault defaultEvaluator;
     public TenantedAuthorizationFacetFactory() {
         super(FeatureType.EVERYTHING);
+
+        defaultEvaluator = new ApplicationTenancyPathEvaluatorDefault();
     }
 
     @Override
@@ -65,26 +70,38 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
     private TenantedAuthorizationFacetDefault createFacet(
             final Class<?> cls, final FacetHolder holder) {
 
-        final ApplicationTenancyPathEvaluator evaluator = servicesInjector.lookupService(ApplicationTenancyPathEvaluator.class);
-        if(evaluator != null) {
-            if(!evaluator.handles(cls)) {
-                return null;
-            }
-        } else {
-            final boolean assignableFrom = WithApplicationTenancy.class.isAssignableFrom(cls);
-            if (!assignableFrom) {
-                return null;
-            }
+        ApplicationTenancyPathEvaluator evaluator = servicesInjector.lookupService(ApplicationTenancyPathEvaluator.class);
+        if(evaluator == null) {
+            evaluator = defaultEvaluator;
         }
-
+        if(!evaluator.handles(cls)) {
+            return null;
+        }
 
         final ApplicationUsers applicationUsers = servicesInjector.lookupService(ApplicationUsers.class);
         final QueryResultsCache queryResultsCache = servicesInjector.lookupService(QueryResultsCache.class);
-
         final DomainObjectContainer container = servicesInjector.lookupService(DomainObjectContainer.class);
 
         return new TenantedAuthorizationFacetDefault(applicationUsers, queryResultsCache, evaluator, container, holder);
     }
+
+    static class ApplicationTenancyPathEvaluatorDefault implements ApplicationTenancyPathEvaluator {
+
+        @Override
+        public boolean handles(final Class<?> cls) {
+            return WithApplicationTenancy.class.isAssignableFrom(cls);
+        }
+
+        public String applicationTenancyPathFor(final Object domainObject) {
+            // always safe, facet factory only installs facet for classes implementing WithApplicationTenancy
+            final WithApplicationTenancy tenantedObject = (WithApplicationTenancy) domainObject;
+
+            final ApplicationTenancy objectTenancy = tenantedObject.getApplicationTenancy();
+            String objectTenancyPath = objectTenancy == null ? null : objectTenancy.getPath();
+            return objectTenancyPath;
+        }
+    }
+
 
 
     @Override

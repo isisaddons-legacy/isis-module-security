@@ -144,7 +144,6 @@ public class ApplicationTenancies {
 
     //endregion
 
-
     //region > newTenancy
 
     public static class NewTenancyDomainEvent extends ActionDomainEvent {
