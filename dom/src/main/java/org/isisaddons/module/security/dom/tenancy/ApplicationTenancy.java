@@ -19,14 +19,14 @@ package org.isisaddons.module.security.dom.tenancy;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.VersionStrategy;
+
 import com.google.common.collect.Lists;
-import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUsers;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
@@ -48,6 +48,10 @@ import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.annotation.Title;
 import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.util.ObjectContracts;
+
+import org.isisaddons.module.security.SecurityModule;
+import org.isisaddons.module.security.dom.user.ApplicationUser;
+import org.isisaddons.module.security.dom.user.ApplicationUsers;
 
 @SuppressWarnings("UnusedDeclaration")
 @javax.jdo.annotations.PersistenceCapable(
@@ -80,11 +84,15 @@ import org.apache.isis.applib.util.ObjectContracts;
                 name = "findByNameContaining", language = "JDOQL",
                 value = "SELECT "
                         + "FROM org.isisaddons.module.security.dom.tenancy.ApplicationTenancy "
-                        + "WHERE name.indexOf(:name) >= 0")
-})
+                        + "WHERE name.indexOf(:name) >= 0"),
+        @javax.jdo.annotations.Query(
+                name = "findByNameOrPathMatching", language = "JDOQL",
+                value = "SELECT "
+                        + "FROM org.isisaddons.module.security.dom.tenancy.ApplicationTenancy "
+                        + "WHERE name.matches(:regex) || path.matches(:regex) ")})
 @DomainObject(
         objectType = "isissecurity.ApplicationTenancy",
-        autoCompleteRepository = ApplicationTenancies.class,
+        autoCompleteRepository = ApplicationTenancyRepository.class,
         autoCompleteAction = "autoComplete"
 )
 @DomainObjectLayout(

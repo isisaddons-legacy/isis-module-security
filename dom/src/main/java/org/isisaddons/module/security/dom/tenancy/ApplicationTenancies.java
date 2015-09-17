@@ -17,35 +17,28 @@
 package org.isisaddons.module.security.dom.tenancy;
 
 import java.util.List;
-import javax.annotation.PostConstruct;
+
 import javax.inject.Inject;
-import org.isisaddons.module.security.SecurityModule;
-import org.apache.isis.applib.AbstractFactoryAndRepository;
+
+import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
-import org.apache.isis.applib.annotation.DomainService;
-import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
-import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.RestrictTo;
 import org.apache.isis.applib.annotation.SemanticsOf;
-import org.apache.isis.applib.query.QueryDefault;
+import org.apache.isis.applib.annotation.Where;
 
-@DomainService(
-        nature = NatureOfService.VIEW_MENU_ONLY,
-        repositoryFor = ApplicationTenancy.class
-)
-@DomainServiceLayout(
-        named="Security",
-        menuBar = DomainServiceLayout.MenuBar.SECONDARY,
-        menuOrder = "100.30"
-)
-public class ApplicationTenancies extends AbstractFactoryAndRepository {
+import org.isisaddons.module.security.SecurityModule;
+
+/**
+ * @deprecated - replaced by {@link ApplicationTenancyMenu}
+ */
+@Deprecated
+public class ApplicationTenancies {
 
     public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationTenancies, T> {
         public PropertyDomainEvent(final ApplicationTenancies source, final Identifier identifier) {
@@ -91,18 +84,6 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
 
     //endregion
 
-    //region > init
-
-    @Programmatic
-    @PostConstruct
-    public void init() {
-        if(applicationTenancyFactory == null) {
-            applicationTenancyFactory = new ApplicationTenancyFactory.Default(getContainer());
-        }
-    }
-
-    //endregion
-
     //region > findTenancyByName
 
     public static class FindTenancyByNameDomainEvent extends ActionDomainEvent {
@@ -111,9 +92,14 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
         }
     }
 
+    /**
+     * @deprecated - use {@link ApplicationTenancyMenu#findTenancies(String)} instead.
+     */
+    @Deprecated
     @Action(
             domainEvent = FindTenancyByNameDomainEvent.class,
-            semantics = SemanticsOf.SAFE
+            semantics = SemanticsOf.SAFE,
+            hidden = Where.EVERYWHERE // since deprecated
     )
     @ActionLayout(
             cssClassFa = "fa-crosshairs"
@@ -123,7 +109,7 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
             @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_NAME)
             @ParameterLayout(named = "Name", typicalLength = ApplicationTenancy.TYPICAL_LENGTH_NAME)
             final String name) {
-        return uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByName", "name", name));
+        return applicationTenancyRepository.findTenancyByName(name);
     }
 
     //endregion
@@ -136,9 +122,14 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
         }
     }
 
+    /**
+     * @deprecated - use {@link ApplicationTenancyMenu#findTenancies(String)} instead.
+     */
+    @Deprecated
     @Action(
             domainEvent = FindTenancyByPathDomainEvent.class,
-            semantics = SemanticsOf.SAFE
+            semantics = SemanticsOf.SAFE,
+            hidden = Where.EVERYWHERE // since deprecated
     )
     @ActionLayout(
             cssClassFa = "fa-crosshairs"
@@ -148,10 +139,7 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
             @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_PATH)
             @ParameterLayout(named = "Path")
             final String path) {
-        if(path == null) {
-            return null;
-        }
-        return uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByPath", "path", path));
+        return applicationTenancyRepository.findTenancyByPath(path);
     }
 
     //endregion
@@ -183,15 +171,7 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
             @Parameter(optionality = Optionality.OPTIONAL)
             @ParameterLayout(named = "Parent")
             final ApplicationTenancy parent) {
-        ApplicationTenancy tenancy = findTenancyByName(name);
-        if (tenancy == null){
-            tenancy = applicationTenancyFactory.newApplicationTenancy();
-            tenancy.setName(name);
-            tenancy.setPath(path);
-            tenancy.setParent(parent);
-            persist(tenancy);
-        }
-        return tenancy;
+        return applicationTenancyRepository.newTenancy(name, path, parent);
     }
 
     //endregion
@@ -213,27 +193,17 @@ public class ApplicationTenancies extends AbstractFactoryAndRepository {
     )
     @MemberOrder(sequence = "100.30.4")
     public List<ApplicationTenancy> allTenancies() {
-        return allInstances(ApplicationTenancy.class);
+        return applicationTenancyRepository.allTenancies();
     }
 
     //endregion
 
-    //region > autoComplete
-    @Programmatic // not part of metamodel
-    public List<ApplicationTenancy> autoComplete(final String name) {
-        return allMatches(new QueryDefault<>(
-                ApplicationTenancy.class,
-                "findByNameContaining", "name", name));
-    }
-    //endregion
 
     //region > injected
-    /**
-     * Will only be injected to if the programmer has supplied an implementation.  Otherwise
-     * this class will install a default implementation in {@link #init()}.
-     */
     @Inject
-    ApplicationTenancyFactory applicationTenancyFactory;
+    ApplicationTenancyRepository applicationTenancyRepository;
+    @Inject
+    DomainObjectContainer container;
     //endregion
 
 }

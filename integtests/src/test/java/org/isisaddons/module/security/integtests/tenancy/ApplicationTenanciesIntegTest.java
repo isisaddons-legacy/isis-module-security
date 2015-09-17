@@ -17,16 +17,19 @@
 package org.isisaddons.module.security.integtests.tenancy;
 
 import java.util.List;
+
 import javax.inject.Inject;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancies;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
-import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
-import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyRepository;
+import org.isisaddons.module.security.fixture.scripts.SecurityModuleAppTearDown;
+import org.isisaddons.module.security.integtests.SecurityModuleAppIntegTest;
 
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -39,7 +42,7 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Inject
-    ApplicationTenancies applicationTenancies;
+    ApplicationTenancyRepository applicationTenancyRepository;
 
     ApplicationTenancy globalTenancy;
 
@@ -47,7 +50,7 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
     public void setUpData() throws Exception {
         scenarioExecution().install(new SecurityModuleAppTearDown());
 
-        globalTenancy = applicationTenancies.findTenancyByPath("/");
+        globalTenancy = applicationTenancyRepository.findTenancyByPath("/");
     }
 
     public static class NewTenancy extends ApplicationTenanciesIntegTest {
@@ -56,15 +59,15 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
         public void happyCase() throws Exception {
 
             // given
-            final List<ApplicationTenancy> before = applicationTenancies.allTenancies();
+            final List<ApplicationTenancy> before = applicationTenancyRepository.allTenancies();
             assertThat(before.size(), is(0));
 
             // when
-            final ApplicationTenancy applicationTenancy = applicationTenancies.newTenancy("uk", "/uk", globalTenancy);
+            final ApplicationTenancy applicationTenancy = applicationTenancyRepository.newTenancy("uk", "/uk", globalTenancy);
             assertThat(applicationTenancy.getName(), is("uk"));
 
             // then
-            final List<ApplicationTenancy> after = applicationTenancies.allTenancies();
+            final List<ApplicationTenancy> after = applicationTenancyRepository.allTenancies();
             assertThat(after.size(), is(1));
         }
 
@@ -72,13 +75,13 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
         public void alreadyExists() throws Exception {
 
             // given
-            applicationTenancies.newTenancy("UK", "/uk", globalTenancy);
+            applicationTenancyRepository.newTenancy("UK", "/uk", globalTenancy);
 
             // when
-            applicationTenancies.newTenancy("UK", "/uk", globalTenancy);
+            applicationTenancyRepository.newTenancy("UK", "/uk", globalTenancy);
             
             //then
-            assertThat(applicationTenancies.allTenancies().size(), is(1));
+            assertThat(applicationTenancyRepository.allTenancies().size(), is(1));
         }
     }
 
@@ -88,12 +91,12 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
         public void happyCase() throws Exception {
 
             // given
-            applicationTenancies.newTenancy("portugal", "/po", globalTenancy);
-            applicationTenancies.newTenancy("uk", "/uk", globalTenancy);
-            applicationTenancies.newTenancy("zambia", "/za", globalTenancy);
+            applicationTenancyRepository.newTenancy("portugal", "/po", globalTenancy);
+            applicationTenancyRepository.newTenancy("uk", "/uk", globalTenancy);
+            applicationTenancyRepository.newTenancy("zambia", "/za", globalTenancy);
 
             // when
-            final ApplicationTenancy uk = applicationTenancies.findTenancyByName("uk");
+            final ApplicationTenancy uk = applicationTenancyRepository.findTenancyByName("uk");
 
             // then
             Assert.assertThat(uk, is(not(nullValue())));
@@ -104,14 +107,46 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
         public void whenDoesntMatch() throws Exception {
 
             // given
-            applicationTenancies.newTenancy("portugal", "/po", globalTenancy);
-            applicationTenancies.newTenancy("uk", "/uk", globalTenancy);
+            applicationTenancyRepository.newTenancy("portugal", "/po", globalTenancy);
+            applicationTenancyRepository.newTenancy("uk", "/uk", globalTenancy);
 
             // when
-            final ApplicationTenancy nonExistent = applicationTenancies.findTenancyByName("france");
+            final ApplicationTenancy nonExistent = applicationTenancyRepository.findTenancyByName("france");
 
             // then
             Assert.assertThat(nonExistent, is(nullValue()));
+        }
+    }
+
+
+    public static class FindByNameOrPathMatching extends ApplicationTenanciesIntegTest {
+
+        @Test
+        public void happyCase() throws Exception {
+
+            // given
+            applicationTenancyRepository.newTenancy("portugal", "/po", globalTenancy);
+            applicationTenancyRepository.newTenancy("uk", "/uk", globalTenancy);
+            applicationTenancyRepository.newTenancy("zambia", "/za", globalTenancy);
+
+            // when, then
+            Assert.assertThat(applicationTenancyRepository.findByNameOrPathMatching("/.*").size(), is(3));
+            Assert.assertThat(applicationTenancyRepository.findByNameOrPathMatching(".*u.*").size(), is(2));
+            Assert.assertThat(applicationTenancyRepository.findByNameOrPathMatching(".*k").size(), is(1));
+        }
+
+        @Test
+        public void whenDoesntMatch() throws Exception {
+
+            // given
+            applicationTenancyRepository.newTenancy("portugal", "/po", globalTenancy);
+            applicationTenancyRepository.newTenancy("uk", "/uk", globalTenancy);
+
+            // when
+            final List<ApplicationTenancy> results = applicationTenancyRepository.findByNameOrPathMatching("tugal");
+
+            // then
+            Assert.assertThat(results.size(), is(0));
         }
     }
 
@@ -122,11 +157,11 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
         public void happyCase() throws Exception {
 
             // given
-            applicationTenancies.newTenancy("portugal", "/po", globalTenancy);
-            applicationTenancies.newTenancy("uk", "/uk", globalTenancy);
+            applicationTenancyRepository.newTenancy("portugal", "/po", globalTenancy);
+            applicationTenancyRepository.newTenancy("uk", "/uk", globalTenancy);
 
             // when
-            final List<ApplicationTenancy> after = applicationTenancies.allTenancies();
+            final List<ApplicationTenancy> after = applicationTenancyRepository.allTenancies();
 
             // then
             Assert.assertThat(after.size(), is(2));
