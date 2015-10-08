@@ -673,4 +673,3 @@ According to Sonatype's guide, it takes about 10 minutes to sync, but up to 2 ho
 [ApplicationPermission]->[ApplicationPermissionMode|VIEWING;CHANGING]
 [ApplicationPermission]->[ApplicationPermissionRule|ALLOW;VETO]
 </pre>
-
