@@ -87,8 +87,8 @@ import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
                         + "WHERE name.matches(:regex) || path.matches(:regex) ")})
 @DomainObject(
         objectType = "isissecurity.ApplicationTenancy",
-        autoCompleteRepository = ApplicationTenancyRepository.class,
-        autoCompleteAction = "autoComplete"
+        autoCompleteRepository = ApplicationTenancyMenu.class,
+        autoCompleteAction = "findTenancies"
 )
 @DomainObjectLayout(
         bookmarking = BookmarkPolicy.AS_ROOT

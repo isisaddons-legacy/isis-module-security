@@ -134,15 +134,6 @@ public class ApplicationTenancyRepository {
 
     //endregion
 
-    //region > autoComplete
-    @Programmatic // not part of metamodel
-    public List<ApplicationTenancy> autoComplete(final String name) {
-        return container.allMatches(new QueryDefault<>(
-                ApplicationTenancy.class,
-                "findByNameContaining", "name", name));
-    }
-    //endregion
-
     //region > injected
     /**
      * Will only be injected to if the programmer has supplied an implementation.  Otherwise

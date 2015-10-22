@@ -24,11 +24,11 @@ import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.MinLength;
 import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
-import org.apache.isis.applib.annotation.RestrictTo;
 import org.apache.isis.applib.annotation.SemanticsOf;
 
 @DomainService(
@@ -50,8 +50,7 @@ public class ApplicationTenancyMenu extends ApplicationTenancies {
 
         @Action(
                 domainEvent = FindTenanciesDomainEvent.class,
-                semantics = SemanticsOf.SAFE,
-                restrictTo = RestrictTo.PROTOTYPING
+                semantics = SemanticsOf.SAFE
         )
         @ActionLayout(
                 cssClassFa = "fa-list"
@@ -60,6 +59,7 @@ public class ApplicationTenancyMenu extends ApplicationTenancies {
         public List<ApplicationTenancy> findTenancies(
                 @Parameter(optionality = Optionality.OPTIONAL)
                 @ParameterLayout(named = "Partial Name Or Path", describedAs = "String to search for, wildcard (*) can be used")
+                @MinLength(1) // for auto-complete
                 final String partialNameOrPath) {
                 return applicationTenancyRepository.findByNameOrPathMatchingCached(
                         partialNameOrPath == null ? ".*" : "(?i)" + partialNameOrPath.replaceAll("\\*", ".*"));
