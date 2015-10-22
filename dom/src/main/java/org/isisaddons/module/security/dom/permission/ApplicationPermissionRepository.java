@@ -22,7 +22,8 @@ import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.Multimaps;
 
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.DomainService;
@@ -97,21 +98,30 @@ public class ApplicationPermissionRepository {
     @Programmatic
     public ApplicationPermission findByUserAndPermissionValue(final String username, final ApplicationPermissionValue permissionValue) {
 
+
+
         // obtain all permissions for this user, map by its value, and
         // put into query cache (so that this method can be safely called in a tight loop)
-        final Map<ApplicationPermissionValue, ApplicationPermission> permissions =
-            queryResultsCache.execute(new Callable<Map<ApplicationPermissionValue, ApplicationPermission>>() {
+        final Map<ApplicationPermissionValue, List<ApplicationPermission>> permissions =
+            queryResultsCache.execute(new Callable<Map<ApplicationPermissionValue, List<ApplicationPermission>>>() {
                 @Override
-                public Map<ApplicationPermissionValue, ApplicationPermission> call() throws Exception {
+                public Map<ApplicationPermissionValue, List<ApplicationPermission>> call() throws Exception {
+
                     final List<ApplicationPermission> applicationPermissions = findByUser(username);
-                    return Maps.uniqueIndex(applicationPermissions, ApplicationPermission.Functions.AS_VALUE);
+                    final ImmutableListMultimap<ApplicationPermissionValue, ApplicationPermission> index = Multimaps
+                            .index(applicationPermissions, ApplicationPermission.Functions.AS_VALUE);
+
+                    return Multimaps.asMap(index);
                 }
                 // note: it is correct that only username (and not permissionValue) is the key
                 // (we are obtaining all the perms for this user)
             }, ApplicationPermissionRepository.class, "findByUserAndPermissionValue", username);
 
         // now simply return the permission from the required value (if it exists)
-        return permissions.get(permissionValue);
+        final List<ApplicationPermission> applicationPermissions = permissions.get(permissionValue);
+        return applicationPermissions != null && !applicationPermissions.isEmpty()
+                    ? applicationPermissions.get(0)
+                    : null;
     }
     //endregion
 
