@@ -231,13 +231,6 @@ language governing permissions and limitations under the License.
                 <scope>import</scope>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.isis.viewer</groupId>
-                <artifactId>isis-viewer-wicket</artifactId>
-                <version>${isis.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
 
             <dependency>
                 <groupId>org.mindrot</groupId>
