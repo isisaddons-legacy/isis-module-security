@@ -36,7 +36,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
+public class ApplicationTenancyRepositoryIntegTest extends SecurityModuleAppIntegTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -53,7 +53,7 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
         globalTenancy = applicationTenancyRepository.findByPathCached("/");
     }
 
-    public static class NewTenancy extends ApplicationTenanciesIntegTest {
+    public static class NewTenancy extends ApplicationTenancyRepositoryIntegTest {
 
         @Test
         public void happyCase() throws Exception {
@@ -89,7 +89,7 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
         }
     }
 
-    public static class FindByName extends ApplicationTenanciesIntegTest {
+    public static class FindByName extends ApplicationTenancyRepositoryIntegTest {
 
         @Test
         public void happyCase() throws Exception {
@@ -124,7 +124,7 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
     }
 
 
-    public static class FindByNameOrPathMatching extends ApplicationTenanciesIntegTest {
+    public static class FindByNameOrPathMatching extends ApplicationTenancyRepositoryIntegTest {
 
         @Test
         public void happyCase() throws Exception {
@@ -135,9 +135,9 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
             applicationTenancyRepository.newTenancy("zambia", "/za", globalTenancy);
 
             // when, then
-            Assert.assertThat(applicationTenancyRepository.findByNameOrPathMatchingCached("/.*").size(), is(3));
-            Assert.assertThat(applicationTenancyRepository.findByNameOrPathMatchingCached(".*u.*").size(), is(2));
-            Assert.assertThat(applicationTenancyRepository.findByNameOrPathMatchingCached(".*k").size(), is(1));
+            Assert.assertThat(applicationTenancyRepository.findByNameOrPathMatchingCached("*").size(), is(3));
+            Assert.assertThat(applicationTenancyRepository.findByNameOrPathMatchingCached("u").size(), is(2));
+            Assert.assertThat(applicationTenancyRepository.findByNameOrPathMatchingCached("k").size(), is(1));
         }
 
         @Test
@@ -149,7 +149,7 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
 
             // when
             final List<ApplicationTenancy> results = applicationTenancyRepository.findByNameOrPathMatchingCached(
-                    "tugal");
+                    "goat");
 
             // then
             Assert.assertThat(results.size(), is(0));
@@ -157,7 +157,7 @@ public class ApplicationTenanciesIntegTest extends SecurityModuleAppIntegTest {
     }
 
 
-    public static class AllTenancies extends ApplicationTenanciesIntegTest {
+    public static class AllTenancyRepository extends ApplicationTenancyRepositoryIntegTest {
 
         @Test
         public void happyCase() throws Exception {

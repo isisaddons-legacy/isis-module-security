@@ -38,7 +38,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
+public class ApplicationUserRepositoryIntegTest extends SecurityModuleAppIntegTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -53,7 +53,7 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
     @Inject
     ApplicationUserRepository applicationUserRepository;
 
-    public static class NewUser extends ApplicationUsersIntegTest {
+    public static class NewUser extends ApplicationUserRepositoryIntegTest {
 
         @Test
         public void happyCase() throws Exception {
@@ -85,7 +85,7 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
         }
     }
 
-    public static class FindByName extends ApplicationUsersIntegTest {
+    public static class FindByName extends ApplicationUserRepositoryIntegTest {
 
         @Test
         public void happyCase() throws Exception {
@@ -119,7 +119,25 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
 
     }
 
-    public static class AutoComplete extends ApplicationUsersIntegTest {
+    public static class Find extends ApplicationUserRepositoryIntegTest {
+
+        @Test
+        public void happyCase() throws Exception {
+
+            // given
+            applicationUserMenu.newDelegateUser("fred", null, true);
+            final ApplicationUser mary = applicationUserMenu.newDelegateUser("mary", null, true);
+            mary.setEmailAddress("mary@example.com");
+
+            // when, then
+            assertThat(applicationUserRepository.find("r").size(), is(2));
+            assertThat(applicationUserRepository.find("x").size(), is(1));
+        }
+    }
+
+
+
+        public static class AutoComplete extends ApplicationUserRepositoryIntegTest {
 
         @Test
         public void happyCase() throws Exception {
@@ -137,7 +155,7 @@ public class ApplicationUsersIntegTest extends SecurityModuleAppIntegTest {
         }
     }
 
-    public static class AllTenancies extends ApplicationUsersIntegTest {
+    public static class AllTenancies extends ApplicationUserRepositoryIntegTest {
 
         @Test
         public void happyCase() throws Exception {

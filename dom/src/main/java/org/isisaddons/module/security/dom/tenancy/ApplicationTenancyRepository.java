@@ -21,6 +21,8 @@ import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Lists;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.NatureOfService;
@@ -34,24 +36,23 @@ import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 )
 public class ApplicationTenancyRepository {
 
-
     //region > findByNameOrPathMatching
 
     @Programmatic
-    public List<ApplicationTenancy> findByNameOrPathMatchingCached(final String regex) {
+    public List<ApplicationTenancy> findByNameOrPathMatchingCached(final String search) {
         return queryResultsCache.execute(new Callable<List<ApplicationTenancy>>() {
             @Override public List<ApplicationTenancy> call() throws Exception {
-                return findByNameOrPathMatching(regex);
+                return findByNameOrPathMatching(search);
             }
-        }, ApplicationTenancyRepository.class, "findByNameOrPathMatchingCached", regex);
+        }, ApplicationTenancyRepository.class, "findByNameOrPathMatchingCached", search);
     }
 
     @Programmatic
-    public List<ApplicationTenancy> findByNameOrPathMatching(final String regex) {
-        if(regex == null) {
-            return null;
+    public List<ApplicationTenancy> findByNameOrPathMatching(final String search) {
+        if (search == null) {
+            return Lists.newArrayList();
         }
-        return container.allMatches(new QueryDefault<>(ApplicationTenancy.class, "findByNameOrPathMatching", "regex", regex));
+        return container.allMatches(new QueryDefault<>(ApplicationTenancy.class, "findByNameOrPathMatching", "regex", String.format("(?i).*%s.*", search.replace("*", ".*").replace("?", "."))));
     }
 
     //endregion
@@ -87,14 +88,22 @@ public class ApplicationTenancyRepository {
 
     @Programmatic
     public ApplicationTenancy findByPath(final String path) {
-        if(path == null) {
+        if (path == null) {
             return null;
         }
         return container.uniqueMatch(new QueryDefault<>(ApplicationTenancy.class, "findByPath", "path", path));
     }
-
     //endregion
 
+    //region > autoComplete
+
+    public List<ApplicationTenancy> autoComplete(final String search) {
+        if (search != null && search.length() > 0) {
+            return findByNameOrPathMatching(search);
+        }
+        return Lists.newArrayList();
+    }
+    //endregion
 
     //region > newTenancy
 
@@ -104,7 +113,7 @@ public class ApplicationTenancyRepository {
             final String path,
             final ApplicationTenancy parent) {
         ApplicationTenancy tenancy = findByName(name);
-        if (tenancy == null){
+        if (tenancy == null) {
             tenancy = getApplicationTenancyFactory().newApplicationTenancy();
             tenancy.setName(name);
             tenancy.setPath(path);
@@ -144,8 +153,8 @@ public class ApplicationTenancyRepository {
 
     private ApplicationTenancyFactory getApplicationTenancyFactory() {
         return applicationTenancyFactory != null
-                    ? applicationTenancyFactory
-                    : (applicationTenancyFactory = new ApplicationTenancyFactory.Default(container));
+                ? applicationTenancyFactory
+                : (applicationTenancyFactory = new ApplicationTenancyFactory.Default(container));
     }
 
     @Inject

@@ -86,11 +86,13 @@ import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAn
                 name = "findByNameContaining", language = "JDOQL",
                 value = "SELECT "
                         + "FROM org.isisaddons.module.security.dom.role.ApplicationRole "
-                        + "WHERE name.matches(:nameRegex) >= 0")
+                        + "WHERE name.matches(:nameRegex) ")
 })
 @DomainObject(
         bounded = true,
-        objectType = "isissecurity.ApplicationRole"
+        objectType = "isissecurity.ApplicationRole",
+        autoCompleteRepository = ApplicationRoleRepository.class,
+        autoCompleteAction = "autoComplete"
 )
 @DomainObjectLayout(
         bookmarking = BookmarkPolicy.AS_ROOT
@@ -726,7 +728,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     }
 
     public List<ApplicationUser> autoComplete0AddUser(final String search) {
-        final List<ApplicationUser> matchingSearch = applicationUserRepository.findByName(search);
+        final List<ApplicationUser> matchingSearch = applicationUserRepository.find(search);
         final List<ApplicationUser> list = Lists.newArrayList(matchingSearch);
         list.removeAll(getUsers());
         return list;

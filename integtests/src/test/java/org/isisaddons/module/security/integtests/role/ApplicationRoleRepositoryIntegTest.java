@@ -35,7 +35,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
+public class ApplicationRoleRepositoryIntegTest extends SecurityModuleAppIntegTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -49,7 +49,7 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
     ApplicationRoleRepository applicationRoleRepository;
 
 
-    public static class NewRole extends ApplicationRolesIntegTest {
+    public static class NewRole extends ApplicationRoleRepositoryIntegTest {
 
         @Test
         public void happyCase() throws Exception {
@@ -81,7 +81,7 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
 
     }
 
-    public static class FindByName extends ApplicationRolesIntegTest {
+    public static class FindByName extends ApplicationRoleRepositoryIntegTest {
 
         @Before
         public void setUpData() throws Exception {
@@ -120,9 +120,48 @@ public class ApplicationRolesIntegTest extends SecurityModuleAppIntegTest {
         }
     }
 
+    public static class Find extends ApplicationRoleRepositoryIntegTest {
+
+        @Before
+        public void setUpData() throws Exception {
+            scenarioExecution().install(new SecurityModuleAppTearDown());
+        }
+
+        @Test
+        public void happyCase() throws Exception {
+
+            // given
+            applicationRoleRepository.newRole("guest", null);
+            applicationRoleRepository.newRole("root", null);
+
+            // when
+            nextSession();
+            final List<ApplicationRole> result = applicationRoleRepository.findNameContaining("t");
+
+            // then
+            assertThat(result.size(), is(2));
+            //assertThat(guest.getName(), is("guest"));
+        }
+
+        @Test
+        public void whenDoesntMatch() throws Exception {
+
+            // given
+            applicationRoleRepository.newRole("guest", null);
+            applicationRoleRepository.newRole("root", null);
+            nextSession();
+
+            // when
+            final List<ApplicationRole> result = applicationRoleRepository.findNameContaining("a");
+
+            // then
+            assertThat(result.size(), is(0));
+            //assertThat(guest.getName(), is("guest"));
+        }
+    }
 
 
-    public static class AllTenancies extends ApplicationRolesIntegTest {
+    public static class AllTenancies extends ApplicationRoleRepositoryIntegTest {
 
         @Test
         public void happyCase() throws Exception {

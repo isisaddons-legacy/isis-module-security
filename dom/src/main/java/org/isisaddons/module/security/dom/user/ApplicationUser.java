@@ -102,8 +102,16 @@ import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminUser;
                         + "WHERE username.matches(:nameRegex)"
                         + "   || familyName.matches(:nameRegex)"
                         + "   || givenName.matches(:nameRegex)"
-                        + "   || knownAs.matches(:nameRegex)"
-        )
+                        + "   || knownAs.matches(:nameRegex)"),
+        @javax.jdo.annotations.Query(
+        name = "find", language = "JDOQL",
+        value = "SELECT "
+                + "FROM org.isisaddons.module.security.dom.user.ApplicationUser "
+                + "WHERE username.matches(:regex)"
+                + " || familyName.matches(:regex)"
+                + " || givenName.matches(:regex)"
+                + " || knownAs.matches(:regex)"
+                + " || emailAddress.matches(:regex)")
 })
 @DomainObject(
         objectType = "isissecurity.ApplicationUser",

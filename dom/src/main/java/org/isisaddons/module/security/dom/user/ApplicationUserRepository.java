@@ -21,6 +21,8 @@ import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Lists;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.NatureOfService;
@@ -111,11 +113,11 @@ public class ApplicationUserRepository {
     //region > findByName
 
     @Programmatic
-    public List<ApplicationUser> findByName(final String name) {
-        final String nameRegex = "(?i).*" + name + ".*";
+    public List<ApplicationUser> find(final String search) {
+        final String regex = String.format("(?i).*%s.*", search.replace("*", ".*").replace("?", "."));
         return container.allMatches(new QueryDefault<>(
                 ApplicationUser.class,
-                "findByName", "nameRegex", nameRegex));
+                "find", "regex", regex));
     }
     //endregion
 
@@ -191,10 +193,11 @@ public class ApplicationUserRepository {
 
     //endregion
 
-    //region > autoComplete
-    @Programmatic // not part of metamodel
-    public List<ApplicationUser> autoComplete(final String name) {
-        return findByName(name);
+    public List<ApplicationUser> autoComplete(final String search) {
+        if (search != null && search.length() > 0) {
+            return find(search);
+        }
+        return Lists.newArrayList();
     }
     //endregion
 

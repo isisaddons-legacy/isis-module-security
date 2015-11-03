@@ -21,6 +21,8 @@ import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
+import com.google.common.collect.Lists;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.NatureOfService;
@@ -52,6 +54,15 @@ public class ApplicationRoleRepository  {
             return null;
         }
         return container.uniqueMatch(new QueryDefault<>(ApplicationRole.class, "findByName", "name", name));
+    }
+
+    @Programmatic
+    public List<ApplicationRole> findNameContaining(final String search) {
+        if(search != null && search.length() > 0) {
+            String nameRegex = String.format("(?i).*%s.*", search.replace("*", ".*").replace("?", "."));
+            return container.allMatches(new QueryDefault<>(ApplicationRole.class, "findByNameContaining", "nameRegex", nameRegex));
+        }
+        return Lists.newArrayList();
     }
 
     //endregion
@@ -89,7 +100,7 @@ public class ApplicationRoleRepository  {
 
     /**
      * Will only be injected to if the programmer has supplied an implementation.  Otherwise
-     * this class will install a default implementation in {@link #init()}.
+     * this class will install a default implementation in {@link #getApplicationRoleFactory()}.
      */
     @Inject
     ApplicationRoleFactory applicationRoleFactory;
@@ -104,4 +115,14 @@ public class ApplicationRoleRepository  {
     QueryResultsCache queryResultsCache;
     //endregion
 
+    //region > findByName
+
+    List<ApplicationRole> autoComplete(String search) {
+        if (search != null && search.length() > 0 ) {
+            return findNameContaining(search);
+        }
+        return Lists.newArrayList();
+    }
+
+    //endregion
 }

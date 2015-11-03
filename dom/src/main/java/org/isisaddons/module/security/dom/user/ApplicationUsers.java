@@ -29,6 +29,7 @@ import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.SemanticsOf;
+import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.value.Password;
 
 import org.isisaddons.module.security.SecurityModule;
@@ -110,12 +111,9 @@ public class ApplicationUsers {
 
     @Action(
             domainEvent = FindUserByUserNameDomainEvent.class,
-            semantics = SemanticsOf.IDEMPOTENT
+            semantics = SemanticsOf.IDEMPOTENT,
+            hidden = Where.EVERYWHERE
     )
-    @ActionLayout(
-            cssClassFa = "fa-crosshairs"
-    )
-    @MemberOrder(sequence = "100.10.1")
     public ApplicationUser findUserByUsername(
             @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
             @ParameterLayout(named = "Username")
@@ -144,16 +142,13 @@ public class ApplicationUsers {
 
     @Action(
             domainEvent = FindUsersByNameDomainEvent.class,
-            semantics = SemanticsOf.SAFE
+            semantics = SemanticsOf.SAFE,
+            hidden = Where.EVERYWHERE
     )
-    @ActionLayout(
-            cssClassFa = "fa-search"
-    )
-    @MemberOrder(sequence = "100.10.2")
     public List<ApplicationUser> findUsersByName(
             final @ParameterLayout(named="Name") String name) {
         final String nameRegex = "(?i).*" + name + ".*";
-        return applicationUserRepository.findByName(name);
+        return applicationUserRepository.find(name);
     }
     //endregion
 

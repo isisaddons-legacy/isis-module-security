@@ -87,8 +87,8 @@ import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
                         + "WHERE name.matches(:regex) || path.matches(:regex) ")})
 @DomainObject(
         objectType = "isissecurity.ApplicationTenancy",
-        autoCompleteRepository = ApplicationTenancyMenu.class,
-        autoCompleteAction = "findTenancies"
+        autoCompleteRepository = ApplicationTenancyRepository.class,
+        autoCompleteAction = "autoComplete"
 )
 @DomainObjectLayout(
         bookmarking = BookmarkPolicy.AS_ROOT
@@ -289,7 +289,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     }
 
     public List<ApplicationUser> autoComplete0AddUser(final String search) {
-        final List<ApplicationUser> matchingSearch = applicationUserRepository.findByName(search);
+        final List<ApplicationUser> matchingSearch = applicationUserRepository.find(search);
         final List<ApplicationUser> list = Lists.newArrayList(matchingSearch);
         list.removeAll(getUsers());
         return list;

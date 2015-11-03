@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
-import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
@@ -52,17 +51,13 @@ public class ApplicationTenancyMenu extends ApplicationTenancies {
                 domainEvent = FindTenanciesDomainEvent.class,
                 semantics = SemanticsOf.SAFE
         )
-        @ActionLayout(
-                cssClassFa = "fa-list"
-        )
-        @MemberOrder(sequence = "100.30.5")
+        @MemberOrder(sequence = "100.30.1")
         public List<ApplicationTenancy> findTenancies(
                 @Parameter(optionality = Optionality.OPTIONAL)
                 @ParameterLayout(named = "Partial Name Or Path", describedAs = "String to search for, wildcard (*) can be used")
                 @MinLength(1) // for auto-complete
                 final String partialNameOrPath) {
-                return applicationTenancyRepository.findByNameOrPathMatchingCached(
-                        partialNameOrPath == null ? ".*" : "(?i)" + partialNameOrPath.replaceAll("\\*", ".*"));
+                return applicationTenancyRepository.findByNameOrPathMatchingCached(partialNameOrPath);
         }
 
         //endregion

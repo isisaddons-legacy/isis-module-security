@@ -101,10 +101,6 @@ public class ApplicationTenancies {
             semantics = SemanticsOf.SAFE,
             hidden = Where.EVERYWHERE // since deprecated
     )
-    @ActionLayout(
-            cssClassFa = "fa-crosshairs"
-    )
-    @MemberOrder(sequence = "100.30.1")
     public ApplicationTenancy findTenancyByName(
             @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_NAME)
             @ParameterLayout(named = "Name", typicalLength = ApplicationTenancy.TYPICAL_LENGTH_NAME)
@@ -131,10 +127,6 @@ public class ApplicationTenancies {
             semantics = SemanticsOf.SAFE,
             hidden = Where.EVERYWHERE // since deprecated
     )
-    @ActionLayout(
-            cssClassFa = "fa-crosshairs"
-    )
-    @MemberOrder(sequence = "100.30.2")
     public ApplicationTenancy findTenancyByPath(
             @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_PATH)
             @ParameterLayout(named = "Path")

@@ -29,6 +29,7 @@ import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.SemanticsOf;
+import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 
 import org.isisaddons.module.security.SecurityModule;
@@ -95,12 +96,9 @@ public class ApplicationRoles extends AbstractFactoryAndRepository {
 
     @Action(
             domainEvent = FindByRoleNameDomainEvent.class,
-            semantics = SemanticsOf.SAFE
+            semantics = SemanticsOf.SAFE,
+            hidden = Where.EVERYWHERE
     )
-    @ActionLayout(
-            cssClassFa = "fa-crosshairs"
-    )
-    @MemberOrder(sequence = "100.20.1")
     public ApplicationRole findRoleByName(
             @Parameter(maxLength = ApplicationRole.MAX_LENGTH_NAME)
             @ParameterLayout(named="Name", typicalLength=ApplicationRole.TYPICAL_LENGTH_NAME)
