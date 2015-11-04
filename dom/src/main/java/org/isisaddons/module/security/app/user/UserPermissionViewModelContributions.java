@@ -24,7 +24,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.Collection;
@@ -50,53 +49,17 @@ import org.isisaddons.module.security.dom.user.ApplicationUser;
 )
 public class UserPermissionViewModelContributions  {
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<UserPermissionViewModelContributions, T> {
-        public PropertyDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<UserPermissionViewModelContributions, T> {}
 
-        public PropertyDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<UserPermissionViewModelContributions, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<UserPermissionViewModelContributions, T> {
-        public CollectionDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<UserPermissionViewModelContributions> {
-        public ActionDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<UserPermissionViewModelContributions> {}
 
     // //////////////////////////////////////
 
     //region > Permissions (derived collection)
 
-    public static class PermissionsDomainEvent extends CollectionDomainEvent<UserPermissionViewModel> {
-        public PermissionsDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public PermissionsDomainEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final Of of, final UserPermissionViewModel value) {
-            super(source, identifier, of, value);
-        }
-    }
+    public static class PermissionsDomainEvent extends CollectionDomainEvent<UserPermissionViewModel> {}
 
     @Action(
         semantics = SemanticsOf.SAFE
@@ -123,17 +86,7 @@ public class UserPermissionViewModelContributions  {
 
     //region > filterPermissions (action)
 
-    public static class FilterPermissionsEvent extends ActionDomainEvent {
-        public FilterPermissionsEvent(final UserPermissionViewModelContributions source, final Identifier identifier) {
-            super(source, identifier);
-        }
-        public FilterPermissionsEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-        public FilterPermissionsEvent(final UserPermissionViewModelContributions source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static class FilterPermissionsEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = FilterPermissionsEvent.class,

@@ -292,5 +292,4 @@ public class ApplicationFeaturesTest {
 
     }
 
-
 }

@@ -20,10 +20,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
-import org.apache.isis.applib.annotation.ActionLayout;
-import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.RestrictTo;
 import org.apache.isis.applib.annotation.SemanticsOf;
@@ -42,39 +39,11 @@ public class ApplicationPermissions {
 
     //region > domain event classes
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationPermissions, T> {
-        public PropertyDomainEvent(final ApplicationPermissions source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationPermissions, T> {}
 
-        public PropertyDomainEvent(final ApplicationPermissions source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationPermissions, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationPermissions, T> {
-        public CollectionDomainEvent(final ApplicationPermissions source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final ApplicationPermissions source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationPermissions> {
-        public ActionDomainEvent(final ApplicationPermissions source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final ApplicationPermissions source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final ApplicationPermissions source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationPermissions> {}
     //endregion
 
     //region > iconName
@@ -206,21 +175,17 @@ public class ApplicationPermissions {
     //endregion
 
     //region > allPermission (action)
-    public static class AllPermissionsDomainEvent extends ActionDomainEvent {
-        public AllPermissionsDomainEvent(final ApplicationPermissions source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class AllPermissionsDomainEvent extends ActionDomainEvent {}
 
+    /**
+     * @deprecated - use {@link ApplicationPermissionMenu#allPermissions()}
+     */
+    @Deprecated
     @Action(
             domainEvent=AllPermissionsDomainEvent.class,
             semantics = SemanticsOf.SAFE,
             restrictTo = RestrictTo.PROTOTYPING
     )
-    @ActionLayout(
-            cssClassFa = "fa-list"
-    )
-    @MemberOrder(sequence = "100.50.1")
     public List<ApplicationPermission> allPermissions() {
         return applicationPermissionRepository.allPermissions();
     }

@@ -21,13 +21,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
+
+import org.apache.isis.applib.annotation.Programmatic;
+
 import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.apache.isis.applib.Identifier;
-import org.apache.isis.applib.annotation.Programmatic;
 
 /**
  * A serializable value object representing a set of (anonymized) {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionValue permission}s.
@@ -38,39 +40,11 @@ import org.apache.isis.applib.annotation.Programmatic;
  */
 public class ApplicationPermissionValueSet implements Serializable {
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationPermissionValueSet, T> {
-        public PropertyDomainEvent(final ApplicationPermissionValueSet source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationPermissionValueSet, T> {}
 
-        public PropertyDomainEvent(final ApplicationPermissionValueSet source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationPermissionValueSet, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationPermissionValueSet, T> {
-        public CollectionDomainEvent(final ApplicationPermissionValueSet source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final ApplicationPermissionValueSet source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationPermissionValueSet> {
-        public ActionDomainEvent(final ApplicationPermissionValueSet source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final ApplicationPermissionValueSet source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final ApplicationPermissionValueSet source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationPermissionValueSet> {}
 
     // //////////////////////////////////////
 

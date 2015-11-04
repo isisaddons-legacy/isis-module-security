@@ -18,52 +18,25 @@ package org.isisaddons.module.security.app.feature;
 
 import java.util.List;
 import java.util.SortedSet;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
-import org.apache.isis.applib.Identifier;
+
 import org.apache.isis.applib.annotation.Collection;
 import org.apache.isis.applib.annotation.CollectionLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.RenderType;
 import org.apache.isis.applib.annotation.ViewModelLayout;
 
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
+
 @SuppressWarnings("UnusedDeclaration")
 @ViewModelLayout(paged=100)
 public class ApplicationPackage extends ApplicationFeatureViewModel {
 
-    public static abstract class PropertyDomainEvent<T> extends ApplicationFeatureViewModel.PropertyDomainEvent<ApplicationClass, T> {
-        public PropertyDomainEvent(final ApplicationClass source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class PropertyDomainEvent<T> extends ApplicationFeatureViewModel.PropertyDomainEvent<ApplicationClass, T> {}
 
-        public PropertyDomainEvent(final ApplicationClass source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends ApplicationFeatureViewModel.CollectionDomainEvent<ApplicationClass, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends ApplicationFeatureViewModel.CollectionDomainEvent<ApplicationClass, T> {
-        public CollectionDomainEvent(final ApplicationClass source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final ApplicationClass source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends ApplicationFeatureViewModel.ActionDomainEvent<ApplicationClass> {
-        public ActionDomainEvent(final ApplicationClass source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final ApplicationClass source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final ApplicationClass source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends ApplicationFeatureViewModel.ActionDomainEvent<ApplicationClass> {}
 
     // //////////////////////////////////////
 
@@ -79,14 +52,7 @@ public class ApplicationPackage extends ApplicationFeatureViewModel {
 
     //region > contents (collection, for packages only)
 
-    public static class ContentsDomainEvent extends CollectionDomainEvent<ApplicationPackage> {
-        public ContentsDomainEvent(final ApplicationClass source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-        public ContentsDomainEvent(final ApplicationClass source, final Identifier identifier, final Of of, final ApplicationPackage value) {
-            super(source, identifier, of, value);
-        }
-    }
+    public static class ContentsDomainEvent extends CollectionDomainEvent<ApplicationPackage> {}
 
     @Collection(
             domainEvent = ContentsDomainEvent.class

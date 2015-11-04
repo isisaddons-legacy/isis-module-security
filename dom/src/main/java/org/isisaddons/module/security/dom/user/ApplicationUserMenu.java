@@ -18,76 +18,175 @@ package org.isisaddons.module.security.dom.user;
 
 import java.util.List;
 
-import org.apache.isis.applib.Identifier;
+import javax.inject.Inject;
+
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.NatureOfService;
+import org.apache.isis.applib.annotation.Optionality;
+import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.SemanticsOf;
+import org.apache.isis.applib.value.Password;
 
 import org.isisaddons.module.security.SecurityModule;
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.role.ApplicationRoleRepository;
+import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityRegularUserRoleAndPermissions;
+import org.isisaddons.module.security.shiro.IsisModuleSecurityRealm;
+import org.isisaddons.module.security.shiro.ShiroUtils;
 
 @DomainService(
         nature = NatureOfService.VIEW_MENU_ONLY
 )
 @DomainServiceLayout(
-        named="Security",
+        named = "Security",
         menuBar = DomainServiceLayout.MenuBar.SECONDARY,
         menuOrder = "100.10"
 )
-public class ApplicationUserMenu extends ApplicationUsers {
+public class ApplicationUserMenu {
 
-        public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationUserMenu, T> {
-                public PropertyDomainEvent(final ApplicationUserMenu source, final Identifier identifier) {
-                        super(source, identifier);
-                }
+    //region > domain event classes
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationUserMenu, T> {
+    }
 
-                public PropertyDomainEvent(final ApplicationUserMenu source, final Identifier identifier, final T oldValue, final T newValue) {
-                        super(source, identifier, oldValue, newValue);
-                }
-        }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationUserMenu, T> {
+    }
 
-        public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationUserMenu, T> {
-                public CollectionDomainEvent(final ApplicationUserMenu source, final Identifier identifier, final Of of) {
-                        super(source, identifier, of);
-                }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationUserMenu> {
+    }
 
-                public CollectionDomainEvent(final ApplicationUserMenu source, final Identifier identifier, final Of of, final T value) {
-                        super(source, identifier, of, value);
-                }
-        }
+    public static class FindUsersByNameDomainEvent extends ActionDomainEvent {
+    }
+    //endregion
 
-        public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationUserMenu> {
-                public ActionDomainEvent(final ApplicationUserMenu source, final Identifier identifier) {
-                        super(source, identifier);
-                }
+    //region > identification
+    public String iconName() {
+        return "applicationUser";
+    }
+    //endregion
 
-                public ActionDomainEvent(final ApplicationUserMenu source, final Identifier identifier, final Object... arguments) {
-                        super(source, identifier, arguments);
-                }
+    //region > findUsers (action)
+    @Action(
+            domainEvent = FindUsersByNameDomainEvent.class,
+            semantics = SemanticsOf.SAFE
+    )
+    @MemberOrder(sequence = "100.10.2")
+    public List<ApplicationUser> findUsers(
+            final @ParameterLayout(named = "Search") String search) {
+        return applicationUserRepository.find(search);
+    }
+    //endregion
 
-                public ActionDomainEvent(final ApplicationUserMenu source, final Identifier identifier, final List<Object> arguments) {
-                        super(source, identifier, arguments);
-                }
-        }
+    //region > newDelegateUser (action)
+    public static class NewDelegateUserDomainEvent extends ActionDomainEvent {
+    }
 
+    @Action(
+            domainEvent = NewDelegateUserDomainEvent.class,
+            semantics = SemanticsOf.NON_IDEMPOTENT
+    )
+    @MemberOrder(sequence = "100.10.3")
+    public ApplicationUser newDelegateUser(
+            @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
+            @ParameterLayout(named = "Name")
+            final String username,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named = "Initial role")
+            final ApplicationRole initialRole,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named = "Enabled?")
+            final Boolean enabled) {
+        return applicationUserRepository.newDelegateUser(username, initialRole, enabled);
+    }
 
-        public static class FindUsersByNameDomainEvent extends ActionDomainEvent {
-                public FindUsersByNameDomainEvent(final ApplicationUserMenu source, final Identifier identifier, final Object... args) {
-                        super(source, identifier, args);
-                }
-        }
+    public boolean hideNewDelegateUser(
+            final String username,
+            final ApplicationRole initialRole,
+            final Boolean enabled) {
+        return hasNoDelegateAuthenticationRealm();
+    }
 
-        @Action(
-                domainEvent = FindUsersByNameDomainEvent.class,
-                semantics = SemanticsOf.SAFE
-        )
-        @MemberOrder(sequence = "100.10.2")
-        public List<ApplicationUser> findUsers(
-                final @ParameterLayout(named="Search") String search) {
-                return applicationUserRepository.find(search);
-        }
+    public ApplicationRole default1NewDelegateUser() {
+        return applicationRoleRepository.findByNameCached(IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
+    }
+    //endregion
+
+    //region > newLocalUser (action)
+    public static class NewLocalUserDomainEvent extends ActionDomainEvent {
+    }
+
+    @Action(
+            domainEvent = NewLocalUserDomainEvent.class,
+            semantics = SemanticsOf.IDEMPOTENT
+    )
+    @MemberOrder(sequence = "100.10.4")
+    public ApplicationUser newLocalUser(
+            @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
+            @ParameterLayout(named = "Name")
+            final String username,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named = "Password")
+            final Password password,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named = "Repeat password")
+            final Password passwordRepeat,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named = "Initial role")
+            final ApplicationRole initialRole,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named = "Enabled?")
+            final Boolean enabled,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named = "Email Address")
+            final String emailAddress) {
+        return applicationUserRepository.newLocalUser(username, password, passwordRepeat, initialRole, enabled, emailAddress);
+    }
+
+    public String validateNewLocalUser(
+            final String username,
+            final Password password,
+            final Password passwordRepeat,
+            final ApplicationRole initialRole,
+            final Boolean enabled,
+            final String emailAddress) {
+        return applicationUserRepository.validateNewLocalUser(username, password, passwordRepeat, initialRole, enabled, emailAddress);
+    }
+
+    public ApplicationRole default3NewLocalUser() {
+        return applicationRoleRepository.findByNameCached(IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
+    }
+    //endregion
+
+    //region > allUsers
+    public static class AllUsersDomainEvent extends ActionDomainEvent {
+    }
+
+    @Action(
+            domainEvent = AllUsersDomainEvent.class,
+            semantics = SemanticsOf.SAFE
+    )
+    @MemberOrder(sequence = "100.10.5")
+    public List<ApplicationUser> allUsers() {
+        return applicationUserRepository.allUsers();
+    }
+    //endregion
+
+    //region > helpers: hasNoDelegateAuthenticationRealm
+    private boolean hasNoDelegateAuthenticationRealm() {
+        final IsisModuleSecurityRealm realm = ShiroUtils.getIsisModuleSecurityRealm();
+        return realm == null || !realm.hasDelegateAuthenticationRealm();
+    }
+    //endregion
+
+    //region  > injected
+    @Inject
+    ApplicationRoleRepository applicationRoleRepository;
+
+    @Inject
+    ApplicationUserRepository applicationUserRepository;
+    //endregion
 
 }

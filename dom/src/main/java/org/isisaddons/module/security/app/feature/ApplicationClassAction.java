@@ -16,51 +16,22 @@
  */
 package org.isisaddons.module.security.app.feature;
 
-import java.util.List;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Property;
 import org.apache.isis.applib.annotation.ViewModelLayout;
 
+import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+
 @SuppressWarnings("UnusedDeclaration")
 @ViewModelLayout(paged=100)
 public class ApplicationClassAction extends ApplicationClassMember {
 
-    public static abstract class PropertyDomainEvent<T> extends ApplicationClassMember.PropertyDomainEvent<ApplicationClassAction, T> {
-        public PropertyDomainEvent(final ApplicationClassAction source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class PropertyDomainEvent<T> extends ApplicationClassMember.PropertyDomainEvent<ApplicationClassAction, T> {}
 
-        public PropertyDomainEvent(final ApplicationClassAction source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends ApplicationClassMember.CollectionDomainEvent<ApplicationClassAction, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends ApplicationClassMember.CollectionDomainEvent<ApplicationClassAction, T> {
-        public CollectionDomainEvent(final ApplicationClassAction source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final ApplicationClassAction source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends ApplicationClassMember.ActionDomainEvent<ApplicationClassAction> {
-        public ActionDomainEvent(final ApplicationClassAction source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final ApplicationClassAction source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final ApplicationClassAction source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends ApplicationClassMember.ActionDomainEvent<ApplicationClassAction> {}
 
     // //////////////////////////////////////
 
@@ -78,14 +49,7 @@ public class ApplicationClassAction extends ApplicationClassMember {
 
     //region > returnTypeName (property)
 
-    public static class ReturnTypeDomainEvent extends PropertyDomainEvent<String> {
-        public ReturnTypeDomainEvent(final ApplicationClassAction source, final Identifier identifier) {
-            super(source, identifier);
-        }
-        public ReturnTypeDomainEvent(final ApplicationClassAction source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class ReturnTypeDomainEvent extends PropertyDomainEvent<String> {}
 
     @Property(
             domainEvent = ReturnTypeDomainEvent.class
@@ -99,15 +63,7 @@ public class ApplicationClassAction extends ApplicationClassMember {
     // //////////////////////////////////////
 
     //region > actionSemantics (property)
-    public static class ActionSemanticsDomainEvent extends PropertyDomainEvent<ActionSemantics.Of> {
-        public ActionSemanticsDomainEvent(final ApplicationClassAction source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionSemanticsDomainEvent(final ApplicationClassAction source, final Identifier identifier, final ActionSemantics.Of oldValue, final ActionSemantics.Of newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class ActionSemanticsDomainEvent extends PropertyDomainEvent<ActionSemantics.Of> {}
 
     @Property(
             domainEvent = ActionSemanticsDomainEvent.class

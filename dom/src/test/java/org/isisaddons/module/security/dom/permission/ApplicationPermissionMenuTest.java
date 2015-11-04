@@ -16,12 +16,9 @@
  */
 package org.isisaddons.module.security.dom.permission;
 
-import org.junit.Assert;
 import org.junit.Rule;
-import org.junit.Test;
-import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
-import static org.hamcrest.CoreMatchers.is;
+import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
 public class ApplicationPermissionMenuTest {
 
@@ -29,15 +26,5 @@ public class ApplicationPermissionMenuTest {
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(JUnitRuleMockery2.Mode.INTERFACES_AND_CLASSES);
 
     ApplicationPermissionMenu applicationPermissionMenu;
-
-    public static class IconName extends ApplicationPermissionMenuTest {
-
-        @Test
-        public void happyCase() throws Exception {
-
-            applicationPermissionMenu = new ApplicationPermissionMenu();
-            Assert.assertThat(applicationPermissionMenu.iconName(), is("applicationPermission"));
-        }
-    }
 
 }

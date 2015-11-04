@@ -20,10 +20,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
-import org.apache.isis.applib.annotation.ActionLayout;
-import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
@@ -46,40 +43,11 @@ import org.isisaddons.module.security.shiro.ShiroUtils;
 public class ApplicationUsers {
 
     //region > domain event classes
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationUsers, T> {}
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationUsers, T> {
-        public PropertyDomainEvent(final ApplicationUsers source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationUsers, T> {}
 
-        public PropertyDomainEvent(final ApplicationUsers source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
-
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationUsers, T> {
-        public CollectionDomainEvent(final ApplicationUsers source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final ApplicationUsers source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationUsers> {
-        public ActionDomainEvent(final ApplicationUsers source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final ApplicationUsers source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final ApplicationUsers source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationUsers> {}
     //endregion
 
     //region > identification
@@ -89,7 +57,6 @@ public class ApplicationUsers {
     //endregion
 
     //region > findOrCreateUserByUsername (programmatic)
-
     /**
      * @deprecated - use {@link ApplicationUserRepository#findOrCreateUserByUsername(String)} instead.
      */
@@ -98,34 +65,34 @@ public class ApplicationUsers {
     public ApplicationUser findOrCreateUserByUsername(final String username) {
         return applicationUserRepository.findOrCreateUserByUsername(username);
     }
-
     //endregion
 
     //region > findUserByName
-
-    public static class FindUserByUserNameDomainEvent extends ActionDomainEvent {
-        public FindUserByUserNameDomainEvent(final ApplicationUsers source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    /**
+     * @deprecated - use {@link ApplicationUserRepository#findByUsername(String)} instead.
+     */
+    public static class FindUserByUserNameDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = FindUserByUserNameDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT,
             hidden = Where.EVERYWHERE
     )
+    @Deprecated
     public ApplicationUser findUserByUsername(
             @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
             @ParameterLayout(named = "Username")
             final String username) {
         return applicationUserRepository.findByUsername(username);
     }
-
     //endregion
 
     //region > findUserByEmail (programmatic)
-
+    /**
+     * @deprecated - use {@link ApplicationUserRepository#findByEmailAddress(String)} instead.
+     */
     @Programmatic
+    @Deprecated
     public ApplicationUser findUserByEmail(
         final @ParameterLayout(named="Email") String emailAddress) {
         return applicationUserRepository.findByEmailAddress(emailAddress);
@@ -133,18 +100,17 @@ public class ApplicationUsers {
     //endregion
 
     //region > findUsersByName
+    public static class FindUsersByNameDomainEvent extends ActionDomainEvent {}
 
-    public static class FindUsersByNameDomainEvent extends ActionDomainEvent {
-        public FindUsersByNameDomainEvent(final ApplicationUsers source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
-
+    /**
+     * @deprecated - use {@link ApplicationUserMenu#findUsers(String)} instead.
+     */
     @Action(
             domainEvent = FindUsersByNameDomainEvent.class,
             semantics = SemanticsOf.SAFE,
             hidden = Where.EVERYWHERE
     )
+    @Deprecated
     public List<ApplicationUser> findUsersByName(
             final @ParameterLayout(named="Name") String name) {
         final String nameRegex = "(?i).*" + name + ".*";
@@ -153,21 +119,17 @@ public class ApplicationUsers {
     //endregion
 
     //region > newDelegateUser (action)
+    public static class NewDelegateUserDomainEvent extends ActionDomainEvent {}
 
-    public static class NewDelegateUserDomainEvent extends ActionDomainEvent {
-        public NewDelegateUserDomainEvent(final ApplicationUsers source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
-
+    /**
+     * @deprecated - use {@link ApplicationUserMenu#newDelegateUser(String, ApplicationRole, Boolean)} instead.
+     */
     @Action(
             domainEvent = NewDelegateUserDomainEvent.class,
-            semantics = SemanticsOf.NON_IDEMPOTENT
+            semantics = SemanticsOf.NON_IDEMPOTENT,
+            hidden = Where.EVERYWHERE
     )
-    @ActionLayout(
-            cssClassFa = "fa-plus"
-    )
-    @MemberOrder(sequence = "100.10.3")
+    @Deprecated
     public ApplicationUser newDelegateUser(
             @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
             @ParameterLayout(named="Name")
@@ -191,25 +153,20 @@ public class ApplicationUsers {
     public ApplicationRole default1NewDelegateUser() {
         return applicationRoleRepository.findByNameCached(IsisModuleSecurityRegularUserRoleAndPermissions.ROLE_NAME);
     }
-
     //endregion
 
     //region > newLocalUser (action)
+    public static class NewLocalUserDomainEvent extends ActionDomainEvent {}
 
-    public static class NewLocalUserDomainEvent extends ActionDomainEvent {
-        public NewLocalUserDomainEvent(final ApplicationUsers source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
-
+    /**
+     * @deprecated - use {@link ApplicationUserMenu#newLocalUser(String, Password, Password, ApplicationRole, Boolean, String)} instead.
+     */
     @Action(
             domainEvent = NewLocalUserDomainEvent.class,
-            semantics = SemanticsOf.IDEMPOTENT
+            semantics = SemanticsOf.IDEMPOTENT,
+            hidden = Where.EVERYWHERE
     )
-    @ActionLayout(
-            cssClassFa = "fa-plus"
-    )
-    @MemberOrder(sequence = "100.10.4")
+    @Deprecated
     public ApplicationUser newLocalUser(
             @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
             @ParameterLayout(named="Name")
@@ -248,34 +205,27 @@ public class ApplicationUsers {
     //endregion
 
     //region > allUsers
+    public static class AllUsersDomainEvent extends ActionDomainEvent {}
 
-    public static class AllUsersDomainEvent extends ActionDomainEvent {
-        public AllUsersDomainEvent(final ApplicationUsers source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
-
+    /**
+     * @deprecated - use {@link ApplicationUserMenu#allUsers()} instead.
+     */
     @Action(
             domainEvent = AllUsersDomainEvent.class,
-            semantics = SemanticsOf.SAFE
+            semantics = SemanticsOf.SAFE,
+            hidden = Where.EVERYWHERE
     )
-    @ActionLayout(
-            cssClassFa = "fa-list"
-    )
-    @MemberOrder(sequence = "100.10.5")
+    @Deprecated
     public List<ApplicationUser> allUsers() {
         return applicationUserRepository.allUsers();
     }
-
     //endregion
 
     //region > helpers: hasNoDelegateAuthenticationRealm
-
     private boolean hasNoDelegateAuthenticationRealm() {
         final IsisModuleSecurityRealm realm = ShiroUtils.getIsisModuleSecurityRealm();
         return realm == null || !realm.hasDelegateAuthenticationRealm();
     }
-
     //endregion
 
     //region  > injected

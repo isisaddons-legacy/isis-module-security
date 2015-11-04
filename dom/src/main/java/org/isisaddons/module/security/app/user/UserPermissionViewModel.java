@@ -18,7 +18,6 @@ package org.isisaddons.module.security.app.user;
 
 import java.nio.charset.Charset;
 import java.util.Iterator;
-import java.util.List;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -26,7 +25,6 @@ import com.google.common.base.Splitter;
 import com.google.common.io.BaseEncoding;
 
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.ViewModel;
 import org.apache.isis.applib.annotation.BookmarkPolicy;
 import org.apache.isis.applib.annotation.Editing;
@@ -69,39 +67,11 @@ import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 )
 public class UserPermissionViewModel implements ViewModel {
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<UserPermissionViewModel, T> {
-        public PropertyDomainEvent(final UserPermissionViewModel source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<UserPermissionViewModel, T> {}
 
-        public PropertyDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<UserPermissionViewModel, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<UserPermissionViewModel, T> {
-        public CollectionDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<UserPermissionViewModel> {
-        public ActionDomainEvent(final UserPermissionViewModel source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<UserPermissionViewModel> {}
 
     // //////////////////////////////////////
 
@@ -251,14 +221,7 @@ public class UserPermissionViewModel implements ViewModel {
     // //////////////////////////////////////
 
     //region > user (derived property, hidden in parented tables)
-    public static class UserDomainEvent extends PropertyDomainEvent<ApplicationUser> {
-        public UserDomainEvent(final UserPermissionViewModel source, final Identifier identifier) {
-            super(source, identifier);
-        }
-        public UserDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final ApplicationUser oldValue, final ApplicationUser newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class UserDomainEvent extends PropertyDomainEvent<ApplicationUser> {}
 
     @Property(
             domainEvent = UserDomainEvent.class
@@ -280,14 +243,7 @@ public class UserPermissionViewModel implements ViewModel {
 
     //region > verb (derived property)
 
-    public static class VerbDomainEvent extends PropertyDomainEvent<String> {
-        public VerbDomainEvent(final UserPermissionViewModel source, final Identifier identifier) {
-            super(source, identifier);
-        }
-        public VerbDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class VerbDomainEvent extends PropertyDomainEvent<String> {}
 
     private boolean viewingGranted;
     private boolean changingGranted;
@@ -310,14 +266,7 @@ public class UserPermissionViewModel implements ViewModel {
 
     //region > feature (derived property)
 
-    public static class FeatureDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel> {
-        public FeatureDomainEvent(final UserPermissionViewModel source, final Identifier identifier) {
-            super(source, identifier);
-        }
-        public FeatureDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final ApplicationFeatureViewModel oldValue, final ApplicationFeatureViewModel newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class FeatureDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel> {}
 
     @javax.jdo.annotations.NotPersistent
     @Property(
@@ -352,15 +301,7 @@ public class UserPermissionViewModel implements ViewModel {
 
     //region > viewingPermission (derived property)
 
-    public static class ViewingPermissionDomainEvent extends PropertyDomainEvent<ApplicationPermission> {
-        public ViewingPermissionDomainEvent(final UserPermissionViewModel source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ViewingPermissionDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final ApplicationPermission oldValue, final ApplicationPermission newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class ViewingPermissionDomainEvent extends PropertyDomainEvent<ApplicationPermission> {}
 
     private ApplicationFeatureId viewingFeatureId;
     private ApplicationPermissionMode viewingMode;
@@ -393,15 +334,7 @@ public class UserPermissionViewModel implements ViewModel {
 
     //region > changingPermission (derived property)
 
-    public static class ChangingPermissionDomainEvent extends PropertyDomainEvent<ApplicationPermission> {
-        public ChangingPermissionDomainEvent(final UserPermissionViewModel source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ChangingPermissionDomainEvent(final UserPermissionViewModel source, final Identifier identifier, final ApplicationPermission oldValue, final ApplicationPermission newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class ChangingPermissionDomainEvent extends PropertyDomainEvent<ApplicationPermission> {}
 
     private ApplicationFeatureId changingFeatureId;
     private ApplicationPermissionMode changingMode;

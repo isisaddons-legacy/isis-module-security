@@ -20,9 +20,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
-import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
@@ -40,56 +38,21 @@ import org.isisaddons.module.security.SecurityModule;
 public class ApplicationTenancies {
 
     //region > domain event classes
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationTenancies, T> {}
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationTenancies, T> {
-        public PropertyDomainEvent(final ApplicationTenancies source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationTenancies, T> {}
 
-        public PropertyDomainEvent(final ApplicationTenancies source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
-
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationTenancies, T> {
-        public CollectionDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationTenancies> {
-        public ActionDomainEvent(final ApplicationTenancies source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final ApplicationTenancies source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationTenancies> {}
     //endregion
 
     //region > iconName
-
     public String iconName() {
         return "applicationTenancy";
     }
-
     //endregion
 
     //region > findTenancyByName
-
     public static class FindTenancyByNameDomainEvent extends ActionDomainEvent {
-        public FindTenancyByNameDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
     }
 
     /**
@@ -107,16 +70,11 @@ public class ApplicationTenancies {
             final String name) {
         return applicationTenancyRepository.findByName(name);
     }
-
     //endregion
 
     //region > findTenancyByPath
 
-    public static class FindTenancyByPathDomainEvent extends ActionDomainEvent {
-        public FindTenancyByPathDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class FindTenancyByPathDomainEvent extends ActionDomainEvent {}
 
     /**
      * @deprecated - use {@link ApplicationTenancyMenu#findTenancies(String)} instead.
@@ -133,25 +91,20 @@ public class ApplicationTenancies {
             final String path) {
         return applicationTenancyRepository.findByPath(path);
     }
-
     //endregion
 
     //region > newTenancy
-
     public static class NewTenancyDomainEvent extends ActionDomainEvent {
-        public NewTenancyDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
     }
 
+    /**
+     * @deprecated - use {@link ApplicationTenancyMenu#newTenancy(String, String, ApplicationTenancy)} instead.
+     */
     @Action(
             domainEvent = NewTenancyDomainEvent.class,
-            semantics = SemanticsOf.IDEMPOTENT
+            semantics = SemanticsOf.IDEMPOTENT,
+            hidden = Where.EVERYWHERE
     )
-    @ActionLayout(
-            cssClassFa = "fa-plus"
-    )
-    @MemberOrder(sequence = "100.30.3")
     public ApplicationTenancy newTenancy(
             @Parameter(maxLength = ApplicationTenancy.MAX_LENGTH_NAME)
             @ParameterLayout(named = "Name", typicalLength = ApplicationTenancy.TYPICAL_LENGTH_NAME)
@@ -164,29 +117,25 @@ public class ApplicationTenancies {
             final ApplicationTenancy parent) {
         return applicationTenancyRepository.newTenancy(name, path, parent);
     }
-
     //endregion
 
     //region > allTenancies
     public static class AllTenanciesDomainEvent extends ActionDomainEvent {
-        public AllTenanciesDomainEvent(final ApplicationTenancies source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
     }
 
+    /**
+     * @deprecated - use {@link ApplicationTenancyMenu#allTenancies()} instead.
+     */
     @Action(
             domainEvent = AllTenanciesDomainEvent.class,
             semantics = SemanticsOf.SAFE,
-            restrictTo = RestrictTo.PROTOTYPING
-    )
-    @ActionLayout(
-            cssClassFa = "fa-list"
+            restrictTo = RestrictTo.PROTOTYPING,
+            hidden = Where.EVERYWHERE
     )
     @MemberOrder(sequence = "100.30.4")
     public List<ApplicationTenancy> allTenancies() {
         return applicationTenancyRepository.allTenancies();
     }
-
     //endregion
 
 

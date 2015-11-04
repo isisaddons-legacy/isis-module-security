@@ -24,7 +24,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.ViewModel;
 import org.apache.isis.applib.annotation.Collection;
 import org.apache.isis.applib.annotation.CollectionLayout;
@@ -55,39 +54,11 @@ import org.isisaddons.module.security.dom.permission.ApplicationPermissionReposi
 )
 public abstract class ApplicationFeatureViewModel implements ViewModel {
 
-    public static abstract class PropertyDomainEvent<S extends ApplicationFeatureViewModel,T> extends SecurityModule.PropertyDomainEvent<S, T> {
-        public PropertyDomainEvent(final S source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class PropertyDomainEvent<S extends ApplicationFeatureViewModel,T> extends SecurityModule.PropertyDomainEvent<S, T> {}
 
-        public PropertyDomainEvent(final S source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<S extends ApplicationFeatureViewModel,T> extends SecurityModule.CollectionDomainEvent<S, T> {}
 
-    public static abstract class CollectionDomainEvent<S extends ApplicationFeatureViewModel,T> extends SecurityModule.CollectionDomainEvent<S, T> {
-        public CollectionDomainEvent(final S source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final S source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent<S extends ApplicationFeatureViewModel> extends SecurityModule.ActionDomainEvent<S> {
-        public ActionDomainEvent(final S source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final S source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final S source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent<S extends ApplicationFeatureViewModel> extends SecurityModule.ActionDomainEvent<S> {}
 
     // //////////////////////////////////////
 
@@ -208,15 +179,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     // //////////////////////////////////////
 
     //region > packageName
-    public static class PackageNameDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel, String> {
-        public PackageNameDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public PackageNameDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class PackageNameDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel, String> {}
 
     @Property(
             domainEvent = PackageNameDomainEvent.class
@@ -233,15 +196,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     //region > className
 
-    public static class ClassNameDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel, String> {
-        public ClassNameDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ClassNameDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class ClassNameDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel, String> {}
 
     /**
      * For packages, will be null. Is in this class (rather than subclasses) so is shown in
@@ -265,14 +220,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     //region > memberName
 
-    public static class MemberNameDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel, String> {
-        public MemberNameDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier) {
-            super(source, identifier);
-        }
-        public MemberNameDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class MemberNameDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel, String> {}
 
     /**
      * For packages and class names, will be null.
@@ -297,14 +245,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     //region > parent (property)
 
-    public static class ParentDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel, ApplicationFeatureViewModel> {
-        public ParentDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier) {
-            super(source, identifier);
-        }
-        public ParentDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier, final ApplicationFeatureViewModel oldValue, final ApplicationFeatureViewModel newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class ParentDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel, ApplicationFeatureViewModel> {}
 
     @Property(
             domainEvent = ParentDomainEvent.class
@@ -333,14 +274,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     //region > contributed (property)
 
-    public static class ContributedDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel, Boolean> {
-        public ContributedDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier) {
-            super(source, identifier);
-        }
-        public ContributedDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier, final Boolean oldValue, final Boolean newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class ContributedDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel, Boolean> {}
 
     /**
      * For packages and class names, will be null.
@@ -361,14 +295,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     // //////////////////////////////////////
 
     //region > permissions (collection)
-    public static class PermissionsDomainEvent extends CollectionDomainEvent<ApplicationFeatureViewModel, ApplicationPermission> {
-        public PermissionsDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-        public PermissionsDomainEvent(final ApplicationFeatureViewModel source, final Identifier identifier, final Of of, final ApplicationPermission value) {
-            super(source, identifier, of, value);
-        }
-    }
+    public static class PermissionsDomainEvent extends CollectionDomainEvent<ApplicationFeatureViewModel, ApplicationPermission> {}
 
     @Collection(
             domainEvent = PermissionsDomainEvent.class

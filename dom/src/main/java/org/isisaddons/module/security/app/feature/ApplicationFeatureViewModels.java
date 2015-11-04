@@ -22,7 +22,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.DomainService;
@@ -45,39 +44,11 @@ import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
 )
 public class ApplicationFeatureViewModels  {
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationFeatureViewModels, T> {
-        public PropertyDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationFeatureViewModels, T> {}
 
-        public PropertyDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationFeatureViewModels, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationFeatureViewModels, T> {
-        public CollectionDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationFeatureViewModels> {
-        public ActionDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationFeatureViewModels> {}
 
     // //////////////////////////////////////
 
@@ -93,11 +64,7 @@ public class ApplicationFeatureViewModels  {
 
     //region > allPackages
 
-    public static class AllPackagesDomainEvent extends ActionDomainEvent {
-        public AllPackagesDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class AllPackagesDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = AllPackagesDomainEvent.class,
@@ -115,11 +82,7 @@ public class ApplicationFeatureViewModels  {
 
     //region > allClasses
 
-    public static class AllClassesDomainEvent extends ActionDomainEvent {
-        public AllClassesDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class AllClassesDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = AllClassesDomainEvent.class,
@@ -139,11 +102,7 @@ public class ApplicationFeatureViewModels  {
 
     //region > allActions
 
-    public static class AllActionsDomainEvent extends ActionDomainEvent {
-        public AllActionsDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class AllActionsDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = AllActionsDomainEvent.class,
@@ -161,11 +120,7 @@ public class ApplicationFeatureViewModels  {
 
     //region > allProperties
 
-    public static class AllPropertiesDomainEvent extends ActionDomainEvent {
-        public AllPropertiesDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class AllPropertiesDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = AllPropertiesDomainEvent.class,
@@ -185,11 +140,7 @@ public class ApplicationFeatureViewModels  {
 
     //region > allCollections
 
-    public static class AllCollectionsDomainEvent extends ActionDomainEvent {
-        public AllCollectionsDomainEvent(final ApplicationFeatureViewModels source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class AllCollectionsDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = AllCollectionsDomainEvent.class,

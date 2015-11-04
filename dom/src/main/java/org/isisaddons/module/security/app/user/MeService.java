@@ -16,11 +16,9 @@
  */
 package org.isisaddons.module.security.app.user;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.apache.isis.applib.AbstractFactoryAndRepository;
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.DomainService;
@@ -41,39 +39,11 @@ import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 )
 public class MeService extends AbstractFactoryAndRepository {
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<MeService, T> {
-        public PropertyDomainEvent(final MeService source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<MeService, T> {}
 
-        public PropertyDomainEvent(final MeService source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<MeService, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<MeService, T> {
-        public CollectionDomainEvent(final MeService source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final MeService source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<MeService> {
-        public ActionDomainEvent(final MeService source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final MeService source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final MeService source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<MeService> {}
 
     // //////////////////////////////////////
 
@@ -86,17 +56,7 @@ public class MeService extends AbstractFactoryAndRepository {
     // //////////////////////////////////////
 
     //region > me (action)
-    public static class MeDomainEvent extends ActionDomainEvent {
-        public MeDomainEvent(final MeService source, final Identifier identifier) {
-            super(source, identifier);
-        }
-        public MeDomainEvent(final MeService source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-        public MeDomainEvent(final MeService source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static class MeDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = MeDomainEvent.class,

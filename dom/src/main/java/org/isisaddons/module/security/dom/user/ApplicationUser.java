@@ -31,7 +31,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.BookmarkPolicy;
@@ -128,39 +127,11 @@ import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminUser;
 )
 public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername {
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationUser, T> {
-        public PropertyDomainEvent(final ApplicationUser source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationUser, T> {}
 
-        public PropertyDomainEvent(final ApplicationUser source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationUser, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationUser, T> {
-        public CollectionDomainEvent(final ApplicationUser source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final ApplicationUser source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationUser> {
-        public ActionDomainEvent(final ApplicationUser source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final ApplicationUser source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationUser> {}
 
     // //////////////////////////////////////
 
@@ -187,14 +158,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > name (derived property)
 
-    public static class NameDomainEvent extends PropertyDomainEvent<String> {
-        public NameDomainEvent(final ApplicationUser source, final Identifier identifier) {
-            super(source, identifier);
-        }
-        public NameDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class NameDomainEvent extends PropertyDomainEvent<String> {}
 
     @javax.jdo.annotations.NotPersistent
     @Property(
@@ -225,14 +189,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > username (property)
 
-    public static class UsernameDomainEvent extends PropertyDomainEvent<String> {
-        public UsernameDomainEvent(final ApplicationUser source, final Identifier identifier) {
-            super(source, identifier);
-        }
-        public UsernameDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class UsernameDomainEvent extends PropertyDomainEvent<String> {}
 
     private String username;
 
@@ -257,11 +214,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > updateUsername (action)
 
-    public static class UpdateUsernameDomainEvent extends ActionDomainEvent {
-        public UpdateUsernameDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class UpdateUsernameDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = UpdateUsernameDomainEvent.class,
@@ -283,15 +236,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > familyName (property)
 
-    public static class FamilyNameDomainEvent extends PropertyDomainEvent<String> {
-        public FamilyNameDomainEvent(final ApplicationUser source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public FamilyNameDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class FamilyNameDomainEvent extends PropertyDomainEvent<String> {}
 
     private String familyName;
 
@@ -315,15 +260,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > givenName (property)
 
-    public static class GivenNameDomainEvent extends PropertyDomainEvent<String> {
-        public GivenNameDomainEvent(final ApplicationUser source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public GivenNameDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class GivenNameDomainEvent extends PropertyDomainEvent<String> {}
 
     private String givenName;
 
@@ -347,15 +284,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > knownAs (property)
 
-    public static class KnownAsDomainEvent extends PropertyDomainEvent<String> {
-        public KnownAsDomainEvent(final ApplicationUser source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public KnownAsDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class KnownAsDomainEvent extends PropertyDomainEvent<String> {}
 
     private String knownAs;
 
@@ -379,11 +308,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > updateName (action)
 
-    public static class UpdateNameDomainEvent extends ActionDomainEvent {
-        public UpdateNameDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class UpdateNameDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = UpdateNameDomainEvent.class,
@@ -436,15 +361,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > emailAddress (property)
 
-    public static class EmailAddressDomainEvent extends PropertyDomainEvent<String> {
-        public EmailAddressDomainEvent(final ApplicationUser source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public EmailAddressDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class EmailAddressDomainEvent extends PropertyDomainEvent<String> {}
 
 
     private String emailAddress;
@@ -467,11 +384,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > updateEmailAddress (action)
 
-    public static class UpdateEmailAddressDomainEvent extends ActionDomainEvent {
-        public UpdateEmailAddressDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class UpdateEmailAddressDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = UpdateEmailAddressDomainEvent.class,
@@ -497,15 +410,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > phoneNumber (property)
 
-    public static class PhoneNumberDomainEvent extends PropertyDomainEvent<String> {
-        public PhoneNumberDomainEvent(final ApplicationUser source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public PhoneNumberDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class PhoneNumberDomainEvent extends PropertyDomainEvent<String> {}
 
     private String phoneNumber;
 
@@ -527,11 +432,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > phoneNumber (property)
 
-    public static class UpdatePhoneNumberDomainEvent extends ActionDomainEvent {
-        public UpdatePhoneNumberDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class UpdatePhoneNumberDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = UpdatePhoneNumberDomainEvent.class,
@@ -557,15 +458,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > faxNumber (property)
 
-    public static class FaxNumberDomainEvent extends PropertyDomainEvent<String> {
-        public FaxNumberDomainEvent(final ApplicationUser source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public FaxNumberDomainEvent(final ApplicationUser source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class FaxNumberDomainEvent extends PropertyDomainEvent<String> {}
 
 
     private String faxNumber;
@@ -591,11 +484,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > updateFaxNumber (action)
 
-    public static class UpdateFaxNumberDomainEvent extends ActionDomainEvent {
-        public UpdateFaxNumberDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class UpdateFaxNumberDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = UpdateFaxNumberDomainEvent.class,
@@ -622,15 +511,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > tenancy (property)
 
-    public static class TenancyDomainEvent extends PropertyDomainEvent<ApplicationTenancy> {
-        public TenancyDomainEvent(final ApplicationUser source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public TenancyDomainEvent(final ApplicationUser source, final Identifier identifier, final ApplicationTenancy oldValue, final ApplicationTenancy newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class TenancyDomainEvent extends PropertyDomainEvent<ApplicationTenancy> {}
 
     private ApplicationTenancy tenancy;
 
@@ -652,11 +533,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > updateTenancy (action)
 
-    public static class UpdateTenancyDomainEvent extends ActionDomainEvent {
-        public UpdateTenancyDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class UpdateTenancyDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = UpdateTenancyDomainEvent.class,
@@ -677,15 +554,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > accountType (property)
 
-    public static class AccountTypeDomainEvent extends PropertyDomainEvent<AccountType> {
-        public AccountTypeDomainEvent(final ApplicationUser source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public AccountTypeDomainEvent(final ApplicationUser source, final Identifier identifier, final AccountType oldValue, final AccountType newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class AccountTypeDomainEvent extends PropertyDomainEvent<AccountType> {}
 
     private AccountType accountType;
 
@@ -707,11 +576,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > updateAccountType (action)
 
-    public static class UpdateAccountTypeDomainEvent extends ActionDomainEvent {
-        public UpdateAccountTypeDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class UpdateAccountTypeDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = UpdateAccountTypeDomainEvent.class,
@@ -744,14 +609,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > status (property), visible (action), usable (action)
 
-    public static class StatusDomainEvent extends PropertyDomainEvent<ApplicationUserStatus> {
-        public StatusDomainEvent(final ApplicationUser source, final Identifier identifier) {
-            super(source, identifier);
-        }
-        public StatusDomainEvent(final ApplicationUser source, final Identifier identifier, final ApplicationUserStatus oldValue, final ApplicationUserStatus newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class StatusDomainEvent extends PropertyDomainEvent<ApplicationUserStatus> {}
 
     private ApplicationUserStatus status;
 
@@ -773,11 +631,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > unlock (action)
 
-    public static class UnlockDomainEvent extends ActionDomainEvent {
-        public UnlockDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class UnlockDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = UnlockDomainEvent.class,
@@ -797,11 +651,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > lock (action)
 
-    public static class LockDomainEvent extends ActionDomainEvent {
-        public LockDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class LockDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = LockDomainEvent.class,
@@ -844,15 +694,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > hasPassword (derived property)
 
-    public static class HasPasswordDomainEvent extends PropertyDomainEvent<Boolean> {
-        public HasPasswordDomainEvent(final ApplicationUser source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public HasPasswordDomainEvent(final ApplicationUser source, final Identifier identifier, final Boolean oldValue, final Boolean newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class HasPasswordDomainEvent extends PropertyDomainEvent<Boolean> {}
 
     @Property(
             domainEvent = HasPasswordDomainEvent.class,
@@ -871,11 +713,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > updatePassword (action)
 
-    public static class UpdatePasswordDomainEvent extends ActionDomainEvent {
-        public UpdatePasswordDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class UpdatePasswordDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = UpdatePasswordDomainEvent.class,
@@ -950,11 +788,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > resetPassword (action)
 
-    public static class ResetPasswordDomainEvent extends ActionDomainEvent {
-        public ResetPasswordDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class ResetPasswordDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent =ResetPasswordDomainEvent.class,
@@ -1002,15 +836,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     //endregion
 
     //region > roles (collection)
-    public static class RolesDomainEvent extends CollectionDomainEvent<ApplicationRole> {
-        public RolesDomainEvent(final ApplicationUser source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public RolesDomainEvent(final ApplicationUser source, final Identifier identifier, final Of of, final ApplicationRole value) {
-            super(source, identifier, of, value);
-        }
-    }
+    public static class RolesDomainEvent extends CollectionDomainEvent<ApplicationRole> {}
 
     @javax.jdo.annotations.Persistent(table="ApplicationUserRoles")
     @javax.jdo.annotations.Join(column="userId")
@@ -1047,19 +873,15 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > addRole (action)
 
-    public static class AddRoleDomainEvent extends ActionDomainEvent {
-        public AddRoleDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class AddRoleDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = AddRoleDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
     @ActionLayout(
-            named="Add",
-            cssClassFa = "fa fa-plus-square")
+            named="Add"
+    )
     @MemberOrder(name="roles", sequence = "1")
     public ApplicationUser addRole(final ApplicationRole role) {
         addToRoles(role);
@@ -1080,19 +902,14 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > removeRole (action)
 
-    public static class RemoveRoleDomainEvent extends ActionDomainEvent {
-        public RemoveRoleDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class RemoveRoleDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = RemoveRoleDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
     @ActionLayout(
-            named="Remove",
-            cssClassFa = "fa fa-minus-square"
+            named="Remove"
     )
     @MemberOrder(name="roles", sequence = "2")
     public ApplicationUser removeRole(final ApplicationRole role) {
@@ -1120,19 +937,11 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > delete (action)
 
-    public static class DeleteDomainEvent extends ActionDomainEvent {
-        public DeleteDomainEvent(final ApplicationUser source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class DeleteDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = DeleteDomainEvent.class,
             semantics = SemanticsOf.NON_IDEMPOTENT
-    )
-    @ActionLayout(
-        cssClassFa = "fa fa-trash",
-        cssClass = "btn btn-danger"
     )
     @MemberOrder(sequence = "1")
     public List<ApplicationUser> delete(

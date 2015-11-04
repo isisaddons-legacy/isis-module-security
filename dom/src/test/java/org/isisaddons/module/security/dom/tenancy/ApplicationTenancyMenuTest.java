@@ -16,12 +16,9 @@
  */
 package org.isisaddons.module.security.dom.tenancy;
 
-import org.junit.Assert;
 import org.junit.Rule;
-import org.junit.Test;
-import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
-import static org.hamcrest.CoreMatchers.is;
+import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
 public class ApplicationTenancyMenuTest {
 
@@ -29,16 +26,5 @@ public class ApplicationTenancyMenuTest {
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(JUnitRuleMockery2.Mode.INTERFACES_AND_CLASSES);
 
     ApplicationTenancyMenu applicationTenancyMenu;
-
-
-    public static class IconName extends ApplicationTenancyMenuTest {
-
-        @Test
-        public void happyCase() throws Exception {
-
-            applicationTenancyMenu = new ApplicationTenancyMenu();
-            Assert.assertThat(applicationTenancyMenu.iconName(), is("applicationTenancy"));
-        }
-    }
 
 }

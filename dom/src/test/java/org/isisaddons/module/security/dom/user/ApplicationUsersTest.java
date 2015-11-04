@@ -16,12 +16,9 @@
  */
 package org.isisaddons.module.security.dom.user;
 
-import org.junit.Assert;
 import org.junit.Rule;
-import org.junit.Test;
-import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
-import static org.hamcrest.CoreMatchers.is;
+import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
 public class ApplicationUsersTest {
 
@@ -29,15 +26,5 @@ public class ApplicationUsersTest {
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(JUnitRuleMockery2.Mode.INTERFACES_AND_CLASSES);
 
     ApplicationUserMenu applicationUserMenu;
-
-    public static class IconName extends ApplicationUsersTest {
-
-        @Test
-        public void happyCase() throws Exception {
-
-            applicationUserMenu = new ApplicationUserMenu();
-            Assert.assertThat(applicationUserMenu.iconName(), is("applicationUser"));
-        }
-    }
 
 }

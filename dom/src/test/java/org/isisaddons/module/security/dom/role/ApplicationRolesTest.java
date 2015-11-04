@@ -16,12 +16,9 @@
  */
 package org.isisaddons.module.security.dom.role;
 
-import org.junit.Assert;
 import org.junit.Rule;
-import org.junit.Test;
-import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
-import static org.hamcrest.CoreMatchers.is;
+import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
 public class ApplicationRolesTest {
 
@@ -29,16 +26,5 @@ public class ApplicationRolesTest {
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(JUnitRuleMockery2.Mode.INTERFACES_AND_CLASSES);
 
     ApplicationRoleMenu applicationRoleMenu;
-
-    public static class IconName extends ApplicationRolesTest {
-
-        @Test
-        public void happyCase() throws Exception {
-
-            applicationRoleMenu = new ApplicationRoleMenu();
-            Assert.assertThat(applicationRoleMenu.iconName(), is("applicationRole"));
-        }
-    }
-
 
 }

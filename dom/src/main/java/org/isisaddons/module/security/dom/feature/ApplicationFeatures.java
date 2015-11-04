@@ -31,7 +31,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.When;
@@ -69,47 +68,19 @@ public class ApplicationFeatures implements SpecificationLoaderSpiAware, Service
      * @deprecated - never used.
      */
     @Deprecated
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationFeatures, T> {
-        public PropertyDomainEvent(final ApplicationFeatures source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public PropertyDomainEvent(final ApplicationFeatures source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationFeatures, T> {}
 
     /**
      * @deprecated - never used.
      */
     @Deprecated
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationFeatures, T> {
-        public CollectionDomainEvent(final ApplicationFeatures source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final ApplicationFeatures source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationFeatures, T> {}
 
     /**
      * @deprecated - never used.
      */
     @Deprecated
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationFeatures> {
-        public ActionDomainEvent(final ApplicationFeatures source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final ApplicationFeatures source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final ApplicationFeatures source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationFeatures> {}
     //endregion
 
 

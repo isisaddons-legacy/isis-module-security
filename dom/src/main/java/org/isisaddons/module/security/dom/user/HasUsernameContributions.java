@@ -16,12 +16,9 @@
  */
 package org.isisaddons.module.security.dom.user;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 import org.apache.isis.applib.AbstractFactoryAndRepository;
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.Contributed;
@@ -39,20 +36,7 @@ import org.isisaddons.module.security.SecurityModule;
 )
 public class HasUsernameContributions extends AbstractFactoryAndRepository {
 
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<HasUsernameContributions> {
-        public ActionDomainEvent(final HasUsernameContributions source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final HasUsernameContributions source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final HasUsernameContributions source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
-
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<HasUsernameContributions> {}
 
     @Action(
             semantics = SemanticsOf.SAFE

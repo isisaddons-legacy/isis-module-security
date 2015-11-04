@@ -18,16 +18,18 @@ package org.isisaddons.module.security.dom.role;
 
 import java.util.List;
 
-import org.apache.isis.applib.Identifier;
+import javax.inject.Inject;
+
 import org.apache.isis.applib.annotation.Action;
-import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.NatureOfService;
+import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.SemanticsOf;
+import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 
 import org.isisaddons.module.security.SecurityModule;
 
@@ -39,56 +41,28 @@ import org.isisaddons.module.security.SecurityModule;
         menuBar = DomainServiceLayout.MenuBar.SECONDARY,
         menuOrder = "100.20"
 )
-public class ApplicationRoleMenu extends ApplicationRoles {
+public class  ApplicationRoleMenu {
 
     //region > domain event classes
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationRoleMenu, T> {
-        public PropertyDomainEvent(final ApplicationRoleMenu source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationRoleMenu, T> {}
 
-        public PropertyDomainEvent(final ApplicationRoleMenu source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationRoleMenu, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationRoleMenu, T> {
-        public CollectionDomainEvent(final ApplicationRoleMenu source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationRoleMenu> {}
+    //endregion
 
-        public CollectionDomainEvent(final ApplicationRoleMenu source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationRoleMenu> {
-        public ActionDomainEvent(final ApplicationRoleMenu source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final ApplicationRoleMenu source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final ApplicationRoleMenu source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
+    //region > iconName
+    public String iconName() {
+        return "applicationRole";
     }
     //endregion
 
-    public static class FindRolesDomainEvent extends ActionDomainEvent {
-        public FindRolesDomainEvent(final ApplicationRoleMenu source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    //region > findRoles
+    public static class FindRolesDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = FindRolesDomainEvent.class,
             semantics = SemanticsOf.SAFE
-    )
-    @ActionLayout(
-            cssClassFa = "fa-search"
     )
     @MemberOrder(sequence = "100.20.1")
     public List<ApplicationRole> findRoles(
@@ -97,5 +71,40 @@ public class ApplicationRoleMenu extends ApplicationRoles {
             final String search) {
         return applicationRoleRepository.findNameContaining(search);
     }
+    //endregion
 
+    //region > newRole
+    public static class NewRoleDomainEvent extends ActionDomainEvent {}
+
+    @Action(
+            domainEvent = NewRoleDomainEvent.class,
+            semantics = SemanticsOf.IDEMPOTENT
+    )
+    @MemberOrder(sequence = "100.20.2")
+    public ApplicationRole newRole(
+            @Parameter(maxLength = ApplicationRole.MAX_LENGTH_NAME)
+            @ParameterLayout(named="Name", typicalLength=ApplicationRole.TYPICAL_LENGTH_NAME)
+            final String name,
+            @Parameter(maxLength = JdoColumnLength.DESCRIPTION, optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named="Description", typicalLength=ApplicationRole.TYPICAL_LENGTH_DESCRIPTION)
+            final String description) {
+        return applicationRoleRepository.newRole(name, description);
+    }
+    //endregion
+
+    //region > allRoles
+    public static class AllRolesDomainEvent extends ActionDomainEvent {}
+
+    @Action(
+            domainEvent = AllRolesDomainEvent.class,
+            semantics = SemanticsOf.SAFE
+    )
+    @MemberOrder(sequence = "100.20.3")
+    public List<ApplicationRole> allRoles() {
+        return applicationRoleRepository.allRoles();
+    }
+    //endregion
+
+    @Inject
+    ApplicationRoleRepository applicationRoleRepository;
 }
