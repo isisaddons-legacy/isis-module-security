@@ -95,7 +95,7 @@ public class ApplicationUserRepositoryIntegTest extends SecurityModuleAppIntegTe
             applicationUserMenu.newDelegateUser("mary", null, true);
 
             // when
-            final ApplicationUser fred = applicationUserMenu.findOrCreateUserByUsername("fred");
+            final ApplicationUser fred = applicationUserRepository.findOrCreateUserByUsername("fred");
 
             // then
             assertThat(fred, is(not(nullValue())));
@@ -110,7 +110,7 @@ public class ApplicationUserRepositoryIntegTest extends SecurityModuleAppIntegTe
             applicationUserMenu.newDelegateUser("mary", null, true);
 
             // when
-            final ApplicationUser autoCreated = applicationUserMenu.findOrCreateUserByUsername("bill");
+            final ApplicationUser autoCreated = applicationUserRepository.findOrCreateUserByUsername("bill");
 
             // then
             assertThat(autoCreated, is(not(nullValue())));
