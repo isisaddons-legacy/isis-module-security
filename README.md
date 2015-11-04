@@ -328,6 +328,31 @@ You can either use this module "out-of-the-box", or you can fork this repo and e
 
 ### Out-of-the-box ###
 
+#### Classpath ####
+
+Update your classpath by adding this dependency in your dom project's `pom.xml`:
+
+<pre>
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.isisaddons.module.security&lt;/groupId&gt;
+        &lt;artifactId&gt;isis-module-security-dom&lt;/artifactId&gt;
+        &lt;version&gt;1.9.0&lt;/version&gt;
+    &lt;/dependency&gt;
+</pre>
+
+If using the `PasswordEncryptionServiceUsingJBcrypt` service, also add a dependency on the underlying library:
+
+<pre>
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.mindrot&lt;/groupId&gt;
+        &lt;artifactId&gt;jbcrypt&lt;/artifactId&gt;
+        &lt;version&gt;0.3m&lt;/version&gt;
+    &lt;/dependency&gt;
+</pre>
+
+Check for later releases by searching [Maven Central Repo](http://search.maven.org/#search|ga|1|isis-module-security-dom).
+
+
 #### Shiro configuration (shiro.ini) ####
 
 The module includes `org.isisaddons.module.security.shiro.IsisModuleSecurityRealm`, an implementation of Apache Shiro's
@@ -369,21 +394,25 @@ isisModuleSecurityRealm.delegateAuthenticationRealm=$someOtherRealm
 where `$someOtherRealm` defines some other realm to perform authentication.
 
 
-#### Isis domain services (isis.properties) ####
+#### Isis domain services ####
 
-Update the `WEB-INF/isis.properties`:
-
+If using an `AppManifest`, then update its `getModules()` method and also its `getAdditionalServices()` method:
+ 
 <pre>
-    isis.services-installer=configuration-and-annotation
-    isis.services.ServicesInstallerFromAnnotation.packagePrefix=
-            ...,\
-            org.isisaddons.module.security,\
-            ...
-
-    isis.services = ...,\
-            org.isisaddons.module.security.dom.password.PasswordEncryptionServiceUsingJBcrypt,\
-            org.isisaddons.module.security.dom.permission.PermissionsEvaluationServiceAllowBeatsVeto,\
-            ...
+    @Override
+    public List<Class<?>> getModules() {
+        return Arrays.asList(
+                ...
+                org.isisaddons.module.security.SecurityModule.class,
+        );
+    }
+    @Override
+    public List<Class<?>> getAdditionalServices() {
+        return Arrays.asList(
+                org.isisaddons.module.security.dom.password.PasswordEncryptionServiceUsingJBcrypt.class
+               ,org.isisaddons.module.security.dom.permission.PermissionsEvaluationServiceAllowBeatsVeto.class
+        );
+    }
 </pre>
 
 where:
@@ -399,44 +428,86 @@ where:
    of this interface can be supplied.
 
 There is further discussion of the `PasswordEncryptionService` and `PermissionsEvaluationService` below.
+ 
+If you aren't using an `AppManifest`, instead update your `WEB-INF/isis.properties`:
 
-It's also necessary to register an implementation of `FixtureScripts` domain service.  If you aren't using fixture scripts, then you can just take a copy of the example app's `SecurityModuleAppFixturesService` implementation.
+<pre>
+    isis.services-installer=configuration-and-annotation
+    isis.services.ServicesInstallerFromAnnotation.packagePrefix=
+            ...,\
+            org.isisaddons.module.security,\
+            ...
+
+    isis.services = ...,\
+            org.isisaddons.module.security.dom.password.PasswordEncryptionServiceUsingJBcrypt,\
+            org.isisaddons.module.security.dom.permission.PermissionsEvaluationServiceAllowBeatsVeto,\
+            ...
+</pre>
 
 
-#### Tenancy checking (isis.properties) ####
+(The security module automatically seeds users and roles, using fixture scripts.  As of `1.9.0` it is no longer necessary to register an implementation of `FixtureScripts` domain service; the core Apache Isis framework provides a default implementation).
 
-To enable tenancy checking (as described above, to restrict a user's access to tenanted objects), add the following
-in `WEB-INF/isis.properties`:
+
+#### Tenancy checking ####
+
+
+To enable tenancy checking (as described above, to restrict a user's access to tenanted objects), then a configuration property must be added.  This can either be specified in the `AppManifest` or in `WEB-INF/isis.properties`.
+
+If using an `AppManifest`, then update its `getConfigurationProperties()` method:
+
+<pre>
+    @Override
+    public Map<String, String> getConfigurationProperties() {
+        return ImmutableMap.of(
+            "isis.reflector.facets.include", "org.isisaddons.module.security.facets.TenantedAuthorizationFacetFactory");
+
+    }
+</pre>
+
+Alternatively, if using `isis.properties`, then define:
 
 <pre>
     isis.reflector.facets.include=org.isisaddons.module.security.facets.TenantedAuthorizationFacetFactory
 </pre>
 
 
-#### Classpath ####
+#### Font awesome icons ####
 
-Finally, update your classpath by adding this dependency in your dom project's `pom.xml`:
+The actions for the security module do _not_ include font-awesome icons by default; you will most likely want to 
+choose your own icons.
+
+The easiest way to do this is using the `isis.reflector.facet.cssClassFa.patterns` configuration property which uses
+the name of the action methods to associate an appropriate font-awesome icon.
+
+The action names defined by the domain objects within the security module use the following naming conventions:
+ 
+* `newXxx` - create a new persisted object
+* `findXxx` - find an existing object
+* `updateXxx` - update an existing object
+* `deleteXxx` - delete an existing  object
+* `addXxx` - add an existing object to a collection of another
+* `removeXxx` - remove an object from a collection 
+* `allXxx` - for prototyping actions
+
+There are also some other miscellaneous action names, eg:
+
+* `lock` - lock a user (to prevent that user from logging in)
+* `unlock` - unlock a user so that they can login
+* `resetPassword` - allow an administrator to reset the password for a user
+* `me` - to lookup the `ApplicationUser` entity for the currently logged-in user
+
+For example, define the following configuration property:
 
 <pre>
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.isisaddons.module.security&lt;/groupId&gt;
-        &lt;artifactId&gt;isis-module-security-dom&lt;/artifactId&gt;
-        &lt;version&gt;1.9.0&lt;/version&gt;
-    &lt;/dependency&gt;
+isis.reflector.facet.cssClassFa.patterns=\
+                         new.*:fa-plus,\
+                         add.*:fa-plus-square,\
+                         create.*:fa-plus,\
+                         update.*:fa-edit,\
+                         remove.*:fa-minus-square,\
+                         find.*:fa-search,\
+                         all.*:fa-list
 </pre>
-
-If using the `PasswordEncryptionServiceUsingJBcrypt` service, also add a dependency on the underlying library:
-
-<pre>
-    &lt;dependency&gt;
-        &lt;groupId&gt;org.mindrot&lt;/groupId&gt;
-        &lt;artifactId&gt;jbcrypt&lt;/artifactId&gt;
-        &lt;version&gt;0.3m&lt;/version&gt;
-    &lt;/dependency&gt;
-</pre>
-
-Check for later releases by searching [Maven Central Repo](http://search.maven.org/#search|ga|1|isis-module-security-dom).
-
 
 
 ### "Out-of-the-box" (-SNAPSHOT) ###
