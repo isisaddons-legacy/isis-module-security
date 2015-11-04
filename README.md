@@ -340,7 +340,8 @@ Update your classpath by adding this dependency in your dom project's `pom.xml`:
     &lt;/dependency&gt;
 </pre>
 
-If using the `PasswordEncryptionServiceUsingJBcrypt` service, also add a dependency on the underlying library:
+If using the `PasswordEncryptionServiceUsingJBcrypt` service (discussed below), also add a dependency on the underlying 
+`jbcrypt` library:
 
 <pre>
     &lt;dependency&gt;
