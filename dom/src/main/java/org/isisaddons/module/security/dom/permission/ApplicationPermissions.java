@@ -21,6 +21,8 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.apache.isis.applib.annotation.Action;
+import org.apache.isis.applib.annotation.DomainService;
+import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.RestrictTo;
 import org.apache.isis.applib.annotation.SemanticsOf;
@@ -35,6 +37,7 @@ import org.isisaddons.module.security.dom.user.ApplicationUser;
  * @deprecated - use {@link ApplicationPermissionRepository} or {@link ApplicationPermissionMenu}.
  */
 @Deprecated
+@DomainService(nature = NatureOfService.DOMAIN)
 public class ApplicationPermissions {
 
     //region > domain event classes

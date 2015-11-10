@@ -32,6 +32,8 @@ import com.google.common.collect.Maps;
 
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.ActionSemantics;
+import org.apache.isis.applib.annotation.DomainService;
+import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.When;
 import org.apache.isis.applib.annotation.Where;
@@ -61,6 +63,7 @@ import org.isisaddons.module.security.SecurityModule;
  * @deprecated - use {@link ApplicationFeatureRepository} instead.
  */
 @Deprecated
+@DomainService(nature = NatureOfService.DOMAIN)
 public class ApplicationFeatures implements SpecificationLoaderSpiAware, ServicesInjectorAware {
 
     //region > domain event classes

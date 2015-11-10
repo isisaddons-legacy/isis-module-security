@@ -22,6 +22,8 @@ import javax.inject.Inject;
 
 import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.annotation.Action;
+import org.apache.isis.applib.annotation.DomainService;
+import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
@@ -35,6 +37,7 @@ import org.isisaddons.module.security.SecurityModule;
  * @deprecated - use {@link ApplicationRoleRepository} or {@link ApplicationRoleMenu} instead.
  */
 @Deprecated
+@DomainService(nature = NatureOfService.DOMAIN)
 public class ApplicationRoles extends AbstractFactoryAndRepository {
 
     //region > domain event classes

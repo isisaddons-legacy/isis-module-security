@@ -21,6 +21,8 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.apache.isis.applib.annotation.Action;
+import org.apache.isis.applib.annotation.DomainService;
+import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
@@ -40,6 +42,7 @@ import org.isisaddons.module.security.shiro.ShiroUtils;
  * @deprecated - use {@link ApplicationUserRepository} or {@link ApplicationUserMenu} instead.
  */
 @Deprecated
+@DomainService(nature = NatureOfService.DOMAIN)
 public class ApplicationUsers {
 
     //region > domain event classes
