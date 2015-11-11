@@ -29,7 +29,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.BookmarkPolicy;
@@ -99,39 +98,11 @@ import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAn
 )
 public class ApplicationRole implements Comparable<ApplicationRole> {
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationRole, T> {
-        public PropertyDomainEvent(final ApplicationRole source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationRole, T> {}
 
-        public PropertyDomainEvent(final ApplicationRole source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationRole, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationRole, T> {
-        public CollectionDomainEvent(final ApplicationRole source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final ApplicationRole source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationRole> {
-        public ActionDomainEvent(final ApplicationRole source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final ApplicationRole source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationRole> {}
 
     // //////////////////////////////////////
 
@@ -154,14 +125,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > name (property)
 
-    public static class NameDomainEvent extends PropertyDomainEvent<String> {
-        public NameDomainEvent(final ApplicationRole source, final Identifier identifier) {
-            super(source, identifier);
-        }
-        public NameDomainEvent(final ApplicationRole source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class NameDomainEvent extends PropertyDomainEvent<String> {}
 
     private String name;
 
@@ -184,11 +148,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > updateName (action)
 
-    public static class UpdateNameDomainEvent extends ActionDomainEvent {
-        public UpdateNameDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class UpdateNameDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = UpdateNameDomainEvent.class,
@@ -210,15 +170,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > description (property)
 
-    public static class DescriptionDomainEvent extends PropertyDomainEvent<String> {
-        public DescriptionDomainEvent(final ApplicationRole source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public DescriptionDomainEvent(final ApplicationRole source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class DescriptionDomainEvent extends PropertyDomainEvent<String> {}
 
     private String description;
 
@@ -243,11 +195,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > updateDescription (action)
 
-    public static class UpdateDescriptionDomainEvent extends ActionDomainEvent {
-        public UpdateDescriptionDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class UpdateDescriptionDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = UpdateDescriptionDomainEvent.class,
@@ -272,14 +220,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > permissions (derived collection)
-    public static class PermissionsCollectionDomainEvent extends CollectionDomainEvent<ApplicationPermission> {
-        public PermissionsCollectionDomainEvent(final ApplicationRole source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-        public PermissionsCollectionDomainEvent(final ApplicationRole source, final Identifier identifier, final Of of, final ApplicationPermission value) {
-            super(source, identifier, of, value);
-        }
-    }
+    public static class PermissionsCollectionDomainEvent extends CollectionDomainEvent<ApplicationPermission> {}
 
     @Collection(
             domainEvent = PermissionsCollectionDomainEvent.class
@@ -296,11 +237,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > addPackage (action)
 
-    public static class AddPackageDomainEvent extends ActionDomainEvent {
-        public AddPackageDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class AddPackageDomainEvent extends ActionDomainEvent {}
 
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
@@ -310,9 +247,6 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     @Action(
             domainEvent = AddPackageDomainEvent.class,
             semantics = SemanticsOf.NON_IDEMPOTENT
-    )
-    @ActionLayout(
-            cssClassFa = "fa-plus-square"
     )
     @MemberOrder(name = "Permissions", sequence = "1")
     public ApplicationRole addPackage(
@@ -340,11 +274,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > addClass (action)
-    public static class AddClassDomainEvent extends ActionDomainEvent {
-        public AddClassDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class AddClassDomainEvent extends ActionDomainEvent {}
 
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
@@ -354,9 +284,6 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     @Action(
             domainEvent = AddClassDomainEvent.class,
             semantics = SemanticsOf.NON_IDEMPOTENT
-    )
-    @ActionLayout(
-            cssClassFa = "fa-plus-square"
     )
     @MemberOrder(name = "Permissions", sequence = "2")
     public ApplicationRole addClass(
@@ -401,11 +328,8 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > addAction (action)
-    public static class AddActionDomainEvent extends ActionDomainEvent {
-        public AddActionDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class AddActionDomainEvent extends ActionDomainEvent {}
+
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
      * {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#ACTION action}
@@ -415,9 +339,6 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     @Action(
             domainEvent = AddActionDomainEvent.class,
             semantics = SemanticsOf.NON_IDEMPOTENT
-    )
-    @ActionLayout(
-            cssClassFa = "fa-plus-square"
     )
     @MemberOrder(name = "Permissions", sequence = "3")
     public ApplicationRole addAction(
@@ -465,11 +386,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > addProperty (action)
-    public static class AddPropertyDomainEvent extends ActionDomainEvent {
-        public AddPropertyDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class AddPropertyDomainEvent extends ActionDomainEvent {}
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
      * {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#PROPERTY property}
@@ -479,9 +396,6 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     @Action(
             domainEvent = AddPropertyDomainEvent.class,
             semantics = SemanticsOf.NON_IDEMPOTENT
-    )
-    @ActionLayout(
-            cssClassFa = "fa-plus-square"
     )
     @MemberOrder(name = "Permissions", sequence = "4")
     public ApplicationRole addProperty(
@@ -537,11 +451,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > addCollection (action)
-    public static class AddCollectionDomainEvent extends ActionDomainEvent {
-        public AddCollectionDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class AddCollectionDomainEvent extends ActionDomainEvent {}
 
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
@@ -552,9 +462,6 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     @Action(
             domainEvent = AddCollectionDomainEvent.class,
             semantics = SemanticsOf.NON_IDEMPOTENT
-    )
-    @ActionLayout(
-            cssClassFa = "fa-plus-square"
     )
     @MemberOrder(name = "Permissions", sequence = "5")
     public ApplicationRole addCollection(
@@ -602,18 +509,11 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > removePermission (action)
-    public static class RemovePermissionDomainEvent extends ActionDomainEvent {
-        public RemovePermissionDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class RemovePermissionDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent= RemovePermissionDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
-    )
-    @ActionLayout(
-            cssClassFa = "fa fa-minus-square"
     )
     @MemberOrder(name = "Permissions", sequence = "9")
     public ApplicationRole removePermission(
@@ -665,15 +565,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > users (collection)
 
-    public static class UsersDomainEvent extends CollectionDomainEvent<ApplicationUser> {
-        public UsersDomainEvent(final ApplicationRole source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public UsersDomainEvent(final ApplicationRole source, final Identifier identifier, final Of of, final ApplicationUser value) {
-            super(source, identifier, of, value);
-        }
-    }
+    public static class UsersDomainEvent extends CollectionDomainEvent<ApplicationUser> {}
 
     @javax.jdo.annotations.Persistent(mappedBy = "roles")
     private SortedSet<ApplicationUser> users = new TreeSet<>();
@@ -706,20 +598,14 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > addUser (action)
 
-    public static class AddUserDomainEvent extends ActionDomainEvent {
-        public AddUserDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class AddUserDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = AddUserDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
     @ActionLayout(
-        named="Add",
-        cssClassFa = "fa fa-plus-square"
-    )
+        named="Add")
     @MemberOrder(name="Users", sequence = "1")
     public ApplicationRole addUser(final ApplicationUser applicationUser) {
         applicationUser.addRole(this);
@@ -738,19 +624,14 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     //region > removeUser (action)
 
-    public static class RemoveUserDomainEvent extends ActionDomainEvent {
-        public RemoveUserDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class RemoveUserDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = RemoveUserDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
     @ActionLayout(
-            named="Remove",
-            cssClassFa = "fa fa-minus-square"
+            named="Remove"
     )
     @MemberOrder(name="Users", sequence = "2")
     public ApplicationRole removeUser(final ApplicationUser applicationUser) {
@@ -771,19 +652,11 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     //endregion
 
     //region > delete (action)
-    public static class DeleteDomainEvent extends ActionDomainEvent {
-        public DeleteDomainEvent(final ApplicationRole source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class DeleteDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = DeleteDomainEvent.class,
             semantics = SemanticsOf.NON_IDEMPOTENT
-    )
-    @ActionLayout(
-        cssClassFa = "fa-trash",
-        cssClass = "btn btn-danger"
     )
     @MemberOrder(sequence = "1")
     public List<ApplicationRole> delete(

@@ -17,7 +17,6 @@
 package org.isisaddons.module.security.dom.permission;
 
 import java.util.Comparator;
-import java.util.List;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
@@ -28,9 +27,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
 
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
-import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.BookmarkPolicy;
 import org.apache.isis.applib.annotation.DomainObject;
 import org.apache.isis.applib.annotation.DomainObjectLayout;
@@ -147,39 +144,11 @@ import org.isisaddons.module.security.dom.role.ApplicationRole;
 )
 public class ApplicationPermission implements Comparable<ApplicationPermission> {
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationPermission, T> {
-        public PropertyDomainEvent(final ApplicationPermission source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationPermission, T> {}
 
-        public PropertyDomainEvent(final ApplicationPermission source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationPermission, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationPermission, T> {
-        public CollectionDomainEvent(final ApplicationPermission source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-
-        public CollectionDomainEvent(final ApplicationPermission source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationPermission> {
-        public ActionDomainEvent(final ApplicationPermission source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final ApplicationPermission source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationPermission> {}
 
     // //////////////////////////////////////
 
@@ -222,15 +191,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     //region > role (property)
 
-    public static class RoleDomainEvent extends PropertyDomainEvent<ApplicationRole> {
-        public RoleDomainEvent(final ApplicationPermission source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public RoleDomainEvent(final ApplicationPermission source, final Identifier identifier, final ApplicationRole oldValue, final ApplicationRole newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class RoleDomainEvent extends PropertyDomainEvent<ApplicationRole> {}
 
 
     private ApplicationRole role;
@@ -255,11 +216,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     //endregion
 
     //region > updateRole (action)
-    public static class UpdateRoleDomainEvent extends ActionDomainEvent {
-        public UpdateRoleDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static class UpdateRoleDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = UpdateRoleDomainEvent.class,
@@ -278,16 +235,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     //endregion
 
     //region > rule (property)
-    public static class RuleDomainEvent extends PropertyDomainEvent<ApplicationPermissionRule> {
-
-        public RuleDomainEvent(final ApplicationPermission source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public RuleDomainEvent(final ApplicationPermission source, final Identifier identifier, final ApplicationPermissionRule oldValue, final ApplicationPermissionRule newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class RuleDomainEvent extends PropertyDomainEvent<ApplicationPermissionRule> {}
 
     private ApplicationPermissionRule rule;
 
@@ -308,11 +256,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     //endregion
 
     //region > allow (action)
-    public static class AllowDomainEvent extends ActionDomainEvent {
-        public AllowDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static class AllowDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = AllowDomainEvent.class,
@@ -330,11 +274,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     //endregion
 
     //region > veto (action)
-    public static class VetoDomainEvent extends ActionDomainEvent {
-        public VetoDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static class VetoDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = VetoDomainEvent.class,
@@ -352,15 +292,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     //endregion
 
     //region > mode (property)
-    public static class ModeDomainEvent extends PropertyDomainEvent<ApplicationPermissionMode> {
-        public ModeDomainEvent(final ApplicationPermission source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ModeDomainEvent(final ApplicationPermission source, final Identifier identifier, final ApplicationPermissionMode oldValue, final ApplicationPermissionMode newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class ModeDomainEvent extends PropertyDomainEvent<ApplicationPermissionMode> {}
 
     private ApplicationPermissionMode mode;
 
@@ -382,11 +314,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     //region > viewing(action)
 
-    public static class ViewingDomainEvent extends ActionDomainEvent {
-        public ViewingDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static class ViewingDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = ViewingDomainEvent.class,
@@ -405,11 +333,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     //region > changing (action)
 
-    public static class ChangingDomainEvent extends ActionDomainEvent {
-        public ChangingDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static class ChangingDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = ChangingDomainEvent.class,
@@ -444,15 +368,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     // region > type (derived, combined featureType and memberType)
 
-    public static class TypeDomainEvent extends PropertyDomainEvent<String> {
-        public TypeDomainEvent(final ApplicationPermission source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public TypeDomainEvent(final ApplicationPermission source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class TypeDomainEvent extends PropertyDomainEvent<String> {}
 
     /**
      * Combines {@link #getFeatureType() feature type} and member type.
@@ -529,18 +445,10 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     //endregion
 
     //region > delete (action)
-    public static class DeleteDomainEvent extends ActionDomainEvent {
-        public DeleteDomainEvent(final ApplicationPermission source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static class DeleteDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = DeleteDomainEvent.class
-    )
-    @ActionLayout(
-        cssClassFa = "fa fa-trash",
-        cssClass = "btn btn-danger"
     )
     @MemberOrder(sequence = "1")
     public ApplicationRole delete(

@@ -16,7 +16,6 @@
  */
 package org.isisaddons.module.security.dom.feature;
 
-import java.util.List;
 import java.util.SortedSet;
 
 import com.google.common.base.Function;
@@ -24,7 +23,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.util.ObjectContracts;
@@ -37,39 +35,11 @@ import org.isisaddons.module.security.SecurityModule;
  */
 public class ApplicationFeature implements Comparable<ApplicationFeature> {
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationFeature, T> {
-        public PropertyDomainEvent(final ApplicationFeature source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationFeature, T> {}
 
-        public PropertyDomainEvent(final ApplicationFeature source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationFeature, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationFeature, T> {
-        public CollectionDomainEvent(final ApplicationFeature source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final ApplicationFeature source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationFeature> {
-        public ActionDomainEvent(final ApplicationFeature source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final ApplicationFeature source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final ApplicationFeature source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationFeature> {}
 
     // //////////////////////////////////////
 

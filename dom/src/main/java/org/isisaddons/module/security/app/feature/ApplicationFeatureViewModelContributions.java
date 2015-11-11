@@ -16,10 +16,7 @@
  */
 package org.isisaddons.module.security.app.feature;
 
-import java.util.List;
-
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.Contributed;
@@ -41,48 +38,16 @@ import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 )
 public class ApplicationFeatureViewModelContributions {
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationFeatureViewModelContributions, T> {
-        public PropertyDomainEvent(final ApplicationFeatureViewModelContributions source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationFeatureViewModelContributions, T> {}
 
-        public PropertyDomainEvent(final ApplicationFeatureViewModelContributions source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationFeatureViewModelContributions, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationFeatureViewModelContributions, T> {
-        public CollectionDomainEvent(final ApplicationFeatureViewModelContributions source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final ApplicationFeatureViewModelContributions source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationFeatureViewModelContributions> {
-        public ActionDomainEvent(final ApplicationFeatureViewModelContributions source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final ApplicationFeatureViewModelContributions source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final ApplicationFeatureViewModelContributions source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationFeatureViewModelContributions> {}
 
     // //////////////////////////////////////
 
     //region > feature
-    public static class FeatureDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel> {
-        public FeatureDomainEvent(final ApplicationFeatureViewModelContributions source, final Identifier identifier, final ApplicationFeatureViewModel oldValue, final ApplicationFeatureViewModel newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class FeatureDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel> {}
 
     @Action(
             semantics = SemanticsOf.SAFE

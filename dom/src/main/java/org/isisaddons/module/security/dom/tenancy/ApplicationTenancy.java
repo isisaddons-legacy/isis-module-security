@@ -28,7 +28,6 @@ import javax.jdo.annotations.VersionStrategy;
 import com.google.common.collect.Lists;
 
 import org.apache.isis.applib.DomainObjectContainer;
-import org.apache.isis.applib.Identifier;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.BookmarkPolicy;
@@ -95,39 +94,11 @@ import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 )
 public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationTenancy, T> {
-        public PropertyDomainEvent(final ApplicationTenancy source, final Identifier identifier) {
-            super(source, identifier);
-        }
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationTenancy, T> {}
 
-        public PropertyDomainEvent(final ApplicationTenancy source, final Identifier identifier, final T oldValue, final T newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationTenancy, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationTenancy, T> {
-        public CollectionDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public CollectionDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Of of, final T value) {
-            super(source, identifier, of, value);
-        }
-    }
-
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationTenancy> {
-        public ActionDomainEvent(final ApplicationTenancy source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public ActionDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... arguments) {
-            super(source, identifier, arguments);
-        }
-
-        public ActionDomainEvent(final ApplicationTenancy source, final Identifier identifier, final List<Object> arguments) {
-            super(source, identifier, arguments);
-        }
-    }
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationTenancy> {}
 
     // //////////////////////////////////////
 
@@ -137,15 +108,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > name (property, title)
 
-    public static class NameDomainEvent extends PropertyDomainEvent<String> {
-        public NameDomainEvent(final ApplicationTenancy source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public NameDomainEvent(final ApplicationTenancy source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class NameDomainEvent extends PropertyDomainEvent<String> {}
 
     private String name;
 
@@ -171,11 +134,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > updateName (action)
 
-    public static class UpdateNameDomainEvent extends ActionDomainEvent {
-        public UpdateNameDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class UpdateNameDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent =UpdateNameDomainEvent.class,
@@ -197,15 +156,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > path
 
-    public static class PathDomainEvent extends PropertyDomainEvent<String> {
-        public PathDomainEvent(final ApplicationTenancy source, final Identifier identifier) {
-            super(source, identifier);
-        }
-
-        public PathDomainEvent(final ApplicationTenancy source, final Identifier identifier, final String oldValue, final String newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class PathDomainEvent extends PropertyDomainEvent<String> {}
 
     private String path;
 
@@ -227,14 +178,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > users (collection)
 
-    public static class UsersDomainEvent extends CollectionDomainEvent<ApplicationUser> {
-        public UsersDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-        public UsersDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Of of, final ApplicationUser value) {
-            super(source, identifier, of, value);
-        }
-    }
+    public static class UsersDomainEvent extends CollectionDomainEvent<ApplicationUser> {}
 
     @javax.jdo.annotations.Persistent(mappedBy = "tenancy")
     private SortedSet<ApplicationUser> users = new TreeSet<>();
@@ -267,19 +211,14 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > addUser (action)
 
-    public static class AddUserDomainEvent extends ActionDomainEvent {
-        public AddUserDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class AddUserDomainEvent extends ActionDomainEvent {}
 
     @Action(
            domainEvent = AddUserDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
     @ActionLayout(
-            named="Add",
-            cssClassFa = "fa fa-plus-square"
+            named="Add"
     )
     @MemberOrder(name="Users", sequence = "1")
     public ApplicationTenancy addUser(final ApplicationUser applicationUser) {
@@ -299,19 +238,14 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > removeUser (action)
 
-    public static class RemoveUserDomainEvent extends ActionDomainEvent {
-        public RemoveUserDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class RemoveUserDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = RemoveUserDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
     @ActionLayout(
-            named="Remove",
-            cssClassFa = "fa fa-minus-square"
+            named="Remove"
     )
     @MemberOrder(name="Users", sequence = "2")
     public ApplicationTenancy removeUser(final ApplicationUser applicationUser) {
@@ -330,14 +264,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > parent (property)
 
-    public static class ParentDomainEvent extends PropertyDomainEvent<ApplicationTenancy> {
-        public ParentDomainEvent(final ApplicationTenancy source, final Identifier identifier) {
-            super(source, identifier);
-        }
-        public ParentDomainEvent(final ApplicationTenancy source, final Identifier identifier, final ApplicationTenancy oldValue, final ApplicationTenancy newValue) {
-            super(source, identifier, oldValue, newValue);
-        }
-    }
+    public static class ParentDomainEvent extends PropertyDomainEvent<ApplicationTenancy> {}
 
     private ApplicationTenancy parent;
 
@@ -361,11 +288,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > updateParent (action)
 
-    public static class UpdateParentDomainEvent extends ActionDomainEvent {
-        public UpdateParentDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class UpdateParentDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = UpdateParentDomainEvent.class,
@@ -389,15 +312,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > children
 
-    public static class ChildrenDomainEvent extends CollectionDomainEvent<ApplicationTenancy> {
-        public ChildrenDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Of of) {
-            super(source, identifier, of);
-        }
-
-        public ChildrenDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Of of, final ApplicationTenancy value) {
-            super(source, identifier, of, value);
-        }
-    }
+    public static class ChildrenDomainEvent extends CollectionDomainEvent<ApplicationTenancy> {}
 
     @javax.jdo.annotations.Persistent(mappedBy = "parent")
     private SortedSet<ApplicationTenancy> children = new TreeSet<>();
@@ -429,19 +344,14 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > addChild (action)
 
-    public static class AddChildDomainEvent extends ActionDomainEvent {
-        public AddChildDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class AddChildDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = AddChildDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
     @ActionLayout(
-            named="Add",
-            cssClassFa = "fa-plus-square"
+            named="Add"
     )
     @MemberOrder(name="Children", sequence = "1")
     public ApplicationTenancy addChild(final ApplicationTenancy applicationTenancy) {
@@ -454,19 +364,11 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     //region > removeChild (action)
 
-    public static class RemoveChildDomainEvent extends ActionDomainEvent {
-        public RemoveChildDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class RemoveChildDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = RemoveChildDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
-    )
-    @ActionLayout(
-            named="Remove",
-            cssClassFa = "fa fa-minus-square"
     )
     @MemberOrder(name="Children", sequence = "2")
     public ApplicationTenancy removeChild(final ApplicationTenancy applicationTenancy) {
@@ -485,21 +387,13 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
 
     //region > delete (action)
-    public static class DeleteDomainEvent extends ActionDomainEvent {
-        public DeleteDomainEvent(final ApplicationTenancy source, final Identifier identifier, final Object... args) {
-            super(source, identifier, args);
-        }
-    }
+    public static class DeleteDomainEvent extends ActionDomainEvent {}
 
     @Action(
             domainEvent = DeleteDomainEvent.class,
             semantics = SemanticsOf.NON_IDEMPOTENT
     )
     @MemberOrder(sequence = "1")
-    @ActionLayout(
-        cssClassFa = "fa-trash",
-        cssClass = "btn btn-danger"
-    )
     public List<ApplicationTenancy> delete(
             @Parameter(optionality = Optionality.OPTIONAL)
             @ParameterLayout(named="Are you sure?")
