@@ -27,7 +27,7 @@
     </parent>
 
     <artifactId>isis-module-security-app</artifactId>
-    <name>Isis Addons Audit Module App</name>
+    <name>Isis Addons Security Module App</name>
 
     <build>
         <resources>

@@ -25,7 +25,7 @@
     
     <packaging>pom</packaging>
 
-    <name>Estatio JDO Enhance All</name>
+    <name>Isis Addons Security JDO Enhance All</name>
 
     <description>
         Utility to enhance all JDO projects with a single command:
