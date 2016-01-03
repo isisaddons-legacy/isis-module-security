@@ -1,8 +1,10 @@
 RELEASE_VERSION=$1
-SNAPSHOT_VERSION=$2
-KEYID=$3
-PASSPHRASE=$4
-
+shift
+SNAPSHOT_VERSION=$1
+shift
+KEYID=$1
+shift
+PASSPHRASE=$*
 
 if [ ! "$RELEASE_VERSION" -o ! "$SNAPSHOT_VERSION" -o ! "$KEYID" -o ! "$PASSPHRASE" ]; then
     echo "usage: $(basename $0) [release_version] [snapshot_version] [keyid] [passphrase]" >&2
