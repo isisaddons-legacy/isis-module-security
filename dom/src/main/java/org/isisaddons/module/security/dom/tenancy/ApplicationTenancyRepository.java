@@ -112,7 +112,7 @@ public class ApplicationTenancyRepository {
             final String name,
             final String path,
             final ApplicationTenancy parent) {
-        ApplicationTenancy tenancy = findByName(name);
+        ApplicationTenancy tenancy = findByPath(path);
         if (tenancy == null) {
             tenancy = getApplicationTenancyFactory().newApplicationTenancy();
             tenancy.setName(name);
