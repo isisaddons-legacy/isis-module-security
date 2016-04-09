@@ -336,7 +336,7 @@ Update your classpath by adding this dependency in your dom project's `pom.xml`:
     &lt;dependency&gt;
         &lt;groupId&gt;org.isisaddons.module.security&lt;/groupId&gt;
         &lt;artifactId&gt;isis-module-security-dom&lt;/artifactId&gt;
-        &lt;version&gt;1.11.0&lt;/version&gt;
+        &lt;version&gt;1.12.0&lt;/version&gt;
     &lt;/dependency&gt;
 </pre>
 
@@ -518,7 +518,7 @@ If you want to use the current `-SNAPSHOT`, then the steps are the same as above
 * when updating the classpath, specify the appropriate -SNAPSHOT version:
 
 <pre>
-    &lt;version&gt;1.12.0-SNAPSHOT&lt;/version&gt;
+    &lt;version&gt;1.13.0-SNAPSHOT&lt;/version&gt;
 </pre>
 
 * add the repository definition to pick up the most recent snapshot (we use the Cloudbees continuous integration service).  We suggest defining the repository in a `<profile>`:
@@ -640,7 +640,8 @@ Ideas for future features:
 
 ## Change Log ##
 
-* `1.11.0` - released against Isis 1.11.0
+* `1.12.0` - released against Isis 1.12.0
+* `1.11.0` - released against Isis 1.11.0.
 * `1.10.0` - released against Isis 1.10.0
 * `1.9.0` - released against Isis 1.9.0; closes <a href="https://github.com/isisaddons/isis-module-security/issues/18">#18</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/17">#17</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/16">#16</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/15">#15</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/14">#14</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/13">#13</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/12">#12</a> (mapping entities to 'isissecurity' schema);
 * `1.8.1` - released against Isis 1.8.0; closes <a href="https://github.com/isisaddons/isis-module-security/issues/11">#11</a>.
@@ -706,8 +707,8 @@ The `release.sh` script automates the release process.  It performs the followin
 
 For example:
 
-    sh release.sh 1.12.0 \
-                  1.13.0-SNAPSHOT \
+    sh release.sh 1.13.0 \
+                  1.14.0-SNAPSHOT \
                   dan@haywood-associates.co.uk \
                   "this is not really my passphrase"
     
@@ -723,7 +724,7 @@ Other ways of specifying the key and passphrase are available, see the `pgp-mave
 If the script completes successfully, then push changes:
 
     git push origin master
-    git push origin 1.12.0
+    git push origin 1.13.0
 
 If the script fails to complete, then identify the cause, perform a `git reset --hard` to start over and fix the issue
 before trying again.  Note that in the `dom`'s `pom.xml` the `nexus-staging-maven-plugin` has the 
