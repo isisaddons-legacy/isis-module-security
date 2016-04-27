@@ -24,8 +24,8 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 
 import org.apache.isis.applib.fixturescripts.FixtureScript;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureType;
 
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRepository;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;

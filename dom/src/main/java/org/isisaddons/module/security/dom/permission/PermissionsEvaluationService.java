@@ -18,8 +18,9 @@ package org.isisaddons.module.security.dom.permission;
 
 import java.io.Serializable;
 import java.util.Collection;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+
 import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
 
 /**
  * Strategy for determining which permission should apply when there are multiple that apply for a particular target

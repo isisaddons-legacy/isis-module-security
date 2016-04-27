@@ -19,9 +19,9 @@ package org.isisaddons.module.security.app.feature;
 import org.apache.isis.applib.annotation.ActionSemantics;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Property;
+import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.annotation.ViewModelLayout;
-
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
 
 @SuppressWarnings("UnusedDeclaration")
 @ViewModelLayout(paged=100)
@@ -69,7 +69,7 @@ public class ApplicationClassAction extends ApplicationClassMember {
             domainEvent = ActionSemanticsDomainEvent.class
     )
     @MemberOrder(name="Detail", sequence = "2.8")
-    public ActionSemantics.Of getActionSemantics() {
+    public SemanticsOf getActionSemantics() {
         return getFeature().getActionSemantics();
     }
     //endregion

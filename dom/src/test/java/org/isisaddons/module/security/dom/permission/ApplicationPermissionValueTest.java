@@ -18,10 +18,12 @@ package org.isisaddons.module.security.dom.permission;
 
 import java.util.Arrays;
 import java.util.List;
+
 import com.danhaywood.java.testsupport.coverage.PrivateConstructorTester;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+
 import org.junit.Test;
 
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
 import org.apache.isis.core.unittestsupport.value.ValueTypeContractTestAbstract;
 
 import static org.hamcrest.CoreMatchers.is;

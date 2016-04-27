@@ -46,14 +46,14 @@ import org.apache.isis.applib.annotation.Property;
 import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.RenderType;
 import org.apache.isis.applib.annotation.SemanticsOf;
+import org.apache.isis.applib.services.appfeat.ApplicationFeatureRepository;
+import org.apache.isis.applib.services.appfeat.ApplicationMemberType;
 import org.apache.isis.applib.util.ObjectContracts;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeature;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureType;
 import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 
 import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
-import org.isisaddons.module.security.dom.feature.ApplicationMemberType;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRepository;
@@ -61,6 +61,9 @@ import org.isisaddons.module.security.dom.permission.ApplicationPermissionRule;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @SuppressWarnings("UnusedDeclaration")
 @javax.jdo.annotations.PersistenceCapable(
@@ -127,7 +130,6 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     public static class NameDomainEvent extends PropertyDomainEvent<String> {}
 
-    private String name;
 
     @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_NAME)
     @Property(
@@ -136,13 +138,8 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     )
     @PropertyLayout(typicalLength=TYPICAL_LENGTH_NAME)
     @MemberOrder(sequence = "1")
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
+    @Getter @Setter
+    private String name;
 
     //endregion
 
@@ -172,7 +169,6 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     public static class DescriptionDomainEvent extends PropertyDomainEvent<String> {}
 
-    private String description;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = JdoColumnLength.DESCRIPTION)
     @Property(
@@ -183,13 +179,8 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             typicalLength=TYPICAL_LENGTH_DESCRIPTION
     )
     @MemberOrder(sequence = "2")
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(final String description) {
-        this.description = description;
-    }
+    @Getter @Setter
+    private String description;
 
     //endregion
 
@@ -241,8 +232,8 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#PACKAGE package}
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
+     * {@link ApplicationFeatureType#PACKAGE package}
+     * {@link ApplicationFeature feature}.
      */
     @Action(
             domainEvent = AddPackageDomainEvent.class,
@@ -254,7 +245,7 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             final ApplicationPermissionRule rule,
             @ParameterLayout(named="Mode")
             final ApplicationPermissionMode mode,
-            @ParameterLayout(named="Package", typicalLength=ApplicationFeature.TYPICAL_LENGTH_PKG_FQN)
+            @ParameterLayout(named="Package", typicalLength= ApplicationFeature.TYPICAL_LENGTH_PKG_FQN)
             final String packageFqn) {
         applicationPermissionRepository.newPermission(this, rule, mode, ApplicationFeatureType.PACKAGE, packageFqn);
         return this;
@@ -278,8 +269,8 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
+     * {@link ApplicationFeatureType#MEMBER member}
+     * {@link ApplicationFeature feature}.
      */
     @Action(
             domainEvent = AddClassDomainEvent.class,
@@ -332,9 +323,9 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#ACTION action}
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
+     * {@link ApplicationMemberType#ACTION action}
+     * {@link ApplicationFeatureType#MEMBER member}
+     * {@link ApplicationFeature feature}.
      */
     @Action(
             domainEvent = AddActionDomainEvent.class,
@@ -389,9 +380,9 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     public static class AddPropertyDomainEvent extends ActionDomainEvent {}
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#PROPERTY property}
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
+     * {@link ApplicationMemberType#PROPERTY property}
+     * {@link ApplicationFeatureType#MEMBER member}
+     * {@link ApplicationFeature feature}.
      */
     @Action(
             domainEvent = AddPropertyDomainEvent.class,
@@ -455,9 +446,9 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     /**
      * Adds a {@link org.isisaddons.module.security.dom.permission.ApplicationPermission permission} for this role to a
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationMemberType#COLLECTION collection}
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureType#MEMBER member}
-     * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature feature}.
+     * {@link ApplicationMemberType#COLLECTION collection}
+     * {@link ApplicationFeatureType#MEMBER member}
+     * {@link ApplicationFeature feature}.
      */
     @Action(
             domainEvent = AddCollectionDomainEvent.class,
@@ -568,8 +559,6 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
     public static class UsersDomainEvent extends CollectionDomainEvent<ApplicationUser> {}
 
     @javax.jdo.annotations.Persistent(mappedBy = "roles")
-    private SortedSet<ApplicationUser> users = new TreeSet<>();
-
     @Collection(
             domainEvent = UsersDomainEvent.class,
             editing = Editing.DISABLED
@@ -578,13 +567,9 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
             render = RenderType.EAGERLY
     )
     @MemberOrder(sequence = "20")
-    public SortedSet<ApplicationUser> getUsers() {
-        return users;
-    }
+    @Getter @Setter
+    private SortedSet<ApplicationUser> users = new TreeSet<>();
 
-    public void setUsers(final SortedSet<ApplicationUser> users) {
-        this.users = users;
-    }
 
     // necessary for integration tests
     public void addToUsers(final ApplicationUser applicationUser) {

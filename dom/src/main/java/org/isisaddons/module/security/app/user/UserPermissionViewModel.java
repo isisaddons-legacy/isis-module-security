@@ -36,13 +36,13 @@ import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.ViewModelLayout;
 import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.util.ObjectContracts;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeature;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureRepositoryDefault;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureType;
 
 import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.app.feature.ApplicationFeatureViewModel;
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRepository;
@@ -53,8 +53,8 @@ import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 
 /**
- * View model identified by {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId} and backed by an
- * {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
+ * View model identified by {@link ApplicationFeatureId} and backed by an
+ * {@link ApplicationFeature}.
  */
 @SuppressWarnings("UnusedDeclaration")
 @ViewModelLayout(
@@ -403,7 +403,7 @@ public class UserPermissionViewModel implements ViewModel {
     DomainObjectContainer container;
 
     @javax.inject.Inject
-    ApplicationFeatureRepository applicationFeatureRepository;
+    ApplicationFeatureRepositoryDefault applicationFeatureRepository;
 
     @javax.inject.Inject
     ApplicationPermissionRepository applicationPermissionRepository;

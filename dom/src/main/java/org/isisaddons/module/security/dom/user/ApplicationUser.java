@@ -68,6 +68,9 @@ import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminUser;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @javax.jdo.annotations.PersistenceCapable(
         identityType = IdentityType.DATASTORE,
         schema = "isissecurity",
@@ -191,7 +194,6 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     public static class UsernameDomainEvent extends PropertyDomainEvent<String> {}
 
-    private String username;
 
     @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_USERNAME)
     @Property(
@@ -202,13 +204,8 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             hidden=Where.PARENTED_TABLES
     )
     @MemberOrder(name="Id", sequence = "1")
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(final String username) {
-        this.username = username;
-    }
+    @Getter @Setter
+    private String username;
 
     //endregion
 
@@ -238,7 +235,6 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     public static class FamilyNameDomainEvent extends PropertyDomainEvent<String> {}
 
-    private String familyName;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_FAMILY_NAME)
     @Property(
@@ -249,20 +245,14 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             hidden=Where.ALL_TABLES
     )
     @MemberOrder(name="Name",sequence = "2.1")
-    public String getFamilyName() {
-        return familyName;
-    }
-
-    public void setFamilyName(final String familyName) {
-        this.familyName = familyName;
-    }
+    @Getter @Setter
+    private String familyName;
     //endregion
 
     //region > givenName (property)
 
     public static class GivenNameDomainEvent extends PropertyDomainEvent<String> {}
 
-    private String givenName;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_GIVEN_NAME)
     @Property(
@@ -273,20 +263,15 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             hidden=Where.ALL_TABLES
     )
     @MemberOrder(name="Name", sequence = "2.2")
-    public String getGivenName() {
-        return givenName;
-    }
+    @Getter @Setter
+    private String givenName;
 
-    public void setGivenName(final String givenName) {
-        this.givenName = givenName;
-    }
     //endregion
 
     //region > knownAs (property)
 
     public static class KnownAsDomainEvent extends PropertyDomainEvent<String> {}
 
-    private String knownAs;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_KNOWN_AS)
     @Property(
@@ -297,13 +282,8 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             hidden=Where.ALL_TABLES
     )
     @MemberOrder(name="Name",sequence = "2.3")
-    public String getKnownAs() {
-        return knownAs;
-    }
-
-    public void setKnownAs(final String knownAs) {
-        this.knownAs = knownAs;
-    }
+    @Getter @Setter
+    private String knownAs;
     //endregion
 
     //region > updateName (action)
@@ -364,7 +344,6 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     public static class EmailAddressDomainEvent extends PropertyDomainEvent<String> {}
 
 
-    private String emailAddress;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_EMAIL_ADDRESS)
     @Property(
@@ -372,13 +351,8 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             editing = Editing.DISABLED
     )
     @MemberOrder(name="Contact Details", sequence = "3.1")
-    public String getEmailAddress() {
-        return emailAddress;
-    }
-
-    public void setEmailAddress(final String emailAddress) {
-        this.emailAddress = emailAddress;
-    }
+    @Getter @Setter
+    private String emailAddress;
 
     //endregion
 
@@ -412,7 +386,6 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     public static class PhoneNumberDomainEvent extends PropertyDomainEvent<String> {}
 
-    private String phoneNumber;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_PHONE_NUMBER)
     @Property(
@@ -420,13 +393,8 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             editing = Editing.DISABLED
     )
     @MemberOrder(name="Contact Details", sequence = "3.2")
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(final String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
+    @Getter @Setter
+    private String phoneNumber;
 
     //endregion
 
@@ -461,7 +429,6 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     public static class FaxNumberDomainEvent extends PropertyDomainEvent<String> {}
 
 
-    private String faxNumber;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_PHONE_NUMBER)
     @Property(
@@ -472,13 +439,8 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             hidden=Where.PARENTED_TABLES
     )
     @MemberOrder(name="Contact Details", sequence = "3.3")
-    public String getFaxNumber() {
-        return faxNumber;
-    }
-
-    public void setFaxNumber(final String faxNumber) {
-        this.faxNumber = faxNumber;
-    }
+    @Getter @Setter
+    private String faxNumber;
 
     //endregion
 
@@ -513,7 +475,6 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     public static class TenancyDomainEvent extends PropertyDomainEvent<ApplicationTenancy> {}
 
-    private ApplicationTenancy tenancy;
 
     @javax.jdo.annotations.Column(name = "atPath", allowsNull="true")
     @Property(
@@ -521,13 +482,8 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             editing = Editing.DISABLED
     )
     @MemberOrder(name="Tenancy", sequence = "3.4")
-    public ApplicationTenancy getTenancy() {
-        return tenancy;
-    }
-
-    public void setTenancy(final ApplicationTenancy tenancy) {
-        this.tenancy = tenancy;
-    }
+    @Getter @Setter
+    private ApplicationTenancy tenancy;
 
     //endregion
 
@@ -556,7 +512,6 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     public static class AccountTypeDomainEvent extends PropertyDomainEvent<AccountType> {}
 
-    private AccountType accountType;
 
     @javax.jdo.annotations.Column(allowsNull="false")
     @Property(
@@ -564,13 +519,8 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             editing = Editing.DISABLED
     )
     @MemberOrder(name="Status", sequence = "3")
-    public AccountType getAccountType() {
-        return accountType;
-    }
-
-    public void setAccountType(final AccountType accountType) {
-        this.accountType = accountType;
-    }
+    @Getter @Setter
+    private AccountType accountType;
 
     //endregion
 
@@ -611,7 +561,6 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     public static class StatusDomainEvent extends PropertyDomainEvent<ApplicationUserStatus> {}
 
-    private ApplicationUserStatus status;
 
     @javax.jdo.annotations.Column(allowsNull="false")
     @Property(
@@ -619,13 +568,8 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             editing = Editing.DISABLED
     )
     @MemberOrder(name="Status", sequence = "4")
-    public ApplicationUserStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(final ApplicationUserStatus status) {
-        this.status = status;
-    }
+    @Getter @Setter
+    private ApplicationUserStatus status;
 
     //endregion
 
@@ -674,17 +618,11 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > encryptedPassword (hidden property)
 
-    private String encryptedPassword;
 
     @javax.jdo.annotations.Column(allowsNull="true")
     @PropertyLayout(hidden=Where.EVERYWHERE)
-    public String getEncryptedPassword() {
-        return encryptedPassword;
-    }
-
-    public void setEncryptedPassword(final String encryptedPassword) {
-        this.encryptedPassword = encryptedPassword;
-    }
+    @Getter @Setter
+    private String encryptedPassword;
 
     public boolean hideEncryptedPassword() {
         return isDelegateAccountOrPasswordEncryptionNotAvailable();
@@ -841,8 +779,6 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     @javax.jdo.annotations.Persistent(table="ApplicationUserRoles")
     @javax.jdo.annotations.Join(column="userId")
     @javax.jdo.annotations.Element(column="roleId")
-    private SortedSet<ApplicationRole> roles = new TreeSet<>();
-
     @Collection(
             domainEvent = RolesDomainEvent.class,
             editing = Editing.DISABLED
@@ -851,13 +787,9 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             render = RenderType.EAGERLY
     )
     @MemberOrder(sequence = "20")
-    public SortedSet<ApplicationRole> getRoles() {
-        return roles;
-    }
+    @Getter @Setter
+    private SortedSet<ApplicationRole> roles = new TreeSet<>();
 
-    public void setRoles(final SortedSet<ApplicationRole> roles) {
-        this.roles = roles;
-    }
 
     // necessary only because otherwise call to getRoles() through wrapped object
     // (in integration tests) is ambiguous.
@@ -1058,7 +990,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     /**
      * Optional service, if configured then is used to evaluate permissions within
-     * {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet#evaluate(org.isisaddons.module.security.dom.feature.ApplicationFeatureId, org.isisaddons.module.security.dom.permission.ApplicationPermissionMode)},
+     * {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet#evaluate(ApplicationFeatureId, org.isisaddons.module.security.dom.permission.ApplicationPermissionMode)},
      * else will fallback to a {@link org.isisaddons.module.security.dom.permission.PermissionsEvaluationService#DEFAULT default}
      * implementation.
      */

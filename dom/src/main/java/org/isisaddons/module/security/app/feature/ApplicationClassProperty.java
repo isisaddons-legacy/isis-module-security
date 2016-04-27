@@ -20,8 +20,7 @@ import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Property;
 import org.apache.isis.applib.annotation.ViewModelLayout;
-
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
 
 @SuppressWarnings("UnusedDeclaration")
 @ViewModelLayout(paged=100)

@@ -52,6 +52,9 @@ import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 
+import lombok.Getter;
+import lombok.Setter;
+
 @SuppressWarnings("UnusedDeclaration")
 @javax.jdo.annotations.PersistenceCapable(
         identityType = IdentityType.APPLICATION,
@@ -110,8 +113,6 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     public static class NameDomainEvent extends PropertyDomainEvent<String> {}
 
-    private String name;
-
     @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_NAME)
     @Title
     @Property(
@@ -122,13 +123,9 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
             typicalLength=TYPICAL_LENGTH_NAME
     )
     @MemberOrder(sequence = "1")
-    public String getName() {
-        return name;
-    }
+    @Getter @Setter
+    private String name;
 
-    public void setName(final String name) {
-        this.name = name;
-    }
 
     //endregion
 
@@ -158,7 +155,6 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     public static class PathDomainEvent extends PropertyDomainEvent<String> {}
 
-    private String path;
 
     @javax.jdo.annotations.PrimaryKey
     @javax.jdo.annotations.Column(length = MAX_LENGTH_PATH, allowsNull = "false")
@@ -166,13 +162,8 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
             domainEvent = PathDomainEvent.class,
             editing = Editing.DISABLED
     )
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(final String path) {
-        this.path = path;
-    }
+    @Getter @Setter
+    private String path;
 
     //endregion
 
@@ -181,8 +172,6 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     public static class UsersDomainEvent extends CollectionDomainEvent<ApplicationUser> {}
 
     @javax.jdo.annotations.Persistent(mappedBy = "tenancy")
-    private SortedSet<ApplicationUser> users = new TreeSet<>();
-
     @Collection(
             domainEvent = UsersDomainEvent.class,
             editing = Editing.DISABLED
@@ -191,13 +180,9 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
             render = RenderType.EAGERLY
     )
     @MemberOrder(sequence = "10")
-    public SortedSet<ApplicationUser> getUsers() {
-        return users;
-    }
+    @Getter @Setter
+    private SortedSet<ApplicationUser> users = new TreeSet<>();
 
-    public void setUsers(final SortedSet<ApplicationUser> users) {
-        this.users = users;
-    }
 
     // necessary for integration tests
     public void addToUsers(final ApplicationUser applicationUser) {
@@ -266,7 +251,6 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     public static class ParentDomainEvent extends PropertyDomainEvent<ApplicationTenancy> {}
 
-    private ApplicationTenancy parent;
 
     @javax.jdo.annotations.Column(name = "parentPath", allowsNull = "true")
     @Property(
@@ -276,13 +260,8 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     @PropertyLayout(
             hidden = Where.PARENTED_TABLES
     )
-    public ApplicationTenancy getParent() {
-        return parent;
-    }
-
-    public void setParent(final ApplicationTenancy parent) {
-        this.parent = parent;
-    }
+    @Getter @Setter
+    private ApplicationTenancy parent;
 
     //endregion
 
@@ -315,8 +294,6 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     public static class ChildrenDomainEvent extends CollectionDomainEvent<ApplicationTenancy> {}
 
     @javax.jdo.annotations.Persistent(mappedBy = "parent")
-    private SortedSet<ApplicationTenancy> children = new TreeSet<>();
-
     @Collection(
             domainEvent = ChildrenDomainEvent.class,
             editing = Editing.DISABLED
@@ -324,13 +301,9 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     @CollectionLayout(
             render = RenderType.EAGERLY
     )
-    public SortedSet<ApplicationTenancy> getChildren() {
-        return children;
-    }
+    @Getter @Setter
+    private SortedSet<ApplicationTenancy> children = new TreeSet<>();
 
-    public void setChildren(final SortedSet<ApplicationTenancy> children) {
-        this.children = children;
-    }
 
     // necessary for integration tests
     public void addToChildren(final ApplicationTenancy applicationTenancy) {

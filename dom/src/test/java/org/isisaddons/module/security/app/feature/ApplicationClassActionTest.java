@@ -1,12 +1,13 @@
 package org.isisaddons.module.security.app.feature;
 
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
 import org.jmock.Expectations;
 import org.jmock.auto.Mock;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.apache.isis.applib.annotation.ActionSemantics;
+
+import org.apache.isis.applib.annotation.SemanticsOf;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeature;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -27,8 +28,7 @@ public class ApplicationClassActionTest {
     public void setUp() throws Exception {
 
         applicationClassAction = new ApplicationClassAction() {
-            @Override
-            ApplicationFeature getFeature() {
+            @Override ApplicationFeature getFeature() {
                 return mockApplicationFeature;
             }
         };
@@ -55,10 +55,10 @@ public class ApplicationClassActionTest {
 
             context.checking(new Expectations() {{
                 oneOf(mockApplicationFeature).getActionSemantics();
-                will(returnValue(ActionSemantics.Of.IDEMPOTENT));
+                will(returnValue(SemanticsOf.IDEMPOTENT));
             }});
 
-            assertThat(applicationClassAction.getActionSemantics(), is(ActionSemantics.Of.IDEMPOTENT));
+            assertThat(applicationClassAction.getActionSemantics(), is(SemanticsOf.IDEMPOTENT));
         }
     }
 

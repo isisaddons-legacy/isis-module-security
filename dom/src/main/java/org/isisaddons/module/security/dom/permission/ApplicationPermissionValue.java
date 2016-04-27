@@ -19,9 +19,10 @@ package org.isisaddons.module.security.dom.permission;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.util.ObjectContracts;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
 
 /**
  * A serializable value object representing an (anonymized)

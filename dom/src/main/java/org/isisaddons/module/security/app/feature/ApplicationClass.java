@@ -25,8 +25,7 @@ import org.apache.isis.applib.annotation.CollectionLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.RenderType;
 import org.apache.isis.applib.annotation.ViewModelLayout;
-
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
 
 @SuppressWarnings("UnusedDeclaration")
 @ViewModelLayout(

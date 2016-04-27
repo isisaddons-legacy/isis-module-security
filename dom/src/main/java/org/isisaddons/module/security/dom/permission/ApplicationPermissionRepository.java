@@ -31,11 +31,11 @@ import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeature;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureRepositoryDefault;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureType;
 
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 
@@ -278,7 +278,7 @@ public class ApplicationPermissionRepository {
     @Inject
     DomainObjectContainer container;
     @Inject
-    ApplicationFeatureRepository applicationFeatureRepository;
+    ApplicationFeatureRepositoryDefault applicationFeatureRepository;
 
     /**
      * Will only be injected to if the programmer has supplied an implementation.  Otherwise

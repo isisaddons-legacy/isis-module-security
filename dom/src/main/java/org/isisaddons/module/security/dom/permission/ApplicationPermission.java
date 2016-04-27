@@ -42,15 +42,18 @@ import org.apache.isis.applib.annotation.Property;
 import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.annotation.Where;
+import org.apache.isis.applib.services.appfeat.ApplicationMemberType;
 import org.apache.isis.applib.util.ObjectContracts;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeature;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureRepositoryDefault;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureType;
 
 import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
-import org.isisaddons.module.security.dom.feature.ApplicationMemberType;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Specifies how a particular {@link #getRole() application role} may interact with a specific
@@ -194,8 +197,6 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     public static class RoleDomainEvent extends PropertyDomainEvent<ApplicationRole> {}
 
 
-    private ApplicationRole role;
-
     @javax.jdo.annotations.Column(name = "roleId", allowsNull="false")
     @Property(
             domainEvent = RoleDomainEvent.class,
@@ -205,13 +206,8 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
             hidden=Where.REFERENCES_PARENT
     )
     @MemberOrder(name="Role", sequence = "1")
-    public ApplicationRole getRole() {
-        return role;
-    }
-
-    public void setRole(final ApplicationRole role) {
-        this.role = role;
-    }
+    @Getter @Setter
+    private ApplicationRole role;
 
     //endregion
 
@@ -237,7 +233,6 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     //region > rule (property)
     public static class RuleDomainEvent extends PropertyDomainEvent<ApplicationPermissionRule> {}
 
-    private ApplicationPermissionRule rule;
 
     @javax.jdo.annotations.Column(allowsNull="false")
     @Property(
@@ -245,13 +240,8 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
             editing = Editing.DISABLED
     )
     @MemberOrder(name="Permissions", sequence = "2")
-    public ApplicationPermissionRule getRule() {
-        return rule;
-    }
-
-    public void setRule(final ApplicationPermissionRule rule) {
-        this.rule = rule;
-    }
+    @Getter @Setter
+    private ApplicationPermissionRule rule;
 
     //endregion
 
@@ -294,7 +284,6 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     //region > mode (property)
     public static class ModeDomainEvent extends PropertyDomainEvent<ApplicationPermissionMode> {}
 
-    private ApplicationPermissionMode mode;
 
     @javax.jdo.annotations.Column(allowsNull="false")
     @Property(
@@ -302,13 +291,8 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
             editing = Editing.DISABLED
     )
     @MemberOrder(name="Permissions", sequence = "3")
-    public ApplicationPermissionMode getMode() {
-        return mode;
-    }
-
-    public void setMode(final ApplicationPermissionMode mode) {
-        this.mode = mode;
-    }
+    @Getter @Setter
+    private ApplicationPermissionMode mode;
 
     //endregion
 
@@ -397,7 +381,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     private ApplicationFeatureType featureType;
 
     /**
-     * The {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId#getType() feature type} of the
+     * The {@link ApplicationFeatureId#getType() feature type} of the
      * feature.
      *
      * <p>
@@ -423,7 +407,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     private String featureFqn;
 
     /**
-     * The {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId#getFullyQualifiedName() fully qualified name}
+     * The {@link ApplicationFeatureId#getFullyQualifiedName() fully qualified name}
      * of the feature.
      *
      * <p>
@@ -528,7 +512,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     DomainObjectContainer container;
 
     @javax.inject.Inject
-    ApplicationFeatureRepository applicationFeatureRepository;
+    ApplicationFeatureRepositoryDefault applicationFeatureRepository;
 
     //endregion
 

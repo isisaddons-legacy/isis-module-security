@@ -37,11 +37,11 @@ import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.RenderType;
 import org.apache.isis.applib.annotation.SemanticsOf;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeature;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureRepositoryDefault;
 
 import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 
 @DomainService(
@@ -161,7 +161,7 @@ public class UserPermissionViewModelContributions  {
     @javax.inject.Inject
     DomainObjectContainer container;
     @javax.inject.Inject
-    ApplicationFeatureRepository applicationFeatureRepository;
+    ApplicationFeatureRepositoryDefault applicationFeatureRepository;
     //endregion
 
 }

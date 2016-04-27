@@ -12,10 +12,10 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.isis.applib.DomainObjectContainer;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeature;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureRepositoryDefault;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -30,7 +30,7 @@ public class UserPermissionViewModelContributionsTest {
 
 
     @Mock
-    ApplicationFeatureRepository applicationFeatureRepository;
+    ApplicationFeatureRepositoryDefault mockApplicationFeatureRepository;
 
     @Mock
     DomainObjectContainer mockContainer;
@@ -56,7 +56,7 @@ public class UserPermissionViewModelContributionsTest {
                     return Lists.newArrayList();
                 }
             };
-            userPermissionViewModelContributions.applicationFeatureRepository = applicationFeatureRepository;
+            userPermissionViewModelContributions.applicationFeatureRepository = mockApplicationFeatureRepository;
         }
 
 
@@ -64,7 +64,7 @@ public class UserPermissionViewModelContributionsTest {
         public void happyCase() throws Exception {
             final Collection<ApplicationFeature> result = Lists.newArrayList();
             context.checking(new Expectations() {{
-                oneOf(applicationFeatureRepository).allMembers();
+                oneOf(mockApplicationFeatureRepository).allMembers();
                 will(returnValue(result));
             }});
             userPermissionViewModelContributions.permissions(applicationUser);

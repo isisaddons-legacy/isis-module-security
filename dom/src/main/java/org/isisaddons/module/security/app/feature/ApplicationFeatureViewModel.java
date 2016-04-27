@@ -35,17 +35,17 @@ import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.RenderType;
 import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.util.ObjectContracts;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeature;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureRepositoryDefault;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureType;
 
 import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRepository;
 
 /**
- * View model identified by {@link org.isisaddons.module.security.dom.feature.ApplicationFeatureId} and backed by an {@link org.isisaddons.module.security.dom.feature.ApplicationFeature}.
+ * View model identified by {@link ApplicationFeatureId} and backed by an {@link ApplicationFeature}.
  */
 @MemberGroupLayout(
         columnSpans = {6,0,6,12},
@@ -65,7 +65,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     //region > constructors
     public static ApplicationFeatureViewModel newViewModel(
             final ApplicationFeatureId featureId,
-            final ApplicationFeatureRepository applicationFeatureRepository,
+            final ApplicationFeatureRepositoryDefault applicationFeatureRepository,
             final DomainObjectContainer container) {
         final Class<? extends ApplicationFeatureViewModel> cls = viewModelClassFor(featureId, applicationFeatureRepository);
         if(cls == null) {
@@ -77,7 +77,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
 
     private static Class<? extends ApplicationFeatureViewModel> viewModelClassFor(
             final ApplicationFeatureId featureId,
-            final ApplicationFeatureRepository applicationFeatureRepository) {
+            final ApplicationFeatureRepositoryDefault applicationFeatureRepository) {
         switch (featureId.getType()) {
             case PACKAGE:
                 return ApplicationPackage.class;
@@ -357,7 +357,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     public static class Functions {
         private Functions(){}
         public static <T extends ApplicationFeatureViewModel> Function<ApplicationFeatureId, T> asViewModelForId(
-                final ApplicationFeatureRepository applicationFeatureRepository, final DomainObjectContainer container) {
+                final ApplicationFeatureRepositoryDefault applicationFeatureRepository, final DomainObjectContainer container) {
             return new Function<ApplicationFeatureId, T>(){
                 @Override
                 public T apply(final ApplicationFeatureId input) {
@@ -366,7 +366,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
             };
         }
         public static <T extends ApplicationFeatureViewModel> Function<ApplicationFeature, T> asViewModel(
-                final ApplicationFeatureRepository applicationFeatureRepository, final DomainObjectContainer container) {
+                final ApplicationFeatureRepositoryDefault applicationFeatureRepository, final DomainObjectContainer container) {
             return new Function<ApplicationFeature, T>(){
                 @Override
                 public T apply(final ApplicationFeature input) {
@@ -382,7 +382,7 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
     DomainObjectContainer container;
 
     @javax.inject.Inject
-    ApplicationFeatureRepository applicationFeatureRepository;
+    ApplicationFeatureRepositoryDefault applicationFeatureRepository;
 
     @javax.inject.Inject
     ApplicationPermissionRepository applicationPermissionRepository;

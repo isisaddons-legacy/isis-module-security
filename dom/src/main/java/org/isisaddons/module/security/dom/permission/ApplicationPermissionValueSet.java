@@ -27,9 +27,9 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.TreeMultimap;
 
 import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
 
 import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 
 /**
  * A serializable value object representing a set of (anonymized) {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionValue permission}s.

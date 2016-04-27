@@ -1,8 +1,10 @@
 package org.isisaddons.module.security.dom.permission;
 
-import org.isisaddons.module.security.dom.SerializationContractTest;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
 import org.junit.Test;
+
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
+
+import org.isisaddons.module.security.dom.SerializationContractTest;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

@@ -17,8 +17,9 @@
 package org.isisaddons.module.security.dom.permission;
 
 import java.util.Collection;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+
 import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
 
 public abstract class PermissionsEvaluationServiceAbstract implements PermissionsEvaluationService {
 

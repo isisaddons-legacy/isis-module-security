@@ -31,13 +31,13 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import org.apache.isis.applib.DomainObjectContainer;
+import org.apache.isis.applib.services.appfeat.ApplicationMemberType;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeature;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureRepositoryDefault;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureType;
 import org.apache.isis.core.unittestsupport.jmocking.JUnitRuleMockery2;
 
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureType;
-import org.isisaddons.module.security.dom.feature.ApplicationMemberType;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -56,7 +56,7 @@ public class ApplicationPermissionTest {
     DomainObjectContainer mockContainer;
 
     @Mock
-    ApplicationFeatureRepository mockApplicationFeatureRepository;
+    ApplicationFeatureRepositoryDefault mockApplicationFeatureRepository;
 
     ApplicationPermission applicationPermission;
 

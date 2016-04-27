@@ -17,7 +17,9 @@
 package org.isisaddons.module.security.shiro;
 
 import org.apache.shiro.authz.Permission;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureId;
+
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
+
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
 
 /**

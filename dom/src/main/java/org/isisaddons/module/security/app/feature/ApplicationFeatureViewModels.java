@@ -29,10 +29,10 @@ import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.RestrictTo;
 import org.apache.isis.applib.annotation.SemanticsOf;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeature;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureRepositoryDefault;
 
 import org.isisaddons.module.security.SecurityModule;
-import org.isisaddons.module.security.dom.feature.ApplicationFeature;
-import org.isisaddons.module.security.dom.feature.ApplicationFeatureRepository;
 
 @DomainService(
         repositoryFor = ApplicationFeatureViewModel.class
@@ -76,7 +76,7 @@ public class ApplicationFeatureViewModels  {
     )
     @MemberOrder(sequence = "100.40.1")
     public List<ApplicationPackage> allPackages() {
-        return asViewModels(applicationFeatures.allPackages(), ApplicationPackage.class);
+        return asViewModels(applicationFeatureRepository.allPackages(), ApplicationPackage.class);
     }
     //endregion
 
@@ -94,7 +94,7 @@ public class ApplicationFeatureViewModels  {
     )
     @MemberOrder(sequence = "100.40.2")
     public List<ApplicationClass> allClasses() {
-        return asViewModels(applicationFeatures.allClasses(), ApplicationClass.class);
+        return asViewModels(applicationFeatureRepository.allClasses(), ApplicationClass.class);
     }
     //endregion
 
@@ -114,7 +114,7 @@ public class ApplicationFeatureViewModels  {
     )
     @MemberOrder(sequence = "100.40.3")
     public List<ApplicationClassAction> allActions() {
-        return asViewModels(applicationFeatures.allActions(), ApplicationClassAction.class);
+        return asViewModels(applicationFeatureRepository.allActions(), ApplicationClassAction.class);
     }
     //endregion
 
@@ -132,7 +132,7 @@ public class ApplicationFeatureViewModels  {
     )
     @MemberOrder(sequence = "100.40.4")
     public List<ApplicationClassProperty> allProperties() {
-        return asViewModels(applicationFeatures.allProperties(), ApplicationClassProperty.class);
+        return asViewModels(applicationFeatureRepository.allProperties(), ApplicationClassProperty.class);
     }
     //endregion
 
@@ -152,7 +152,7 @@ public class ApplicationFeatureViewModels  {
     )
     @MemberOrder(sequence = "100.40.5")
     public List<ApplicationClassCollection> allCollections() {
-        return asViewModels(applicationFeatures.allCollections(), ApplicationClassCollection.class);
+        return asViewModels(applicationFeatureRepository.allCollections(), ApplicationClassCollection.class);
     }
     //endregion
 
@@ -161,14 +161,14 @@ public class ApplicationFeatureViewModels  {
         return Lists.newArrayList(
                 Iterables.transform(
                         features,
-                        ApplicationFeatureViewModel.Functions.<T>asViewModel(applicationFeatures, container)
+                        ApplicationFeatureViewModel.Functions.<T>asViewModel(applicationFeatureRepository, container)
                 ));
     }
     //endregion
 
     //region > injected services
     @javax.inject.Inject
-    ApplicationFeatureRepository applicationFeatures;
+    ApplicationFeatureRepositoryDefault applicationFeatureRepository;
     @javax.inject.Inject
     DomainObjectContainer container;
     //endregion
