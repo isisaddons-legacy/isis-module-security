@@ -20,9 +20,8 @@ import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.Contributed;
-import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.NatureOfService;
+import org.apache.isis.applib.annotation.Mixin;
 import org.apache.isis.applib.annotation.Property;
 import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.SemanticsOf;
@@ -33,36 +32,33 @@ import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureReposit
 import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
 
-@DomainService(
-        nature = NatureOfService.VIEW_CONTRIBUTIONS_ONLY
-)
-public class ApplicationFeatureViewModelContributions {
+@Mixin
+public class ApplicationPermission_feature {
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationFeatureViewModelContributions, T> {}
+    public static class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationPermission_feature> {}
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationFeatureViewModelContributions, T> {}
 
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationFeatureViewModelContributions> {}
-
-    // //////////////////////////////////////
-
-    //region > feature
-    public static class FeatureDomainEvent extends PropertyDomainEvent<ApplicationFeatureViewModel> {}
+    //region > constructor
+    private final ApplicationPermission permission;
+    public ApplicationPermission_feature(final ApplicationPermission permission) {
+        this.permission = permission;
+    }
+    //endregion
 
     @Action(
-            semantics = SemanticsOf.SAFE
+            semantics = SemanticsOf.SAFE,
+            domainEvent = ActionDomainEvent.class
     )
     @ActionLayout(
             contributed = Contributed.AS_ASSOCIATION
     )
     @Property(
-            domainEvent = FeatureDomainEvent.class
     )
     @PropertyLayout(
             hidden=Where.REFERENCES_PARENT
     )
     @MemberOrder(name="Feature", sequence = "4")
-    public ApplicationFeatureViewModel feature(final ApplicationPermission permission) {
+    public ApplicationFeatureViewModel $$(final ApplicationPermission permission) {
         if(permission.getFeatureType() == null) {
             return null;
         }
@@ -74,15 +70,10 @@ public class ApplicationFeatureViewModelContributions {
         return ApplicationFeatureId.newFeature(permission.getFeatureType(), permission.getFeatureFqn());
     }
 
-    //endregion
-
-    //region  > services (injected)
     @javax.inject.Inject
     DomainObjectContainer container;
 
     @javax.inject.Inject
     ApplicationFeatureRepositoryDefault applicationFeatureRepository;
-
-    //endregion
 
 }

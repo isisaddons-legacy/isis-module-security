@@ -141,11 +141,15 @@ import lombok.Setter;
 )
 @MemberGroupLayout(
         columnSpans = {3,3,6,12},
-        left="Role",
-        middle = "Permissions",
-        right="Feature"
+        left={"Role", "Metadata"},
+        middle = {"Permissions"},
+        right={"Feature"}
 )
 public class ApplicationPermission implements Comparable<ApplicationPermission> {
+
+    private static final int TYPICAL_LENGTH_TYPE = 7;  // ApplicationFeatureType.PACKAGE is longest
+
+    //region > domain events
 
     public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationPermission, T> {}
 
@@ -153,9 +157,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationPermission> {}
 
-    // //////////////////////////////////////
-
-    private static final int TYPICAL_LENGTH_TYPE = 7;  // ApplicationFeatureType.PACKAGE is longest
+    //endregion
 
     //region > identification
     /**
@@ -350,7 +352,7 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     //endregion
 
-    // region > type (derived, combined featureType and memberType)
+    // region > type (derived, memberType of associated feature)
 
     public static class TypeDomainEvent extends PropertyDomainEvent<String> {}
 
@@ -377,9 +379,6 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
 
     //region > featureType
 
-    @javax.jdo.annotations.Column(allowsNull="false")
-    private ApplicationFeatureType featureType;
-
     /**
      * The {@link ApplicationFeatureId#getType() feature type} of the
      * feature.
@@ -391,20 +390,20 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
      *
      * @see #getFeatureFqn()
      */
+    @javax.jdo.annotations.Column(allowsNull="false")
+    @Setter
+    private ApplicationFeatureType featureType;
+
     @Programmatic
     public ApplicationFeatureType getFeatureType() {
         return featureType;
     }
 
-    public void setFeatureType(final ApplicationFeatureType featureType) {
-        this.featureType = featureType;
-    }
     //endregion
 
     //region > featureFqn
 
-    @javax.jdo.annotations.Column(allowsNull="false")
-    private String featureFqn;
+    public static class FeatureFqnDomainEvent extends PropertyDomainEvent<String> {}
 
     /**
      * The {@link ApplicationFeatureId#getFullyQualifiedName() fully qualified name}
@@ -417,14 +416,14 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
      *
      * @see #getFeatureType()
      */
-    @Programmatic
-    public String getFeatureFqn() {
-        return featureFqn;
-    }
-
-    public void setFeatureFqn(final String featureFqn) {
-        this.featureFqn = featureFqn;
-    }
+    @javax.jdo.annotations.Column(allowsNull="false")
+    @Property(
+        domainEvent = FeatureFqnDomainEvent.class,
+        editing = Editing.DISABLED
+    )
+    @MemberOrder(name="Feature", sequence = "5.1")
+    @Getter @Setter
+    private String featureFqn;
 
     //endregion
 

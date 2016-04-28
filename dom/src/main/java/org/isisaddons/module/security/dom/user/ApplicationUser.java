@@ -24,6 +24,7 @@ import java.util.TreeSet;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
+import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.VersionStrategy;
 
 import com.google.common.base.Strings;
@@ -39,6 +40,7 @@ import org.apache.isis.applib.annotation.CollectionLayout;
 import org.apache.isis.applib.annotation.DomainObject;
 import org.apache.isis.applib.annotation.DomainObjectLayout;
 import org.apache.isis.applib.annotation.Editing;
+import org.apache.isis.applib.annotation.LabelPosition;
 import org.apache.isis.applib.annotation.MemberGroupLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Optionality;
@@ -124,7 +126,7 @@ import lombok.Setter;
         bookmarking = BookmarkPolicy.AS_ROOT
 )
 @MemberGroupLayout(columnSpans = {4,4,4,12},
-    left = {"Id", "Name"},
+    left = {"Id", "Name", "Metadata"},
     middle= {"Contact Details"},
     right= {"Status", "Tenancy"}
 )
@@ -628,7 +630,6 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
         return isDelegateAccountOrPasswordEncryptionNotAvailable();
     }
     //endregion
-
 
     //region > hasPassword (derived property)
 

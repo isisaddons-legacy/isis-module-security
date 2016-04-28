@@ -26,7 +26,7 @@ public class UserPermissionViewModelContributionsTest {
     @Rule
     public JUnitRuleMockery2 context = JUnitRuleMockery2.createFor(JUnitRuleMockery2.Mode.INTERFACES_AND_CLASSES);
 
-    UserPermissionViewModelContributions userPermissionViewModelContributions;
+    ApplicationUser_permissions applicationUserPermissions;
 
 
     @Mock
@@ -43,20 +43,18 @@ public class UserPermissionViewModelContributionsTest {
 
     public static class Permissions extends UserPermissionViewModelContributionsTest {
 
-        private ApplicationUser asViewModelsUser;
         private Iterable<ApplicationFeature> asViewModelsArgFeatures;
 
         @Before
         public void setUp() throws Exception {
-            userPermissionViewModelContributions = new UserPermissionViewModelContributions() {
+            applicationUserPermissions = new ApplicationUser_permissions(applicationUser) {
                 @Override
-                List<UserPermissionViewModel> asViewModels(ApplicationUser user, Iterable<ApplicationFeature> features) {
-                    asViewModelsUser = user;
+                List<UserPermissionViewModel> asViewModels(Iterable<ApplicationFeature> features) {
                     asViewModelsArgFeatures = features;
                     return Lists.newArrayList();
                 }
             };
-            userPermissionViewModelContributions.applicationFeatureRepository = mockApplicationFeatureRepository;
+            applicationUserPermissions.applicationFeatureRepository = mockApplicationFeatureRepository;
         }
 
 
@@ -67,9 +65,8 @@ public class UserPermissionViewModelContributionsTest {
                 oneOf(mockApplicationFeatureRepository).allMembers();
                 will(returnValue(result));
             }});
-            userPermissionViewModelContributions.permissions(applicationUser);
+            applicationUserPermissions.$$();
 
-            assertThat(asViewModelsUser, is(applicationUser));
             assertThat(asViewModelsArgFeatures, is((Iterable<ApplicationFeature>)result));
         }
     }

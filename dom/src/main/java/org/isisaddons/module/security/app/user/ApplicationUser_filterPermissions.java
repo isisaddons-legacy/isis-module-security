@@ -25,17 +25,11 @@ import com.google.common.collect.Lists;
 
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.Action;
-import org.apache.isis.applib.annotation.ActionLayout;
-import org.apache.isis.applib.annotation.Collection;
-import org.apache.isis.applib.annotation.CollectionLayout;
-import org.apache.isis.applib.annotation.Contributed;
-import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.NatureOfService;
+import org.apache.isis.applib.annotation.Mixin;
 import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
-import org.apache.isis.applib.annotation.RenderType;
 import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeature;
 import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
@@ -44,57 +38,30 @@ import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureReposit
 import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 
-@DomainService(
-        nature = NatureOfService.VIEW_CONTRIBUTIONS_ONLY
-)
-public class UserPermissionViewModelContributions  {
+@Mixin
+public class ApplicationUser_filterPermissions {
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<UserPermissionViewModelContributions, T> {}
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<UserPermissionViewModelContributions, T> {}
+    public static class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationUser_filterPermissions> {}
 
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<UserPermissionViewModelContributions> {}
-
-    // //////////////////////////////////////
-
-    //region > Permissions (derived collection)
-
-    public static class PermissionsDomainEvent extends CollectionDomainEvent<UserPermissionViewModel> {}
-
-    @Action(
-        semantics = SemanticsOf.SAFE
-    )
-    @ActionLayout(
-            contributed = Contributed.AS_ASSOCIATION
-    )
-    @Collection(
-            domainEvent = PermissionsDomainEvent.class
-    )
-    @CollectionLayout(
-            paged=50,
-            render = RenderType.EAGERLY
-    ) // when contributed
-    @MemberOrder(sequence = "30")
-    public List<UserPermissionViewModel> permissions(final ApplicationUser user) {
-        final java.util.Collection<ApplicationFeature> allMembers = applicationFeatureRepository.allMembers();
-        return asViewModels(user, allMembers);
+    //region > constructor
+    private final ApplicationUser user;
+    public ApplicationUser_filterPermissions(final ApplicationUser user) {
+        this.user = user;
     }
-
     //endregion
 
-    // //////////////////////////////////////
+
 
     //region > filterPermissions (action)
 
-    public static class FilterPermissionsEvent extends ActionDomainEvent {}
 
     @Action(
-            domainEvent = FilterPermissionsEvent.class,
+            domainEvent = ActionDomainEvent.class,
             semantics = SemanticsOf.SAFE
     )
     @MemberOrder(sequence = "1", name="permissions")
-    public List<UserPermissionViewModel> filterPermissions(
-            final ApplicationUser user,
+    public List<UserPermissionViewModel> $$(
             @ParameterLayout(named="Package", typicalLength=ApplicationFeature.TYPICAL_LENGTH_PKG_FQN)
             final String packageFqn,
             @Parameter(optionality = Optionality.OPTIONAL)
@@ -102,10 +69,26 @@ public class UserPermissionViewModelContributions  {
             final String className) {
         final java.util.Collection<ApplicationFeature> allMembers = applicationFeatureRepository.allMembers();
         final Iterable<ApplicationFeature> filtered = Iterables.filter(allMembers, within(packageFqn, className));
-        return asViewModels(user, filtered);
+        return asViewModels(filtered);
     }
 
-    Predicate<ApplicationFeature> within(final String packageFqn, final String className) {
+    /**
+     * Package names that have classes in them.
+     */
+    public List<String> choices0$$() {
+        return applicationFeatureRepository.packageNames();
+    }
+
+
+    /**
+     * Class names for selected package.
+     */
+    public List<String> choices1$$(final String packageFqn) {
+        return applicationFeatureRepository.classNamesRecursivelyContainedIn(packageFqn);
+    }
+
+
+    static Predicate<ApplicationFeature> within(final String packageFqn, final String className) {
         return new Predicate<ApplicationFeature>() {
             @Override
             public boolean apply(final ApplicationFeature input) {
@@ -124,44 +107,17 @@ public class UserPermissionViewModelContributions  {
         };
     }
 
-    /**
-     * Package names that have classes in them.
-     */
-    public List<String> choices1FilterPermissions() {
-        return applicationFeatureRepository.packageNames();
-    }
-
-
-    /**
-     * Class names for selected package.
-     */
-    public List<String> choices2FilterPermissions(
-            final ApplicationUser user,
-            final String packageFqn) {
-        return applicationFeatureRepository.classNamesRecursivelyContainedIn(packageFqn);
-    }
-
-    //endregion
-
-    // //////////////////////////////////////
-
-    //region > helpers
-    List<UserPermissionViewModel> asViewModels(
-            final ApplicationUser user,
-            final Iterable<ApplicationFeature> features) {
+    List<UserPermissionViewModel> asViewModels(final Iterable<ApplicationFeature> features) {
         return Lists.newArrayList(
                 Iterables.transform(
                         features,
                         UserPermissionViewModel.Functions.asViewModel(user, container))
         );
     }
-    //endregion
 
-    //region > injected
     @javax.inject.Inject
     DomainObjectContainer container;
     @javax.inject.Inject
     ApplicationFeatureRepositoryDefault applicationFeatureRepository;
-    //endregion
 
 }

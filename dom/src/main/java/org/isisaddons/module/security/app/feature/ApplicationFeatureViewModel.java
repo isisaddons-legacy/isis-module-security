@@ -49,7 +49,7 @@ import org.isisaddons.module.security.dom.permission.ApplicationPermissionReposi
  */
 @MemberGroupLayout(
         columnSpans = {6,0,6,12},
-        left = {"Id", "Data Type"},
+        left = {"Id", "Data Type", "Metadata"},
         right= {"Parent", "Contributed", "Detail"}
 )
 public abstract class ApplicationFeatureViewModel implements ViewModel {

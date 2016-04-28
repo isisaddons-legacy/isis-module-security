@@ -62,7 +62,7 @@ import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 )
 @MemberGroupLayout(
         columnSpans = {6,0,6,0},
-        left = {"Permission"},
+        left = {"Permission", "Metadata"},
         right= {"Cause"}
 )
 public class UserPermissionViewModel implements ViewModel {
