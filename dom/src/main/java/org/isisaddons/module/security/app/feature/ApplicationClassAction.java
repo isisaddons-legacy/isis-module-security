@@ -38,6 +38,7 @@ public class ApplicationClassAction extends ApplicationClassMember {
     //region > constructors
 
     public ApplicationClassAction() {
+        // Default constructor
     }
 
     public ApplicationClassAction(final ApplicationFeatureId featureId) {

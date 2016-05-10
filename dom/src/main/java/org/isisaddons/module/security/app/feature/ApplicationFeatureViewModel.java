@@ -84,19 +84,24 @@ public abstract class ApplicationFeatureViewModel implements ViewModel {
             case CLASS:
                 return ApplicationClass.class;
             case MEMBER:
-            final ApplicationFeature feature = applicationFeatureRepository.findFeature(featureId);
-                if(feature == null) {
-                    // TODO: not sure why, yet...
-                    return null;
-                }
-                switch(feature.getMemberType()) {
-                    case PROPERTY:
-                        return ApplicationClassProperty.class;
-                    case COLLECTION:
-                        return ApplicationClassCollection.class;
-                    case ACTION:
-                        return ApplicationClassAction.class;
-                }
+                return getFeatureMemberClassType(featureId, applicationFeatureRepository.findFeature(featureId));
+        }
+        throw new IllegalArgumentException("could not determine feature type; featureId = " + featureId);
+    }
+
+    private static Class<? extends ApplicationFeatureViewModel> getFeatureMemberClassType(
+            final ApplicationFeatureId featureId, ApplicationFeature feature) {
+        if(feature == null) {
+            // TODO: not sure why, yet...
+            return null;
+        }
+        switch(feature.getMemberType()) {
+            case PROPERTY:
+                return ApplicationClassProperty.class;
+            case COLLECTION:
+                return ApplicationClassCollection.class;
+            case ACTION:
+                return ApplicationClassAction.class;
         }
         throw new IllegalArgumentException("could not determine feature type; featureId = " + featureId);
     }

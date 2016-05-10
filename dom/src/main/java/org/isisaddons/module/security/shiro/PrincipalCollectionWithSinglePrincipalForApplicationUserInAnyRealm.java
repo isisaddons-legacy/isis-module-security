@@ -6,6 +6,7 @@ import org.apache.shiro.subject.SimplePrincipalCollection;
 public class PrincipalCollectionWithSinglePrincipalForApplicationUserInAnyRealm extends SimplePrincipalCollection {
 
     public PrincipalCollectionWithSinglePrincipalForApplicationUserInAnyRealm() {
+        // Default constructor
     }
 
     @Override

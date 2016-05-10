@@ -45,6 +45,7 @@ public class ApplicationClass extends ApplicationFeatureViewModel {
     //region > constructors
 
     public ApplicationClass() {
+        // Default constructor
     }
 
     public ApplicationClass(final ApplicationFeatureId featureId) {
