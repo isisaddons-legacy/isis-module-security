@@ -24,7 +24,6 @@ import java.util.TreeSet;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
-import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.VersionStrategy;
 
 import com.google.common.base.Strings;
@@ -40,7 +39,6 @@ import org.apache.isis.applib.annotation.CollectionLayout;
 import org.apache.isis.applib.annotation.DomainObject;
 import org.apache.isis.applib.annotation.DomainObjectLayout;
 import org.apache.isis.applib.annotation.Editing;
-import org.apache.isis.applib.annotation.LabelPosition;
 import org.apache.isis.applib.annotation.MemberGroupLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Optionality;
@@ -88,17 +86,17 @@ import lombok.Setter;
         @javax.jdo.annotations.Unique(
                 name = "ApplicationUser_username_UNQ", members = { "username" })
 })
-@javax.jdo.annotations.Queries( {
+@javax.jdo.annotations.Queries({
         @javax.jdo.annotations.Query(
                 name = "findByUsername", language = "JDOQL",
                 value = "SELECT "
                         + "FROM org.isisaddons.module.security.dom.user.ApplicationUser "
                         + "WHERE username == :username"),
         @javax.jdo.annotations.Query(
-            name = "findByEmailAddress", language = "JDOQL",
-            value = "SELECT "
-                    + "FROM org.isisaddons.module.security.dom.user.ApplicationUser "
-                    + "WHERE emailAddress == :emailAddress"),
+                name = "findByEmailAddress", language = "JDOQL",
+                value = "SELECT "
+                        + "FROM org.isisaddons.module.security.dom.user.ApplicationUser "
+                        + "WHERE emailAddress == :emailAddress"),
         @javax.jdo.annotations.Query(
                 name = "findByName", language = "JDOQL",
                 value = "SELECT "
@@ -108,14 +106,14 @@ import lombok.Setter;
                         + "   || givenName.matches(:nameRegex)"
                         + "   || knownAs.matches(:nameRegex)"),
         @javax.jdo.annotations.Query(
-        name = "find", language = "JDOQL",
-        value = "SELECT "
-                + "FROM org.isisaddons.module.security.dom.user.ApplicationUser "
-                + "WHERE username.matches(:regex)"
-                + " || familyName.matches(:regex)"
-                + " || givenName.matches(:regex)"
-                + " || knownAs.matches(:regex)"
-                + " || emailAddress.matches(:regex)")
+                name = "find", language = "JDOQL",
+                value = "SELECT "
+                        + "FROM org.isisaddons.module.security.dom.user.ApplicationUser "
+                        + "WHERE username.matches(:regex)"
+                        + " || familyName.matches(:regex)"
+                        + " || givenName.matches(:regex)"
+                        + " || knownAs.matches(:regex)"
+                        + " || emailAddress.matches(:regex)")
 })
 @DomainObject(
         objectType = "isissecurity.ApplicationUser",
@@ -125,18 +123,22 @@ import lombok.Setter;
 @DomainObjectLayout(
         bookmarking = BookmarkPolicy.AS_ROOT
 )
-@MemberGroupLayout(columnSpans = {4,4,4,12},
-    left = {"Id", "Name", "Metadata"},
-    middle= {"Contact Details"},
-    right= {"Status", "Tenancy"}
+@MemberGroupLayout(columnSpans = { 4, 4, 4, 12 },
+        left = { "Id", "Name", "Metadata" },
+        middle = { "Contact Details" },
+        right = { "Status", "Tenancy" }
 )
 public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername {
 
-    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationUser, T> {}
+    public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationUser, T> {
+    }
 
-    public static abstract class CollectionDomainEvent<T> extends SecurityModule.CollectionDomainEvent<ApplicationUser, T> {}
+    public static abstract class CollectionDomainEvent<T>
+            extends SecurityModule.CollectionDomainEvent<ApplicationUser, T> {
+    }
 
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationUser> {}
+    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<ApplicationUser> {
+    }
 
     // //////////////////////////////////////
 
@@ -163,7 +165,8 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > name (derived property)
 
-    public static class NameDomainEvent extends PropertyDomainEvent<String> {}
+    public static class NameDomainEvent extends PropertyDomainEvent<String> {
+    }
 
     @javax.jdo.annotations.NotPersistent
     @Property(
@@ -171,13 +174,13 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             editing = Editing.DISABLED
     )
     @PropertyLayout(
-            hidden=Where.OBJECT_FORMS
+            hidden = Where.OBJECT_FORMS
     )
-    @MemberOrder(name="Id", sequence = "1")
+    @MemberOrder(name = "Id", sequence = "1")
     public String getName() {
         final StringBuilder buf = new StringBuilder();
-        if(getFamilyName() != null) {
-            if(getKnownAs() != null) {
+        if (getFamilyName() != null) {
+            if (getKnownAs() != null) {
                 buf.append(getKnownAs());
             } else {
                 buf.append(getGivenName());
@@ -194,18 +197,18 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > username (property)
 
-    public static class UsernameDomainEvent extends PropertyDomainEvent<String> {}
+    public static class UsernameDomainEvent extends PropertyDomainEvent<String> {
+    }
 
-
-    @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_USERNAME)
+    @javax.jdo.annotations.Column(allowsNull = "false", length = MAX_LENGTH_USERNAME)
     @Property(
             domainEvent = UsernameDomainEvent.class,
             editing = Editing.DISABLED
     )
     @PropertyLayout(
-            hidden=Where.PARENTED_TABLES
+            hidden = Where.PARENTED_TABLES
     )
-    @MemberOrder(name="Id", sequence = "1")
+    @MemberOrder(name = "Id", sequence = "1")
     @Getter @Setter
     private String username;
 
@@ -213,16 +216,17 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > updateUsername (action)
 
-    public static class UpdateUsernameDomainEvent extends ActionDomainEvent {}
+    public static class UpdateUsernameDomainEvent extends ActionDomainEvent {
+    }
 
     @Action(
             domainEvent = UpdateUsernameDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
-    @MemberOrder(name="username", sequence = "1")
+    @MemberOrder(name = "username", sequence = "1")
     public ApplicationUser updateUsername(
             @Parameter(maxLength = MAX_LENGTH_USERNAME)
-            @ParameterLayout(named="Username")
+            @ParameterLayout(named = "Username")
             final String username) {
         setUsername(username);
         return this;
@@ -235,36 +239,36 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > familyName (property)
 
-    public static class FamilyNameDomainEvent extends PropertyDomainEvent<String> {}
+    public static class FamilyNameDomainEvent extends PropertyDomainEvent<String> {
+    }
 
-
-    @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_FAMILY_NAME)
+    @javax.jdo.annotations.Column(allowsNull = "true", length = MAX_LENGTH_FAMILY_NAME)
     @Property(
             domainEvent = FamilyNameDomainEvent.class,
             editing = Editing.DISABLED
     )
     @PropertyLayout(
-            hidden=Where.ALL_TABLES
+            hidden = Where.ALL_TABLES
     )
-    @MemberOrder(name="Name",sequence = "2.1")
+    @MemberOrder(name = "Name", sequence = "2.1")
     @Getter @Setter
     private String familyName;
     //endregion
 
     //region > givenName (property)
 
-    public static class GivenNameDomainEvent extends PropertyDomainEvent<String> {}
+    public static class GivenNameDomainEvent extends PropertyDomainEvent<String> {
+    }
 
-
-    @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_GIVEN_NAME)
+    @javax.jdo.annotations.Column(allowsNull = "true", length = MAX_LENGTH_GIVEN_NAME)
     @Property(
             domainEvent = GivenNameDomainEvent.class,
             editing = Editing.DISABLED
     )
     @PropertyLayout(
-            hidden=Where.ALL_TABLES
+            hidden = Where.ALL_TABLES
     )
-    @MemberOrder(name="Name", sequence = "2.2")
+    @MemberOrder(name = "Name", sequence = "2.2")
     @Getter @Setter
     private String givenName;
 
@@ -272,40 +276,41 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > knownAs (property)
 
-    public static class KnownAsDomainEvent extends PropertyDomainEvent<String> {}
+    public static class KnownAsDomainEvent extends PropertyDomainEvent<String> {
+    }
 
-
-    @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_KNOWN_AS)
+    @javax.jdo.annotations.Column(allowsNull = "true", length = MAX_LENGTH_KNOWN_AS)
     @Property(
             domainEvent = KnownAsDomainEvent.class,
             editing = Editing.DISABLED
     )
     @PropertyLayout(
-            hidden=Where.ALL_TABLES
+            hidden = Where.ALL_TABLES
     )
-    @MemberOrder(name="Name",sequence = "2.3")
+    @MemberOrder(name = "Name", sequence = "2.3")
     @Getter @Setter
     private String knownAs;
     //endregion
 
     //region > updateName (action)
 
-    public static class UpdateNameDomainEvent extends ActionDomainEvent {}
+    public static class UpdateNameDomainEvent extends ActionDomainEvent {
+    }
 
     @Action(
             domainEvent = UpdateNameDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
-    @MemberOrder(name="knownAs", sequence = "1")
+    @MemberOrder(name = "knownAs", sequence = "1")
     public ApplicationUser updateName(
             @Parameter(maxLength = MAX_LENGTH_FAMILY_NAME, optionality = Optionality.OPTIONAL)
-            @ParameterLayout(named="Family Name")
+            @ParameterLayout(named = "Family Name")
             final String familyName,
             @Parameter(maxLength = MAX_LENGTH_GIVEN_NAME, optionality = Optionality.OPTIONAL)
-            @ParameterLayout(named="Given Name")
+            @ParameterLayout(named = "Given Name")
             final String givenName,
             @Parameter(maxLength = MAX_LENGTH_KNOWN_AS, optionality = Optionality.OPTIONAL)
-            @ParameterLayout(named="Known As")
+            @ParameterLayout(named = "Known As")
             final String knownAs
     ) {
         setFamilyName(familyName);
@@ -327,14 +332,14 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     }
 
     public String disableUpdateName(final String familyName, final String givenName, final String knownAs) {
-        return isForSelfOrRunAsAdministrator()? null: "Can only update your own user record.";
+        return isForSelfOrRunAsAdministrator() ? null : "Can only update your own user record.";
     }
 
     public String validateUpdateName(final String familyName, final String givenName, final String knownAs) {
-        if(familyName != null && givenName == null) {
+        if (familyName != null && givenName == null) {
             return "Must provide given name if family name has been provided.";
         }
-        if(familyName == null && (givenName != null | knownAs != null)) {
+        if (familyName == null && (givenName != null | knownAs != null)) {
             return "Must provide family name if given name or 'known as' name has been provided.";
         }
         return null;
@@ -343,16 +348,15 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > emailAddress (property)
 
-    public static class EmailAddressDomainEvent extends PropertyDomainEvent<String> {}
+    public static class EmailAddressDomainEvent extends PropertyDomainEvent<String> {
+    }
 
-
-
-    @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_EMAIL_ADDRESS)
+    @javax.jdo.annotations.Column(allowsNull = "true", length = MAX_LENGTH_EMAIL_ADDRESS)
     @Property(
             domainEvent = EmailAddressDomainEvent.class,
             editing = Editing.DISABLED
     )
-    @MemberOrder(name="Contact Details", sequence = "3.1")
+    @MemberOrder(name = "Contact Details", sequence = "3.1")
     @Getter @Setter
     private String emailAddress;
 
@@ -360,16 +364,17 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > updateEmailAddress (action)
 
-    public static class UpdateEmailAddressDomainEvent extends ActionDomainEvent {}
+    public static class UpdateEmailAddressDomainEvent extends ActionDomainEvent {
+    }
 
     @Action(
             domainEvent = UpdateEmailAddressDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
-    @MemberOrder(name="emailAddress", sequence = "1")
+    @MemberOrder(name = "emailAddress", sequence = "1")
     public ApplicationUser updateEmailAddress(
             @Parameter(maxLength = MAX_LENGTH_EMAIL_ADDRESS)
-            @ParameterLayout(named="Email")
+            @ParameterLayout(named = "Email")
             final String emailAddress) {
         setEmailAddress(emailAddress);
         return this;
@@ -380,21 +385,21 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     }
 
     public String disableUpdateEmailAddress(final String emailAddress) {
-        return isForSelfOrRunAsAdministrator()? null: "Can only update your own user record.";
+        return isForSelfOrRunAsAdministrator() ? null : "Can only update your own user record.";
     }
     //endregion
 
     //region > phoneNumber (property)
 
-    public static class PhoneNumberDomainEvent extends PropertyDomainEvent<String> {}
+    public static class PhoneNumberDomainEvent extends PropertyDomainEvent<String> {
+    }
 
-
-    @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_PHONE_NUMBER)
+    @javax.jdo.annotations.Column(allowsNull = "true", length = MAX_LENGTH_PHONE_NUMBER)
     @Property(
             domainEvent = PhoneNumberDomainEvent.class,
             editing = Editing.DISABLED
     )
-    @MemberOrder(name="Contact Details", sequence = "3.2")
+    @MemberOrder(name = "Contact Details", sequence = "3.2")
     @Getter @Setter
     private String phoneNumber;
 
@@ -402,15 +407,16 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > phoneNumber (property)
 
-    public static class UpdatePhoneNumberDomainEvent extends ActionDomainEvent {}
+    public static class UpdatePhoneNumberDomainEvent extends ActionDomainEvent {
+    }
 
     @Action(
             domainEvent = UpdatePhoneNumberDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
-    @MemberOrder(name="phoneNumber", sequence = "1")
+    @MemberOrder(name = "phoneNumber", sequence = "1")
     public ApplicationUser updatePhoneNumber(
-            @ParameterLayout(named="Phone")
+            @ParameterLayout(named = "Phone")
             @Parameter(maxLength = MAX_LENGTH_PHONE_NUMBER, optionality = Optionality.OPTIONAL)
             final String phoneNumber) {
         setPhoneNumber(phoneNumber);
@@ -418,8 +424,9 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     }
 
     public String disableUpdatePhoneNumber(final String faxNumber) {
-        return isForSelfOrRunAsAdministrator()? null: "Can only update your own user record.";
+        return isForSelfOrRunAsAdministrator() ? null : "Can only update your own user record.";
     }
+
     public String default0UpdatePhoneNumber() {
         return getPhoneNumber();
     }
@@ -428,19 +435,18 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > faxNumber (property)
 
-    public static class FaxNumberDomainEvent extends PropertyDomainEvent<String> {}
+    public static class FaxNumberDomainEvent extends PropertyDomainEvent<String> {
+    }
 
-
-
-    @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_PHONE_NUMBER)
+    @javax.jdo.annotations.Column(allowsNull = "true", length = MAX_LENGTH_PHONE_NUMBER)
     @Property(
             domainEvent = FaxNumberDomainEvent.class,
             editing = Editing.DISABLED
     )
     @PropertyLayout(
-            hidden=Where.PARENTED_TABLES
+            hidden = Where.PARENTED_TABLES
     )
-    @MemberOrder(name="Contact Details", sequence = "3.3")
+    @MemberOrder(name = "Contact Details", sequence = "3.3")
     @Getter @Setter
     private String faxNumber;
 
@@ -448,16 +454,17 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > updateFaxNumber (action)
 
-    public static class UpdateFaxNumberDomainEvent extends ActionDomainEvent {}
+    public static class UpdateFaxNumberDomainEvent extends ActionDomainEvent {
+    }
 
     @Action(
             domainEvent = UpdateFaxNumberDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
-    @MemberOrder(name="faxNumber", sequence = "1")
+    @MemberOrder(name = "faxNumber", sequence = "1")
     public ApplicationUser updateFaxNumber(
             @Parameter(maxLength = MAX_LENGTH_PHONE_NUMBER, optionality = Optionality.OPTIONAL)
-            @ParameterLayout(named="Fax")
+            @ParameterLayout(named = "Fax")
             final String faxNumber) {
         setFaxNumber(faxNumber);
         return this;
@@ -468,22 +475,22 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     }
 
     public String disableUpdateFaxNumber(final String faxNumber) {
-        return isForSelfOrRunAsAdministrator()? null: "Can only update your own user record.";
+        return isForSelfOrRunAsAdministrator() ? null : "Can only update your own user record.";
     }
 
     //endregion
 
     //region > tenancy (property)
 
-    public static class TenancyDomainEvent extends PropertyDomainEvent<ApplicationTenancy> {}
+    public static class TenancyDomainEvent extends PropertyDomainEvent<ApplicationTenancy> {
+    }
 
-
-    @javax.jdo.annotations.Column(name = "atPath", allowsNull="true")
+    @javax.jdo.annotations.Column(name = "atPath", allowsNull = "true")
     @Property(
             domainEvent = TenancyDomainEvent.class,
             editing = Editing.DISABLED
     )
-    @MemberOrder(name="Tenancy", sequence = "3.4")
+    @MemberOrder(name = "Tenancy", sequence = "3.4")
     @Getter @Setter
     private ApplicationTenancy tenancy;
 
@@ -491,13 +498,14 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > updateTenancy (action)
 
-    public static class UpdateTenancyDomainEvent extends ActionDomainEvent {}
+    public static class UpdateTenancyDomainEvent extends ActionDomainEvent {
+    }
 
     @Action(
             domainEvent = UpdateTenancyDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
-    @MemberOrder(name="tenancy", sequence = "1")
+    @MemberOrder(name = "tenancy", sequence = "1")
     public ApplicationUser updateTenancy(
             @Parameter(optionality = Optionality.OPTIONAL)
             final ApplicationTenancy tenancy) {
@@ -512,15 +520,15 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > accountType (property)
 
-    public static class AccountTypeDomainEvent extends PropertyDomainEvent<AccountType> {}
+    public static class AccountTypeDomainEvent extends PropertyDomainEvent<AccountType> {
+    }
 
-
-    @javax.jdo.annotations.Column(allowsNull="false")
+    @javax.jdo.annotations.Column(allowsNull = "false")
     @Property(
             domainEvent = AccountTypeDomainEvent.class,
             editing = Editing.DISABLED
     )
-    @MemberOrder(name="Status", sequence = "3")
+    @MemberOrder(name = "Status", sequence = "3")
     @Getter @Setter
     private AccountType accountType;
 
@@ -528,7 +536,8 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > updateAccountType (action)
 
-    public static class UpdateAccountTypeDomainEvent extends ActionDomainEvent {}
+    public static class UpdateAccountTypeDomainEvent extends ActionDomainEvent {
+    }
 
     @Action(
             domainEvent = UpdateAccountTypeDomainEvent.class,
@@ -540,11 +549,13 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
         setAccountType(accountType);
         return this;
     }
+
     public String disableUpdateAccountType(final AccountType accountType) {
         return isAdminUser()
                 ? "Cannot change account type for admin user"
                 : null;
     }
+
     public AccountType default0UpdateAccountType() {
         return getAccountType();
     }
@@ -561,15 +572,15 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > status (property), visible (action), usable (action)
 
-    public static class StatusDomainEvent extends PropertyDomainEvent<ApplicationUserStatus> {}
+    public static class StatusDomainEvent extends PropertyDomainEvent<ApplicationUserStatus> {
+    }
 
-
-    @javax.jdo.annotations.Column(allowsNull="false")
+    @javax.jdo.annotations.Column(allowsNull = "false")
     @Property(
             domainEvent = StatusDomainEvent.class,
             editing = Editing.DISABLED
     )
-    @MemberOrder(name="Status", sequence = "4")
+    @MemberOrder(name = "Status", sequence = "4")
     @Getter @Setter
     private ApplicationUserStatus status;
 
@@ -577,52 +588,56 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > unlock (action)
 
-    public static class UnlockDomainEvent extends ActionDomainEvent {}
+    public static class UnlockDomainEvent extends ActionDomainEvent {
+    }
 
     @Action(
             domainEvent = UnlockDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
-    @ActionLayout(named="Enable") // symmetry with lock (disable)
+    @ActionLayout(named = "Enable") // symmetry with lock (disable)
     @MemberOrder(name = "Status", sequence = "1")
     public ApplicationUser unlock() {
         setStatus(ApplicationUserStatus.ENABLED);
         return this;
     }
+
     public String disableUnlock() {
-        return getStatus() == ApplicationUserStatus.ENABLED ? "Status is already set to ENABLE": null;
+        return getStatus() == ApplicationUserStatus.ENABLED ? "Status is already set to ENABLE" : null;
     }
 
     //endregion
 
     //region > lock (action)
 
-    public static class LockDomainEvent extends ActionDomainEvent {}
+    public static class LockDomainEvent extends ActionDomainEvent {
+    }
 
     @Action(
             domainEvent = LockDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
-    @ActionLayout(named="Disable") // method cannot be called 'disable' as that would clash with Isis' naming conventions
+    @ActionLayout(named = "Disable")
+    // method cannot be called 'disable' as that would clash with Isis' naming conventions
     @MemberOrder(name = "Status", sequence = "2")
     public ApplicationUser lock() {
         setStatus(ApplicationUserStatus.DISABLED);
         return this;
     }
+
     public String disableLock() {
-        if(isAdminUser()) {
+        if (isAdminUser()) {
             return "Cannot disable the '" + IsisModuleSecurityAdminUser.USER_NAME + "' user.";
         }
-        return getStatus() == ApplicationUserStatus.DISABLED ? "Status is already set to DISABLE": null;
+        return getStatus() == ApplicationUserStatus.DISABLED ? "Status is already set to DISABLE" : null;
     }
 
     //endregion
 
     //region > encryptedPassword (hidden property)
 
-
-    @javax.jdo.annotations.Column(allowsNull="true")
-    @PropertyLayout(hidden=Where.EVERYWHERE)
+    @javax.jdo.annotations.Column(allowsNull = "true")
+    @PropertyLayout(hidden = Where.EVERYWHERE)
     @Getter @Setter
     private String encryptedPassword;
 
@@ -633,13 +648,14 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > hasPassword (derived property)
 
-    public static class HasPasswordDomainEvent extends PropertyDomainEvent<Boolean> {}
+    public static class HasPasswordDomainEvent extends PropertyDomainEvent<Boolean> {
+    }
 
     @Property(
             domainEvent = HasPasswordDomainEvent.class,
             editing = Editing.DISABLED
     )
-    @MemberOrder(name="Status", sequence = "4")
+    @MemberOrder(name = "Status", sequence = "4")
     public boolean isHasPassword() {
         return !Strings.isNullOrEmpty(getEncryptedPassword());
     }
@@ -652,19 +668,20 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > updatePassword (action)
 
-    public static class UpdatePasswordDomainEvent extends ActionDomainEvent {}
+    public static class UpdatePasswordDomainEvent extends ActionDomainEvent {
+    }
 
     @Action(
             domainEvent = UpdatePasswordDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
-    @MemberOrder(name="hasPassword", sequence = "10")
+    @MemberOrder(name = "hasPassword", sequence = "10")
     public ApplicationUser updatePassword(
-            @ParameterLayout(named="Existing password")
+            @ParameterLayout(named = "Existing password")
             final Password existingPassword,
-            @ParameterLayout(named="New password")
+            @ParameterLayout(named = "New password")
             final Password newPassword,
-            @ParameterLayout(named="Re-enter password")
+            @ParameterLayout(named = "Re-enter password")
             final Password newPasswordRepeat) {
         updatePassword(newPassword.getPassword());
         return this;
@@ -682,7 +699,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             final Password newPassword,
             final Password newPasswordConfirm) {
 
-        if(!isForSelfOrRunAsAdministrator()) {
+        if (!isForSelfOrRunAsAdministrator()) {
             return "Can only update password for your own user account.";
         }
         if (!isHasPassword()) {
@@ -691,16 +708,15 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
         return null;
     }
 
-
     public String validateUpdatePassword(
             final Password existingPassword,
             final Password newPassword,
             final Password newPasswordRepeat) {
-        if(isDelegateAccountOrPasswordEncryptionNotAvailable()) {
+        if (isDelegateAccountOrPasswordEncryptionNotAvailable()) {
             return null;
         }
 
-        if(getEncryptedPassword() != null) {
+        if (getEncryptedPassword() != null) {
             if (!passwordEncryptionService.matches(existingPassword.getPassword(), getEncryptedPassword())) {
                 return "Existing password is incorrect";
             }
@@ -716,7 +732,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     @Programmatic
     public void updatePassword(final String password) {
         // in case called programmatically
-        if(isDelegateAccountOrPasswordEncryptionNotAvailable()) {
+        if (isDelegateAccountOrPasswordEncryptionNotAvailable()) {
             return;
         }
         final String encryptedPassword = passwordEncryptionService.encrypt(password);
@@ -727,17 +743,18 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > resetPassword (action)
 
-    public static class ResetPasswordDomainEvent extends ActionDomainEvent {}
+    public static class ResetPasswordDomainEvent extends ActionDomainEvent {
+    }
 
     @Action(
-            domainEvent =ResetPasswordDomainEvent.class,
+            domainEvent = ResetPasswordDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
-    @MemberOrder(name="hasPassword", sequence = "20")
+    @MemberOrder(name = "hasPassword", sequence = "20")
     public ApplicationUser resetPassword(
-            @ParameterLayout(named="New password")
+            @ParameterLayout(named = "New password")
             final Password newPassword,
-            @ParameterLayout(named="Repeat password")
+            @ParameterLayout(named = "Repeat password")
             final Password newPasswordRepeat) {
         updatePassword(newPassword.getPassword());
         return this;
@@ -752,7 +769,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     public String validateResetPassword(
             final Password newPassword,
             final Password newPasswordRepeat) {
-        if(isDelegateAccountOrPasswordEncryptionNotAvailable()) {
+        if (isDelegateAccountOrPasswordEncryptionNotAvailable()) {
             return null;
         }
         if (!match(newPassword, newPasswordRepeat)) {
@@ -775,11 +792,12 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     //endregion
 
     //region > roles (collection)
-    public static class RolesDomainEvent extends CollectionDomainEvent<ApplicationRole> {}
+    public static class RolesDomainEvent extends CollectionDomainEvent<ApplicationRole> {
+    }
 
-    @javax.jdo.annotations.Persistent(table="ApplicationUserRoles")
-    @javax.jdo.annotations.Join(column="userId")
-    @javax.jdo.annotations.Element(column="roleId")
+    @javax.jdo.annotations.Persistent(table = "ApplicationUserRoles")
+    @javax.jdo.annotations.Join(column = "userId")
+    @javax.jdo.annotations.Element(column = "roleId")
     @Collection(
             domainEvent = RolesDomainEvent.class,
             editing = Editing.DISABLED
@@ -791,12 +809,12 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     @Getter @Setter
     private SortedSet<ApplicationRole> roles = new TreeSet<>();
 
-
     // necessary only because otherwise call to getRoles() through wrapped object
     // (in integration tests) is ambiguous.
     public void addToRoles(final ApplicationRole applicationRole) {
         getRoles().add(applicationRole);
     }
+
     // necessary only because otherwise call to getRoles() through wrapped object
     // (in integration tests) is ambiguous.
     public void removeFromRoles(final ApplicationRole applicationRole) {
@@ -806,16 +824,17 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > addRole (action)
 
-    public static class AddRoleDomainEvent extends ActionDomainEvent {}
+    public static class AddRoleDomainEvent extends ActionDomainEvent {
+    }
 
     @Action(
             domainEvent = AddRoleDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
     @ActionLayout(
-            named="Add"
+            named = "Add"
     )
-    @MemberOrder(name="roles", sequence = "1")
+    @MemberOrder(name = "roles", sequence = "1")
     public ApplicationUser addRole(final ApplicationRole role) {
         addToRoles(role);
         return this;
@@ -829,29 +848,30 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     }
 
     public String disableAddRole(final ApplicationRole role) {
-        return choices0AddRole().isEmpty()? "All roles added": null;
+        return choices0AddRole().isEmpty() ? "All roles added" : null;
     }
     //endregion
 
     //region > removeRole (action)
 
-    public static class RemoveRoleDomainEvent extends ActionDomainEvent {}
+    public static class RemoveRoleDomainEvent extends ActionDomainEvent {
+    }
 
     @Action(
             domainEvent = RemoveRoleDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
     @ActionLayout(
-            named="Remove"
+            named = "Remove"
     )
-    @MemberOrder(name="roles", sequence = "2")
+    @MemberOrder(name = "roles", sequence = "2")
     public ApplicationUser removeRole(final ApplicationRole role) {
         removeFromRoles(role);
         return this;
     }
 
     public String disableRemoveRole(final ApplicationRole role) {
-        return getRoles().isEmpty()? "No roles to remove": null;
+        return getRoles().isEmpty() ? "No roles to remove" : null;
     }
 
     public SortedSet<ApplicationRole> choices0RemoveRole() {
@@ -860,7 +880,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     public String validateRemoveRole(
             final ApplicationRole applicationRole) {
-        if(isAdminUser() && applicationRole.isAdminRole()) {
+        if (isAdminUser() && applicationRole.isAdminRole()) {
             return "Cannot remove admin user from the admin role.";
         }
         return null;
@@ -870,7 +890,8 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //region > delete (action)
 
-    public static class DeleteDomainEvent extends ActionDomainEvent {}
+    public static class DeleteDomainEvent extends ActionDomainEvent {
+    }
 
     @Action(
             domainEvent = DeleteDomainEvent.class,
@@ -879,7 +900,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     @MemberOrder(sequence = "1")
     public List<ApplicationUser> delete(
             @Parameter(optionality = Optionality.OPTIONAL)
-            @ParameterLayout(named="Are you sure?")
+            @ParameterLayout(named = "Are you sure?")
             final Boolean areYouSure) {
         container.removeIfNotAlready(this);
         container.flush();
@@ -887,14 +908,15 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     }
 
     public String validateDelete(final Boolean areYouSure) {
-        return not(areYouSure) ? "Please confirm this action": null;
+        return not(areYouSure) ? "Please confirm this action" : null;
     }
+
     public Boolean default0Delete() {
         return Boolean.FALSE;
     }
 
     public String disableDelete(final Boolean areYouSure) {
-        return isAdminUser()? "Cannot delete the admin user": null;
+        return isAdminUser() ? "Cannot delete the admin user" : null;
     }
 
     static boolean not(final Boolean areYouSure) {
@@ -902,13 +924,37 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     }
     //endregion
 
+    //region > clone (action)
+    @MemberOrder(sequence = "2")
+    public ApplicationUser clone(
+            @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
+            @ParameterLayout(named = "Name")
+            final String username,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named = "Password")
+            final Password password,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named = "Repeat password")
+            final Password passwordRepeat,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named = "Enabled?")
+            final Boolean enabled,
+            @Parameter(optionality = Optionality.OPTIONAL)
+            @ParameterLayout(named = "Email Address")
+            final String emailAddress) {
+        return applicationUserRepository
+                .newLocalUserBasedOn(username, password, passwordRepeat, this, enabled, emailAddress);
+    }
+    //endregion
+
     //region > PermissionSet (programmatic)
 
     // short-term caching
     private transient ApplicationPermissionValueSet cachedPermissionSet;
+
     @Programmatic
     public ApplicationPermissionValueSet getPermissionSet() {
-        if(cachedPermissionSet != null) {
+        if (cachedPermissionSet != null) {
             return cachedPermissionSet;
         }
         final List<ApplicationPermission> permissions = applicationPermissionRepository.findByUser(this);
@@ -936,6 +982,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
         final String currentUserName = container.getUser().getName();
         return Objects.equals(getUsername(), currentUserName);
     }
+
     boolean isRunAsAdministrator() {
         final UserMemento currentUser = container.getUser();
         final List<RoleMemento> roles = currentUser.getRoles();
@@ -944,7 +991,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             // format is realmName:roleName.
             // since we don't know what the realm's name is (depends on its configuration in shiro.ini),
             // simply check that the last part matches the role name.
-            if(roleName.endsWith(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME)) {
+            if (roleName.endsWith(IsisModuleSecurityAdminRoleAndPermissions.ROLE_NAME)) {
                 return true;
             }
         }

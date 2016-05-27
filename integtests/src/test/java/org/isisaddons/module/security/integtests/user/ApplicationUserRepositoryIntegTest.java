@@ -26,6 +26,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import org.apache.isis.applib.value.Password;
+
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+import org.isisaddons.module.security.dom.role.ApplicationRoleRepository;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUserMenu;
 import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
@@ -36,6 +40,7 @@ import org.isisaddons.module.security.integtests.ThrowableMatchers;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
 public class ApplicationUserRepositoryIntegTest extends SecurityModuleAppIntegTest {
@@ -52,6 +57,8 @@ public class ApplicationUserRepositoryIntegTest extends SecurityModuleAppIntegTe
     ApplicationUserMenu applicationUserMenu;
     @Inject
     ApplicationUserRepository applicationUserRepository;
+    @Inject
+    ApplicationRoleRepository applicationRoleRepository;
 
     public static class NewUser extends ApplicationUserRepositoryIntegTest {
 
@@ -172,5 +179,47 @@ public class ApplicationUserRepositoryIntegTest extends SecurityModuleAppIntegTe
         }
     }
 
+    public static class CloneUser extends ApplicationUserRepositoryIntegTest {
+
+        @Test
+        public void happyCase() throws Exception {
+
+            // given
+            final ApplicationRole fredsRole = applicationRoleRepository.newRole("role1", "role1");
+            final ApplicationUser fred = applicationUserRepository
+                    .newLocalUser("fred", new Password("fredPass"), new Password("fredPass"), fredsRole, true,
+                            "fred@mail.com");
+
+            // when
+            final ApplicationUser fredsClone = applicationUserRepository
+                    .newLocalUserBasedOn("fredsClone", new Password("fredClonePass"), new Password("fredClonePass"),
+                            fred, true, "fredClone@mail.com");
+
+            // then
+            assertThat(fred.getRoles(), is(fredsClone.getRoles()));
+        }
+
+        @Test
+        public void whenUserHaveDifferentRoles() throws Exception {
+
+            // given
+            final ApplicationRole fredsRole = applicationRoleRepository.newRole("role1", "role2");
+            final ApplicationUser fred = applicationUserRepository
+                    .newLocalUser("fred", new Password("fredPass"), new Password("fredPass"), fredsRole, true,
+                            "fred@mail.com");
+
+            // when
+            final ApplicationUser fredsClone = applicationUserRepository
+                    .newLocalUserBasedOn("fredsClone", new Password("fredClonePass"), new Password("fredClonePass"),
+                            fred, true, "fredClone@mail.com");
+
+            // and when
+            fredsClone.addRole(applicationRoleRepository.newRole("role2", "role2"));
+
+            // then
+            assertNotEquals(fred.getRoles(), fredsClone.getRoles());
+        }
+
+    }
 
 }
