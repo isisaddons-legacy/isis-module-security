@@ -24,9 +24,11 @@ import javax.inject.Inject;
 import com.google.common.collect.Lists;
 
 import org.apache.isis.applib.DomainObjectContainer;
+import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 import org.apache.isis.applib.value.Password;
@@ -193,7 +195,8 @@ public class ApplicationUserRepository {
 
     //endregion
 
-    public List<ApplicationUser> autoComplete(final String search) {
+    @Action(semantics = SemanticsOf.SAFE)
+    public List<ApplicationUser> findMatching(final String search) {
         if (search != null && search.length() > 0) {
             return find(search);
         }

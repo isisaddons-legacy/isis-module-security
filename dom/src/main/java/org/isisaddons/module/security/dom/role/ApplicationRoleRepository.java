@@ -24,9 +24,11 @@ import javax.inject.Inject;
 import com.google.common.collect.Lists;
 
 import org.apache.isis.applib.DomainObjectContainer;
+import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Programmatic;
+import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.query.QueryDefault;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 
@@ -117,7 +119,8 @@ public class ApplicationRoleRepository  {
 
     //region > findByName
 
-    List<ApplicationRole> autoComplete(String search) {
+    @Action(semantics = SemanticsOf.SAFE)
+    public List<ApplicationRole> findMatching(String search) {
         if (search != null && search.length() > 0 ) {
             return findNameContaining(search);
         }

@@ -120,7 +120,7 @@ import lombok.Setter;
 @DomainObject(
         objectType = "isissecurity.ApplicationUser",
         autoCompleteRepository = ApplicationUserRepository.class,
-        autoCompleteAction = "autoComplete"
+        autoCompleteAction = "findMatching"
 )
 @DomainObjectLayout(
         bookmarking = BookmarkPolicy.AS_ROOT

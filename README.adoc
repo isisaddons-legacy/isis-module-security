@@ -328,7 +328,7 @@ Update your classpath by adding this dependency in your dom project's `pom.xml`:
 <dependency>
     <groupId>org.isisaddons.module.security</groupId>
     <artifactId>isis-module-security-dom</artifactId>
-    <version>1.12.0</version>
+    <version>1.12.2</version>
 </dependency>
 ----
 
@@ -638,13 +638,14 @@ Ideas for future features:
 
 == Change Log
 
+* `1.12.2` - released against Isis 1.12.1; closes link:https://github.com/isisaddons/isis-module-security/issues/32[#32]
 * `1.12.1` - released against Isis 1.12.1; converted to use 1.12.x constructs
 * `1.12.0` - released against Isis 1.12.0
 * `1.11.0` - released against Isis 1.11.0.
 * `1.10.0` - released against Isis 1.10.0
-* `1.9.0` - released against Isis 1.9.0; closes <a href="https://github.com/isisaddons/isis-module-security/issues/18">#18</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/17">#17</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/16">#16</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/15">#15</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/14">#14</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/13">#13</a>, <a href="https://github.com/isisaddons/isis-module-security/issues/12">#12</a> (mapping entities to 'isissecurity' schema);
-* `1.8.1` - released against Isis 1.8.0; closes <a href="https://github.com/isisaddons/isis-module-security/issues/11">#11</a>.
-* `1.8.0` - released against Isis 1.8.0. `ApplicationTenancy` extended to support hierarchical tenancies, with path as primary key (nb: breaking change), support to make easier to extend (pluggable factories and events for all actions). MeService on TERTIARY menuBar; <a href="https://github.com/isisaddons/isis-module-security/issues/10">#10</a>
+* `1.9.0` - released against Isis 1.9.0; closes link:https://github.com/isisaddons/isis-module-security/issues/18[#18], link:https://github.com/isisaddons/isis-module-security/issues/17[#17], link:https://github.com/isisaddons/isis-module-security/issues/16[#16], link:https://github.com/isisaddons/isis-module-security/issues/15[#15], link:https://github.com/isisaddons/isis-module-security/issues/14[#14], link:https://github.com/isisaddons/isis-module-security/issues/13[#13], link:https://github.com/isisaddons/isis-module-security/issues/12[#12]  (mapping entities to 'isissecurity' schema);
+* `1.8.1` - released against Isis 1.8.0; closes link:https://github.com/isisaddons/isis-module-security/issues/11[#11].
+* `1.8.0` - released against Isis 1.8.0. `ApplicationTenancy` extended to support hierarchical tenancies, with path as primary key (nb: breaking change), support to make easier to extend (pluggable factories and events for all actions). MeService on TERTIARY menuBar; link:https://github.com/isisaddons/isis-module-security/issues/10[#10]
 * `1.7.0` - released against Isis 1.7.0
 * `1.6.2` - made more resilient so can be called by an application's own 'security seed' service
 * `1.6.1` - support for account types and delegated authentication realm

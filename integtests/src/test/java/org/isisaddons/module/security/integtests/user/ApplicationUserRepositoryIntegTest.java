@@ -148,7 +148,7 @@ public class ApplicationUserRepositoryIntegTest extends SecurityModuleAppIntegTe
             applicationUserMenu.newDelegateUser("bill", null, true);
 
             // when
-            final List<ApplicationUser> after = applicationUserRepository.autoComplete("r");
+            final List<ApplicationUser> after = applicationUserRepository.findMatching("r");
 
             // then
             assertThat(after.size(), is(2)); // fred and mary
