@@ -32,7 +32,7 @@
     <properties>
         <isis.version>1.12.1</isis.version>
 
-        <isis-module-security.version>1.12.1</isis-module-security.version>
+        <isis-module-security.version>1.12.2</isis-module-security.version>
 
         <assertj-core.version>2.4.0</assertj-core.version>
         <jbcrypt.version>0.3m</jbcrypt.version>
