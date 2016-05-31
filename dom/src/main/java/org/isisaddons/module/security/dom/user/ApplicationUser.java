@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.inject.Inject;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
@@ -53,6 +54,8 @@ import org.apache.isis.applib.annotation.Where;
 import org.apache.isis.applib.security.RoleMemento;
 import org.apache.isis.applib.security.UserMemento;
 import org.apache.isis.applib.services.HasUsername;
+import org.apache.isis.applib.services.repository.RepositoryService;
+import org.apache.isis.applib.services.user.UserService;
 import org.apache.isis.applib.util.ObjectContracts;
 import org.apache.isis.applib.value.Password;
 
@@ -902,8 +905,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
             @Parameter(optionality = Optionality.OPTIONAL)
             @ParameterLayout(named = "Are you sure?")
             final Boolean areYouSure) {
-        container.removeIfNotAlready(this);
-        container.flush();
+        repositoryService.removeAndFlush(this);
         return applicationUserRepository.allUsers();
     }
 
@@ -924,8 +926,11 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     }
     //endregion
 
+
     //region > clone (action)
-    @MemberOrder(sequence = "2")
+    @Action(semantics = SemanticsOf.SAFE)
+    @ActionLayout(named = "Clone")
+    @MemberOrder(sequence = "2.1")
     public ApplicationUser clone(
             @Parameter(maxLength = ApplicationUser.MAX_LENGTH_USERNAME)
             @ParameterLayout(named = "Name")
@@ -979,12 +984,13 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     }
 
     boolean isForSelf() {
-        final String currentUserName = container.getUser().getName();
+        final String currentUserName = userService.getUser().getName();
         return Objects.equals(getUsername(), currentUserName);
     }
 
     boolean isRunAsAdministrator() {
-        final UserMemento currentUser = container.getUser();
+
+        final UserMemento currentUser = userService.getUser();
         final List<RoleMemento> roles = currentUser.getRoles();
         for (final RoleMemento role : roles) {
             final String roleName = role.getName();
@@ -1033,8 +1039,10 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
     ApplicationPermissionRepository applicationPermissionRepository;
     @javax.inject.Inject
     PasswordEncryptionService passwordEncryptionService;
-    @javax.inject.Inject
-    DomainObjectContainer container;
+    @Inject
+    RepositoryService repositoryService;
+    @Inject
+    UserService userService;
 
     /**
      * Optional service, if configured then is used to evaluate permissions within
