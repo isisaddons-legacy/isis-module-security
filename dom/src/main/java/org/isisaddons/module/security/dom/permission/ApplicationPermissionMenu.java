@@ -54,7 +54,20 @@ public class ApplicationPermissionMenu {
         }
         //endregion
 
-        //region > allPermission (action)
+        //region > orphanedPermissions (action)
+        public static class OrphanedPermissionsDomainEvent extends ActionDomainEvent {}
+
+        @Action(
+                domainEvent=OrphanedPermissionsDomainEvent.class,
+                semantics = SemanticsOf.SAFE
+        )
+        @MemberOrder(sequence = "100.50.1")
+        public List<ApplicationPermission> orphanedPermissions() {
+                return applicationPermissionRepository.findOrphaned();
+        }
+        //endregion
+
+        //region > allPermissions (action)
         public static class AllPermissionsDomainEvent extends ActionDomainEvent {}
 
         @Action(
@@ -62,11 +75,12 @@ public class ApplicationPermissionMenu {
                 semantics = SemanticsOf.SAFE,
                 restrictTo = RestrictTo.PROTOTYPING
         )
-        @MemberOrder(sequence = "100.50.1")
+        @MemberOrder(sequence = "100.50.2")
         public List<ApplicationPermission> allPermissions() {
                 return applicationPermissionRepository.allPermissions();
         }
         //endregion
+
 
         //region > inject
         @Inject

@@ -18,18 +18,23 @@ package org.isisaddons.module.security.dom.permission;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimaps;
+import com.google.common.collect.Sets;
 
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.query.QueryDefault;
+import org.apache.isis.applib.services.appfeat.ApplicationMemberType;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeature;
 import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
@@ -267,12 +272,94 @@ public class ApplicationPermissionRepository {
     }
     //endregion
 
-    //region > allPermission (action)
+    //region > allPermission (programmatic)
     @Programmatic
     public List<ApplicationPermission> allPermissions() {
         return container.allInstances(ApplicationPermission.class);
     }
     //endregion
+
+    //region > findOrphaned (programmatic)
+
+    @Programmatic
+    public List<ApplicationPermission> findOrphaned() {
+
+        final List<String> packageNames = applicationFeatureRepository.packageNames();
+        final Set<String> availableClasses = Sets.newTreeSet();
+        for (String packageName : packageNames) {
+            appendClasses(packageName, ApplicationMemberType.PROPERTY, availableClasses);
+            appendClasses(packageName, ApplicationMemberType.COLLECTION, availableClasses);
+            appendClasses(packageName, ApplicationMemberType.ACTION, availableClasses);
+        }
+
+        final List<ApplicationPermission> orphaned = Lists.newArrayList();
+
+        final List<ApplicationPermission> permissions = allPermissions();
+        for (ApplicationPermission permission : permissions) {
+            final ApplicationFeatureType featureType = permission.getFeatureType();
+            final String featureFqn = permission.getFeatureFqn();
+
+            switch (featureType) {
+
+            case PACKAGE:
+                if(!packageNames.contains(featureFqn)) {
+                    orphaned.add(permission);
+                }
+                break;
+            case CLASS:
+                if(!availableClasses.contains(featureFqn)) {
+                    orphaned.add(permission);
+                }
+                break;
+            case MEMBER:
+
+                final List<String> split = Splitter.on('#').splitToList(featureFqn);
+                final String fqClassName = split.get(0);
+                final String memberName = split.get(1);
+
+                final int lastDot = fqClassName.lastIndexOf('.');
+                final String packageName = fqClassName.substring(0, lastDot);
+                final String className = fqClassName.substring(lastDot + 1);
+
+                final List<String> memberNames = memberNamesOf(packageName, className);
+
+                if(!memberNames.contains(memberName)) {
+                    orphaned.add(permission);
+                }
+                break;
+            }
+        }
+
+        return orphaned;
+    }
+
+    private void appendClasses(
+            final String packageName, final ApplicationMemberType memberType, final Set<String> availableClasses) {
+        final List<String> classNames = applicationFeatureRepository.classNamesContainedIn(packageName, memberType);
+        for (String className : classNames) {
+            availableClasses.add(packageName + "." + className);
+        }
+    }
+
+    private List<String> memberNamesOf(final String packageName, final String className) {
+        final List<String> memberNames = Lists.newArrayList();
+        appendMembers(packageName, className, ApplicationMemberType.PROPERTY, memberNames);
+        appendMembers(packageName, className, ApplicationMemberType.COLLECTION, memberNames);
+        appendMembers(packageName, className, ApplicationMemberType.ACTION, memberNames);
+        return memberNames;
+    }
+
+    private void appendMembers(
+            final String packageName,
+            final String className,
+            final ApplicationMemberType applicationMemberType,
+            final List<String> memberNames) {
+        final List<String> memberNamesOf =
+                applicationFeatureRepository.memberNamesOf(packageName, className, applicationMemberType);
+        memberNames.addAll(memberNamesOf);
+    }
+    //endregion
+
 
     //region  >  (injected)
     @Inject
