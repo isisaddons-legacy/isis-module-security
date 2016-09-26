@@ -203,8 +203,47 @@ Speaking of which…
 
 === Application Tenancy
 
-Both application users and domain objects can be associated with an `ApplicationTenancy`. For application user's this
-is a property of the object, for domain object's this is performed by implementing the `WithApplicationTenancy` interface:
+Application tenancy is the concept of determining which application users can see/modify domain objects.  For this to
+work, there needs to be a application-specific mechanism for making the decision.  This is defined by the (optional)
+`ApplicationTenancyEvaluator` SPI service:
+
+[source,java]
+----
+public interface ApplicationTenancyEvaluator {
+    boolean handles(Class<?> cls);                                          // <1>
+    String hides(Object domainObject, ApplicationUser applicationUser);     // <2>
+    String disables(Object domainObject, ApplicationUser applicationUser);  // <3>
+}
+----
+<1> Whether this evaluator can determine the tenancy of the specified domain entity being interacted with (the "what").
+<2> Whether this instance of the domain object can be viewed by the user.  Any non-null string is interpreted as meaning that the object should be hidden from view
+<3> Whether this instance of the domain object can be modifed by the user; a non-null return value is interpreted as the reason it is read-only.
+
+
+
+[NOTE]
+====
+This link:https://github.com/danhaywood/security-generalized-tenancy-app[demo app] demonstrates how this can work for an
+application where the name of each object is correlated to the roles of the user.
+====
+
+
+
+==== ApplicationTenancy using Paths
+
+The security module also provides its own (legacy) mechanism for determining application tenancy, through the concept
+of "application paths".
+
+[NOTE]
+====
+This is this design is designed for hierarchical tenancies, eg where a tenancy corresponds to a country or region and
+a user cannot reside in multiple regions concurrently.  If this does not suit your requirements, then use the
+more general purpose `ApplicationTenancyEvaluator` SPI service described above.
+====
+
+Both application users and domain objects can be associated with an `ApplicationTenancy` object. For application user's
+this is simply a property of the object, for domain object's this is performed by implementing the
+`WithApplicationTenancy` interface:
 
 [source,java]
 ----
@@ -248,9 +287,11 @@ tenancies of the user accessing the object and of the object itself. The table b
 
 To enable this requires a single configuration property to be set, see below.
 
-=== `ApplicationTenancyPathEvaluator`
+==== `ApplicationTenancyPathEvaluator`
 
-You may not wish to have your domain objects implement the `WithApplicationTenancy`. As all that is required is to determine the application "path" of a domain object, an alternative is to provide an implementation of the `ApplicationTenancyPathEvaluator` SPI service. 
+You may not wish to have your domain objects implement the `WithApplicationTenancy`. As all that is required is to
+determine the application "path" of a domain object, an alternative is to provide an implementation of the
+`ApplicationTenancyPathEvaluator` SPI service.
 
 This is defined as:
 
@@ -285,7 +326,10 @@ public class ApplicationTenancyPathEvaluatorForToDoApp implements ApplicationTen
 }
 ----
 
-The evaluator can also optionally handle and return a path for the security domain module's own `ApplicationUser` entity; but if it does not, then the user's own tenancy (`ApplicationUser#getTenancy()`) is used instead. 
+The evaluator can also optionally handle and return a path for the security domain module's own `ApplicationUser`
+entity; but if it does not, then the user's own tenancy (`ApplicationUser#getTenancy()`) is used instead.
+
+
 
 == How to run the Demo App
 
@@ -328,7 +372,7 @@ Update your classpath by adding this dependency in your dom project's `pom.xml`:
 <dependency>
     <groupId>org.isisaddons.module.security</groupId>
     <artifactId>isis-module-security-dom</artifactId>
-    <version>1.13.1</version>
+    <version>1.13.3</version>
 </dependency>
 ----
 
@@ -638,6 +682,7 @@ Ideas for future features:
 
 == Change Log
 
+* `1.13.3` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/40[#40]
 * `1.13.2` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/39[#39]
 * `1.13.1` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/38[#38]
 * `1.13.0` - released against Isis 1.13.0

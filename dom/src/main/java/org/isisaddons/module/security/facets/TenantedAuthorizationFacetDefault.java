@@ -30,6 +30,7 @@ import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyEvaluator;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 public class TenantedAuthorizationFacetDefault extends FacetAbstract implements TenantedAuthorizationFacet {
@@ -38,19 +39,19 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
         return TenantedAuthorizationFacet.class;
     }
 
-    private final ApplicationTenancyEvaluator evaluator;
+    private final List<ApplicationTenancyEvaluator> evaluators;
     private final ApplicationUserRepository applicationUserRepository;
     private final QueryResultsCache queryResultsCache;
     private final UserService userService;
 
     public TenantedAuthorizationFacetDefault(
-            final ApplicationTenancyEvaluator evaluator,
+            final List<ApplicationTenancyEvaluator> evaluators,
             final ApplicationUserRepository applicationUserRepository,
             final QueryResultsCache queryResultsCache,
             final UserService userService,
             final FacetHolder holder) {
         super(type(), holder, Derivation.NOT_DERIVED);
-        this.evaluator = evaluator;
+        this.evaluators = evaluators;
         this.applicationUserRepository = applicationUserRepository;
         this.queryResultsCache = queryResultsCache;
         this.userService = userService;
@@ -59,6 +60,10 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
     @Override
     public String hides(final VisibilityContext<? extends VisibilityEvent> ic) {
 
+        if(evaluators == null || evaluators.isEmpty()) {
+            return null;
+        }
+
         final Object domainObject = ic.getTarget().getObject();
         final String userName = userService.getUser().getName();
 
@@ -68,15 +73,23 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
             return "Could not locate application user for " + userName;
         }
 
-        return evaluator.hides(domainObject, applicationUser);
+        for (ApplicationTenancyEvaluator evaluator : evaluators) {
+            final String reason = evaluator.hides(domainObject, applicationUser);
+            if(reason != null) {
+                return reason;
+            }
+        }
+        return null;
     }
 
 
     @Override
     public String disables(final UsabilityContext<? extends UsabilityEvent> ic) {
+        if(evaluators == null || evaluators.isEmpty()) {
+            return null;
+        }
 
         final Object domainObject = ic.getTarget().getObject();
-
         final String userName = userService.getUser().getName();
 
         final ApplicationUser applicationUser = findApplicationUser(userName);
@@ -85,7 +98,13 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
             return "Could not locate application user for " + userName;
         }
 
-        return evaluator.disables(domainObject, applicationUser);
+        for (ApplicationTenancyEvaluator evaluator : evaluators) {
+            final String reason = evaluator.disables(domainObject, applicationUser);
+            if(reason != null) {
+                return reason;
+            }
+        }
+        return null;
     }
 
 

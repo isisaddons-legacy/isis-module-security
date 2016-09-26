@@ -17,6 +17,10 @@
 
 package org.isisaddons.module.security.facets;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
 import org.apache.isis.applib.services.user.UserService;
 import org.apache.isis.core.metamodel.facetapi.FacetHolder;
@@ -30,6 +34,10 @@ import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyEvaluator;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluator;
 import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
 import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract implements ServicesInjectorAware {
 
@@ -65,20 +73,36 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
     private TenantedAuthorizationFacetDefault createFacet(
             final Class<?> cls, final FacetHolder holder) {
 
-        ApplicationTenancyEvaluator evaluator = servicesInjector.lookupService(ApplicationTenancyEvaluator.class);
-        if(evaluator == null) {
+        List<ApplicationTenancyEvaluator> evaluators = servicesInjector.lookupServices(ApplicationTenancyEvaluator.class);
+        if(evaluators == null || evaluators.isEmpty()) {
+            evaluators = Lists.newArrayList();
+
             // fallback to previous SPI
-            ApplicationTenancyPathEvaluator pathEvaluator =
-                    servicesInjector.lookupService(ApplicationTenancyPathEvaluator.class);
-            if(pathEvaluator == null) {
-                pathEvaluator = new ApplicationTenancyPathEvaluatorDefault();
+            List<ApplicationTenancyPathEvaluator> pathEvaluators =
+                    servicesInjector.lookupServices(ApplicationTenancyPathEvaluator.class);
+            if(pathEvaluators == null) {
+                pathEvaluators = Lists.newArrayList();
+                final ApplicationTenancyPathEvaluator pathEvaluator = new ApplicationTenancyPathEvaluatorDefault();
+                servicesInjector.injectServicesInto(pathEvaluator);
+                pathEvaluators.add(pathEvaluator);
             }
-            evaluator = new ApplicationTenancyEvaluatorUsingPaths(pathEvaluator);
+
+            for (ApplicationTenancyPathEvaluator pathEvaluator : pathEvaluators) {
+                final ApplicationTenancyEvaluatorUsingPaths evaluator = new ApplicationTenancyEvaluatorUsingPaths(pathEvaluator);
+                servicesInjector.injectServicesInto(evaluator);
+                evaluators.add(evaluator);
+            }
         }
 
-        servicesInjector.injectServicesInto(evaluator);
+        final ImmutableList<ApplicationTenancyEvaluator> evaluatorsForCls =
+                FluentIterable.from(evaluators).filter(new Predicate<ApplicationTenancyEvaluator>() {
+            @Override
+            public boolean apply(ApplicationTenancyEvaluator applicationTenancyEvaluator) {
+                return applicationTenancyEvaluator.handles(cls);
+            }
+        }).toList();
 
-        if(!evaluator.handles(cls)) {
+        if(evaluatorsForCls.isEmpty()) {
             return null;
         }
 
@@ -87,7 +111,7 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
         final QueryResultsCache queryResultsCache = servicesInjector.lookupService(QueryResultsCache.class);
         final UserService userService = servicesInjector.lookupService(UserService.class);
 
-        return new TenantedAuthorizationFacetDefault(evaluator, applicationUserRepository, queryResultsCache, userService, holder);
+        return new TenantedAuthorizationFacetDefault(evaluatorsForCls, applicationUserRepository, queryResultsCache, userService, holder);
     }
 
     @Deprecated
