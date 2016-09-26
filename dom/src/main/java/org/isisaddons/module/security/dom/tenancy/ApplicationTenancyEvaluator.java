@@ -17,7 +17,10 @@
 package org.isisaddons.module.security.dom.tenancy;
 
 import org.apache.isis.applib.annotation.Programmatic;
-
+import org.apache.isis.applib.events.UsabilityEvent;
+import org.apache.isis.applib.events.VisibilityEvent;
+import org.apache.isis.core.metamodel.interactions.UsabilityContext;
+import org.apache.isis.core.metamodel.interactions.VisibilityContext;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 
 /**
@@ -26,12 +29,8 @@ import org.isisaddons.module.security.dom.user.ApplicationUser;
  * making the call (the "who").
  *
  * @see #handles(Class)
- * @see #applicationTenancyPathFor(Object)
- *
- * @deprecated - replaced by {@link ApplicationTenancyEvaluator}.
  */
-@Deprecated
-public interface ApplicationTenancyPathEvaluator {
+public interface ApplicationTenancyEvaluator {
 
     /**
      * Whether this evaluator can determine the tenancy of the specified domain entity (such as <tt>ToDoItem</tt>)
@@ -39,7 +38,7 @@ public interface ApplicationTenancyPathEvaluator {
      *
      * <p>
      *     This method is also called to determine if the evaluator is also able to determine the tenancy of the
-     *     security module's own {@link org.isisaddons.module.security.dom.user.ApplicationUser}, ie the "who" is
+     *     security module's own {@link ApplicationUser}, ie the "who" is
      *     doing the interacting.  If the evaluator does not handle the class, then the fallback behaviour is
      *     to invoke {@link ApplicationUser#getTenancy() getTenancy} on the {@link ApplicationUser} and use the
      *     path from that.
@@ -48,13 +47,7 @@ public interface ApplicationTenancyPathEvaluator {
     @Programmatic
     boolean handles(Class<?> cls);
 
-    /**
-     * Return the tenancy path for the target domain object being interacted with, either the "what" (a domain entity
-     * such as <tt>ToDoItem</tt>, say) and optionally the "who", ie the security module's own
-     * {@link org.isisaddons.module.security.dom.user.ApplicationUser}.  This latter depends on the result of the
-     * earlier call to {@link #handles(Class)}.
-     */
-    @Programmatic
-    String applicationTenancyPathFor(final Object domainObject);
+    String hides(VisibilityContext<? extends VisibilityEvent> ic);
 
+    String disables(UsabilityContext<? extends UsabilityEvent> ic);
 }

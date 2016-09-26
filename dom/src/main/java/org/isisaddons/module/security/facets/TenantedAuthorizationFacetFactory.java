@@ -1,9 +1,7 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
+ *  Copyright 2014~date Dan Haywood
+ *
+ *  Licensed under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
  *
@@ -19,16 +17,16 @@
 
 package org.isisaddons.module.security.facets;
 
-import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
+import org.apache.isis.applib.services.user.UserService;
 import org.apache.isis.core.metamodel.facetapi.FacetHolder;
 import org.apache.isis.core.metamodel.facetapi.FacetUtil;
 import org.apache.isis.core.metamodel.facetapi.FeatureType;
 import org.apache.isis.core.metamodel.facets.FacetFactoryAbstract;
-
 import org.apache.isis.core.metamodel.services.ServicesInjector;
 import org.apache.isis.core.metamodel.services.ServicesInjectorAware;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyEvaluator;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluator;
 import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
 import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
@@ -37,11 +35,9 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
 
     private ServicesInjector servicesInjector;
 
-    private final ApplicationTenancyPathEvaluatorDefault defaultEvaluator;
+
     public TenantedAuthorizationFacetFactory() {
         super(FeatureType.EVERYTHING);
-
-        defaultEvaluator = new ApplicationTenancyPathEvaluatorDefault();
     }
 
     @Override
@@ -69,10 +65,19 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
     private TenantedAuthorizationFacetDefault createFacet(
             final Class<?> cls, final FacetHolder holder) {
 
-        ApplicationTenancyPathEvaluator evaluator = servicesInjector.lookupService(ApplicationTenancyPathEvaluator.class);
+        ApplicationTenancyEvaluator evaluator = servicesInjector.lookupService(ApplicationTenancyEvaluator.class);
         if(evaluator == null) {
-            evaluator = defaultEvaluator;
+            // fallback to previous SPI
+            ApplicationTenancyPathEvaluator pathEvaluator =
+                    servicesInjector.lookupService(ApplicationTenancyPathEvaluator.class);
+            if(pathEvaluator == null) {
+                pathEvaluator = new ApplicationTenancyPathEvaluatorDefault();
+            }
+            evaluator = new ApplicationTenancyEvaluatorUsingPaths(pathEvaluator);
         }
+
+        servicesInjector.injectServicesInto(evaluator);
+
         if(!evaluator.handles(cls)) {
             return null;
         }
@@ -80,11 +85,12 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
         final ApplicationUserRepository applicationUserRepository =
                 servicesInjector.lookupService(ApplicationUserRepository.class);
         final QueryResultsCache queryResultsCache = servicesInjector.lookupService(QueryResultsCache.class);
-        final DomainObjectContainer container = servicesInjector.lookupService(DomainObjectContainer.class);
+        final UserService userService = servicesInjector.lookupService(UserService.class);
 
-        return new TenantedAuthorizationFacetDefault(applicationUserRepository, queryResultsCache, evaluator, container, holder);
+        return new TenantedAuthorizationFacetDefault(evaluator, holder);
     }
 
+    @Deprecated
     static class ApplicationTenancyPathEvaluatorDefault implements ApplicationTenancyPathEvaluator {
 
         @Override
