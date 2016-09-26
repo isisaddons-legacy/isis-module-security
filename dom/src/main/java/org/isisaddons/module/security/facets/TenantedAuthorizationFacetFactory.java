@@ -87,7 +87,7 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
         final QueryResultsCache queryResultsCache = servicesInjector.lookupService(QueryResultsCache.class);
         final UserService userService = servicesInjector.lookupService(UserService.class);
 
-        return new TenantedAuthorizationFacetDefault(evaluator, holder);
+        return new TenantedAuthorizationFacetDefault(evaluator, applicationUserRepository, queryResultsCache, userService, holder);
     }
 
     @Deprecated

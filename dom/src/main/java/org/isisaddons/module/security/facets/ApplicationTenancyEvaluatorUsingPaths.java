@@ -16,33 +16,18 @@
  */
 package org.isisaddons.module.security.facets;
 
-import org.apache.isis.applib.events.UsabilityEvent;
-import org.apache.isis.applib.events.VisibilityEvent;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
-import org.apache.isis.applib.services.user.UserService;
-import org.apache.isis.core.metamodel.interactions.InteractionContext;
-import org.apache.isis.core.metamodel.interactions.UsabilityContext;
-import org.apache.isis.core.metamodel.interactions.VisibilityContext;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyEvaluator;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluator;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
-import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 
 import javax.inject.Inject;
 import java.util.concurrent.Callable;
 
 class ApplicationTenancyEvaluatorUsingPaths implements ApplicationTenancyEvaluator {
 
-
-    static class Paths {
-        String objectTenancyPath; // eg /x/y
-        String userTenancyPath;   // eg /x  or /x/y/z
-        String reason;
-    }
-
     private final ApplicationTenancyPathEvaluator evaluator;
-
     ApplicationTenancyEvaluatorUsingPaths(final ApplicationTenancyPathEvaluator pathEvaluator) {
         this.evaluator = pathEvaluator;
     }
@@ -53,76 +38,57 @@ class ApplicationTenancyEvaluatorUsingPaths implements ApplicationTenancyEvaluat
     }
 
     @Override
-    public String hides(VisibilityContext<? extends VisibilityEvent> ic) {
-        final Paths paths = pathsFor(ic);
+    public String hides(Object domainObject, ApplicationUser applicationUser) {
 
-        if (paths == null) {
+        // eg /x/y
+        String objectTenancyPath = applicationTenancyPathForCached(domainObject);
+        if (objectTenancyPath == null) {
             return null;
         }
-        if (paths.reason != null) {
-            return paths.reason;
+
+        // eg /x  or /x/y/z
+        String userTenancyPath = userTenancyPathForCached(applicationUser);
+        if (userTenancyPath == null) {
+            return "User has no tenancy";
         }
 
         // if in same hierarchy
-        if (paths.objectTenancyPath.startsWith(paths.userTenancyPath) ||
-                paths.userTenancyPath.startsWith(paths.objectTenancyPath)) {
+        if (objectTenancyPath.startsWith(userTenancyPath) ||
+                userTenancyPath.startsWith(objectTenancyPath)) {
             return null;
         }
 
         // it's ok to return this info, because it isn't actually rendered (helpful if debugging)
         return String.format(
                 "User with tenancy '%s' is not permitted to view object with tenancy '%s'",
-                paths.userTenancyPath,
-                paths.objectTenancyPath);
+                userTenancyPath,
+                objectTenancyPath);
     }
 
     @Override
-    public String disables(UsabilityContext<? extends UsabilityEvent> ic) {
-        Paths paths = pathsFor(ic);
+    public String disables(Object domainObject, ApplicationUser applicationUser) {
 
-        if (paths == null) {
+        // eg /x/y
+        String objectTenancyPath = applicationTenancyPathForCached(domainObject);
+        if (objectTenancyPath == null) {
             return null;
         }
-        if (paths.reason != null) {
-            return paths.reason;
+
+        // eg /x  or /x/y/z
+        String userTenancyPath = userTenancyPathForCached(applicationUser);
+        if (userTenancyPath == null) {
+            return "User has no tenancy";
         }
 
         // if user's tenancy "above" object's tenancy in the hierarchy
-        if (paths.objectTenancyPath.startsWith(paths.userTenancyPath)) {
+        if (objectTenancyPath.startsWith(userTenancyPath)) {
             return null;
         }
 
         return String.format(
                 "User with tenancy '%s' is not permitted to edit object with tenancy '%s'",
-                paths.userTenancyPath,
-                paths.objectTenancyPath);
-    }
-
-    private Paths pathsFor(final InteractionContext<?> ic) {
-
-        final Paths paths = new Paths();
-        final String userName = userService.getUser().getName();
-
-        final ApplicationUser applicationUser = findApplicationUser(userName);
-        if (applicationUser == null) {
-            // not expected, but best to be safe...
-            paths.reason = "Could not locate application user for " + userName;
-            return paths;
-        }
-
-        final Object domainObject = ic.getTarget().getObject();
-
-        paths.objectTenancyPath = applicationTenancyPathForCached(domainObject);
-        paths.userTenancyPath = userTenancyPathForCached(applicationUser);
-
-        if (paths.objectTenancyPath == null) {
-            return null;
-        }
-        if (paths.userTenancyPath == null) {
-            paths.reason = "User has no tenancy";
-        }
-
-        return paths;
+                userTenancyPath,
+                objectTenancyPath);
     }
 
     /**
@@ -164,28 +130,8 @@ class ApplicationTenancyEvaluatorUsingPaths implements ApplicationTenancyEvaluat
         return userTenancy.getPath();
     }
 
-    /**
-     * Per {@link #findApplicationUserNoCache(String)}, cached for the request using the {@link QueryResultsCache}.
-     */
-    protected ApplicationUser findApplicationUser(final String userName) {
-        return queryResultsCache.execute(new Callable<ApplicationUser>() {
-            @Override
-            public ApplicationUser call() throws Exception {
-                return findApplicationUserNoCache(userName);
-            }
-        }, TenantedAuthorizationFacetDefault.class, "findApplicationUser", userName);
-    }
 
-    protected ApplicationUser findApplicationUserNoCache(final String userName) {
-        return applicationUserRepository.findByUsername(userName);
-    }
-
-
-    @Inject
-    ApplicationUserRepository applicationUserRepository;
     @Inject
     QueryResultsCache queryResultsCache;
-    @Inject
-    UserService userService;
 
 }

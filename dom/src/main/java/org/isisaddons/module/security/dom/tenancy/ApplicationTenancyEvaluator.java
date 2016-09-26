@@ -17,10 +17,6 @@
 package org.isisaddons.module.security.dom.tenancy;
 
 import org.apache.isis.applib.annotation.Programmatic;
-import org.apache.isis.applib.events.UsabilityEvent;
-import org.apache.isis.applib.events.VisibilityEvent;
-import org.apache.isis.core.metamodel.interactions.UsabilityContext;
-import org.apache.isis.core.metamodel.interactions.VisibilityContext;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 
 /**
@@ -47,7 +43,11 @@ public interface ApplicationTenancyEvaluator {
     @Programmatic
     boolean handles(Class<?> cls);
 
-    String hides(VisibilityContext<? extends VisibilityEvent> ic);
+    @Programmatic
+    String hides(Object domainObject, ApplicationUser applicationUser);
 
-    String disables(UsabilityContext<? extends UsabilityEvent> ic);
+    @Programmatic
+    String disables(Object domainObject, ApplicationUser applicationUser);
+
+
 }
