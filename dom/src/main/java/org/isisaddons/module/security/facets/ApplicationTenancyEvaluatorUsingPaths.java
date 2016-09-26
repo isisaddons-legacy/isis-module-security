@@ -52,9 +52,7 @@ class ApplicationTenancyEvaluatorUsingPaths implements ApplicationTenancyEvaluat
             return "User has no tenancy";
         }
 
-        // if in same hierarchy
-        if (objectTenancyPath.startsWith(userTenancyPath) ||
-                userTenancyPath.startsWith(objectTenancyPath)) {
+        if (objectVisibleToUser(objectTenancyPath, userTenancyPath)) {
             return null;
         }
 
@@ -80,8 +78,7 @@ class ApplicationTenancyEvaluatorUsingPaths implements ApplicationTenancyEvaluat
             return "User has no tenancy";
         }
 
-        // if user's tenancy "above" object's tenancy in the hierarchy
-        if (objectTenancyPath.startsWith(userTenancyPath)) {
+        if (objectEnabledForUser(objectTenancyPath, userTenancyPath)) {
             return null;
         }
 
@@ -89,6 +86,24 @@ class ApplicationTenancyEvaluatorUsingPaths implements ApplicationTenancyEvaluat
                 "User with tenancy '%s' is not permitted to edit object with tenancy '%s'",
                 userTenancyPath,
                 objectTenancyPath);
+    }
+
+    /**
+     * Protected visibility so can be overridden if required, eg using wildcard matches.
+     */
+    protected boolean objectVisibleToUser(String objectTenancyPath, String userTenancyPath) {
+        // if in "same hierarchy"
+        return objectTenancyPath.startsWith(userTenancyPath) ||
+                userTenancyPath.startsWith(objectTenancyPath);
+    }
+
+
+    /**
+     * Protected visibility so can be overridden if required, eg using wildcard matches
+     */
+    protected boolean objectEnabledForUser(String objectTenancyPath, String userTenancyPath) {
+        // if user's tenancy "above" object's tenancy in the hierarchy
+        return objectTenancyPath.startsWith(userTenancyPath);
     }
 
     /**
