@@ -54,15 +54,15 @@ public class ApplicationPermissionMenu {
         }
         //endregion
 
-        //region > orphanedPermissions (action)
-        public static class OrphanedPermissionsDomainEvent extends ActionDomainEvent {}
+        //region > findOrphanedPermissions (action)
+        public static class FindOrphanedPermissionsDomainEvent extends ActionDomainEvent {}
 
         @Action(
-                domainEvent=OrphanedPermissionsDomainEvent.class,
+                domainEvent=FindOrphanedPermissionsDomainEvent.class,
                 semantics = SemanticsOf.SAFE
         )
         @MemberOrder(sequence = "100.50.1")
-        public List<ApplicationPermission> orphanedPermissions() {
+        public List<ApplicationPermission> findOrphanedPermissions() {
                 return applicationPermissionRepository.findOrphaned();
         }
         //endregion
