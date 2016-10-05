@@ -874,31 +874,17 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     @Action(
             domainEvent = DeleteDomainEvent.class,
-            semantics = SemanticsOf.NON_IDEMPOTENT
+            semantics = SemanticsOf.IDEMPOTENT_ARE_YOU_SURE
     )
     @MemberOrder(sequence = "1")
-    public List<ApplicationUser> delete(
-            @Parameter(optionality = Optionality.OPTIONAL)
-            @ParameterLayout(named="Are you sure?")
-            final Boolean areYouSure) {
+    public List<ApplicationUser> delete() {
         container.removeIfNotAlready(this);
         container.flush();
         return applicationUserRepository.allUsers();
     }
 
-    public String validateDelete(final Boolean areYouSure) {
-        return not(areYouSure) ? "Please confirm this action": null;
-    }
-    public Boolean default0Delete() {
-        return Boolean.FALSE;
-    }
-
-    public String disableDelete(final Boolean areYouSure) {
+    public String disableDelete() {
         return isAdminUser()? "Cannot delete the admin user": null;
-    }
-
-    static boolean not(final Boolean areYouSure) {
-        return areYouSure == null || !areYouSure;
     }
     //endregion
 

@@ -32,16 +32,16 @@ import org.apache.isis.applib.annotation.BookmarkPolicy;
 import org.apache.isis.applib.annotation.DomainObject;
 import org.apache.isis.applib.annotation.DomainObjectLayout;
 import org.apache.isis.applib.annotation.Editing;
+import org.apache.isis.applib.annotation.InvokeOn;
+import org.apache.isis.applib.annotation.InvokedOn;
 import org.apache.isis.applib.annotation.MemberGroupLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.Optionality;
-import org.apache.isis.applib.annotation.Parameter;
-import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.Property;
 import org.apache.isis.applib.annotation.PropertyLayout;
 import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.annotation.Where;
+import org.apache.isis.applib.services.actinvoc.ActionInvocationContext;
 import org.apache.isis.applib.services.appfeat.ApplicationMemberType;
 import org.apache.isis.applib.util.ObjectContracts;
 import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeature;
@@ -424,6 +424,8 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     @MemberOrder(name="Feature", sequence = "5.1")
     @Getter @Setter
     private String featureFqn;
+    //endregion
+
 
     //endregion
 
@@ -431,26 +433,18 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     public static class DeleteDomainEvent extends ActionDomainEvent {}
 
     @Action(
-            domainEvent = DeleteDomainEvent.class
+            semantics = SemanticsOf.IDEMPOTENT_ARE_YOU_SURE,
+            domainEvent = DeleteDomainEvent.class,
+            invokeOn = InvokeOn.OBJECT_AND_COLLECTION
     )
     @MemberOrder(sequence = "1")
-    public ApplicationRole delete(
-            @Parameter(optionality = Optionality.OPTIONAL)
-            @ParameterLayout(named="Are you sure?")
-            final Boolean areYouSure) {
+    public ApplicationRole delete() {
         final ApplicationRole owningRole = getRole();
         container.removeIfNotAlready(this);
-        return owningRole;
-    }
-    public String validateDelete(final Boolean areYouSure) {
-        return not(areYouSure) ? "Please confirm this action": null;
-    }
-
-    static boolean not(final Boolean areYouSure) {
-        return areYouSure == null || !areYouSure;
+        return actionInvocationContext.getInvokedOn() == InvokedOn.OBJECT ? owningRole : null;
     }
     //endregion
-    
+
     //region > equals, hashCode, compareTo, toString
     private final static String propertyNames = "role, featureType, featureFqn, mode";
 
@@ -509,6 +503,9 @@ public class ApplicationPermission implements Comparable<ApplicationPermission> 
     //region  > services (injected)
     @javax.inject.Inject
     DomainObjectContainer container;
+
+    @javax.inject.Inject
+    ActionInvocationContext actionInvocationContext;
 
     @javax.inject.Inject
     ApplicationFeatureRepositoryDefault applicationFeatureRepository;

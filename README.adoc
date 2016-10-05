@@ -372,7 +372,7 @@ Update your classpath by adding this dependency in your dom project's `pom.xml`:
 <dependency>
     <groupId>org.isisaddons.module.security</groupId>
     <artifactId>isis-module-security-dom</artifactId>
-    <version>1.13.3</version>
+    <version>1.13.4</version>
 </dependency>
 ----
 
@@ -682,6 +682,7 @@ Ideas for future features:
 
 == Change Log
 
+* `1.13.4` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/41[#41] and link:https://github.com/isisaddons/isis-module-security/issues/42[#42]
 * `1.13.3` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/40[#40]
 * `1.13.2` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/39[#39]
 * `1.13.1` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/38[#38]
