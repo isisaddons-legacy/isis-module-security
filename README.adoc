@@ -728,10 +728,12 @@ In addition to Apache Isis, this module depends on:
 
 * `org.mindrot:jbcrypt` (Apache-like license); only required if the `PasswordEncryptionServiceUsingJBcrypt` service is configured.
 
+
 == Maven deploy notes
 
 Only the `dom` module is deployed, and is done so using Sonatype's OSS support (see
 http://central.sonatype.org/pages/apache-maven.html[user guide]).
+
 
 === Release to Sonatype's Snapshot Repo
 
@@ -746,6 +748,31 @@ popd
 
 The artifacts should be available in Sonatype's
 https://oss.sonatype.org/content/repositories/snapshots[Snapshot Repo].
+
+
+
+=== Release an Interim Build
+
+If you have commit access to this project (or a fork of your own) then you can create interim releases using the `interim-release.sh` script.
+
+The idea is that this will - in a new branch - update the `dom/pom.xml` with a timestamped version (eg `1.13.0.20161017-0738`).
+It then pushes the branch (and a tag) to the specified remote.
+
+A CI server such as Jenkins can monitor the branches matching the wildcard `origin/interim/*` and create a build.
+These artifacts can then be published to a snapshot repository.
+
+For example:
+
+[source]
+----
+sh interim-release.sh 1.14.0 origin
+----
+
+where
+
+* `1.14.0` is the base release
+* `origin` is the name of the remote to which you have permissions to write to.
+
 
 === Release to Maven Central
 
