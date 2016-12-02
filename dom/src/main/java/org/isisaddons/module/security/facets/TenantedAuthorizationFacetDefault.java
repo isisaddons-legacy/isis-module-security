@@ -1,9 +1,7 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
+ *  Copyright 2014~date Dan Haywood
+ *
+ *  Licensed under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
  *
@@ -19,23 +17,21 @@
 
 package org.isisaddons.module.security.facets;
 
-import java.util.concurrent.Callable;
-
-import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.events.UsabilityEvent;
 import org.apache.isis.applib.events.VisibilityEvent;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
+import org.apache.isis.applib.services.user.UserService;
 import org.apache.isis.core.metamodel.facetapi.Facet;
 import org.apache.isis.core.metamodel.facetapi.FacetAbstract;
 import org.apache.isis.core.metamodel.facetapi.FacetHolder;
-import org.apache.isis.core.metamodel.interactions.InteractionContext;
 import org.apache.isis.core.metamodel.interactions.UsabilityContext;
 import org.apache.isis.core.metamodel.interactions.VisibilityContext;
-
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluator;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyEvaluator;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
+
+import java.util.List;
+import java.util.concurrent.Callable;
 
 public class TenantedAuthorizationFacetDefault extends FacetAbstract implements TenantedAuthorizationFacet {
 
@@ -43,141 +39,74 @@ public class TenantedAuthorizationFacetDefault extends FacetAbstract implements 
         return TenantedAuthorizationFacet.class;
     }
 
+    private final List<ApplicationTenancyEvaluator> evaluators;
     private final ApplicationUserRepository applicationUserRepository;
     private final QueryResultsCache queryResultsCache;
-    private final ApplicationTenancyPathEvaluator evaluator;
-    private final DomainObjectContainer container;
+    private final UserService userService;
 
     public TenantedAuthorizationFacetDefault(
+            final List<ApplicationTenancyEvaluator> evaluators,
             final ApplicationUserRepository applicationUserRepository,
             final QueryResultsCache queryResultsCache,
-            final ApplicationTenancyPathEvaluator evaluator,
-            final DomainObjectContainer container,
+            final UserService userService,
             final FacetHolder holder) {
         super(type(), holder, Derivation.NOT_DERIVED);
+        this.evaluators = evaluators;
         this.applicationUserRepository = applicationUserRepository;
         this.queryResultsCache = queryResultsCache;
-        this.evaluator = evaluator;
-        this.container = container;
-    }
-
-    static class Paths {
-        String objectTenancyPath; // eg /x/y
-        String userTenancyPath;   // eg /x  or /x/y/z
-        String reason;
+        this.userService = userService;
     }
 
     @Override
     public String hides(final VisibilityContext<? extends VisibilityEvent> ic) {
-        final Paths paths = pathsFor(ic);
 
-        if (paths == null) {
+        if(evaluators == null || evaluators.isEmpty()) {
             return null;
-        }
-        if(paths.reason != null) {
-            return paths.reason;
-        }
-
-        // if in same hierarchy
-        if( paths.objectTenancyPath.startsWith(paths.userTenancyPath) ||
-            paths.userTenancyPath.startsWith(paths.objectTenancyPath)) {
-            return null;
-        }
-
-        // it's ok to return this info, because it isn't actually rendered (helpful if debugging)
-        return String.format(
-                "User with tenancy '%s' is not permitted to view object with tenancy '%s'",
-                paths.userTenancyPath,
-                paths.objectTenancyPath);
-    }
-
-    @Override
-    public String disables(final UsabilityContext<? extends UsabilityEvent> ic) {
-        Paths paths = pathsFor(ic);
-
-        if (paths == null) {
-            return null;
-        }
-        if(paths.reason != null) {
-            return paths.reason;
-        }
-
-        // if user's tenancy "above" object's tenancy in the hierarchy
-        if(paths.objectTenancyPath.startsWith(paths.userTenancyPath)) {
-            return null;
-        }
-
-        return String.format(
-                "User with tenancy '%s' is not permitted to edit object with tenancy '%s'",
-                paths.userTenancyPath,
-                paths.objectTenancyPath);
-    }
-
-    private Paths pathsFor(final InteractionContext<?> ic) {
-
-        final Paths paths = new Paths();
-        final String userName = container.getUser().getName();
-
-        final ApplicationUser applicationUser = findApplicationUser(userName);
-        if(applicationUser == null) {
-            // not expected, but best to be safe...
-            paths.reason = "Could not locate application user for " + userName;
-            return paths;
         }
 
         final Object domainObject = ic.getTarget().getObject();
+        final String userName = userService.getUser().getName();
 
-        paths.objectTenancyPath = applicationTenancyPathForCached(domainObject);
-        paths.userTenancyPath = userTenancyPathForCached(applicationUser);
+        final ApplicationUser applicationUser = findApplicationUser(userName);
+        if (applicationUser == null) {
+            // not expected, but best to be safe...
+            return "Could not locate application user for " + userName;
+        }
 
-        if(paths.objectTenancyPath == null) {
+        for (ApplicationTenancyEvaluator evaluator : evaluators) {
+            final String reason = evaluator.hides(domainObject, applicationUser);
+            if(reason != null) {
+                return reason;
+            }
+        }
+        return null;
+    }
+
+
+    @Override
+    public String disables(final UsabilityContext<? extends UsabilityEvent> ic) {
+        if(evaluators == null || evaluators.isEmpty()) {
             return null;
         }
-        if(paths.userTenancyPath == null) {
-            paths.reason = "User has no tenancy";
+
+        final Object domainObject = ic.getTarget().getObject();
+        final String userName = userService.getUser().getName();
+
+        final ApplicationUser applicationUser = findApplicationUser(userName);
+        if (applicationUser == null) {
+            // not expected, but best to be safe...
+            return "Could not locate application user for " + userName;
         }
 
-        return paths;
-    }
-
-    /**
-     * Per {@link #applicationTenancyPathFor(Object)}, with result cached for the remainder of the request using the {@link QueryResultsCache}.
-     */
-    protected String applicationTenancyPathForCached(final Object domainObject) {
-        return queryResultsCache.execute(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return applicationTenancyPathFor(domainObject);
+        for (ApplicationTenancyEvaluator evaluator : evaluators) {
+            final String reason = evaluator.disables(domainObject, applicationUser);
+            if(reason != null) {
+                return reason;
             }
-        }, TenantedAuthorizationFacetDefault.class, "applicationTenancyPathFor", domainObject);
-    }
-
-    protected String applicationTenancyPathFor(final Object domainObject) {
-        return evaluator.applicationTenancyPathFor(domainObject);
-    }
-
-    /**
-     * Per {@link #userTenancyPathFor(ApplicationUser)}, with result cached for the remainder of the request using the {@link QueryResultsCache}.
-     */
-    protected String userTenancyPathForCached(final ApplicationUser applicationUser) {
-        return queryResultsCache.execute(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return userTenancyPathFor(applicationUser);
-            }
-        }, TenantedAuthorizationFacetDefault.class, "userTenancyPathFor", applicationUser);
-    }
-
-    protected String userTenancyPathFor(final ApplicationUser applicationUser) {
-        if (evaluator.handles(applicationUser.getClass())) {
-            return evaluator.applicationTenancyPathFor(applicationUser);
         }
-        final ApplicationTenancy userTenancy = applicationUser.getTenancy();
-        if (userTenancy == null) {
-            return null;
-        }
-        return userTenancy.getPath();
+        return null;
     }
+
 
     /**
      * Per {@link #findApplicationUserNoCache(String)}, cached for the request using the {@link QueryResultsCache}.

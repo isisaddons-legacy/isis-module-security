@@ -16,30 +16,24 @@
  */
 package org.isisaddons.module.security.shiro;
 
-import javax.inject.Inject;
-
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.AuthenticationInfo;
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.CredentialsException;
-import org.apache.shiro.authc.DisabledAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.isis.core.runtime.system.context.IsisContext;
+import org.apache.isis.core.runtime.system.persistence.PersistenceSession;
+import org.apache.isis.core.runtime.system.session.IsisSessionFactory;
+import org.apache.isis.core.runtime.system.transaction.IsisTransactionManager;
+import org.apache.isis.core.runtime.system.transaction.TransactionalClosureWithReturn;
+import org.apache.isis.core.runtime.system.transaction.TransactionalClosureWithReturnAbstract;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthenticatingRealm;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
-
-import org.apache.isis.core.runtime.system.context.IsisContext;
-import org.apache.isis.core.runtime.system.internal.InitialisationSession;
-import org.apache.isis.core.runtime.system.persistence.PersistenceSession;
-import org.apache.isis.core.runtime.system.transaction.IsisTransactionManager;
-import org.apache.isis.core.runtime.system.transaction.TransactionalClosureWithReturn;
-import org.apache.isis.core.runtime.system.transaction.TransactionalClosureWithReturnAbstract;
-
 import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
 import org.isisaddons.module.security.dom.user.AccountType;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
+
+import javax.inject.Inject;
+import java.util.concurrent.Callable;
 
 public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
@@ -210,14 +204,16 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
     //region > execute (Isis integration)
 
     <V> V execute(final TransactionalClosureWithReturn<V> closure) {
-        try {
-            IsisContext.openSession(new InitialisationSession());
-            PersistenceSession persistenceSession = getPersistenceSession();
-            persistenceSession.getServicesInjector().injectServicesInto(closure);
-            return doExecute(closure);
-        } finally {
-            IsisContext.closeSession();
-        }
+        return getSessionFactory().doInSession(
+                new Callable<V>() {
+                    @Override
+                    public V call() {
+                        PersistenceSession persistenceSession = getPersistenceSession();
+                        persistenceSession.getServicesInjector().injectServicesInto(closure);
+                        return doExecute(closure);
+                    }
+                }
+        );
     }
 
     <V> V doExecute(final TransactionalClosureWithReturn<V> closure) {
@@ -230,13 +226,16 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
     //region > lookup dependencies from Isis runtime
     protected PersistenceSession getPersistenceSession() {
-        return IsisContext.getPersistenceSession();
+        return getSessionFactory().getCurrentSession().getPersistenceSession();
     }
 
     protected IsisTransactionManager getTransactionManager(PersistenceSession persistenceSession) {
         return persistenceSession.getTransactionManager();
     }
 
+    protected IsisSessionFactory getSessionFactory() {
+        return IsisContext.getSessionFactory();
+    }
     //endregion
 
 }

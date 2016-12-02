@@ -1,9 +1,7 @@
 /*
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
+ *  Copyright 2014~date Dan Haywood
+ *
+ *  Licensed under the Apache License, Version 2.0 (the
  *  "License"); you may not use this file except in compliance
  *  with the License.  You may obtain a copy of the License at
  *
@@ -19,29 +17,35 @@
 
 package org.isisaddons.module.security.facets;
 
-import org.apache.isis.applib.DomainObjectContainer;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
+import org.apache.isis.applib.services.user.UserService;
 import org.apache.isis.core.metamodel.facetapi.FacetHolder;
 import org.apache.isis.core.metamodel.facetapi.FacetUtil;
 import org.apache.isis.core.metamodel.facetapi.FeatureType;
 import org.apache.isis.core.metamodel.facets.FacetFactoryAbstract;
-
 import org.apache.isis.core.metamodel.services.ServicesInjector;
 import org.apache.isis.core.metamodel.services.ServicesInjectorAware;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyEvaluator;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluator;
 import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
 import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract implements ServicesInjectorAware {
 
     private ServicesInjector servicesInjector;
 
-    private final ApplicationTenancyPathEvaluatorDefault defaultEvaluator;
+
     public TenantedAuthorizationFacetFactory() {
         super(FeatureType.EVERYTHING);
-
-        defaultEvaluator = new ApplicationTenancyPathEvaluatorDefault();
     }
 
     @Override
@@ -69,22 +73,48 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
     private TenantedAuthorizationFacetDefault createFacet(
             final Class<?> cls, final FacetHolder holder) {
 
-        ApplicationTenancyPathEvaluator evaluator = servicesInjector.lookupService(ApplicationTenancyPathEvaluator.class);
-        if(evaluator == null) {
-            evaluator = defaultEvaluator;
+        List<ApplicationTenancyEvaluator> evaluators = servicesInjector.lookupServices(ApplicationTenancyEvaluator.class);
+        if(evaluators == null || evaluators.isEmpty()) {
+            evaluators = Lists.newArrayList();
+
+            // fallback to previous SPI
+            List<ApplicationTenancyPathEvaluator> pathEvaluators =
+                    servicesInjector.lookupServices(ApplicationTenancyPathEvaluator.class);
+            if(pathEvaluators == null) {
+                pathEvaluators = Lists.newArrayList();
+                final ApplicationTenancyPathEvaluator pathEvaluator = new ApplicationTenancyPathEvaluatorDefault();
+                servicesInjector.injectServicesInto(pathEvaluator);
+                pathEvaluators.add(pathEvaluator);
+            }
+
+            for (ApplicationTenancyPathEvaluator pathEvaluator : pathEvaluators) {
+                final ApplicationTenancyEvaluatorUsingPaths evaluator = new ApplicationTenancyEvaluatorUsingPaths(pathEvaluator);
+                servicesInjector.injectServicesInto(evaluator);
+                evaluators.add(evaluator);
+            }
         }
-        if(!evaluator.handles(cls)) {
+
+        final ImmutableList<ApplicationTenancyEvaluator> evaluatorsForCls =
+                FluentIterable.from(evaluators).filter(new Predicate<ApplicationTenancyEvaluator>() {
+            @Override
+            public boolean apply(ApplicationTenancyEvaluator applicationTenancyEvaluator) {
+                return applicationTenancyEvaluator.handles(cls);
+            }
+        }).toList();
+
+        if(evaluatorsForCls.isEmpty()) {
             return null;
         }
 
         final ApplicationUserRepository applicationUserRepository =
                 servicesInjector.lookupService(ApplicationUserRepository.class);
         final QueryResultsCache queryResultsCache = servicesInjector.lookupService(QueryResultsCache.class);
-        final DomainObjectContainer container = servicesInjector.lookupService(DomainObjectContainer.class);
+        final UserService userService = servicesInjector.lookupService(UserService.class);
 
-        return new TenantedAuthorizationFacetDefault(applicationUserRepository, queryResultsCache, evaluator, container, holder);
+        return new TenantedAuthorizationFacetDefault(evaluatorsForCls, applicationUserRepository, queryResultsCache, userService, holder);
     }
 
+    @Deprecated
     static class ApplicationTenancyPathEvaluatorDefault implements ApplicationTenancyPathEvaluator {
 
         @Override

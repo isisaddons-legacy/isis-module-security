@@ -73,6 +73,16 @@ public class IsisModuleSecurityRegularUserRoleAndPermissions extends AbstractRol
                 ApplicationRole.class,
                 "name",
                 "description");
+
+//        // for adhoc testing of #42
+//        newMemberPermissions(
+//                ApplicationPermissionRule.ALLOW,
+//                ApplicationPermissionMode.CHANGING,
+//                ApplicationUser.class,
+//                "orphanedUpdateEmailAddress",
+//                "orphanedUpdatePhoneNumber",
+//                "orphanedUpdateFaxNumber");
+
     }
 
 }

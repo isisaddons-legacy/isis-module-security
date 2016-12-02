@@ -364,31 +364,16 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     @Action(
             domainEvent = DeleteDomainEvent.class,
-            semantics = SemanticsOf.NON_IDEMPOTENT
+            semantics = SemanticsOf.IDEMPOTENT_ARE_YOU_SURE
     )
     @MemberOrder(sequence = "1")
-    public List<ApplicationTenancy> delete(
-            @Parameter(optionality = Optionality.OPTIONAL)
-            @ParameterLayout(named="Are you sure?")
-            final Boolean areYouSure) {
+    public List<ApplicationTenancy> delete() {
         for (final ApplicationUser user : getUsers()) {
             user.updateTenancy(null);
         }
         container.removeIfNotAlready(this);
         container.flush();
         return applicationTenancyRepository.allTenancies();
-    }
-
-    public String validateDelete(final Boolean areYouSure) {
-        return not(areYouSure) ? "Please confirm this action": null;
-    }
-
-    public Boolean default0Delete() {
-        return Boolean.FALSE;
-    }
-
-    static boolean not(final Boolean areYouSure) {
-        return areYouSure == null || !areYouSure;
     }
     //endregion
 

@@ -641,17 +641,14 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
 
     @Action(
             domainEvent = DeleteDomainEvent.class,
-            semantics = SemanticsOf.NON_IDEMPOTENT
+            semantics = SemanticsOf.IDEMPOTENT_ARE_YOU_SURE
     )
     @MemberOrder(sequence = "1")
-    public List<ApplicationRole> delete(
-            @Parameter(optionality = Optionality.OPTIONAL)
-            @ParameterLayout(named="Are you sure?")
-            final Boolean areYouSure) {
+    public List<ApplicationRole> delete() {
         getUsers().clear();
         final List<ApplicationPermission> permissions = getPermissions();
         for (final ApplicationPermission permission : permissions) {
-            permission.delete(areYouSure);
+            permission.delete();
         }
         container.flush();
         container.removeIfNotAlready(this);
@@ -659,17 +656,10 @@ public class ApplicationRole implements Comparable<ApplicationRole> {
         return applicationRoleRepository.allRoles();
     }
 
-    public String disableDelete(final Boolean areYouSure) {
+    public String disableDelete() {
         return isAdminRole() ? "Cannot delete the admin role" : null;
     }
 
-    public String validateDelete(final Boolean areYouSure) {
-        return not(areYouSure) ? "Please confirm this action": null;
-    }
-
-    static boolean not(final Boolean areYouSure) {
-        return areYouSure == null || !areYouSure;
-    }
     //endregion
 
     //region > isAdminRole (programmatic)
