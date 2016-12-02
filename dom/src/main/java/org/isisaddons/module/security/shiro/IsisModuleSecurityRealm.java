@@ -16,27 +16,34 @@
  */
 package org.isisaddons.module.security.shiro;
 
+import java.util.concurrent.Callable;
+
+import javax.inject.Inject;
+
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.CredentialsException;
+import org.apache.shiro.authc.DisabledAccountException;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.realm.AuthenticatingRealm;
+import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.subject.PrincipalCollection;
+
 import org.apache.isis.core.runtime.system.context.IsisContext;
 import org.apache.isis.core.runtime.system.persistence.PersistenceSession;
 import org.apache.isis.core.runtime.system.session.IsisSessionFactory;
 import org.apache.isis.core.runtime.system.transaction.IsisTransactionManager;
 import org.apache.isis.core.runtime.system.transaction.TransactionalClosureWithReturn;
 import org.apache.isis.core.runtime.system.transaction.TransactionalClosureWithReturnAbstract;
-import org.apache.shiro.authc.*;
-import org.apache.shiro.authz.AuthorizationInfo;
-import org.apache.shiro.realm.AuthenticatingRealm;
-import org.apache.shiro.realm.AuthorizingRealm;
-import org.apache.shiro.subject.PrincipalCollection;
+
 import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
 import org.isisaddons.module.security.dom.user.AccountType;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 
-import javax.inject.Inject;
-import java.util.concurrent.Callable;
-
 public class IsisModuleSecurityRealm extends AuthorizingRealm {
-
 
     //region > constructor
 
@@ -50,10 +57,8 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
     }
     //endregion
 
-
     //region > doGetAuthenticationInfo, doGetAuthorizationInfo (Shiro API)
 
-    
     /**
      * In order to provide an attacker with additional information, the exceptions thrown here deliberately have
      * few (or no) details in their exception message.  Similarly, the generic
@@ -73,8 +78,9 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
         // lookup from database, for roles/perms, but also
         // determine how to authenticate (delegate or local), whether disabled
-        final PrincipalForApplicationUser principal = lookupPrincipal(username, hasDelegateAuthenticationRealm());
-        if(principal == null) {
+        final PrincipalForApplicationUser principal = lookupPrincipal(username,
+                (hasDelegateAuthenticationRealm() && getAutoCreateUser()));
+        if (principal == null) {
             // if no delegate authentication
             throw new CredentialsException("Unknown user/password combination");
         }
@@ -84,7 +90,7 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
             throw new DisabledAccountException();
         }
 
-        if(principal.getAccountType() == AccountType.DELEGATED) {
+        if (principal.getAccountType() == AccountType.DELEGATED) {
             AuthenticationInfo delegateAccount = null;
             if (hasDelegateAuthenticationRealm()) {
                 try {
@@ -93,20 +99,20 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
                     // fall through
                 }
             }
-            if(delegateAccount == null) {
+            if (delegateAccount == null) {
                 throw new CredentialsException("Unknown user/password combination");
             }
         } else {
             final CheckPasswordResult result = checkPassword(password, principal.getEncryptedPassword());
             switch (result) {
-                case OK:
-                    break;
-                case BAD_PASSWORD:
-                    throw new CredentialsException("Unknown user/password combination");
-                case NO_PASSWORD_ENCRYPTION_SERVICE_CONFIGURED:
-                    throw new AuthenticationException("No password encryption service is installed");
-                default:
-                    throw new AuthenticationException();
+            case OK:
+                break;
+            case BAD_PASSWORD:
+                throw new CredentialsException("Unknown user/password combination");
+            case NO_PASSWORD_ENCRYPTION_SERVICE_CONFIGURED:
+                throw new AuthenticationException("No password encryption service is installed");
+            default:
+                throw new AuthenticationException();
             }
         }
 
@@ -128,7 +134,6 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
     //region > lookupPrincipal
 
-
     /**
      * @param username
      * @param autoCreateUser
@@ -144,8 +149,7 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
             private ApplicationUser lookupUser() {
                 if (autoCreateUser) {
                     return applicationUserRepository.findOrCreateUserByUsername(username);
-                }
-                else {
+                } else {
                     return applicationUserRepository.findByUsername(username);
                 }
             }
@@ -186,17 +190,32 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
     //region > delegateRealm
 
-
     private AuthenticatingRealm delegateAuthenticationRealm;
+
     public AuthenticatingRealm getDelegateAuthenticationRealm() {
         return delegateAuthenticationRealm;
     }
+
     public void setDelegateAuthenticationRealm(AuthenticatingRealm delegateRealm) {
         this.delegateAuthenticationRealm = delegateRealm;
     }
 
     public boolean hasDelegateAuthenticationRealm() {
         return delegateAuthenticationRealm != null;
+    }
+
+    //endregion
+
+    //region > autoCreateUser
+
+    private boolean autoCreateUser = true;
+
+    public boolean getAutoCreateUser() {
+        return autoCreateUser;
+    }
+
+    public void setAutoCreateUser(boolean autoCreateUser) {
+        this.autoCreateUser = autoCreateUser;
     }
 
     //endregion
