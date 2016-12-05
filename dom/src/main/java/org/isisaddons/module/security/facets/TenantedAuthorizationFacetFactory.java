@@ -73,13 +73,13 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
             final Class<?> cls, final FacetHolder holder) {
 
         List<ApplicationTenancyEvaluator> evaluators = servicesInjector.lookupServices(ApplicationTenancyEvaluator.class);
-        if(evaluators == null || evaluators.isEmpty()) {
+        if(isNullOrEmpty(evaluators)) {
             evaluators = Lists.newArrayList();
 
             // fallback to previous SPI
             List<ApplicationTenancyPathEvaluator> pathEvaluators =
                     servicesInjector.lookupServices(ApplicationTenancyPathEvaluator.class);
-            if(pathEvaluators == null) {
+            if(isNullOrEmpty(pathEvaluators)) {
                 pathEvaluators = Lists.newArrayList();
                 final ApplicationTenancyPathEvaluator pathEvaluator = new ApplicationTenancyPathEvaluatorDefault();
                 servicesInjector.injectServicesInto(pathEvaluator);
@@ -111,6 +111,10 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
         final UserService userService = servicesInjector.lookupService(UserService.class);
 
         return new TenantedAuthorizationFacetDefault(evaluatorsForCls, applicationUserRepository, queryResultsCache, userService, holder);
+    }
+
+    private static boolean isNullOrEmpty(final List<?> list) {
+        return list == null || list.isEmpty();
     }
 
     @Deprecated
