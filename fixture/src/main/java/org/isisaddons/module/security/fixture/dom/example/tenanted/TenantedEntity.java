@@ -20,11 +20,15 @@ import javax.jdo.annotations.Column;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.VersionStrategy;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
-import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
+
 import org.apache.isis.applib.annotation.MemberGroupLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Title;
+
+import org.isisaddons.module.security.dom.tenancy.WithAtPath;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @javax.jdo.annotations.PersistenceCapable(identityType= IdentityType.DATASTORE)
 @javax.jdo.annotations.DatastoreIdentity(
@@ -42,55 +46,34 @@ import org.apache.isis.applib.annotation.Title;
         middle = {},
         right = {}
 )
-public class TenantedEntity implements WithApplicationTenancy {
+public class TenantedEntity implements WithAtPath {
 
     public static final int MAX_LENGTH_NAME = 30;
     public static final int MAX_LENGTH_DESCRIPTION = 254;
 
-    //region > name
-
-    private String name;
+    public TenantedEntity(String name, String description, String atPath) {
+        this.name = name;
+        this.description = description;
+        this.atPath = atPath;
+    }
 
     @javax.jdo.annotations.Column(allowsNull="false", length = MAX_LENGTH_NAME)
     @Title(sequence="1")
     @MemberOrder(sequence="1")
-    public String getName() {
-        return name;
-    }
+    @Getter @Setter
+    private String name;
 
-    public void setName(final String name) {
-        this.name = name;
-    }
-    //endregion
-
-    //region > description
-
-    private String description;
 
     @javax.jdo.annotations.Column(allowsNull="true", length = MAX_LENGTH_DESCRIPTION)
     @MemberOrder(sequence="2")
-    public String getDescription() {
-        return description;
-    }
+    @Getter @Setter
+    private String description;
 
-    public void setDescription(final String description) {
-        this.description = description;
-    }
-    //endregion
-
-
-    //region > applicationTenancy (property)
-    private ApplicationTenancy applicationTenancy;
 
     @Column(allowsNull = "true")
+    @Getter @Setter
     @MemberOrder(sequence = "3")
-    public ApplicationTenancy getApplicationTenancy() {
-        return applicationTenancy;
-    }
+    private String atPath;
 
-    public void setApplicationTenancy(final ApplicationTenancy applicationTenancy) {
-        this.applicationTenancy = applicationTenancy;
-    }
-    //endregion
-    
+
 }

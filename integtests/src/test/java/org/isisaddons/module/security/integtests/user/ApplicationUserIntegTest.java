@@ -130,7 +130,7 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
 
     }
 
-    public static class Tenancy_and_UpdateTenancy extends ApplicationUserIntegTest {
+    public static class AtPath_and_UpdateAtPath extends ApplicationUserIntegTest {
 
         @Before
         public void setUpTenancies() throws Exception {
@@ -153,63 +153,63 @@ public class ApplicationUserIntegTest extends SecurityModuleAppIntegTest {
         ApplicationTenancy swedenTenancy;
         ApplicationTenancy franceTenancy;
 
-        public static class Tenancy extends Tenancy_and_UpdateTenancy {
+        public static class AtPath extends AtPath_and_UpdateAtPath {
 
             @Test
             public void cannotModifyDirectly() throws Exception {
 
                 // then
                 expectedExceptions.expect(DisabledException.class);
-                expectedExceptions.expectMessage("Reason: Always disabled. Identifier: org.isisaddons.module.security.dom.user.ApplicationUser#tenancy()");
+                expectedExceptions.expectMessage("Reason: Always disabled. Identifier: org.isisaddons.module.security.dom.user.ApplicationUser#atPath()");
 
                 // when
-                user.setTenancy(swedenTenancy);
+                user.setAtPath(swedenTenancy.getPath());
             }
 
         }
 
-        public static class UpdateTenancy extends Tenancy_and_UpdateTenancy {
+        public static class UpdateAtPath extends AtPath_and_UpdateAtPath {
 
             @Test
             public void fromNullToNewValue() throws Exception {
 
                 // given
-                assertThat(user.getTenancy(), is(nullValue()));
+                assertThat(user.getAtPath(), is(nullValue()));
 
                 // when
-                final ApplicationUser updatedUser = user.updateTenancy(swedenTenancy);
+                final ApplicationUser updatedUser = user.updateAtPath(swedenTenancy.getPath());
 
                 // then
                 assertThat(updatedUser, is(unwrap(user)));
-                assertThat(updatedUser.getTenancy(), is(swedenTenancy));
+                assertThat(updatedUser.getAtPath(), is(swedenTenancy.getPath()));
             }
 
             @Test
             public void fromValueToNewValue() throws Exception {
 
                 // given
-                user.updateTenancy(swedenTenancy);
-                assertThat(user.getTenancy(), is(swedenTenancy));
+                user.updateAtPath(swedenTenancy.getPath());
+                assertThat(user.getAtPath(), is(swedenTenancy.getPath()));
 
                 // when
-                user.updateTenancy(franceTenancy);
+                user.updateAtPath(franceTenancy.getPath());
 
                 // then
-                assertThat(user.getTenancy(), is(franceTenancy));
+                assertThat(user.getAtPath(), is(franceTenancy.getPath()));
             }
 
             @Test
             public void fromValueToNull() throws Exception {
 
                 // given
-                user.updateTenancy(swedenTenancy);
-                assertThat(user.getTenancy(), is(swedenTenancy));
+                user.updateAtPath(swedenTenancy.getPath());
+                assertThat(user.getAtPath(), is(swedenTenancy.getPath()));
 
                 // when
-                user.updateTenancy(null);
+                user.updateAtPath(null);
 
                 // then
-                assertThat(user.getTenancy(), is(nullValue()));
+                assertThat(user.getAtPath(), is(nullValue()));
             }
 
         }

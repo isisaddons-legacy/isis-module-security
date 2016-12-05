@@ -24,7 +24,6 @@ import java.util.TreeSet;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.InheritanceStrategy;
-import javax.jdo.annotations.NotPersistent;
 import javax.jdo.annotations.VersionStrategy;
 
 import com.google.common.base.Strings;
@@ -40,7 +39,6 @@ import org.apache.isis.applib.annotation.CollectionLayout;
 import org.apache.isis.applib.annotation.DomainObject;
 import org.apache.isis.applib.annotation.DomainObjectLayout;
 import org.apache.isis.applib.annotation.Editing;
-import org.apache.isis.applib.annotation.LabelPosition;
 import org.apache.isis.applib.annotation.MemberGroupLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Optionality;
@@ -57,16 +55,17 @@ import org.apache.isis.applib.security.UserMemento;
 import org.apache.isis.applib.services.HasUsername;
 import org.apache.isis.applib.util.ObjectContracts;
 import org.apache.isis.applib.value.Password;
+import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
 
 import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
 import org.isisaddons.module.security.dom.permission.ApplicationPermission;
+import org.isisaddons.module.security.dom.permission.ApplicationPermissionMode;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionRepository;
 import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet;
 import org.isisaddons.module.security.dom.permission.PermissionsEvaluationService;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoleRepository;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminUser;
 
@@ -100,6 +99,11 @@ import lombok.Setter;
                     + "FROM org.isisaddons.module.security.dom.user.ApplicationUser "
                     + "WHERE emailAddress == :emailAddress"),
         @javax.jdo.annotations.Query(
+            name = "findByAtPath", language = "JDOQL",
+            value = "SELECT "
+                    + "FROM org.isisaddons.module.security.dom.user.ApplicationUser "
+                    + "WHERE atPath == :atPath"),
+        @javax.jdo.annotations.Query(
                 name = "findByName", language = "JDOQL",
                 value = "SELECT "
                         + "FROM org.isisaddons.module.security.dom.user.ApplicationUser "
@@ -128,7 +132,7 @@ import lombok.Setter;
 @MemberGroupLayout(columnSpans = {4,4,4,12},
     left = {"Id", "Name", "Metadata"},
     middle= {"Contact Details"},
-    right= {"Status", "Tenancy"}
+    right= {"Status", "AtPath"}
 )
 public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername {
 
@@ -473,40 +477,41 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     //endregion
 
-    //region > tenancy (property)
+    //region > atPath (property)
 
-    public static class TenancyDomainEvent extends PropertyDomainEvent<ApplicationTenancy> {}
+    public static class AtPathDomainEvent extends PropertyDomainEvent<String> {}
 
 
     @javax.jdo.annotations.Column(name = "atPath", allowsNull="true")
     @Property(
-            domainEvent = TenancyDomainEvent.class,
+            domainEvent = AtPathDomainEvent.class,
             editing = Editing.DISABLED
     )
-    @MemberOrder(name="Tenancy", sequence = "3.4")
+    @MemberOrder(name="atPath", sequence = "3.4")
     @Getter @Setter
-    private ApplicationTenancy tenancy;
+    private String atPath;
 
     //endregion
 
-    //region > updateTenancy (action)
+    //region > updateAtPath (action)
 
-    public static class UpdateTenancyDomainEvent extends ActionDomainEvent {}
+    public static class UpdateAtPathDomainEvent extends ActionDomainEvent {}
 
     @Action(
-            domainEvent = UpdateTenancyDomainEvent.class,
+            domainEvent = UpdateAtPathDomainEvent.class,
             semantics = SemanticsOf.IDEMPOTENT
     )
-    @MemberOrder(name="tenancy", sequence = "1")
-    public ApplicationUser updateTenancy(
+    @MemberOrder(name="atPath", sequence = "1")
+    public ApplicationUser updateAtPath(
             @Parameter(optionality = Optionality.OPTIONAL)
-            final ApplicationTenancy tenancy) {
-        setTenancy(tenancy);
+            @ParameterLayout(named = "AtPath")
+            final String atPath) {
+        setAtPath(atPath);
         return this;
     }
 
-    public ApplicationTenancy default0UpdateTenancy() {
-        return getTenancy();
+    public String default0UpdateAtPath() {
+        return getAtPath();
     }
     //endregion
 
@@ -977,7 +982,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
 
     /**
      * Optional service, if configured then is used to evaluate permissions within
-     * {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet#evaluate(ApplicationFeatureId, org.isisaddons.module.security.dom.permission.ApplicationPermissionMode)},
+     * {@link org.isisaddons.module.security.dom.permission.ApplicationPermissionValueSet#evaluate(ApplicationFeatureId, ApplicationPermissionMode)}
      * else will fallback to a {@link org.isisaddons.module.security.dom.permission.PermissionsEvaluationService#DEFAULT default}
      * implementation.
      */

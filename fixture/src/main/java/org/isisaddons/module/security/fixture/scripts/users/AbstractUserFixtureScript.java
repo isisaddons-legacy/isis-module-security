@@ -105,8 +105,7 @@ public abstract class AbstractUserFixtureScript extends FixtureScript {
             applicationUser = applicationUserRepository.newLocalUser(name, password, password, null, null, emailAddress);
         }
 
-        final ApplicationTenancy applicationTenancy = applicationTenancyRepository.findByPath(tenancyPath);
-        applicationUser.setTenancy(applicationTenancy);
+        applicationUser.setAtPath(tenancyPath);
 
         executionContext.addResult(this, name, applicationUser);
         return applicationUser;
@@ -114,7 +113,4 @@ public abstract class AbstractUserFixtureScript extends FixtureScript {
 
     @javax.inject.Inject
     private ApplicationUserRepository applicationUserRepository;
-
-    @javax.inject.Inject
-    private ApplicationTenancyRepository applicationTenancyRepository;
 }

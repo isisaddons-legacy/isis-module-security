@@ -17,8 +17,7 @@
 package org.isisaddons.module.security.fixture.dom.example.tenanted;
 
 import java.util.List;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
-import org.isisaddons.module.security.fixture.dom.example.nontenanted.NonTenantedEntity;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
@@ -32,15 +31,15 @@ import org.apache.isis.applib.annotation.ParameterLayout;
 import org.apache.isis.applib.annotation.Programmatic;
 import org.apache.isis.applib.annotation.SemanticsOf;
 
+import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+import org.isisaddons.module.security.fixture.dom.example.nontenanted.NonTenantedEntity;
+
 @DomainService(
         nature = NatureOfService.VIEW_MENU_ONLY,
         repositoryFor = TenantedEntity.class
 )
 @DomainServiceLayout(menuOrder = "20")
 public class TenantedEntities {
-
-    //region > identification in the UI
-    // //////////////////////////////////////
 
     @Programmatic
     public String getId() {
@@ -51,26 +50,16 @@ public class TenantedEntities {
         return "TenantedEntity";
     }
 
-    //endregion
 
-    //region > listAll (action)
-    // //////////////////////////////////////
 
-    @Action(
-            semantics = SemanticsOf.SAFE
-    )
-    @ActionLayout(
-            bookmarking = BookmarkPolicy.AS_ROOT
-    )
+    @Action(semantics = SemanticsOf.SAFE)
+    @ActionLayout(bookmarking = BookmarkPolicy.AS_ROOT)
     @MemberOrder(sequence = "1")
     public List<TenantedEntity> listAll() {
         return container.allInstances(TenantedEntity.class);
     }
 
-    //endregion
 
-    //region > create (action)
-    // //////////////////////////////////////
 
     @MemberOrder(sequence = "2")
     public TenantedEntity create(
@@ -78,21 +67,13 @@ public class TenantedEntities {
             @ParameterLayout(named="Name")
             final String name,
             final ApplicationTenancy tenancy) {
-        final TenantedEntity obj = container.newTransientInstance(TenantedEntity.class);
-        obj.setName(name);
-        obj.setApplicationTenancy(tenancy);
+        final TenantedEntity obj = new TenantedEntity(name, null, tenancy.getPath());
         container.persistIfNotAlready(obj);
         return obj;
     }
 
-    //endregion
-
-    //region > injected services
-    // //////////////////////////////////////
 
     @javax.inject.Inject 
     DomainObjectContainer container;
-
-    //endregion
 
 }

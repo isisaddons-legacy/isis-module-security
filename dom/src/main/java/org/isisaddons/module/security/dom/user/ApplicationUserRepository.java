@@ -202,6 +202,19 @@ public class ApplicationUserRepository {
     }
     //endregion
 
+
+    //region > allUsers
+
+    @Programmatic
+    public List<ApplicationUser> findByAtPath(final String atPath) {
+        return container.allMatches(new QueryDefault<>(
+                ApplicationUser.class,
+                "findByAtPath", "atPath", atPath));
+    }
+
+    //endregion
+
+
     //region > allUsers
 
     @Programmatic

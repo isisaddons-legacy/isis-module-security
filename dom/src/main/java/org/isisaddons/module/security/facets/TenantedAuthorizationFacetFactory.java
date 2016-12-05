@@ -32,12 +32,10 @@ import org.apache.isis.core.metamodel.services.ServicesInjectorAware;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyEvaluator;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluator;
-import org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy;
+import org.isisaddons.module.security.dom.tenancy.WithAtPath;
 import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 
-import javax.annotation.Nullable;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract implements ServicesInjectorAware {
 
@@ -119,16 +117,14 @@ public class TenantedAuthorizationFacetFactory extends FacetFactoryAbstract impl
 
         @Override
         public boolean handles(final Class<?> cls) {
-            return WithApplicationTenancy.class.isAssignableFrom(cls);
+            return WithAtPath.class.isAssignableFrom(cls);
         }
 
         public String applicationTenancyPathFor(final Object domainObject) {
             // always safe, facet factory only installs facet for classes implementing WithApplicationTenancy
-            final WithApplicationTenancy tenantedObject = (WithApplicationTenancy) domainObject;
+            final WithAtPath tenantedObject = (WithAtPath) domainObject;
 
-            final ApplicationTenancy objectTenancy = tenantedObject.getApplicationTenancy();
-            final String objectTenancyPath = objectTenancy == null ? null : objectTenancy.getPath();
-            return objectTenancyPath;
+            return tenantedObject.getAtPath();
         }
     }
 

@@ -16,14 +16,15 @@
  */
 package org.isisaddons.module.security.facets;
 
+import java.util.concurrent.Callable;
+
+import javax.inject.Inject;
+
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
+
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyEvaluator;
 import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyPathEvaluator;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
-
-import javax.inject.Inject;
-import java.util.concurrent.Callable;
 
 class ApplicationTenancyEvaluatorUsingPaths implements ApplicationTenancyEvaluator {
 
@@ -138,11 +139,7 @@ class ApplicationTenancyEvaluatorUsingPaths implements ApplicationTenancyEvaluat
         if (evaluator.handles(applicationUser.getClass())) {
             return evaluator.applicationTenancyPathFor(applicationUser);
         }
-        final ApplicationTenancy userTenancy = applicationUser.getTenancy();
-        if (userTenancy == null) {
-            return null;
-        }
-        return userTenancy.getPath();
+        return applicationUser.getAtPath();
     }
 
 

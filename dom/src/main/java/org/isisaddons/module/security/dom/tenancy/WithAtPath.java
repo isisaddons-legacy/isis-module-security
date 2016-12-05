@@ -17,11 +17,20 @@
 package org.isisaddons.module.security.dom.tenancy;
 
 /**
- * Role interface for domain objects to implement, indicating whether they are logically &quot;owned&quot; by a
- * particular {@link org.isisaddons.module.security.dom.tenancy.ApplicationTenancy}.
+ * Role interface for domain objects to implement, indicating that these are characteristics of the entity that
+ * can be used to determine its visibility/editability.
  *
  * <p>
- * The intention here is that the security module can implement instance-based security according to the following table:
+ *     Previously the <code>atPath</code> would have corresponded to the unique path of some particular
+ *     {@link org.isisaddons.module.security.dom.tenancy.ApplicationTenancy} instance.  However, this has now been
+ *     generalized; the atPath is simply a string whose interpretation is application-specific (in particular by
+ *     the {@link ApplicationTenancyEvaluator} SPI).
+ * </p>
+ *
+ * <p>
+ * For applications that still wish to follow the original more specific design (that the <code>atPath</code>
+ * corresponds to a single {@link ApplicationTenancy}), then the path can be interpreted according to the following
+ * table:
  * </p>
  * <table border="1">
  *     <tr>
@@ -88,11 +97,11 @@ package org.isisaddons.module.security.dom.tenancy;
  *         <td>/it/car</td><td>null</td><td>not visible</td>
  *     </tr>
  * </table>
- * <p>any object that is not tenanted (that is, its class does not implement {@link org.isisaddons.module.security.dom.tenancy.WithApplicationTenancy the WithApplicationTenancy interface} is accessible by any user (usual permission rules apply).
+ * <p>any object that is not tenanted (that is, its class does not implement {@link WithAtPath the WithApplicationTenancy interface} is accessible by any user (usual permission rules apply).
  * </p>
  */
-public interface WithApplicationTenancy {
+public interface WithAtPath {
 
-    ApplicationTenancy getApplicationTenancy();
+    String getAtPath();
 
 }

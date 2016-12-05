@@ -29,8 +29,6 @@ import org.apache.isis.applib.value.Password;
 import org.isisaddons.module.security.dom.password.PasswordEncryptionService;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoleRepository;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancy;
-import org.isisaddons.module.security.dom.tenancy.ApplicationTenancyRepository;
 import org.isisaddons.module.security.dom.user.AccountType;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
@@ -84,8 +82,7 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
             }
 
             // update tenancy (repository checks for null)
-            final ApplicationTenancy applicationTenancy = applicationTenancyRepository.findByPath(tenancyPath);
-            applicationUser.setTenancy(applicationTenancy);
+            applicationUser.setAtPath(tenancyPath);
 
             for (final String roleName : roleNames) {
                 final ApplicationRole securityRole = applicationRoleRepository.findByName(roleName);
@@ -108,10 +105,6 @@ public class AbstractUserAndRolesFixtureScript extends FixtureScript {
     ApplicationUserRepository applicationUserRepository;
     @Inject
     ApplicationRoleRepository applicationRoleRepository;
-    @Inject
-    ApplicationTenancyRepository applicationTenancyRepository;
-    @Inject
-    PasswordEncryptionService passwordEncryptionService;
     //endregion
 
 }

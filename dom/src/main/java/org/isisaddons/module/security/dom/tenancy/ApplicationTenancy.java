@@ -46,6 +46,7 @@ import org.apache.isis.applib.annotation.RenderType;
 import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.annotation.Title;
 import org.apache.isis.applib.annotation.Where;
+import org.apache.isis.applib.services.factory.FactoryService;
 import org.apache.isis.applib.util.ObjectContracts;
 
 import org.isisaddons.module.security.SecurityModule;
@@ -171,7 +172,6 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
 
     public static class UsersDomainEvent extends CollectionDomainEvent<ApplicationUser> {}
 
-    @javax.jdo.annotations.Persistent(mappedBy = "tenancy")
     @Collection(
             domainEvent = UsersDomainEvent.class,
             editing = Editing.DISABLED
@@ -180,17 +180,17 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
             render = RenderType.EAGERLY
     )
     @MemberOrder(sequence = "10")
-    @Getter @Setter
-    private SortedSet<ApplicationUser> users = new TreeSet<>();
-
+    public List<ApplicationUser> getUsers() {
+        return applicationUserRepository.findByAtPath(getPath());
+    }
 
     // necessary for integration tests
     public void addToUsers(final ApplicationUser applicationUser) {
-        getUsers().add(applicationUser);
+        applicationUser.setAtPath(getPath());
     }
     // necessary for integration tests
     public void removeFromUsers(final ApplicationUser applicationUser) {
-        getUsers().remove(applicationUser);
+        applicationUser.setAtPath(null);
     }
     //endregion
 
@@ -207,7 +207,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     )
     @MemberOrder(name="Users", sequence = "1")
     public ApplicationTenancy addUser(final ApplicationUser applicationUser) {
-        applicationUser.setTenancy(this);
+        applicationUser.setAtPath(this.getPath());
         // no need to add to users set, since will be done by JDO/DN.
         return this;
     }
@@ -218,6 +218,8 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
         list.removeAll(getUsers());
         return list;
     }
+
+
 
     //endregion
 
@@ -234,7 +236,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     )
     @MemberOrder(name="Users", sequence = "2")
     public ApplicationTenancy removeUser(final ApplicationUser applicationUser) {
-        applicationUser.setTenancy(null);
+        applicationUser.setAtPath(null);
         // no need to add to users set, since will be done by JDO/DN.
         return this;
     }
@@ -369,7 +371,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     @MemberOrder(sequence = "1")
     public List<ApplicationTenancy> delete() {
         for (final ApplicationUser user : getUsers()) {
-            user.updateTenancy(null);
+            user.updateAtPath(null);
         }
         container.removeIfNotAlready(this);
         container.flush();
@@ -396,6 +398,8 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     ApplicationUserRepository applicationUserRepository;
     @javax.inject.Inject
     ApplicationTenancyRepository applicationTenancyRepository;
+    @javax.inject.Inject
+    FactoryService factoryService;
     @javax.inject.Inject
     DomainObjectContainer container;
     //endregion
