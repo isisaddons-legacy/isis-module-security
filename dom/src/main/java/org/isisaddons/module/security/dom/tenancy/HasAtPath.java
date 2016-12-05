@@ -97,10 +97,10 @@ package org.isisaddons.module.security.dom.tenancy;
  *         <td>/it/car</td><td>null</td><td>not visible</td>
  *     </tr>
  * </table>
- * <p>any object that is not tenanted (that is, its class does not implement {@link WithAtPath the WithApplicationTenancy interface} is accessible by any user (usual permission rules apply).
+ * <p>any object that is not tenanted (that is, its class does not implement {@link HasAtPath the WithApplicationTenancy interface} is accessible by any user (usual permission rules apply).
  * </p>
  */
-public interface WithAtPath {
+public interface HasAtPath {
 
     String getAtPath();
 

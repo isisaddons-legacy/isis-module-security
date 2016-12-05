@@ -25,7 +25,7 @@ import org.apache.isis.applib.annotation.MemberGroupLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Title;
 
-import org.isisaddons.module.security.dom.tenancy.WithAtPath;
+import org.isisaddons.module.security.dom.tenancy.HasAtPath;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -46,7 +46,7 @@ import lombok.Setter;
         middle = {},
         right = {}
 )
-public class TenantedEntity implements WithAtPath {
+public class TenantedEntity implements HasAtPath {
 
     public static final int MAX_LENGTH_NAME = 30;
     public static final int MAX_LENGTH_DESCRIPTION = 254;

@@ -66,6 +66,7 @@ import org.isisaddons.module.security.dom.permission.ApplicationPermissionValueS
 import org.isisaddons.module.security.dom.permission.PermissionsEvaluationService;
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoleRepository;
+import org.isisaddons.module.security.dom.tenancy.HasAtPath;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminRoleAndPermissions;
 import org.isisaddons.module.security.seed.scripts.IsisModuleSecurityAdminUser;
 
@@ -134,7 +135,7 @@ import lombok.Setter;
     middle= {"Contact Details"},
     right= {"Status", "AtPath"}
 )
-public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername {
+public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername, HasAtPath {
 
     public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<ApplicationUser, T> {}
 
