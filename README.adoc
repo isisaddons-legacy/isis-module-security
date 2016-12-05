@@ -558,6 +558,40 @@ isis.reflector.facet.cssClassFa.patterns=\
 ----
 
 
+=== Overriding the schema
+
+By default the module's entities will be installed in the `isissecurity` schema.
+This is hard-coded in their annotations.
+
+This can be overridden by creating a `.orm` file.
+For example, to change the `ApplicationUser` table to reside in the "dbo" schema (to run on SQL Server, say), create an `ApplicationUser-sqlserver.orm` file.
+This should reside in the `org.isisaddons.module.security.dom.user` package:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8" ?>
+<orm xmlns="http://xmlns.jcp.org/xml/ns/jdo/orm"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/jdo/orm
+        http://xmlns.jcp.org/xml/ns/jdo/orm_3_0.xsd">
+
+    <package name="org.isisaddons.module.security.dom.user">
+        <class name="ApplicationUser"
+               schema="dbo">
+        </class>
+    </package>
+----
+
+Then, in `persistor.properties`, add:
+
+[source,properties]
+----
+isis.persistor.datanucleus.impl.datanucleus.Mapping=sqlserver
+----
+
+This will cause DataNucleus to also search for `ApplicationUser-**sqlserver**.orm` files and use them if found.
+
+
 === Running demo against SQL Server
 
 To run the demo application against SQL Server (as opposed to inmemory):
