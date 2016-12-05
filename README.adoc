@@ -126,7 +126,7 @@ Application users can have either a _local_ or a _delegated_ account type.
 The users are created explicitly by the administrator.
 
 * Optionally a delegate authentication realm can be configured; if so then delegated users can be created and their credentials will be authenticated by the delegate authentication realm.
-Users are created _automatically_ when that user attempts to log in.
+By default, users are created _automatically_ when that user attempts to log in (though this feature can be disabled, see xref:shiro-configuration[below])
 However, for safety their `ApplicationUser` accounts are created in a disabled state and with no roles, so the administrator is still required to update them.
 
 Once the user is created, then additional information about that user can be captured, including their name and contact details.
@@ -384,6 +384,7 @@ If using the `PasswordEncryptionServiceUsingJBcrypt` service (discussed below), 
 
 Check for later releases by searching [Maven Central Repo](http://search.maven.org/#search|ga|1|isis-module-security-dom).
 
+[[shiro-configuration]]
 ==== Shiro configuration (shiro.ini)
 
 The module includes `org.isisaddons.module.security.shiro.IsisModuleSecurityRealm`, an implementation of Apache Shiro's `org.apache.shiro.realm.AuthorizingRealm` class.
@@ -422,6 +423,14 @@ someOtherRealm=...                                                          # <1
 isisModuleSecurityRealm.delegateAuthenticationRealm=$someOtherRealm
 ----
 <1> the `someOtherRealm` variable defines some other realm to perform authentication.
+
+To disable the automatic creation of delegate users, use:
+
+[source,ini]
+----
+isisModuleSecurityRealm.autoCreateUser=false
+----
+
 
 
 ==== Isis domain services
@@ -668,12 +677,14 @@ Ideas for future features:
 
 == Change Log
 
-* `1.13.4` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/41[#41] and link:https://github.com/isisaddons/isis-module-security/issues/42[#42]
-* `1.13.3` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/40[#40]
-* `1.13.2` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/39[#39]
-* `1.13.1` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/38[#38]
+
+* `1.13.5` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/30[#30] (clone user) and link:https://github.com/isisaddons/isis-module-security/issues/49[#49] (disable autocreate of delegate users)
+* `1.13.4` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/41[#41] (action semantics) and link:https://github.com/isisaddons/isis-module-security/issues/42[#42] (bulk deletion of orphaned permissions)
+* `1.13.3` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/40[#40] (generalized `ApplicationTenancyPathEvaluator` SPI)
+* `1.13.2` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/39[#39] (rename `orphanedPermissions` to `findOrphanedPermissions`)
+* `1.13.1` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/38[#38] (list all orphaned permissions)
 * `1.13.0` - released against Isis 1.13.0
-* `1.12.2` - released against Isis 1.12.1; closes link:https://github.com/isisaddons/isis-module-security/issues/32[#32]
+* `1.12.2` - released against Isis 1.12.1; closes link:https://github.com/isisaddons/isis-module-security/issues/32[#32] (can't create new user)
 * `1.12.1` - released against Isis 1.12.1; converted to use 1.12.x constructs
 * `1.12.0` - released against Isis 1.12.0
 * `1.11.0` - released against Isis 1.11.0
@@ -692,7 +703,7 @@ Ideas for future features:
 
 [source]
 ----
-Copyright 2014-2016 Dan Haywood
+Copyright 2014-date Dan Haywood
 
 Licensed under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
