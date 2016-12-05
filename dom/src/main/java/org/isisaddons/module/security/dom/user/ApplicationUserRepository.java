@@ -44,15 +44,14 @@ import org.isisaddons.module.security.dom.role.ApplicationRoleRepository;
 )
 public class ApplicationUserRepository {
 
-
     //region > findOrCreateUserByUsername (programmatic)
 
     /**
      * Uses the {@link QueryResultsCache} in order to support
      * multiple lookups from <code>org.isisaddons.module.security.app.user.UserPermissionViewModel</code>.
-     *
      * <p>
-     *     If the user does not exist, it will be automatically created.
+     * <p>
+     * If the user does not exist, it will be automatically created.
      * </p>
      */
     @Programmatic
@@ -68,7 +67,7 @@ public class ApplicationUserRepository {
                 }
                 return newDelegateUser(username, null, null);
             }
-        }, ApplicationUserRepository.class, "findOrCreateUserByUsername", username );
+        }, ApplicationUserRepository.class, "findOrCreateUserByUsername", username);
     }
 
     //endregion
@@ -107,8 +106,8 @@ public class ApplicationUserRepository {
     @Programmatic
     public ApplicationUser findByEmailAddress(final String emailAddress) {
         return container.uniqueMatch(new QueryDefault<>(
-            ApplicationUser.class,
-            "findByEmailAddress", "emailAddress", emailAddress));
+                ApplicationUser.class,
+                "findByEmailAddress", "emailAddress", emailAddress));
     }
     //endregion
 
@@ -134,7 +133,7 @@ public class ApplicationUserRepository {
         user.setUsername(username);
         user.setStatus(ApplicationUserStatus.parse(enabled));
         user.setAccountType(AccountType.DELEGATED);
-        if(initialRole != null) {
+        if (initialRole != null) {
             user.addRole(initialRole);
         }
         container.persistIfNotAlready(user);
@@ -153,19 +152,19 @@ public class ApplicationUserRepository {
             final Boolean enabled,
             final String emailAddress) {
         ApplicationUser user = findByUsername(username);
-        if (user == null){
+        if (user == null) {
             user = getApplicationUserFactory().newApplicationUser();
             user.setUsername(username);
             user.setStatus(ApplicationUserStatus.parse(enabled));
             user.setAccountType(AccountType.LOCAL);
         }
-        if(initialRole != null) {
+        if (initialRole != null) {
             user.addRole(initialRole);
         }
-        if(password != null) {
+        if (password != null) {
             user.updatePassword(password.getPassword());
         }
-        if(emailAddress != null) {
+        if (emailAddress != null) {
             user.updateEmailAddress(emailAddress);
         }
         container.persistIfNotAlready(user);
@@ -184,6 +183,23 @@ public class ApplicationUserRepository {
         return user.validateResetPassword(password, passwordRepeat);
     }
 
+    //endregion
+
+    //region > newLocalUserBasedOn (action)
+
+    public ApplicationUser newLocalUserBasedOn(
+            final String username,
+            final Password password,
+            final Password passwordRepeat,
+            final ApplicationUser userWhosRolesShouldBeCloned,
+            final Boolean enabled,
+            final String emailAddress) {
+        final ApplicationUser user = this.newLocalUser(username, password, passwordRepeat, null, enabled, emailAddress);
+        for (ApplicationRole role : userWhosRolesShouldBeCloned.getRoles()) {
+            user.addToRoles(role);
+        }
+        return user;
+    }
     //endregion
 
     //region > allUsers
@@ -227,7 +243,6 @@ public class ApplicationUserRepository {
 
     @Inject
     DomainObjectContainer container;
-
 
     //endregion
 
