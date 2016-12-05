@@ -53,7 +53,7 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
     //region > doGetAuthenticationInfo, doGetAuthorizationInfo (Shiro API)
 
-    
+
     /**
      * In order to provide an attacker with additional information, the exceptions thrown here deliberately have
      * few (or no) details in their exception message.  Similarly, the generic
@@ -73,8 +73,9 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
         // lookup from database, for roles/perms, but also
         // determine how to authenticate (delegate or local), whether disabled
-        final PrincipalForApplicationUser principal = lookupPrincipal(username, hasDelegateAuthenticationRealm());
-        if(principal == null) {
+        final PrincipalForApplicationUser principal = lookupPrincipal(username,
+                (hasDelegateAuthenticationRealm() && getAutoCreateUser()));
+        if (principal == null) {
             // if no delegate authentication
             throw new CredentialsException("Unknown user/password combination");
         }
@@ -144,8 +145,7 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
             private ApplicationUser lookupUser() {
                 if (autoCreateUser) {
                     return applicationUserRepository.findOrCreateUserByUsername(username);
-                }
-                else {
+                } else {
                     return applicationUserRepository.findByUsername(username);
                 }
             }
@@ -197,6 +197,20 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
     public boolean hasDelegateAuthenticationRealm() {
         return delegateAuthenticationRealm != null;
+    }
+
+    //endregion
+
+    //region > autoCreateUser
+
+    private boolean autoCreateUser = true;
+
+    public boolean getAutoCreateUser() {
+        return autoCreateUser;
+    }
+
+    public void setAutoCreateUser(boolean autoCreateUser) {
+        this.autoCreateUser = autoCreateUser;
     }
 
     //endregion
