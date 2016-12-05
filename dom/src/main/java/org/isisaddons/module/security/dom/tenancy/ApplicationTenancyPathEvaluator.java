@@ -41,7 +41,7 @@ public interface ApplicationTenancyPathEvaluator {
      *     This method is also called to determine if the evaluator is also able to determine the tenancy of the
      *     security module's own {@link org.isisaddons.module.security.dom.user.ApplicationUser}, ie the "who" is
      *     doing the interacting.  If the evaluator does not handle the class, then the fallback behaviour is
-     *     to invoke {@link ApplicationUser#getTenancy() getTenancy} on the {@link ApplicationUser} and use the
+     *     to invoke {@link ApplicationUser#getAtPath()} getAtPath} on the {@link ApplicationUser} and use the
      *     path from that.
      * </p>
      */
