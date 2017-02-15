@@ -16,6 +16,7 @@
  */
 package org.isisaddons.module.security.app.feature;
 
+import org.apache.isis.applib.annotation.DomainObject;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Property;
@@ -23,6 +24,9 @@ import org.apache.isis.applib.annotation.ViewModelLayout;
 import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureId;
 
 @SuppressWarnings("UnusedDeclaration")
+@DomainObject(
+        objectType = "isissecurity.ApplicationClassProperty"
+)
 @ViewModelLayout(paged=100)
 public class ApplicationClassProperty extends ApplicationClassMember {
 

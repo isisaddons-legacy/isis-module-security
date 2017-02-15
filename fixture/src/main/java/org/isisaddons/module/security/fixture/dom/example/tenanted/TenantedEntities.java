@@ -36,6 +36,7 @@ import org.isisaddons.module.security.fixture.dom.example.nontenanted.NonTenante
 
 @DomainService(
         nature = NatureOfService.VIEW_MENU_ONLY,
+        objectType = "isissecurityDemo.TenantedEntities",
         repositoryFor = TenantedEntity.class
 )
 @DomainServiceLayout(menuOrder = "20")

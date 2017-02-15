@@ -39,7 +39,8 @@ import org.isisaddons.module.security.shiro.IsisModuleSecurityRealm;
 import org.isisaddons.module.security.shiro.ShiroUtils;
 
 @DomainService(
-        nature = NatureOfService.VIEW_MENU_ONLY
+        nature = NatureOfService.VIEW_MENU_ONLY,
+        objectType = "isissecurity.ApplicationUserMenu"
 )
 @DomainServiceLayout(
         named = "Security",
@@ -102,10 +103,7 @@ public class ApplicationUserMenu {
         return applicationUserRepository.newDelegateUser(username, initialRole, enabled);
     }
 
-    public boolean hideNewDelegateUser(
-            final String username,
-            final ApplicationRole initialRole,
-            final Boolean enabled) {
+    public boolean hideNewDelegateUser() {
         return hasNoDelegateAuthenticationRealm();
     }
 

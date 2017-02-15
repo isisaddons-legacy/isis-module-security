@@ -35,7 +35,8 @@ import org.apache.isis.applib.annotation.SemanticsOf;
 import org.isisaddons.module.security.SecurityModule;
 
 @DomainService(
-        nature = NatureOfService.VIEW_MENU_ONLY
+        nature = NatureOfService.VIEW_MENU_ONLY,
+        objectType = "isissecurity.ApplicationTenancyMenu"
 )
 @DomainServiceLayout(
         named = "Security",

@@ -34,7 +34,8 @@ import org.apache.isis.objectstore.jdo.applib.service.JdoColumnLength;
 import org.isisaddons.module.security.SecurityModule;
 
 @DomainService(
-        nature = NatureOfService.VIEW_MENU_ONLY
+        nature = NatureOfService.VIEW_MENU_ONLY,
+        objectType = "isissecurity.ApplicationRoleMenu"
 )
 @DomainServiceLayout(
         named = "Security",

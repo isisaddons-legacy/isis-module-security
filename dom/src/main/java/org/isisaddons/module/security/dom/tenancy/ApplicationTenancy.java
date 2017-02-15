@@ -243,7 +243,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     public java.util.Collection<ApplicationUser> choices0RemoveUser() {
         return getUsers();
     }
-    public String disableRemoveUser(final ApplicationUser applicationUser) {
+    public String disableRemoveUser() {
         return choices0RemoveUser().isEmpty()? "No users to remove": null;
     }
 
@@ -354,7 +354,7 @@ public class ApplicationTenancy implements Comparable<ApplicationTenancy> {
     public java.util.Collection<ApplicationTenancy> choices0RemoveChild() {
         return getChildren();
     }
-    public String disableRemoveChild(final ApplicationTenancy applicationTenancy) {
+    public String disableRemoveChild() {
         return choices0RemoveChild().isEmpty()? "No children to remove": null;
     }
 

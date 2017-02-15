@@ -22,45 +22,50 @@ import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.Contributed;
-import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.MemberOrder;
-import org.apache.isis.applib.annotation.NatureOfService;
+import org.apache.isis.applib.annotation.Mixin;
 import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.services.HasUsername;
 import org.apache.isis.applib.services.i18n.TranslatableString;
 
 import org.isisaddons.module.security.SecurityModule;
 
-@DomainService(
-        nature = NatureOfService.VIEW_CONTRIBUTIONS_ONLY
-)
-public class HasUsernameContributions extends AbstractFactoryAndRepository {
+@Mixin(method = "exec")
+public class HasUsername_open extends AbstractFactoryAndRepository {
 
-    public static abstract class ActionDomainEvent extends SecurityModule.ActionDomainEvent<HasUsernameContributions> {}
+    private final HasUsername hasUsername;
+
+    public HasUsername_open(final HasUsername hasUsername) {
+        this.hasUsername = hasUsername;
+    }
+
+
+    public static class ActionDomainEvent extends SecurityModule.ActionDomainEvent<HasUsername_open> {}
 
     @Action(
-            semantics = SemanticsOf.SAFE
+            semantics = SemanticsOf.SAFE,
+            domainEvent = ActionDomainEvent.class
     )
     @ActionLayout(
             contributed = Contributed.AS_ACTION
     )
     @MemberOrder(name = "User", sequence = "1") // associate with a 'User' property (if any)
-    public ApplicationUser open(final HasUsername hasUsername) {
+    public ApplicationUser exec() {
         if (hasUsername == null || hasUsername.getUsername() == null) {
             return null;
         }
         return applicationUserRepository.findByUsername(hasUsername.getUsername());
     }
-    public boolean hideOpen(final HasUsername hasUsername) {
+    public boolean hideExec() {
         return hasUsername instanceof ApplicationUser;
     }
-    public TranslatableString disableOpen(final HasUsername hasUsername) {
+
+    public TranslatableString disableExec() {
         if (hasUsername == null || hasUsername.getUsername() == null) {
             return TranslatableString.tr("No username");
         }
         return null;
     }
-
 
     @Inject
     private ApplicationUserRepository applicationUserRepository;

@@ -27,6 +27,7 @@ import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.RestrictTo;
 import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeature;
@@ -35,6 +36,8 @@ import org.apache.isis.core.metamodel.services.appfeat.ApplicationFeatureReposit
 import org.isisaddons.module.security.SecurityModule;
 
 @DomainService(
+        nature = NatureOfService.VIEW_MENU_ONLY,
+        objectType = "isissecurity.ApplicationFeatureViewModels",
         repositoryFor = ApplicationFeatureViewModel.class
 )
 @DomainServiceLayout(

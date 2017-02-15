@@ -18,26 +18,30 @@ package org.isisaddons.module.security.app.user;
 
 import java.util.concurrent.Callable;
 
-import org.apache.isis.applib.AbstractFactoryAndRepository;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.SemanticsOf;
 import org.apache.isis.applib.services.queryresultscache.QueryResultsCache;
+import org.apache.isis.applib.services.user.UserService;
 
 import org.isisaddons.module.security.SecurityModule;
 import org.isisaddons.module.security.dom.user.ApplicationUser;
 import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
 
 @SuppressWarnings("UnusedDeclaration")
-@DomainService()
+@DomainService(
+        nature = NatureOfService.VIEW_MENU_ONLY,
+        objectType = "isissecurity.MeService"
+)
 @DomainServiceLayout(
         menuBar = DomainServiceLayout.MenuBar.TERTIARY,
         menuOrder = "100"
 )
-public class MeService extends AbstractFactoryAndRepository {
+public class MeService {
 
     public static abstract class PropertyDomainEvent<T> extends SecurityModule.PropertyDomainEvent<MeService, T> {}
 
@@ -77,7 +81,7 @@ public class MeService extends AbstractFactoryAndRepository {
     }
 
     protected ApplicationUser doMe() {
-        final String myName = getContainer().getUser().getName();
+        final String myName = userService.getUser().getName();
         return applicationUserRepository.findOrCreateUserByUsername(myName);
     }
 
@@ -90,6 +94,8 @@ public class MeService extends AbstractFactoryAndRepository {
     //region  > services (injected)
     @javax.inject.Inject
     ApplicationUserRepository applicationUserRepository;
+    @javax.inject.Inject
+    UserService userService;
     @javax.inject.Inject
     QueryResultsCache queryResultsCache;
     //endregion

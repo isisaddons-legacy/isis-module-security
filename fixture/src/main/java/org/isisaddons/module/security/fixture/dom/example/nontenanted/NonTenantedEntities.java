@@ -17,6 +17,7 @@
 package org.isisaddons.module.security.fixture.dom.example.nontenanted;
 
 import java.util.List;
+
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.ActionLayout;
@@ -32,6 +33,7 @@ import org.apache.isis.applib.annotation.SemanticsOf;
 
 @DomainService(
         nature = NatureOfService.VIEW_MENU_ONLY,
+        objectType = "isissecurityDemo.NonTenantedEntities",
         repositoryFor = NonTenantedEntity.class
 )
 @DomainServiceLayout(menuOrder = "10")

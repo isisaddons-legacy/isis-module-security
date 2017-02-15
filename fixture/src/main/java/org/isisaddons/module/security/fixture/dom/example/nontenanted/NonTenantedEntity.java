@@ -19,6 +19,8 @@ package org.isisaddons.module.security.fixture.dom.example.nontenanted;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.VersionStrategy;
+
+import org.apache.isis.applib.annotation.DomainObject;
 import org.apache.isis.applib.annotation.MemberGroupLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
 import org.apache.isis.applib.annotation.Title;
@@ -34,6 +36,9 @@ import org.apache.isis.applib.annotation.Title;
         @javax.jdo.annotations.Unique(
                 name = "NonTenantedEntity_name_UNQ", members = { "name" })
 })
+@DomainObject(
+        objectType = "isissecurityDemo.NonTenantedEntity"
+)
 @MemberGroupLayout(columnSpans = {4,4,4,12},
         left = {"General"},
         middle = {},

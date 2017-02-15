@@ -6,6 +6,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import org.apache.isis.applib.annotation.DomainService;
+import org.apache.isis.applib.annotation.NatureOfService;
 
 import org.isisaddons.module.security.dom.role.ApplicationRole;
 import org.isisaddons.module.security.dom.role.ApplicationRoleRepository;
@@ -18,7 +19,9 @@ import org.isisaddons.module.security.userreg.SecurityModuleAppUserRegistrationS
  * that uses {@link org.isisaddons.module.security.fixture.scripts.roles.ExampleFixtureScriptsRoleAndPermissions#ROLE_NAME}
  * as initial role
  */
-@DomainService
+@DomainService(
+        nature = NatureOfService.DOMAIN
+)
 public class AppUserRegistrationService extends SecurityModuleAppUserRegistrationServiceAbstract {
 
     @Override

@@ -27,6 +27,7 @@ import com.google.common.io.BaseEncoding;
 import org.apache.isis.applib.DomainObjectContainer;
 import org.apache.isis.applib.ViewModel;
 import org.apache.isis.applib.annotation.BookmarkPolicy;
+import org.apache.isis.applib.annotation.DomainObject;
 import org.apache.isis.applib.annotation.Editing;
 import org.apache.isis.applib.annotation.MemberGroupLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
@@ -57,6 +58,9 @@ import org.isisaddons.module.security.dom.user.ApplicationUserRepository;
  * {@link ApplicationFeature}.
  */
 @SuppressWarnings("UnusedDeclaration")
+@DomainObject(
+        objectType = "isissecurity.UserPermissionViewModel"
+)
 @ViewModelLayout(
     bookmarking = BookmarkPolicy.AS_ROOT
 )

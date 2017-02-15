@@ -17,11 +17,12 @@
 package org.isisaddons.module.security.fixture.scripts;
 
 import java.util.List;
-import org.isisaddons.module.security.dom.role.ApplicationRole;
+
 import org.apache.isis.applib.annotation.Action;
 import org.apache.isis.applib.annotation.DomainService;
 import org.apache.isis.applib.annotation.DomainServiceLayout;
 import org.apache.isis.applib.annotation.MemberOrder;
+import org.apache.isis.applib.annotation.NatureOfService;
 import org.apache.isis.applib.annotation.Optionality;
 import org.apache.isis.applib.annotation.Parameter;
 import org.apache.isis.applib.annotation.ParameterLayout;
@@ -31,15 +32,21 @@ import org.apache.isis.applib.fixturescripts.FixtureResult;
 import org.apache.isis.applib.fixturescripts.FixtureScript;
 import org.apache.isis.applib.fixturescripts.FixtureScripts;
 
+import org.isisaddons.module.security.dom.role.ApplicationRole;
+
 /**
  * Enables fixtures to be installed from the application.
  */
-@DomainService()
+@DomainService(
+    nature = NatureOfService.VIEW_MENU_ONLY,
+    objectType = "isissecurityDemo.FixturesService"
+)
 @DomainServiceLayout(
         named="Prototyping",
         menuOrder = "99",
         menuBar = DomainServiceLayout.MenuBar.SECONDARY
 )
+// TODO: convert to FixtureScriptsSpecificationProvider
 public class SecurityModuleAppFixturesService extends FixtureScripts {
 
     //region > constructor

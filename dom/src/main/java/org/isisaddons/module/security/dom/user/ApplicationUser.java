@@ -331,7 +331,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
         return getKnownAs();
     }
 
-    public String disableUpdateName(final String familyName, final String givenName, final String knownAs) {
+    public String disableUpdateName() {
         return isForSelfOrRunAsAdministrator()? null: "Can only update your own user record.";
     }
 
@@ -384,7 +384,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
         return getEmailAddress();
     }
 
-    public String disableUpdateEmailAddress(final String emailAddress) {
+    public String disableUpdateEmailAddress() {
         return isForSelfOrRunAsAdministrator()? null: "Can only update your own user record.";
     }
     //endregion
@@ -422,7 +422,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
         return this;
     }
 
-    public String disableUpdatePhoneNumber(final String faxNumber) {
+    public String disableUpdatePhoneNumber() {
         return isForSelfOrRunAsAdministrator()? null: "Can only update your own user record.";
     }
     public String default0UpdatePhoneNumber() {
@@ -472,7 +472,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
         return getFaxNumber();
     }
 
-    public String disableUpdateFaxNumber(final String faxNumber) {
+    public String disableUpdateFaxNumber() {
         return isForSelfOrRunAsAdministrator()? null: "Can only update your own user record.";
     }
 
@@ -546,7 +546,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
         setAccountType(accountType);
         return this;
     }
-    public String disableUpdateAccountType(final AccountType accountType) {
+    public String disableUpdateAccountType() {
         return isAdminUser()
                 ? "Cannot change account type for admin user"
                 : null;
@@ -676,17 +676,11 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
         return this;
     }
 
-    public boolean hideUpdatePassword(
-            final Password existingPassword,
-            final Password newPassword,
-            final Password newPasswordRepeat) {
+    public boolean hideUpdatePassword() {
         return isDelegateAccountOrPasswordEncryptionNotAvailable();
     }
 
-    public String disableUpdatePassword(
-            final Password existingPassword,
-            final Password newPassword,
-            final Password newPasswordConfirm) {
+    public String disableUpdatePassword() {
 
         if(!isForSelfOrRunAsAdministrator()) {
             return "Can only update password for your own user account.";
@@ -749,9 +743,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
         return this;
     }
 
-    public boolean hideResetPassword(
-            final Password newPassword,
-            final Password newPasswordRepeat) {
+    public boolean hideResetPassword() {
         return isDelegateAccountOrPasswordEncryptionNotAvailable();
     }
 
@@ -834,7 +826,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
         return applicationRoles;
     }
 
-    public String disableAddRole(final ApplicationRole role) {
+    public String disableAddRole() {
         return choices0AddRole().isEmpty()? "All roles added": null;
     }
     //endregion
@@ -856,7 +848,7 @@ public class ApplicationUser implements Comparable<ApplicationUser>, HasUsername
         return this;
     }
 
-    public String disableRemoveRole(final ApplicationRole role) {
+    public String disableRemoveRole() {
         return getRoles().isEmpty()? "No roles to remove": null;
     }
 
