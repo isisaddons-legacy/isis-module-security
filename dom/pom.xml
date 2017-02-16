@@ -19,8 +19,8 @@
 
     <parent>
         <groupId>org.incode</groupId>
-        <artifactId>incode-build</artifactId>
-        <version>1</version>
+        <artifactId>incode-parent</artifactId>
+        <version>1.13.2.20170214-2237</version>
         <relativePath/>
     </parent>
 
@@ -57,17 +57,16 @@
     </developers>
 
     <properties>
-        <compileSource>1.7</compileSource>
-        <compileTarget>1.7</compileTarget>
-
-        <isis.version>1.13.2.20170214-2237</isis.version>
-
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <lombok.version>1.16.8</lombok.version>
         <shiro-core.version>1.2.3</shiro-core.version>
         <jbcrypt.version>0.3m</jbcrypt.version>
         <danhaywood-java-testsupport.version>1.0.0</danhaywood-java-testsupport.version>
+
+        <compileSource>1.7</compileSource>
+        <compileTarget>1.7</compileTarget>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <build>
@@ -349,26 +348,6 @@
                 </dependency>
             </dependencies>
         </profile>
-        <profile>
-            <id>cloudbees-snapshots</id>
-            <activation>
-                <property>
-                    <name>!skip.cloudbees-snapshots</name>
-                </property>
-            </activation>
-            <repositories>
-                <repository>
-                    <id>snapshots-repo</id>
-                    <url>http://repository-estatio.forge.cloudbees.com/snapshot/</url>
-                    <releases>
-                        <enabled>false</enabled>
-                    </releases>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </repository>
-            </repositories>
-        </profile>
         <!-- http://central.sonatype.org/pages/apache-maven.html -->
         <profile>
             <id>release</id>
@@ -435,17 +414,6 @@
                         </executions>
                     </plugin>
                 </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>m2e</id>
-            <activation>
-                <property>
-                    <name>m2e.version</name>
-                </property>
-            </activation>
-            <build>
-                <directory>target-ide</directory>
             </build>
         </profile>
     </profiles>
