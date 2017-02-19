@@ -373,7 +373,7 @@ Update your classpath by adding this dependency in your dom project's `pom.xml`:
 <dependency>
     <groupId>org.isisaddons.module.security</groupId>
     <artifactId>isis-module-security-dom</artifactId>
-    <version>1.13.6</version>
+    <version>1.14.0</version>
 </dependency>
 ----
 
@@ -605,7 +605,7 @@ To run the demo application against SQL Server (as opposed to inmemory):
 [source,properties]
 ----
 isis.persistor.datanucleus.impl.javax.jdo.option.ConnectionDriverName=com.microsoft.sqlserver.jdbc.SQLServerDriver
-isis.persistor.datanucleus.impl.javax.jdo.option.ConnectionURL=jdbc:sqlserver://127.0.0.1:1433;instance=.;databaseName=securitydemo
+isis.persistor.datanucleus.impl.javax.jdo.option.ConnectionURL=jdbc:sqlserver://127.0.0.1.1533;instance=.;databaseName=securitydemo
 isis.persistor.datanucleus.impl.javax.jdo.option.ConnectionUserName=securitydemo
 isis.persistor.datanucleus.impl.javax.jdo.option.ConnectionPassword=pass
 ----
@@ -629,7 +629,7 @@ If you want to use the current `-SNAPSHOT`, then the steps are the same as above
 +
 [source,xml]
 ----
-<version>1.14.0-SNAPSHOT</version>
+<version>1.15.0-SNAPSHOT</version>
 ----
 
 * add the repository definition to pick up the most recent snapshot (we use the Cloudbees continuous integration service).
@@ -748,7 +748,7 @@ Ideas for future features:
 
 == Change Log
 
-
+* `1.14.0` - released against Isis 1.14.0
 * `1.13.6` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/47[#47] (change `ApplicationUser#getTenancy() to just `#getAtPath()`) and https://github.com/isisaddons/isis-module-security/issues/51[#51] (fixes breakage in 1.13.3 thru 1.13.5 where default `ApplicatoinTenancyPathEvaluator` not correctly installed)
 * `1.13.5` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/30[#30] (clone user) and link:https://github.com/isisaddons/isis-module-security/issues/49[#49] (disable autocreate of delegate users)
 * `1.13.4` - released against Isis 1.13.0, closes link:https://github.com/isisaddons/isis-module-security/issues/41[#41] (action semantics) and link:https://github.com/isisaddons/isis-module-security/issues/42[#42] (bulk deletion of orphaned permissions)
@@ -822,7 +822,7 @@ The artifacts should be available in Sonatype's https://oss.sonatype.org/content
 
 If you have commit access to this project (or a fork of your own) then you can create interim releases using the `interim-release.sh` script.
 
-The idea is that this will - in a new branch - update the `dom/pom.xml` with a timestamped version (eg `1.13.0.20161017-0738`).
+The idea is that this will - in a new branch - update the `dom/pom.xml` with a timestamped version (eg `1.14.0.20170227-0738`).
 It then pushes the branch (and a tag) to the specified remote.
 
 A CI server such as Jenkins can monitor the branches matching the wildcard `origin/interim/*` and create a build.
@@ -832,7 +832,7 @@ For example:
 
 [source]
 ----
-sh interim-release.sh 1.13.6 origin
+sh interim-release.sh 1.14.0 origin
 ----
 
 where
@@ -856,8 +856,8 @@ For example:
 
 [source]
 ----
-sh release.sh 1.13.6 \
-              1.14.0-SNAPSHOT \
+sh release.sh 1.14.0 \
+              1.15.0-SNAPSHOT \
               dan@haywood-associates.co.uk \
               "this is not really my passphrase"
 ----
@@ -874,8 +874,7 @@ If the script completes successfully, then push changes:
 
 [source,bash]
 ----
-git push origin master
-git push origin 1.13.6
+git push origin master && git push origin 1.14.0
 ----
 
 If the script fails to complete, then identify the cause, perform a `git reset --hard` to start over and fix the issue before trying again.
