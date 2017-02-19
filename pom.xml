@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.incode</groupId>
         <artifactId>incode-parent</artifactId>
-        <version>1.13.2.20170214-2237</version>
+        <version>1.14.0</version>
         <relativePath/>
     </parent>
 
