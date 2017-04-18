@@ -40,6 +40,7 @@ public class ApplicationClassProperty extends ApplicationClassMember {
 
     //region > constructors
     public ApplicationClassProperty() {
+        // Default constructor
     }
 
     public ApplicationClassProperty(final ApplicationFeatureId featureId) {

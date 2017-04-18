@@ -39,7 +39,9 @@ public class ApplicationClassCollection extends ApplicationClassMember {
 
     //region > constructors
 
-    public ApplicationClassCollection() {}
+    public ApplicationClassCollection() {
+        // Default constructor
+    }
 
     public ApplicationClassCollection(final ApplicationFeatureId featureId) {
         super(featureId);

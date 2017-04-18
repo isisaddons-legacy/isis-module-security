@@ -46,6 +46,7 @@ public class ApplicationPackage extends ApplicationFeatureViewModel {
     //region > constructors
 
     public ApplicationPackage() {
+        // Default constructor
     }
 
     public ApplicationPackage(final ApplicationFeatureId featureId) {

@@ -88,6 +88,7 @@ public class UserPermissionViewModel implements ViewModel {
     }
 
     public UserPermissionViewModel() {
+        // Default constructor
     }
     //endregion
 
