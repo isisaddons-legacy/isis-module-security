@@ -144,7 +144,11 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
 
             private ApplicationUser lookupUser() {
                 if (autoCreateUser) {
-                    return applicationUserRepository.findOrCreateUserByUsername(username);
+                    ApplicationUser applicationUser = applicationUserRepository.findOrCreateUserByUsername(username);
+                    if (autoActivateUser) {
+                        applicationUser.unlock();
+                    }
+                    return applicationUser;
                 } else {
                     return applicationUserRepository.findByUsername(username);
                 }
@@ -212,6 +216,16 @@ public class IsisModuleSecurityRealm extends AuthorizingRealm {
     public void setAutoCreateUser(boolean autoCreateUser) {
         this.autoCreateUser = autoCreateUser;
     }
+
+    //endregion
+
+    //region > autoActivateUser
+
+    private boolean autoActivateUser = false;
+
+    public boolean getAutoActivateUser() { return autoActivateUser; }
+
+    public void setAutoActivateUser(boolean autoActivateUser) { this.autoActivateUser = autoActivateUser; }
 
     //endregion
 
